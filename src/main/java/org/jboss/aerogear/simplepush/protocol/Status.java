@@ -1,23 +1,12 @@
 package org.jboss.aerogear.simplepush.protocol;
 
-public class Status {
+/**
+ * Represents a status that may be returned by a Register, Unregister messages in 
+ * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>
+ */
+public interface Status {
     
-    private final int statusCode;
-    private final String message;
+    int getCode();
 
-    public Status(final int statusCode, final String message) {
-        this.statusCode = statusCode;
-        this.message = message;
-    }
-    
-    @Override
-    public String toString() {
-        return "Status Code: " + statusCode + " " + message;
-    }
-    
-    public static Status badRequest(final String message) {
-        return new Status(400, message);
-    }
-    
-    
+    String getMessage();
 }

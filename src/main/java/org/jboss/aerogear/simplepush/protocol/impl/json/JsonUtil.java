@@ -23,6 +23,7 @@ import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.Notification;
 import org.jboss.aerogear.simplepush.protocol.Register;
+import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Unregister;
 import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
@@ -30,6 +31,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.HandshakeImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 
@@ -44,6 +46,7 @@ public class JsonUtil {
         
         module.addDeserializer(RegisterImpl.class, new RegisterDeserializer());
         module.addSerializer(RegisterImpl.class, new RegisterSerializer());
+        module.addSerializer(RegisterResponseImpl.class, new RegisterResponseSerializer());
         
         module.addDeserializer(HandshakeImpl.class, new HandshakeDeserializer());
         module.addSerializer(HandshakeImpl.class, new HandshakeSerializer());
@@ -108,6 +111,24 @@ public class JsonUtil {
             jgen.writeString(register.getMessageType().toString().toLowerCase());
             jgen.writeFieldName(Register.CHANNEL_ID_FIELD);
             jgen.writeString(register.getChannelId());
+            jgen.writeEndObject();
+        }
+    }
+    
+    private static class RegisterResponseSerializer extends JsonSerializer<RegisterResponse> {
+
+        @Override
+        public void serialize(final RegisterResponse registerResponse, final JsonGenerator jgen,
+                final SerializerProvider provider) throws IOException, JsonProcessingException {
+            jgen.writeStartObject();
+            jgen.writeFieldName(RegisterResponse.MESSSAGE_TYPE_FIELD);
+            jgen.writeString(registerResponse.getMessageType().toString().toLowerCase());
+            jgen.writeFieldName(RegisterResponse.CHANNEL_ID_FIELD);
+            jgen.writeString(registerResponse.getChannelId());
+            jgen.writeFieldName(RegisterResponse.STATUS_FIELD);
+            jgen.writeNumber(registerResponse.getStatus().getCode());
+            jgen.writeFieldName(RegisterResponse.PUSH_ENDPOINT__FIELD);
+            jgen.writeString(registerResponse.getPushEndpoint());
             jgen.writeEndObject();
         }
     }

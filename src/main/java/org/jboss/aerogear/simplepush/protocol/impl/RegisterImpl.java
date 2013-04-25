@@ -25,7 +25,7 @@ public class RegisterImpl implements Register {
     
     @Override 
     public String toString() {
-        return "RegisterMessageImpl[messageType=" + getMessageType() + ", channelId=" + channelId + "]";
+        return "RegisterImpl[messageType=" + getMessageType() + ", channelId=" + channelId + "]";
     }
     
 }
