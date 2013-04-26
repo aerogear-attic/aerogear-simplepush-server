@@ -26,3 +26,4 @@ channel. It would look like this for the above PUT request:
 
     
    {"messageType":"notification","updates":[{"channelID":"testChannel","version":"1"}]} 
+   
