@@ -1,66 +1,37 @@
 (function() {
-    var Sock = function() {
-        var socket;
-        if (!window.WebSocket) {
-            window.WebSocket = window.MozWebSocket;
-        }
+    var mailEndpoint, mailRequest, fooEndpoint, fooRequest, broadcastEndpoint;
 
-        if (window.WebSocket) {
-            socket = new WebSocket("ws://localhost:8080/simplepush", "push-notification");
-            socket.onopen = onopen;
-            socket.onmessage = onmessage;
-            socket.onclose = onclose;
-        } else {
-            alert("Your browser does not support Web Socket.");
-        }
+    getTextAreaElement().value = "Web Socket opened!";
 
-        function onopen(event) {
-            getTextAreaElement().value = "Web Socket opened!";
-        }
+    mailRequest = navigator.push.register();
+    mailRequest.onsuccess = function( event ) {
+        mailEndpoint = event.target.result;
+        mailRequest.registerWithPushServer( "mail", mailEndpoint );
+        appendTextArea("Subscribed to Mail messages on " + mailEndpoint.channelID);
+    };
 
-        function onmessage(event) {
-            appendTextArea(event.data);
-        }
-        function onclose(event) {
-            appendTextArea("Web Socket closed");
-        }
+    fooRequest = navigator.push.register();
+    fooRequest.onsuccess = function( event ) {
+        fooEndpoint = event.target.result;
+        fooRequest.registerWithPushServer( "foo", fooEndpoint );
+        appendTextArea("Subscribed to Foo messages on " + fooEndpoint.channelID);
+    };
 
-        function appendTextArea(newData) {
-            var el = getTextAreaElement();
-            el.value = el.value + '\n' + newData;
-        }
+    navigator.setMessageHandler( "push", function( message ) {
+        if ( message.channelID === mailEndpoint.channelID )
+            appendTextArea("Mail Notification - " + message.version);
+        else if ( message.channelID === fooEndpoint.channelID )
+            appendTextArea("Foo Notification - " + message.version);
+        // Broadcast messages are subscribed by default and can be acted on as well
+        // TODO: figure out broadcast
+    });
 
-        function getTextAreaElement() {
-            return document.getElementById('responseText');
-        }
-
-        function sendHello(event) {
-            send(event, '{"messageType": "hello"}');
-        }
-        
-        function sendRegister(event) {
-            send(event, '{"messageType": "register", "channelID": "'.concat(event.target.message.value, '"}'));
-        }
-        function sendUnregister(event) {
-            send(event, '{"messageType": "unregister", "channelID": "'.concat(event.target.message.value, '"}'));
-        }
-        //send(event.target.message.value);
-        
-        function send(event, body) {
-            event.preventDefault();
-            if (window.WebSocket) {
-                if (socket.readyState == WebSocket.OPEN) {
-                    socket.send(body);
-                } else {
-                    alert("The socket is not open.");
-                }
-            }
-        }
-        
-        
-        document.forms.hello.addEventListener('submit', sendHello, false);
-        document.forms.register.addEventListener('submit', sendRegister, false);
-        document.forms.unregister.addEventListener('submit', sendUnregister, false);
+    function appendTextArea(newData) {
+        var el = getTextAreaElement();
+        el.value = el.value + '\n' + newData;
     }
-    window.addEventListener('load', function() { new Sock(); }, false);
+
+    function getTextAreaElement() {
+        return document.getElementById('responseText');
+    }
 })();

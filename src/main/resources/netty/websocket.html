@@ -4,22 +4,23 @@
         <meta charset="utf-8">
         <title>Web Socket Example</title>
         <link rel="stylesheet" href="css/socket.css">
-        <script src="js/socket.js"></script>
+        <script src='http://code.jquery.com/jquery-1.9.1.min.js'></script>
+        <!-- Config for AeroGear.SimplePush -->
+        <script>
+        AeroGear = {
+            SimplePush: {
+                config: {
+                    pushAppID: "9d77092e-520c-42d7-9e62-a841a297af07",
+                    appInstanceID: "e224fc1a-6178-43c3-940b-936eebabd583"
+                }
+            }
+        };
+        </script>
+        <script src="js/aerogear.custom.js"></script>
     </head>
     <body>
-        <h1>Enter a message</h1>
-        <form name="hello">
-            <input type="submit" value="Hello/Handshake">
-        </form>
-        <form name="register">
-            <input type="text" name="message" id="message" placeholder='channelId'>
-            <input type="submit" value="Register Channel">
-        </form>
-        <form name="unregister">
-            <input type="text" name="message" id="message" placeholder='channelId'>
-            <input type="submit" value="Unregister Channel">
-        </form>
-        <h2>Repsonse from Server</h2>
+        <h2>Response from Server</h2>
         <textarea id="responseText"></textarea>
+        <script src="js/socket.js"></script>
     </body>
 </html>
