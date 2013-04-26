@@ -24,6 +24,5 @@ The response JSON messages from the above requests will be displayed in the text
 This notification will be displayed in the the textaera of the _websocket.html_ page that has registerd for that 
 channel. It would look like this for the above PUT request:
 
-    
    {"messageType":"notification","updates":[{"channelID":"testChannel","version":"1"}]} 
    
