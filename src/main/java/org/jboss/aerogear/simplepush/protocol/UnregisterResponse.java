@@ -14,34 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.simplepush.protocol.impl;
+package org.jboss.aerogear.simplepush.protocol;
 
-import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
-
-import org.jboss.aerogear.simplepush.protocol.Register;
-
-public class RegisterImpl implements Register {
+/**
+ * Represents the Unregister response message, 'unregister' message type, in the 
+ * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>
+ * 
+ * This message is sent from the PushServer to the UserAgent with the result of a unregistration attempt
+ *
+ */
+public interface UnregisterResponse extends Unregister {
     
-    private final String channelId;
-
-    public RegisterImpl(final String channelId) {
-        checkNotNull(channelId, "channelId");
-        this.channelId = channelId;
-    }
-
-    @Override
-    public Type getMessageType() {
-        return Type.REGISTER;
-    }
-
-    @Override
-    public String getChannelId() {
-        return channelId;
-    }
+    String STATUS_FIELD = "status";
     
-    @Override 
-    public String toString() {
-        return "RegisterImpl[messageType=" + getMessageType() + ", channelId=" + channelId + "]";
-    }
+    /**
+     * Returns the result of the Register call
+     * 
+     * @return {@code String} the channelId.
+     */
+    Status getStatus();
     
 }

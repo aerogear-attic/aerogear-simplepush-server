@@ -14,34 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.simplepush.protocol.impl;
+package org.jboss.aerogear.simplepush.util;
 
-import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.jboss.aerogear.simplepush.protocol.Register;
-
-public class RegisterImpl implements Register {
+public class VersionExtractor {
     
-    private final String channelId;
-
-    public RegisterImpl(final String channelId) {
-        checkNotNull(channelId, "channelId");
-        this.channelId = channelId;
-    }
-
-    @Override
-    public Type getMessageType() {
-        return Type.REGISTER;
-    }
-
-    @Override
-    public String getChannelId() {
-        return channelId;
+    private final static Pattern VERSION_PATTERN = Pattern.compile("\\s*version\\s*=\\s*(\\d+)");
+    
+    private VersionExtractor() {
     }
     
-    @Override 
-    public String toString() {
-        return "RegisterImpl[messageType=" + getMessageType() + ", channelId=" + channelId + "]";
+    public static String extractVersion(final String payload) {
+        final Matcher matcher = VERSION_PATTERN.matcher(payload);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        throw new RuntimeException("Could not find a version in payload [" + payload + "]");
     }
-    
+
 }

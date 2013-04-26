@@ -16,32 +16,19 @@
  */
 package org.jboss.aerogear.simplepush.protocol.impl;
 
-import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.jboss.aerogear.simplepush.protocol.Register;
+import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
+import org.junit.Test;
 
-public class RegisterImpl implements Register {
-    
-    private final String channelId;
+public class UnregisterResponseImplTest {
 
-    public RegisterImpl(final String channelId) {
-        checkNotNull(channelId, "channelId");
-        this.channelId = channelId;
+    @Test
+    public void toJson() {
+        final UnregisterResponseImpl response = new UnregisterResponseImpl("someChannel", new StatusImpl(400, "wrong"));
+        final String json = JsonUtil.toJson(response);
+        assertThat(json, equalTo("{\"messageType\":\"unregister\",\"channelID\":\"someChannel\",\"status\":400}"));
     }
 
-    @Override
-    public Type getMessageType() {
-        return Type.REGISTER;
-    }
-
-    @Override
-    public String getChannelId() {
-        return channelId;
-    }
-    
-    @Override 
-    public String toString() {
-        return "RegisterImpl[messageType=" + getMessageType() + ", channelId=" + channelId + "]";
-    }
-    
 }

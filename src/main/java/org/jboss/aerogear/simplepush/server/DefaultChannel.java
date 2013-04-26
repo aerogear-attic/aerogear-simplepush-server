@@ -1,27 +1,52 @@
+/**
+ * JBoss, Home of Professional Open Source
+ * Copyright Red Hat, Inc., and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jboss.aerogear.simplepush.server;
 
 import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNegative;
 import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
 
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DefaultChannel implements Channel {
     
+    private final UUID uaid;
     private final String channelId;
     private final String pushEndpoint;
     private final AtomicLong version;
     
-    public DefaultChannel(final String channelId, final String pushEndpoint) {
-        this(channelId, 0, pushEndpoint);
+    public DefaultChannel(final UUID uaid, final String channelId, final String pushEndpoint) {
+        this(uaid, channelId, 0, pushEndpoint);
     }
     
-    public DefaultChannel(final String channelId, final long version, final String pushEndpoint) {
+    public DefaultChannel(final UUID uaid, final String channelId, final long version, final String pushEndpoint) {
+        checkNotNull(uaid, "uaid");
         checkNotNull(channelId, "channelId");
         checkNotNegative(version, "version");
         checkNotNull(pushEndpoint, "pushEndpoint");
+        this.uaid = uaid;
         this.channelId = channelId;
         this.version = new AtomicLong(version);
         this.pushEndpoint = pushEndpoint;
+    }
+    
+    @Override
+    public UUID getUAID() {
+        return uaid;
     }
     
     @Override
@@ -50,7 +75,7 @@ public class DefaultChannel implements Channel {
     
     @Override
     public String toString() {
-        return "DefaultChannel[channelId=" + channelId + ", version=" + version + ", pushEndpoint=" + pushEndpoint + "]";
+        return "DefaultChannel[uaid=" + uaid + ", channelId=" + channelId + ", version=" + version + ", pushEndpoint=" + pushEndpoint + "]";
     }
 
     @Override

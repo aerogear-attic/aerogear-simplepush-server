@@ -14,34 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.simplepush.protocol.impl;
+package org.jboss.aerogear.simplepush.util;
 
-import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.*;
 
-import org.jboss.aerogear.simplepush.protocol.Register;
+import org.junit.Test;
 
-public class RegisterImpl implements Register {
-    
-    private final String channelId;
+public class VersionExtractorTest {
 
-    public RegisterImpl(final String channelId) {
-        checkNotNull(channelId, "channelId");
-        this.channelId = channelId;
+    @Test
+    public void extractVersion() {
+        assertThat(VersionExtractor.extractVersion("version=1"), equalTo("1"));
+        assertThat(VersionExtractor.extractVersion("version= 2"), equalTo("2"));
+        assertThat(VersionExtractor.extractVersion("version =3"), equalTo("3"));
+        assertThat(VersionExtractor.extractVersion(" version=10"), equalTo("10"));
+        assertThat(VersionExtractor.extractVersion(" version= 11"), equalTo("11"));
+        assertThat(VersionExtractor.extractVersion(" version = 12 "), equalTo("12"));
     }
 
-    @Override
-    public Type getMessageType() {
-        return Type.REGISTER;
-    }
-
-    @Override
-    public String getChannelId() {
-        return channelId;
-    }
-    
-    @Override 
-    public String toString() {
-        return "RegisterImpl[messageType=" + getMessageType() + ", channelId=" + channelId + "]";
-    }
-    
 }

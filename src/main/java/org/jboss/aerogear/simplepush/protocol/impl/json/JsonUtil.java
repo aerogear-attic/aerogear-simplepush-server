@@ -1,3 +1,19 @@
+/**
+ * JBoss, Home of Professional Open Source
+ * Copyright Red Hat, Inc., and individual contributors
+ * by the @authors tag. See the copyright.txt in the distribution for a
+ * full listing of individual contributors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jboss.aerogear.simplepush.protocol.impl.json;
 
 import java.io.IOException;
@@ -25,6 +41,7 @@ import org.jboss.aerogear.simplepush.protocol.Notification;
 import org.jboss.aerogear.simplepush.protocol.Register;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Unregister;
+import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeImpl;
@@ -33,6 +50,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.NotificationImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 
 public class JsonUtil {
@@ -60,6 +78,7 @@ public class JsonUtil {
         
         module.addDeserializer(UnregisterImpl.class, new UnregisterDeserializer());
         module.addSerializer(UnregisterImpl.class, new UnregisterMessageSerializer());
+        module.addSerializer(UnregisterResponseImpl.class, new UnregisterResponseSerializer());
         
         om.registerModule(module);
         return om;
@@ -306,6 +325,22 @@ public class JsonUtil {
                     return MessageType.Type.valueOf(messageTypeNode.asText().toUpperCase());
                 }
             };
+        }
+    }
+    
+    private static class UnregisterResponseSerializer extends JsonSerializer<UnregisterResponse> {
+
+        @Override
+        public void serialize(final UnregisterResponse unregisterResponse, final JsonGenerator jgen,
+                final SerializerProvider provider) throws IOException, JsonProcessingException {
+            jgen.writeStartObject();
+            jgen.writeFieldName(RegisterResponse.MESSSAGE_TYPE_FIELD);
+            jgen.writeString(unregisterResponse.getMessageType().toString().toLowerCase());
+            jgen.writeFieldName(RegisterResponse.CHANNEL_ID_FIELD);
+            jgen.writeString(unregisterResponse.getChannelId());
+            jgen.writeFieldName(RegisterResponse.STATUS_FIELD);
+            jgen.writeNumber(unregisterResponse.getStatus().getCode());
+            jgen.writeEndObject();
         }
     }
     

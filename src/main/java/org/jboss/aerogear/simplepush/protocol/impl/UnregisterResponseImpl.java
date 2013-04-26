@@ -18,30 +18,31 @@ package org.jboss.aerogear.simplepush.protocol.impl;
 
 import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
 
-import org.jboss.aerogear.simplepush.protocol.Register;
+import org.jboss.aerogear.simplepush.protocol.Status;
+import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 
-public class RegisterImpl implements Register {
+public class UnregisterResponseImpl extends UnregisterImpl implements UnregisterResponse {
     
-    private final String channelId;
+    private Status status;
 
-    public RegisterImpl(final String channelId) {
-        checkNotNull(channelId, "channelId");
-        this.channelId = channelId;
+    public UnregisterResponseImpl(final String channelId, final Status status) {
+        super(channelId);
+        checkNotNull(status, "status");
+        this.status = status;
     }
 
     @Override
-    public Type getMessageType() {
-        return Type.REGISTER;
+    public Status getStatus() {
+        return status;
     }
 
     @Override
-    public String getChannelId() {
-        return channelId;
-    }
-    
-    @Override 
     public String toString() {
-        return "RegisterImpl[messageType=" + getMessageType() + ", channelId=" + channelId + "]";
+        return new StringBuilder("RegisterResponseImpl[")
+        .append("messageType=").append(getMessageType())
+        .append(", channelId=").append(getChannelId())
+        .append(", status=").append(status)
+        .append("]").toString();
     }
-    
+
 }

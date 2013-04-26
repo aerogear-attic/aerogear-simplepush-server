@@ -8,13 +8,16 @@
     </head>
     <body>
         <h1>Enter a message</h1>
-        <form name="inputform">
-            <input type="text" name="message" id="message" value='{"messageType": "hello"}'>
-            <input type="submit" value="Send Hello">
+        <form name="hello">
+            <input type="submit" value="Hello/Handshake">
         </form>
-        <form name="inputform1">
-            <input type="text" name="message" id="message" value='{"messageType": "register", "channelID": "testChannel"}'>
-            <input type="submit" value="Send Register">
+        <form name="register">
+            <input type="text" name="message" id="message" placeholder='channelId'>
+            <input type="submit" value="Register Channel">
+        </form>
+        <form name="unregister">
+            <input type="text" name="message" id="message" placeholder='channelId'>
+            <input type="submit" value="Unregister Channel">
         </form>
         <h2>Repsonse from Server</h2>
         <textarea id="responseText"></textarea>

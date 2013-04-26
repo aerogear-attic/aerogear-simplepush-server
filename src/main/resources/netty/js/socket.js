@@ -6,7 +6,7 @@
         }
 
         if (window.WebSocket) {
-            socket = new WebSocket("ws://localhost:8080/simple-notification", "push-notification");
+            socket = new WebSocket("ws://localhost:8080/simplepush", "push-notification");
             socket.onopen = onopen;
             socket.onmessage = onmessage;
             socket.onclose = onclose;
@@ -34,18 +34,33 @@
             return document.getElementById('responseText');
         }
 
-        function send(event) {
+        function sendHello(event) {
+            send(event, '{"messageType": "hello"}');
+        }
+        
+        function sendRegister(event) {
+            send(event, '{"messageType": "register", "channelID": "'.concat(event.target.message.value, '"}'));
+        }
+        function sendUnregister(event) {
+            send(event, '{"messageType": "unregister", "channelID": "'.concat(event.target.message.value, '"}'));
+        }
+        //send(event.target.message.value);
+        
+        function send(event, body) {
             event.preventDefault();
             if (window.WebSocket) {
                 if (socket.readyState == WebSocket.OPEN) {
-                    socket.send(event.target.message.value);
+                    socket.send(body);
                 } else {
                     alert("The socket is not open.");
                 }
             }
         }
-        document.forms.inputform.addEventListener('submit', send, false);
-        document.forms.inputform1.addEventListener('submit', send, false);
+        
+        
+        document.forms.hello.addEventListener('submit', sendHello, false);
+        document.forms.register.addEventListener('submit', sendRegister, false);
+        document.forms.unregister.addEventListener('submit', sendUnregister, false);
     }
     window.addEventListener('load', function() { new Sock(); }, false);
 })();
