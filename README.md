@@ -4,6 +4,10 @@ This project is a Java implementation of the server side that follows the [Simpl
 
 ## Usage
 
+### Build the SimplePush Server
+
+    mvn install
+
 ### Start the SimplePush Server
 
     mvn exec:java
