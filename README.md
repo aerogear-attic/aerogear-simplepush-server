@@ -36,7 +36,7 @@ channel. It would look like this for the above PUT request:
 ### Hello Handshake
 Is sent by the UserAgent to the SimplePush Server:
 
-![Hello Message](https://github.com/danbev/aerogear-simplepush-server/tree/master/src/etc/images/hello-message.png)
+![Hello Message](https://raw.github.com/danbev/aerogear-simplepush-server/master/src/etc/images/hello-message.png)
 
 #### Message format
 
