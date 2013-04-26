@@ -38,14 +38,6 @@ Is sent by the UserAgent to the SimplePush Server:
 
 ![Hello Message](https://raw.github.com/danbev/aerogear-simplepush-server/master/src/etc/images/hello-message.png)
 
-#### Message format
-
-    {
-       "messageType": "hello",
-       "uaid": "fd52438f-1c49-41e0-a2e4-98e49833cc9c",
-       "channelIDs": ["431b4391-c78f-429a-a134-f890b5adc0bb", "a7695fa0-9623-4890-9c08-cce0231e4b36"]
-    }
-    
 ```uaid```  
 The UserAgent Identifier is optional and if not specified a UAID will be created on by the SimplePush Server. This can 
 be used as a way of reseting.
@@ -56,4 +48,12 @@ of a Hello Message the _channelIDs_ represent channels that the UserAgent want t
 
 The SimplePush Server will ignore any additional Hello Messages after the first one on the web socket connection. 
 
+#### Message format
+
+    {
+       "messageType": "hello",
+       "uaid": "fd52438f-1c49-41e0-a2e4-98e49833cc9c",
+       "channelIDs": ["431b4391-c78f-429a-a134-f890b5adc0bb", "a7695fa0-9623-4890-9c08-cce0231e4b36"]
+    } 
+    
 
