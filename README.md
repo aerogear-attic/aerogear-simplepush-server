@@ -36,7 +36,8 @@ channel. It would look like this for the above PUT request:
 ### Hello Handshake
 Is sent by the UserAgent to the SimplePush Server:
 
-![Hello Message](https://raw.github.com/danbev/aerogear-simplepush-server/master/src/etc/images/hello-message.png)
+![Hello Message](https://raw.github.com/danbev/aerogear-simplepush-server/master/src/etc/images/hello-message.png)  
+
 
 ```uaid```  
 The UserAgent Identifier is optional and if not specified a UAID will be created on by the SimplePush Server. This can 
