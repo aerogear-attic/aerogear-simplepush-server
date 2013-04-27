@@ -11,6 +11,17 @@ This project is a Java implementation of the server side that follows the [Simpl
 ### Start the SimplePush Server
 
     mvn exec:java -Dexec.args="7777"
+    
+### Access the demo html page
+Serve ```src/main/resources/netty/socket.html``` from a local webserver. One way to do this is to create a symbolic link
+to ```src/main/resources/netty```, for example:
+
+    cd /Library/WebServer/Documents/
+    sudo ln -s /path/to/push/aerogear-simplepush-server/src/main/resources/netty/ netty
+    
+Now you should be able to point your browser to ```http://localhost/netty/websocket.html```
+The path to your documents directory and the port that the web server is listening to might differ. For httpd the look
+in /etc/apache2/httpd.conf for this information.
 
 ### Register a channel
 You will automatically be registered to receive push notifications for mail and foo. The endpoint channelID's will be displayed in the results textarea.
