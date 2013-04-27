@@ -21,6 +21,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import java.util.Arrays;
+import java.util.HashSet;
+
+import org.jboss.aerogear.simplepush.protocol.Handshake;
 import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
@@ -36,6 +40,16 @@ public class SimplePushServerTest {
         final SimplePushServer server = new SimplePushServer();
         final HandshakeResponse response = server.handleHandshake(new HandshakeImpl());
         assertThat(response.getUAID(), is(notNullValue()));
+    }
+    
+    @Test
+    public void handleHandshakeWithChannels() {
+        final SimplePushServer server = new SimplePushServer();
+        final HashSet<String> channelIds = new HashSet<String>(Arrays.asList("channel1", "channel2"));
+        final Handshake handshakeImpl = new HandshakeImpl(UUIDUtil.createVersion4Id().toString(), channelIds);
+        final HandshakeResponse response = server.handleHandshake(handshakeImpl);
+        assertThat(response.getUAID(), is(notNullValue()));
+        assertThat(server.getChannel("channel1").getChannelId(), is(equalTo("channel1")));
     }
     
     @Test

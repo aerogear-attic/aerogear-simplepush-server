@@ -61,11 +61,15 @@ public class DefaultChannel implements Channel {
 
     @Override
     public void setVersion(final long newVersion) {
-        final long currentVersion = version.get();
-        if (newVersion <= currentVersion) {
-            throw new IllegalArgumentException("New version [" + newVersion + "] must be greater than current version [" + currentVersion +"]"); 
+        for (;;) {
+            final long currentVersion = version.get();
+            if (newVersion <= currentVersion) {
+                throw new IllegalArgumentException("New version [" + newVersion + "] must be greater than current version [" + currentVersion +"]"); 
+            }
+            if (version.compareAndSet(currentVersion, newVersion)) {
+                break;
+            }
         }
-        version.compareAndSet(currentVersion, newVersion);
     }
 
     @Override
