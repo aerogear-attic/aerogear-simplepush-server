@@ -46,7 +46,7 @@ public class SimplePushServerTest {
     public void handleHandshakeWithChannels() {
         final SimplePushServer server = new SimplePushServer();
         final HashSet<String> channelIds = new HashSet<String>(Arrays.asList("channel1", "channel2"));
-        final Handshake handshakeImpl = new HandshakeImpl(UUIDUtil.createVersion4Id().toString(), channelIds);
+        final Handshake handshakeImpl = new HandshakeImpl(UUIDUtil.newUAID().toString(), channelIds);
         final HandshakeResponse response = server.handleHandshake(handshakeImpl);
         assertThat(response.getUAID(), is(notNullValue()));
         assertThat(server.getChannel("channel1").getChannelId(), is(equalTo("channel1")));
@@ -55,7 +55,7 @@ public class SimplePushServerTest {
     @Test
     public void handeRegister() {
         final SimplePushServer server = new SimplePushServer();
-        final RegisterResponse response = server.handleRegister(new RegisterImpl("someChannelId"), UUIDUtil.createVersion4Id());
+        final RegisterResponse response = server.handleRegister(new RegisterImpl("someChannelId"), UUIDUtil.newUAID());
         assertThat(response.getChannelId(), equalTo("someChannelId"));
         assertThat(response.getMessageType(), equalTo(MessageType.Type.REGISTER));
         assertThat(response.getStatus().getCode(), equalTo(200));

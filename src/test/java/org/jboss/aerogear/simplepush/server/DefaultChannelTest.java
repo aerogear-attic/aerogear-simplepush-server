@@ -26,24 +26,24 @@ public class DefaultChannelTest {
 
     @Test (expected = IllegalArgumentException.class)
     public void constructWithNegativeVersion() {
-        new DefaultChannel(UUIDUtil.createVersion4Id(), "123abc", -1, "http://host/simple-push/endpoint/123abc");
+        new DefaultChannel(UUIDUtil.newUAID(), "123abc", -1, "http://host/simple-push/endpoint/123abc");
     }
     
     @Test (expected = IllegalArgumentException.class)
     public void setVersionEqualToCurrentVersion() {
-        final Channel channel = new DefaultChannel(UUIDUtil.createVersion4Id(), "123abc", 10L, "http://host/simple-push/endpoint/123abc");
+        final Channel channel = new DefaultChannel(UUIDUtil.newUAID(), "123abc", 10L, "http://host/simple-push/endpoint/123abc");
         channel.setVersion(10);
     }
     
     @Test (expected = IllegalArgumentException.class)
     public void setVersionToLessThanCurrentVersion() {
-        final Channel channel = new DefaultChannel(UUIDUtil.createVersion4Id(), "123abc", 10L, "http://host/simple-push/endpoint/123abc");
+        final Channel channel = new DefaultChannel(UUIDUtil.newUAID(), "123abc", 10L, "http://host/simple-push/endpoint/123abc");
         channel.setVersion(2);
     }
     
     @Test 
     public void setVersion() {
-        final Channel channel = new DefaultChannel(UUIDUtil.createVersion4Id(), "123abc", 10L, "http://host/simple-push/endpoint/123abc");
+        final Channel channel = new DefaultChannel(UUIDUtil.newUAID(), "123abc", 10L, "http://host/simple-push/endpoint/123abc");
         channel.setVersion(11);
         assertThat(channel.getVersion(), is(11L));
     }

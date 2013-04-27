@@ -17,7 +17,7 @@
 package org.jboss.aerogear.simplepush.protocol.impl;
 
 
-import static org.jboss.aerogear.simplepush.util.UUIDUtil.createVersion4Id;
+import static org.jboss.aerogear.simplepush.util.UUIDUtil.newUAID;
 import static org.jboss.aerogear.simplepush.util.UUIDUtil.nullOrEmpty;
 
 import java.util.Collections;
@@ -41,7 +41,7 @@ public class HandshakeImpl implements Handshake {
     }
 
     public HandshakeImpl(final String uaid, final Set<String> channelIds) {
-        this.uaid = nullOrEmpty(uaid) ? createVersion4Id() : UUID.fromString(uaid);
+        this.uaid = nullOrEmpty(uaid) ? newUAID() : UUID.fromString(uaid);
         this.channelIds = channelIds;
     }
     

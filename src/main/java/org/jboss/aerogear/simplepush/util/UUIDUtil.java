@@ -27,7 +27,7 @@ public class UUIDUtil {
         return (uuid == null) || uuid.equals("");
     }
     
-    public static UUID createVersion4Id() {
+    public static UUID newUAID() {
         return UUID.randomUUID();
     }
 

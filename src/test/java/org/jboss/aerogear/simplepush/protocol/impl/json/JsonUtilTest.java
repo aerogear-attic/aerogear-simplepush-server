@@ -30,7 +30,7 @@ public class JsonUtilTest {
 
     @Test
     public void parseFrame() {
-        final UUID uaid = UUIDUtil.createVersion4Id();
+        final UUID uaid = UUIDUtil.newUAID();
         final String json = "{\"messageType\": \"hello\", \"uaid\": \"" + uaid + "\", \"channelIDs\": [\"123abc\", \"efg456\"]}";
         final MessageType messageType = JsonUtil.parseFrame(json);
         assertThat(messageType.getMessageType(), is(equalTo(MessageType.Type.HELLO)));

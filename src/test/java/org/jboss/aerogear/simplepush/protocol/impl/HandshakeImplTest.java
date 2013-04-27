@@ -21,7 +21,7 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.jboss.aerogear.simplepush.util.UUIDUtil.createVersion4Id;
+import static org.jboss.aerogear.simplepush.util.UUIDUtil.newUAID;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -52,20 +52,20 @@ public class HandshakeImplTest {
     
     @Test
     public void constructWithChannelIds() {
-        final HandshakeImpl handshake= new HandshakeImpl(createVersion4Id().toString(), channelIds("123abc", "efg456"));
+        final HandshakeImpl handshake= new HandshakeImpl(newUAID().toString(), channelIds("123abc", "efg456"));
         assertThat(handshake.getUAID(), notNullValue());
         assertThat(handshake.getChannelIds(), hasItems("123abc", "efg456"));
     }
     
     @Test (expected = UnsupportedOperationException.class)
     public void channelIdsUnmodifiable() {
-        final HandshakeImpl handshake = new HandshakeImpl(createVersion4Id().toString(), channelIds("123abc", "efg456"));
+        final HandshakeImpl handshake = new HandshakeImpl(newUAID().toString(), channelIds("123abc", "efg456"));
         handshake.getChannelIds().remove("123abc");
     }
     
     @Test
     public void fromJson() {
-        final UUID uaid = UUIDUtil.createVersion4Id();
+        final UUID uaid = UUIDUtil.newUAID();
         final String json = "{\"messageType\": \"hello\", \"uaid\": \"" + uaid + "\", \"channelIDs\": [\"123abc\", \"efg456\"]}";
         final Handshake handshake = JsonUtil.fromJson(json, HandshakeImpl.class);
         assertThat(handshake.getMessageType(), is(equalTo(MessageType.Type.HELLO)));
@@ -84,7 +84,7 @@ public class HandshakeImplTest {
     
     @Test
     public void fromJsonWithNullChannelIds() {
-        final UUID uaid = UUIDUtil.createVersion4Id();
+        final UUID uaid = UUIDUtil.newUAID();
         final String json = "{\"messageType\": \"hello\", \"uaid\": \"" + uaid + "\"}";
         final Handshake handshake = JsonUtil.fromJson(json, HandshakeImpl.class);
         assertThat(handshake.getMessageType(), is(equalTo(MessageType.Type.HELLO)));
@@ -94,7 +94,7 @@ public class HandshakeImplTest {
     
     @Test
     public void toJson() {
-        final UUID uaid = UUIDUtil.createVersion4Id();
+        final UUID uaid = UUIDUtil.newUAID();
         final HandshakeImpl handshake = new HandshakeImpl(uaid.toString(), channelIds("123abc", "efg456"));
         final String asJson = JsonUtil.toJson(handshake);
         final Handshake parsed = JsonUtil.fromJson(asJson, HandshakeImpl.class);
