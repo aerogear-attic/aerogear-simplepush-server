@@ -13,6 +13,9 @@ This project is a Java implementation of the server side that follows the [Simpl
     mvn exec:java -Dexec.args="7777"
     
 ### Access the demo html page
+
+#### Mac WebServer
+
 Serve ```src/main/resources/netty/socket.html``` from a local webserver. One way to do this is to create a symbolic link
 to ```src/main/resources/netty```, for example:
 
@@ -23,12 +26,24 @@ Now you should be able to point your browser to ```http://localhost/netty/websoc
 The path to your documents directory and the port that the web server is listening to might differ. For httpd the look
 in /etc/apache2/httpd.conf for this information.
 
+#### Python WebServer
+
+In case you are not running a mac, there is a simple HTTP server, that comes with Python. Simple navigate to ```src/main/resources/netty``` and issue:
+
+    python -m SimpleHTTPServer 5555
+
+Now you should be able to point your browser to ```http://localhost:5555/websocket.html```
+
+
+
 ### Register a channel
 You will automatically be registered to receive push notifications for mail and foo. The endpoint channelID's will be displayed in the results textarea.
 
 ### Send a notification
 
-    curl -i --header "Accept: application/x-www-form-urlencoded" -X PUT -d "version=1" "http://localhost:7777/endpoint/testChannel"
+Use one of the above mentioned IDs in the following ```curl``` command:
+
+    curl -i --header "Accept: application/x-www-form-urlencoded" -X PUT -d "version=1" "http://localhost:7777/endpoint/{ChannelID}"
 
 A push notification stating the version will be displayed in the textarea of the _websocket.html_ page that has registerd for that channel.
 
