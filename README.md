@@ -88,7 +88,7 @@ of a Hello Message the _channelIDs_ represent channels that the UserAgent want t
 Register is used to register a ```channelId``` with the SimplePush server and enables the the client to be notified when the version 
 for this channel is updated.
 
-![Register Channel](https://raw.github.com/danbev/aerogear-simplepush-server/master/src/etc/images/register-message.png)  
+![Register Channel](https://raw.github.com/danbev/aerogear-simplepush-server/master/src/etc/images/register-channel.png)  
 Notice that the ```UAID``` is absent from this message. This is because we have already performed hello message handshake and the current 
 web socket connection is for the current UserAgent (identified by the UAID).
 
