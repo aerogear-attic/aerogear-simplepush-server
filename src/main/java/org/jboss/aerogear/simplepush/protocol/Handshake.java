@@ -36,7 +36,7 @@ public interface Handshake extends MessageType {
      * A globally unique identifier for a UserAgent created by the SimplePush Server.
      * 
      * @return {@code UUID} a globally unique id for a UserAgent, or an empty String if the UserAgent has not
-     * been assigned a UAID yet or wants to reset it, which will create a new one.
+     *         been assigned a UAID yet or wants to reset it, which will create a new one.
      */
     UUID getUAID();
     
@@ -46,7 +46,7 @@ public interface Handshake extends MessageType {
      * with it.  
      * 
      * @return {@code Set<String>} a set of channelIds sent from the UserAgent, or an empty list if no channel 
-     * ids were sent.
+     *         ids were sent.
      */
     Set<String> getChannelIds();
 

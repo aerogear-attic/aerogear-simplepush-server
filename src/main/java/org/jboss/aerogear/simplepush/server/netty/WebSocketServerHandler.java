@@ -74,11 +74,12 @@ import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
+import org.jboss.aerogear.simplepush.server.datastore.DefaultDataStore;
 import org.jboss.aerogear.simplepush.util.VersionExtractor;
 
 public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<Object> {
     
-    private static final SimplePushServer simplePushServer = new SimplePushServer();
+    private static final SimplePushServer simplePushServer = new SimplePushServer(new DefaultDataStore());
     private static final Map<UUID, Channel> userAgents = new ConcurrentHashMap<UUID, Channel>();
     
     private final String path;
@@ -119,8 +120,13 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
             
             final NotificationEvent notificationEvent = new NotificationEvent(channelId, req.data().toString(CharsetUtil.UTF_8));
             //TODO: make the handling async.
-            ctx.fireUserEventTriggered(notificationEvent);
-            handleNotification(notificationEvent);
+            //ctx.fireUserEventTriggered(notificationEvent);
+            ctx.channel().eventLoop().execute(new Runnable() {
+                @Override
+                public void run() {
+                    handleNotification(notificationEvent);
+                }
+            });
             
             ByteBuf content = Unpooled.copiedBuffer("", CharsetUtil.UTF_8);
             FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, OK);
@@ -184,7 +190,8 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         if (!(frame instanceof TextWebSocketFrame)) {
             throw new UnsupportedOperationException(String.format("%s frame types not supported", frame.getClass() .getName()));
         }
-
+        
+        System.out.println("in event loop : " + ctx.channel().eventLoop().inEventLoop());
         handleSimplePushMessage(ctx, (TextWebSocketFrame) frame);
     }
     

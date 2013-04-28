@@ -17,8 +17,6 @@
 package org.jboss.aerogear.simplepush.server;
 
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import org.jboss.aerogear.simplepush.protocol.Handshake;
 import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
@@ -28,14 +26,19 @@ import org.jboss.aerogear.simplepush.protocol.Status;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
+import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 
 public class SimplePushServer {
     
-    private final ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<String, Channel>();
+    private final DataStore store;
+    
+    public SimplePushServer(final DataStore store) {
+        this.store = store;
+    }
     
     public HandshakeResponse handleHandshake(final Handshake handshake) {
         for (String channelId : handshake.getChannelIds()) {
-            channels.putIfAbsent(channelId, new DefaultChannel(handshake.getUAID(), channelId, defaultEndpoint(channelId)));
+            store.saveChannel(new DefaultChannel(handshake.getUAID(), channelId, defaultEndpoint(channelId)));
         }
         return new HandshakeResponseImpl(handshake.getUAID());
     }
@@ -43,13 +46,13 @@ public class SimplePushServer {
     public RegisterResponse handleRegister(final Register register, final UUID uaid) {
         final String channelId = register.getChannelId();
         final String pushEndpoint = defaultEndpoint(channelId);
-        final Channel previous = channels.putIfAbsent(channelId, new DefaultChannel(uaid, channelId, pushEndpoint));
-        final Status status = previous == null ? new StatusImpl(200, "OK") : new StatusImpl(409, "Conflict: channeld [" + channelId + " is already in use");
+        final boolean saved = store.saveChannel(new DefaultChannel(uaid, channelId, pushEndpoint));
+        final Status status = saved ? new StatusImpl(200, "OK") : new StatusImpl(409, "Conflict: channeld [" + channelId + " is already in use");
         return new RegisterResponseImpl(channelId, status, pushEndpoint);
     }
     
     public Channel getChannel(final String channelId) {
-        final Channel channel = channels.get(channelId);
+        final Channel channel = store.getChannel(channelId);
         if (channel == null) {
             throw new RuntimeException("Could not find a channel with id [" + channelId + "]");
         }
@@ -57,8 +60,7 @@ public class SimplePushServer {
     }
     
     public boolean removeChannel(final String channnelId) {
-        final Channel channel = channels.remove(channnelId);
-        return channel != null;
+        return store.removeChannel(channnelId);
     }
     
     private String defaultEndpoint(final String channelId) {

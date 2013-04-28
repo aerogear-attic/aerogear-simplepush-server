@@ -30,21 +30,28 @@ import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
+import org.jboss.aerogear.simplepush.server.datastore.DefaultDataStore;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
+import org.junit.Before;
 import org.junit.Test;
 
 public class SimplePushServerTest {
+    
+    private SimplePushServer server;
+    
+    @Before
+    public void setup() {
+        server = new SimplePushServer(new DefaultDataStore());
+    }
 
     @Test
     public void handleHandshake() {
-        final SimplePushServer server = new SimplePushServer();
         final HandshakeResponse response = server.handleHandshake(new HandshakeImpl());
         assertThat(response.getUAID(), is(notNullValue()));
     }
     
     @Test
     public void handleHandshakeWithChannels() {
-        final SimplePushServer server = new SimplePushServer();
         final HashSet<String> channelIds = new HashSet<String>(Arrays.asList("channel1", "channel2"));
         final Handshake handshakeImpl = new HandshakeImpl(UUIDUtil.newUAID().toString(), channelIds);
         final HandshakeResponse response = server.handleHandshake(handshakeImpl);
@@ -54,13 +61,21 @@ public class SimplePushServerTest {
     
     @Test
     public void handeRegister() {
-        final SimplePushServer server = new SimplePushServer();
         final RegisterResponse response = server.handleRegister(new RegisterImpl("someChannelId"), UUIDUtil.newUAID());
         assertThat(response.getChannelId(), equalTo("someChannelId"));
         assertThat(response.getMessageType(), equalTo(MessageType.Type.REGISTER));
         assertThat(response.getStatus().getCode(), equalTo(200));
         assertThat(response.getStatus().getMessage(), equalTo("OK"));
         assertThat(response.getPushEndpoint(), equalTo("/endpoint/someChannelId"));
+    }
+    
+    @Test
+    public void removeChannel() {
+        final String channelId = "testChannelId";
+        server.handleRegister(new RegisterImpl(channelId), UUIDUtil.newUAID());
+        assertThat(server.getChannel(channelId).getChannelId(), is(equalTo(channelId)));
+        assertThat(server.removeChannel(channelId), is(true));
+        assertThat(server.removeChannel(channelId), is(false));
     }
 
 }
