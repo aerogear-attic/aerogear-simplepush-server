@@ -148,7 +148,7 @@ A notification is triggered by sending a ```PUT``` request to the ```pushEndpoin
 
 ### Unregister
 
-![Unregister](https://raw.github.com/danbev/aerogear-simplepush-server/master/src/etc/images/unregister.png)  
+![Unregister](https://raw.github.com/danbev/aerogear-simplepush-server/master/src/etc/images/unregister-channel.png)  
 
 #### Request format
 
