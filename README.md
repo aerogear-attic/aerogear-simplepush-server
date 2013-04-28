@@ -16,15 +16,15 @@ This project is a Java implementation of the server side that follows the [Simpl
 
 #### Mac WebServer
 
-Serve ```src/main/resources/netty/socket.html``` from a local webserver. One way to do this is to create a symbolic link
-to ```src/main/resources/netty```, for example:
+Serve _src/main/resources/netty/socket.html_ from a local webserver. One way to do this is to create a symbolic link
+to _src/main/resources/netty_, for example:
 
     cd /Library/WebServer/Documents/
     sudo ln -s /path/to/push/aerogear-simplepush-server/src/main/resources/netty/ netty
     
 Now you should be able to point your browser to ```http://localhost/netty/websocket.html```
 The path to your documents directory and the port that the web server is listening to might differ. For httpd the look
-in /etc/apache2/httpd.conf for this information.
+in _/etc/apache2/httpd.conf_ for this information.
 
 #### Python WebServer
 
@@ -99,7 +99,7 @@ web socket connection is for the current UserAgent (identified by the UAID).
       "channelID": "d9b74644-4f97-46aa-b8fa-9393985cd6cd"
     }  
     
-#### Request format
+#### Response format
 
     {
       "messageType": "register",
