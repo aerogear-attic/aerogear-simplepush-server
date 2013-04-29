@@ -117,10 +117,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         final String requestUri = req.getUri();
         if (requestUri.startsWith(endpointPath)) {
             final String channelId = requestUri.substring(requestUri.lastIndexOf('/')+1);
-            
             final NotificationEvent notificationEvent = new NotificationEvent(channelId, req.data().toString(CharsetUtil.UTF_8));
-            //TODO: make the handling async.
-            //ctx.fireUserEventTriggered(notificationEvent);
             channel.eventLoop().execute(new Runnable() {
                 @Override
                 public void run() {
@@ -152,22 +149,12 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         }
     }
     
-    @Override
-    //TODO: make the triggering of notification events async
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (evt instanceof NotificationEvent) {
-            handleNotification((NotificationEvent) evt);
-        }
-    }
-    
     private void handleNotification(final NotificationEvent event) {
         try {
-            final UpdateImpl updateImpl = new UpdateImpl(event.channelId, VersionExtractor.extractVersion(event.body));
-            final Notification notification = new NotificationImpl(new HashSet<Update>(Arrays.asList(updateImpl)));
+            final Notification notification = simplePushServer.createNotification(event.channelId, VersionExtractor.extractVersion(event.body));
             final String json = JsonUtil.toJson(notification);
             final UUID uaid = simplePushServer.getChannel(event.channelId).getUAID();
-            final Channel nettyChannel = userAgents.get(uaid);
-            writeJsonResponse(json, nettyChannel);
+            writeJsonResponse(json, userAgents.get(uaid));
         } catch (final Exception e) {
             //TODO: error handling should be implemented here.
             e.printStackTrace();
@@ -215,10 +202,13 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
             if (checkHandshakeCompleted(channel)) {
                 final Unregister unregister = fromJson(frame.text(), UnregisterImpl.class);
                 final String channelId = unregister.getChannelId();
-                final boolean removed = simplePushServer.removeChannel(channelId);
-                final UnregisterResponse response = removed ? 
-                        new UnregisterResponseImpl(channelId, new StatusImpl(200, "OK")):
-                        new UnregisterResponseImpl(channelId, new StatusImpl(500, "Could not remove the channel"));
+                UnregisterResponse response;
+                try {
+                    simplePushServer.removeChannel(channelId, userAgent);
+                    response = new UnregisterResponseImpl(channelId, new StatusImpl(200, "OK"));
+                } catch(final Exception e) {
+                    response = new UnregisterResponseImpl(channelId, new StatusImpl(500, "Could not remove the channel"));
+                }
                 writeJsonResponse(toJson(response), channel);
             }
             break;
@@ -229,6 +219,8 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
                 for (String channelId : updates) {
                     System.out.println("Acked: " + channelId);
                 }
+                final Ack ackImpl = new AckImpl(updates);
+                writeJsonResponse(toJson(ackImpl), channel);
                 //TODO: resend unacknowledged notifications.
             }
             break;
@@ -240,6 +232,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     private boolean checkHandshakeCompleted(final Channel channel) {
         if (userAgent == null) {
             channel.write(new TextWebSocketFrame("Hello message has not been sent"));
+            return false;
         }
         return true;
     }

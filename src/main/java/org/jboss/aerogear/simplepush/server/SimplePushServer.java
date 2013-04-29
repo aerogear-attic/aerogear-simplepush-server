@@ -16,16 +16,22 @@
  */
 package org.jboss.aerogear.simplepush.server;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.UUID;
 
 import org.jboss.aerogear.simplepush.protocol.Handshake;
 import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
+import org.jboss.aerogear.simplepush.protocol.Notification;
 import org.jboss.aerogear.simplepush.protocol.Register;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Status;
+import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.NotificationImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 
 public class SimplePushServer {
@@ -51,6 +57,11 @@ public class SimplePushServer {
         return new RegisterResponseImpl(channelId, status, pushEndpoint);
     }
     
+    public Notification createNotification(final String channelId, final String version) {
+        final Update updateImpl = new UpdateImpl(channelId, version);
+        return new NotificationImpl(new HashSet<Update>(Arrays.asList(updateImpl)));
+    }
+    
     public Channel getChannel(final String channelId) {
         final Channel channel = store.getChannel(channelId);
         if (channel == null) {
@@ -59,8 +70,12 @@ public class SimplePushServer {
         return channel;
     }
     
-    public boolean removeChannel(final String channnelId) {
-        return store.removeChannel(channnelId);
+    public boolean removeChannel(final String channnelId, final UUID uaid) {
+        final Channel channel = store.getChannel(channnelId);
+        if (channel != null && channel.getUAID().equals(uaid)) {
+            return store.removeChannel(channnelId);
+        }
+        return false;
     }
     
     public void removeChannels(final UUID uaid) {

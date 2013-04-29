@@ -50,6 +50,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
@@ -65,6 +66,7 @@ public class JsonUtil {
         
         module.addDeserializer(RegisterImpl.class, new RegisterDeserializer());
         module.addSerializer(RegisterImpl.class, new RegisterSerializer());
+        module.addDeserializer(RegisterResponseImpl.class, new RegisterResponseDeserializer());
         module.addSerializer(RegisterResponseImpl.class, new RegisterResponseSerializer());
         
         module.addDeserializer(HandshakeImpl.class, new HandshakeDeserializer());
@@ -80,6 +82,7 @@ public class JsonUtil {
         
         module.addDeserializer(UnregisterImpl.class, new UnregisterDeserializer());
         module.addSerializer(UnregisterImpl.class, new UnregisterMessageSerializer());
+        module.addDeserializer(UnregisterResponseImpl.class, new UnregisterResponseDeserializer());
         module.addSerializer(UnregisterResponseImpl.class, new UnregisterResponseSerializer());
         
         om.registerModule(module);
@@ -133,6 +136,19 @@ public class JsonUtil {
             jgen.writeFieldName(Register.CHANNEL_ID_FIELD);
             jgen.writeString(register.getChannelId());
             jgen.writeEndObject();
+        }
+    }
+    
+    private static class RegisterResponseDeserializer extends JsonDeserializer<RegisterResponseImpl> { 
+        
+        @Override
+        public RegisterResponseImpl deserialize(final JsonParser jp, final DeserializationContext ctxt)
+                throws IOException, JsonProcessingException {
+            final ObjectCodec oc = jp.getCodec();
+            final JsonNode node = oc.readTree(jp);
+            return new RegisterResponseImpl(node.get(Register.CHANNEL_ID_FIELD).asText(),
+                    new StatusImpl(node.get(RegisterResponseImpl.STATUS_FIELD).asInt(), "N/A"), 
+                    node.get(RegisterResponseImpl.PUSH_ENDPOINT__FIELD).asText());
         }
     }
     
@@ -339,6 +355,18 @@ public class JsonUtil {
                     return MessageType.Type.valueOf(messageTypeNode.asText().toUpperCase());
                 }
             };
+        }
+    }
+    
+    private static class UnregisterResponseDeserializer extends JsonDeserializer<UnregisterResponseImpl> {
+
+        @Override
+        public UnregisterResponseImpl deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException,
+                JsonProcessingException {
+            final ObjectCodec oc = jp.getCodec();
+            final JsonNode node = oc.readTree(jp);
+            final JsonNode channelIdNode = node.get(RegisterResponse.CHANNEL_ID_FIELD);
+            return new UnregisterResponseImpl(channelIdNode.asText(), new StatusImpl(node.get(UnregisterResponse.STATUS_FIELD).asInt(), "N/A"));
         }
     }
     

@@ -23,6 +23,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.UUID;
 
 import org.jboss.aerogear.simplepush.protocol.Handshake;
 import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
@@ -72,10 +73,12 @@ public class SimplePushServerTest {
     @Test
     public void removeChannel() {
         final String channelId = "testChannelId";
-        server.handleRegister(new RegisterImpl(channelId), UUIDUtil.newUAID());
+        final UUID uaid = UUIDUtil.newUAID();
+        server.handleRegister(new RegisterImpl(channelId), uaid);
         assertThat(server.getChannel(channelId).getChannelId(), is(equalTo(channelId)));
-        assertThat(server.removeChannel(channelId), is(true));
-        assertThat(server.removeChannel(channelId), is(false));
+        assertThat(server.removeChannel(channelId, UUIDUtil.newUAID()), is(false));
+        assertThat(server.removeChannel(channelId, uaid), is(true));
+        assertThat(server.removeChannel(channelId, uaid), is(false));
     }
 
 }
