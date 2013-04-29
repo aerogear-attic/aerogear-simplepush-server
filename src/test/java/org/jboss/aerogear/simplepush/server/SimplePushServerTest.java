@@ -80,5 +80,13 @@ public class SimplePushServerTest {
         assertThat(server.removeChannel(channelId, uaid), is(true));
         assertThat(server.removeChannel(channelId, uaid), is(false));
     }
+    
+    @Test
+    public void getUAID() {
+        final String channelId = "testChannelId";
+        final UUID uaid = UUIDUtil.newUAID();
+        server.handleRegister(new RegisterImpl(channelId), uaid);
+        assertThat(server.getUAID(channelId), is(equalTo(uaid)));
+    }
 
 }

@@ -62,6 +62,10 @@ public class SimplePushServer {
         return new NotificationImpl(new HashSet<Update>(Arrays.asList(updateImpl)));
     }
     
+    public UUID getUAID(final String channelId) {
+        return getChannel(channelId).getUAID();
+    }
+    
     public Channel getChannel(final String channelId) {
         final Channel channel = store.getChannel(channelId);
         if (channel == null) {
