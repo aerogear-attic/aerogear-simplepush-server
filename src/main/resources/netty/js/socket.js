@@ -1,7 +1,14 @@
 (function() {
-    var mailEndpoint, mailRequest, fooEndpoint, fooRequest, broadcastEndpoint;
+    var broadcastRequest,broadcastEndpoint, mailEndpoint, mailRequest, fooEndpoint, fooRequest, broadcastEndpoint;
 
     getTextAreaElement().value = "Web Socket opened!";
+
+    broadcastRequest = navigator.push.register();
+    broadcastRequest.onsuccess = function( event ) {
+        broadcastEndpoint = event.target.result;
+        broadcastRequest.registerWithPushServer( "broadcast", broadcastEndpoint );
+        appendTextArea("Subscribed to BroadCast messages on " + broadcastEndpoint.channelID);
+    };
 
     mailRequest = navigator.push.register();
     mailRequest.onsuccess = function( event ) {
@@ -22,6 +29,9 @@
             appendTextArea("Mail Notification - " + message.version);
         else if ( message.channelID === fooEndpoint.channelID )
             appendTextArea("Foo Notification - " + message.version);
+        else if ( message.channelID === broadcastEndpoint.channelID )
+            appendTextArea("Broadcast Notification - " + message.version);
+			
         // Broadcast messages are subscribed by default and can be acted on as well
         // TODO: figure out broadcast
     });
