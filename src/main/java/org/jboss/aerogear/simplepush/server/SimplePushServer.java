@@ -33,6 +33,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
+import org.jboss.aerogear.simplepush.util.VersionExtractor;
 
 public class SimplePushServer {
     
@@ -57,9 +58,11 @@ public class SimplePushServer {
         return new RegisterResponseImpl(channelId, status, pushEndpoint);
     }
     
-    public Notification createNotification(final String channelId, final String version) {
-        final Update updateImpl = new UpdateImpl(channelId, version);
-        return new NotificationImpl(new HashSet<Update>(Arrays.asList(updateImpl)));
+    public Notification handleNotification(final String channelId, final String body) {
+        final Long version = Long.valueOf(VersionExtractor.extractVersion(body));
+        final Channel channel = getChannel(channelId);
+        channel.setVersion(version);
+        return new NotificationImpl(new HashSet<Update>(Arrays.asList(new UpdateImpl(channelId, version))));
     }
     
     public UUID getUAID(final String channelId) {

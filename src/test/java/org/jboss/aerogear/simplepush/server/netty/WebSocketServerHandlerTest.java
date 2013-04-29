@@ -130,7 +130,7 @@ public class WebSocketServerHandlerTest {
         final String channelId = UUID.randomUUID().toString();
         handleWebSocketTextFrame(registerFrame(channelId), RegisterResponseImpl.class);
         
-        final Update update = new UpdateImpl(channelId, "1");
+        final Update update = new UpdateImpl(channelId, 1L);
         final Set<Update> updates = new HashSet<Update>(Arrays.asList(update));
         //final AckImpl response = handleWebSocketTextFrame(notificationFrame(updates), AckImpl.class);
         //assertThat(response.getMessageType(), equalTo(MessageType.Type.ACK));

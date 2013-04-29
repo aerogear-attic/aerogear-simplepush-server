@@ -17,20 +17,27 @@
 package org.jboss.aerogear.simplepush.server;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
+import org.hamcrest.Matcher;
 import org.jboss.aerogear.simplepush.protocol.Handshake;
 import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
+import org.jboss.aerogear.simplepush.protocol.Notification;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
+import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 import org.jboss.aerogear.simplepush.server.datastore.DefaultDataStore;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Before;
@@ -87,6 +94,28 @@ public class SimplePushServerTest {
         final UUID uaid = UUIDUtil.newUAID();
         server.handleRegister(new RegisterImpl(channelId), uaid);
         assertThat(server.getUAID(channelId), is(equalTo(uaid)));
+    }
+    
+    @Test
+    public void handleNotification() {
+        final String channelId = "testChannelId";
+        final UUID uaid = UUIDUtil.newUAID();
+        server.handleRegister(new RegisterImpl(channelId), uaid);
+        Notification notification = server.handleNotification(channelId, "version=1");
+        assertThat(notification.getUpdates(), hasItem(new UpdateImpl(channelId, 1L)));
+        assertThat(server.getChannel(channelId).getVersion(), is(1L));
+        notification = server.handleNotification(channelId, "version=2");
+        assertThat(server.getChannel(channelId).getVersion(), is(2L));
+    }
+    
+    @Test (expected = IllegalArgumentException.class)
+    public void handleNotificationWithVersionLessThanCurrentVersion() {
+        final String channelId = "testChannelId";
+        final UUID uaid = UUIDUtil.newUAID();
+        server.handleRegister(new RegisterImpl(channelId), uaid);
+        server.handleNotification(channelId, "version=10");
+        assertThat(server.getChannel(channelId).getVersion(), is(10L));
+        server.handleNotification(channelId, "version=2");
     }
 
 }

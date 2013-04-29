@@ -46,19 +46,19 @@ public class NotificationImplTest {
     
     @Test
     public void fromJson() {
-        final String json = "{\"messageType\": \"notification\", \"updates\": [{\"channelID\": \"abc123\", \"version\": \"efg456\"}]}";
+        final String json = "{\"messageType\": \"notification\", \"updates\": [{\"channelID\": \"abc123\", \"version\": 1}]}";
         final Notification notification = JsonUtil.fromJson(json, NotificationImpl.class);
         assertThat(notification.getMessageType(), is(equalTo(MessageType.Type.NOTIFICATION)));
-        assertThat(notification.getUpdates(), hasItem(new UpdateImpl("abc123", "efg456")));
+        assertThat(notification.getUpdates(), hasItem(new UpdateImpl("abc123", 1L)));
     }
     
     @Test
     public void toJson() {
-        final Set<Update> updates = new HashSet<Update>(Arrays.asList(new UpdateImpl("abc123", "efg456")));
+        final Set<Update> updates = new HashSet<Update>(Arrays.asList(new UpdateImpl("abc123", 2L)));
         final String json = JsonUtil.toJson(new NotificationImpl(updates));
         final NotificationImpl notification = JsonUtil.fromJson(json, NotificationImpl.class);
         assertThat(notification.getMessageType(), is(equalTo(MessageType.Type.NOTIFICATION)));
-        assertThat(notification.getUpdates(), hasItem(new UpdateImpl("abc123", "efg456")));
+        assertThat(notification.getUpdates(), hasItem(new UpdateImpl("abc123", 2L)));
     }
 
 }

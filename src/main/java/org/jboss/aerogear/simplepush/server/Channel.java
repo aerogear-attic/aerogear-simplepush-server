@@ -55,7 +55,9 @@ public interface Channel {
     long getVersion();
     
     /**
-     * Increments the {@code version} for this channel.
+     * Updates the {@code version} for this channel.
+     * 
+     * @param version the version to update this channel to.
      */
     void setVersion(final long version);
     

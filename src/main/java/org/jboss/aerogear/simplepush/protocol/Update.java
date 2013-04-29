@@ -35,6 +35,6 @@ public interface Update {
      * 
      * @return {@code String} the version for this update.
      */
-    String getVersion();
+    Long getVersion();
 
 }

@@ -69,7 +69,6 @@ import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.jboss.aerogear.simplepush.server.datastore.DefaultDataStore;
-import org.jboss.aerogear.simplepush.util.VersionExtractor;
 
 public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<Object> {
     
@@ -145,7 +144,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     
     private void handleNotification(final NotificationEvent event) {
         try {
-            final Notification notification = simplePushServer.createNotification(event.channelId, VersionExtractor.extractVersion(event.body));
+            final Notification notification = simplePushServer.handleNotification(event.channelId, event.body);
             final String json = JsonUtil.toJson(notification);
             final UUID uaid = simplePushServer.getUAID(event.channelId);
             writeJsonResponse(json, userAgents.get(uaid));

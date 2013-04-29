@@ -23,9 +23,9 @@ import org.jboss.aerogear.simplepush.protocol.Update;
 public class UpdateImpl implements Update {
     
     private final String channelId;
-    private final String version;
+    private final Long version;
 
-    public UpdateImpl(final String channelId, final String version) {
+    public UpdateImpl(final String channelId, final Long version) {
         checkNotNull(channelId, "channelId");
         checkNotNull(version, "version");
         this.channelId = channelId;
@@ -38,7 +38,7 @@ public class UpdateImpl implements Update {
     }
 
     @Override
-    public String getVersion() {
+    public Long getVersion() {
         return version;
     }
     

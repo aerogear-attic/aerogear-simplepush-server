@@ -286,7 +286,7 @@ public class JsonUtil {
                 for (JsonNode channelNode : updatesNode) {
                     final JsonNode versionNode = channelNode.get(Notification.VERSION_FIELD);
                     final JsonNode channelIdNode = channelNode.get(Register.CHANNEL_ID_FIELD);
-                    updates.add(new UpdateImpl(channelIdNode.asText(), versionNode.asText()));
+                    updates.add(new UpdateImpl(channelIdNode.asText(), versionNode.asLong()));
                 }
             }
             return new NotificationImpl(updates);
@@ -307,7 +307,7 @@ public class JsonUtil {
                 jgen.writeFieldName(Register.CHANNEL_ID_FIELD);
                 jgen.writeString(update.getChannelId());
                 jgen.writeFieldName(Notification.VERSION_FIELD);
-                jgen.writeString(update.getVersion());
+                jgen.writeNumber(update.getVersion());
                 jgen.writeEndObject();
             }
             jgen.writeEndArray();
