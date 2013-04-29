@@ -63,6 +63,10 @@ public class SimplePushServer {
         return store.removeChannel(channnelId);
     }
     
+    public void removeChannels(final UUID uaid) {
+        store.removeChannels(uaid);
+    }
+    
     private String defaultEndpoint(final String channelId) {
         return "/endpoint/" + channelId;
     }

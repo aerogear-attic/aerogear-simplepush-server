@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonNode;
@@ -68,6 +69,7 @@ public class JsonUtil {
         
         module.addDeserializer(HandshakeImpl.class, new HandshakeDeserializer());
         module.addSerializer(HandshakeImpl.class, new HandshakeSerializer());
+        module.addDeserializer(HandshakeResponseImpl.class, new HandshakeResponseDeserializer());
         module.addSerializer(HandshakeResponseImpl.class, new HandshakeResponseSerializer());
         
         module.addDeserializer(AckImpl.class, new AckDeserializer());
@@ -191,6 +193,18 @@ public class JsonUtil {
             }
             jgen.writeEndArray();
             jgen.writeEndObject();
+        }
+    }
+    
+    private static class HandshakeResponseDeserializer extends JsonDeserializer<HandshakeResponseImpl> {
+
+        @Override
+        public HandshakeResponseImpl deserialize(final JsonParser jp, final DeserializationContext ctxt)
+                throws IOException, JsonProcessingException {
+            final ObjectCodec oc = jp.getCodec();
+            final JsonNode node = oc.readTree(jp);
+            final JsonNode uaid = node.get(Handshake.UAID_FIELD);
+            return new HandshakeResponseImpl(UUID.fromString(uaid.asText()));
         }
     }
     

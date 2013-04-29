@@ -95,22 +95,22 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     }
 
     @Override
-    public void messageReceived(final ChannelHandlerContext ctx, final Object msg) throws Exception {
+    public void messageReceived(final ChannelHandlerContext ctx , final Object msg) throws Exception {
         if (msg instanceof FullHttpRequest) {
-            handleHttpRequest(ctx, (FullHttpRequest) msg);
+            handleHttpRequest(ctx.channel(), (FullHttpRequest) msg);
         } else if (msg instanceof WebSocketFrame) {
-            handleWebSocketFrame(ctx, (WebSocketFrame) msg);
+            handleWebSocketFrame(ctx.channel(), (WebSocketFrame) msg);
         }
     }
 
-    private void handleHttpRequest(final ChannelHandlerContext ctx, final FullHttpRequest req) throws Exception {
+    public void handleHttpRequest(final Channel channel, final FullHttpRequest req) throws Exception {
         if (!req.getDecoderResult().isSuccess()) {
-            sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST));
+            sendHttpResponse(channel, req, new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST));
             return;
         }
 
         if (req.getMethod() != PUT && req.getMethod() != GET) {
-            sendHttpResponse(ctx, req, new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN));
+            sendHttpResponse(channel, req, new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN));
             return;
         }
 
@@ -121,7 +121,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
             final NotificationEvent notificationEvent = new NotificationEvent(channelId, req.data().toString(CharsetUtil.UTF_8));
             //TODO: make the handling async.
             //ctx.fireUserEventTriggered(notificationEvent);
-            ctx.channel().eventLoop().execute(new Runnable() {
+            channel.eventLoop().execute(new Runnable() {
                 @Override
                 public void run() {
                     handleNotification(notificationEvent);
@@ -134,21 +134,21 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
             res.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
             setContentLength(res, content.readableBytes());
 
-            sendHttpResponse(ctx, req, res);
+            sendHttpResponse(channel, req, res);
             return;
         }
         if ("/favicon.ico".equals(req.getUri())) {
             FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
-            sendHttpResponse(ctx, req, res);
+            sendHttpResponse(channel, req, res);
             return;
         }
 
         WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(getWebSocketLocation(req, path), subprotocol, false);
         handshaker = wsFactory.newHandshaker(req);
         if (handshaker == null) {
-            WebSocketServerHandshakerFactory.sendUnsupportedWebSocketVersionResponse(ctx.channel());
+            WebSocketServerHandshakerFactory.sendUnsupportedWebSocketVersionResponse(channel);
         } else {
-            handshaker.handshake(ctx.channel(), req);
+            handshaker.handshake(channel, req);
         }
     }
     
@@ -174,57 +174,56 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         }
     }
 
-    private void handleWebSocketFrame(final ChannelHandlerContext ctx, final WebSocketFrame frame) throws Exception { 
+    protected void handleWebSocketFrame(final Channel channel, final WebSocketFrame frame) throws Exception { 
 
         // Check for closing frame
         if (frame instanceof CloseWebSocketFrame) {
             frame.retain();
-            handshaker.close(ctx.channel(), (CloseWebSocketFrame) frame);
+            handshaker.close(channel, (CloseWebSocketFrame) frame);
             return;
         }
         if (frame instanceof PingWebSocketFrame) {
             frame.data().retain();
-            ctx.channel().write(new PongWebSocketFrame(frame.data()));
+            channel.write(new PongWebSocketFrame(frame.data()));
             return;
         }
         if (!(frame instanceof TextWebSocketFrame)) {
             throw new UnsupportedOperationException(String.format("%s frame types not supported", frame.getClass() .getName()));
         }
         
-        System.out.println("in event loop : " + ctx.channel().eventLoop().inEventLoop());
-        handleSimplePushMessage(ctx, (TextWebSocketFrame) frame);
+        handleSimplePushMessage(channel, (TextWebSocketFrame) frame);
     }
     
-    public void handleSimplePushMessage(final ChannelHandlerContext ctx, final TextWebSocketFrame frame) throws Exception {
+    private void handleSimplePushMessage(final Channel channel, final TextWebSocketFrame frame) throws Exception {
         final MessageType messageType = JsonUtil.parseFrame(frame.text());
         switch (messageType.getMessageType()) {
         case HELLO:
             if (userAgent == null) {
                 final HandshakeResponse response = simplePushServer.handleHandshake(fromJson(frame.text(), HandshakeImpl.class));
-                writeJsonResponse(toJson(response), ctx.channel());
+                writeJsonResponse(toJson(response), channel);
                 userAgent = response.getUAID();
-                userAgents.put(userAgent, ctx.channel());
+                userAgents.put(userAgent, channel);
             }
             break;
         case REGISTER:
-            if (checkHandshakeCompleted(ctx)) {
+            if (checkHandshakeCompleted(channel)) {
                 final RegisterResponse response = simplePushServer.handleRegister(fromJson(frame.text(), RegisterImpl.class), userAgent);
-                writeJsonResponse(toJson(response), ctx.channel());
+                writeJsonResponse(toJson(response), channel);
             }
             break;
         case UNREGISTER:
-            if (checkHandshakeCompleted(ctx)) {
+            if (checkHandshakeCompleted(channel)) {
                 final Unregister unregister = fromJson(frame.text(), UnregisterImpl.class);
                 final String channelId = unregister.getChannelId();
                 final boolean removed = simplePushServer.removeChannel(channelId);
                 final UnregisterResponse response = removed ? 
                         new UnregisterResponseImpl(channelId, new StatusImpl(200, "OK")):
                         new UnregisterResponseImpl(channelId, new StatusImpl(500, "Could not remove the channel"));
-                writeJsonResponse(toJson(response), ctx.channel());
+                writeJsonResponse(toJson(response), channel);
             }
             break;
         case ACK:
-            if (checkHandshakeCompleted(ctx)) {
+            if (checkHandshakeCompleted(channel)) {
                 final Ack ack = fromJson(frame.text(), AckImpl.class);
                 final Set<String> updates = ack.getUpdates();
                 for (String channelId : updates) {
@@ -238,9 +237,9 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         }
     }
     
-    private boolean checkHandshakeCompleted(final ChannelHandlerContext ctx) {
+    private boolean checkHandshakeCompleted(final Channel channel) {
         if (userAgent == null) {
-            ctx.channel().write(new TextWebSocketFrame("Hello message has not been sent"));
+            channel.write(new TextWebSocketFrame("Hello message has not been sent"));
         }
         return true;
     }
@@ -249,13 +248,13 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         return channel.write(new TextWebSocketFrame(json));
     }
 
-    private static void sendHttpResponse(final ChannelHandlerContext ctx, final FullHttpRequest req, final FullHttpResponse res) {
+    private static void sendHttpResponse(final Channel channel, final FullHttpRequest req, final FullHttpResponse res) {
         if (res.getStatus().code() != 200) {
             res.data().writeBytes(Unpooled.copiedBuffer(res.getStatus().toString(), CharsetUtil.UTF_8));
             setContentLength(res, res.data().readableBytes());
         }
 
-        ChannelFuture f = ctx.channel().write(res);
+        ChannelFuture f = channel.write(res);
         if (!isKeepAlive(req) || res.getStatus().code() != 200) {
             f.addListener(ChannelFutureListener.CLOSE);
         }
