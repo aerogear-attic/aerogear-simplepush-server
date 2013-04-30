@@ -50,6 +50,7 @@ import io.netty.util.CharsetUtil;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -82,6 +83,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     private final String subprotocol;
     private final String endpointPath;
     private UUID userAgent;
+    private Set<String> notifiedChannels = new HashSet<String>();
     private WebSocketServerHandshaker handshaker;
     
     public WebSocketServerHandler(final String path, final String subprotocol, final String endpointPath) {
@@ -100,49 +102,37 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     }
 
     public void handleHttpRequest(final Channel channel, final FullHttpRequest req) throws Exception {
-        if (!req.getDecoderResult().isSuccess()) {
-            sendHttpResponse(BAD_REQUEST, req, channel);
-            return;
-        }
-        if (req.getMethod() != PUT && req.getMethod() != GET) {
-            sendHttpResponse(FORBIDDEN, req, channel);
+        if (!isHttpRequestValid(req, channel)) {
             return;
         }
 
         final String requestUri = req.getUri();
         if (requestUri.startsWith(endpointPath)) {
-            final String channelId = requestUri.substring(requestUri.lastIndexOf('/')+1);
+            final String channelId = requestUri.substring(requestUri.lastIndexOf('/') + 1);
             final String payload = req.data().toString(CharsetUtil.UTF_8);
-            final Future<Void> notificationFuture = channel.eventLoop().submit(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    final Notification notification = simplePushServer.handleNotification(channelId, payload);
-                    final String json = JsonUtil.toJson(notification);
-                    final UUID uaid = simplePushServer.getUAID(channelId);
-                    writeJsonResponse(json, userAgents.get(uaid));
-                    return null;
-                }
-            });
-            notificationFuture.addListener(new GenericFutureListener<Future<Void>>() {
-                @Override
-                public void operationComplete(final Future<Void> future) throws Exception {
-                    if (future.cause() != null) {
-                        sendHttpResponse(future.cause().getMessage(), BAD_REQUEST, req, channel);
-                    } else {
-                        sendHttpResponse("", OK, req, channel);
-                    }
-                }
-            });
-            return;
-        }
-        
-        final WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(getWebSocketLocation(req, path), subprotocol, false);
-        handshaker = wsFactory.newHandshaker(req);
-        if (handshaker == null) {
-            WebSocketServerHandshakerFactory.sendUnsupportedWebSocketVersionResponse(channel);
+            channel.eventLoop().submit(new Notifier(channelId, payload)).addListener(new NotificationFutureListener(channel, req));
         } else {
-            handshaker.handshake(channel, req);
+            final String wsUrl = getWebSocketLocation(req, path);
+            final WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(wsUrl, subprotocol, false);
+            handshaker = wsFactory.newHandshaker(req);
+            if (handshaker == null) {
+                WebSocketServerHandshakerFactory.sendUnsupportedWebSocketVersionResponse(channel);
+            } else {
+                handshaker.handshake(channel, req);
+            }
         }
+    }
+    
+    private boolean isHttpRequestValid(final FullHttpRequest request, final Channel channel) {
+        if (!request.getDecoderResult().isSuccess()) {
+            sendHttpResponse(BAD_REQUEST, request, channel);
+            return false;
+        }
+        if (request.getMethod() != PUT && request.getMethod() != GET) {
+            sendHttpResponse(FORBIDDEN, request, channel);
+            return false;
+        }
+        return true;
     }
     
     protected void handleWebSocketFrame(final Channel channel, final WebSocketFrame frame) throws Exception { 
@@ -198,10 +188,11 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
                 final Ack ack = fromJson(frame.text(), AckImpl.class);
                 final Set<String> updates = ack.getUpdates();
                 for (String channelId : updates) {
-                    System.out.println("Acked: " + channelId);
+                    final boolean removed = notifiedChannels.remove(channelId);
+                    if (removed) {
+                        System.out.println("removed: " + channelId);
+                    }
                 }
-                final Ack ackImpl = new AckImpl(updates);
-                writeJsonResponse(toJson(ackImpl), channel);
                 //TODO: resend unacknowledged notifications.
             }
             break;
@@ -253,6 +244,56 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     private static String getWebSocketLocation(final FullHttpRequest req, final String path) {
         //TODO: support wss, infact mandate it.
         return "ws://" + req.headers().get(HOST) + path;
+    }
+
+    private class Notifier implements Callable<Void> {
+        
+        private String channelId;
+        private String payload;
+    
+        Notifier(final String channelId, final String payload) {
+            this.channelId = channelId;
+            this.payload = payload;
+        }
+    
+        @Override
+        public Void call() throws Exception {
+            final Notification notification = simplePushServer.handleNotification(channelId, payload);
+            final String json = JsonUtil.toJson(notification);
+            final UUID uaid = simplePushServer.getUAID(channelId);
+            final ChannelFuture channelFuture = writeJsonResponse(json, userAgents.get(uaid));
+            channelFuture.addListener(new GenericFutureListener<Future<Void>>() {
+                @Override
+                public void operationComplete(Future<Void> future) throws Exception {
+                    if (future.isSuccess()) {
+                        notifiedChannels.add(channelId);
+                    }
+                }
+            });
+            return null;
+        }
+        
+    }
+
+    private class NotificationFutureListener implements GenericFutureListener<Future<Void>> {
+        
+        private Channel channel;
+        private FullHttpRequest request;
+    
+        public NotificationFutureListener(final Channel channel, final FullHttpRequest request) {
+            this.channel = channel;
+            this.request = request;
+        }
+    
+        @Override
+        public void operationComplete(Future<Void> future) throws Exception {
+            if (future.cause() != null) {
+                sendHttpResponse(future.cause().getMessage(), BAD_REQUEST, request, channel);
+            } else {
+                sendHttpResponse(OK, request, channel);
+            }
+        }
+        
     }
     
 }
