@@ -40,16 +40,17 @@ public class NettyWebSocketServer {
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             final ServerBootstrap sb = new ServerBootstrap();
-            sb.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        public void initChannel(SocketChannel ch) throws Exception {
-                            final ChannelPipeline pipeline = ch.pipeline();
-                            pipeline.addLast("codec-http", new HttpServerCodec());
-                            pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
-                            pipeline.addLast("handler", new WebSocketServerHandler("/simple-push", "push-notification", "/endpoint"));
-                        }
-                    });
+            sb.group(bossGroup, workerGroup)
+            .channel(NioServerSocketChannel.class)
+            .childHandler(new ChannelInitializer<SocketChannel>() {
+                    @Override
+                    public void initChannel(SocketChannel ch) throws Exception {
+                        final ChannelPipeline pipeline = ch.pipeline();
+                        pipeline.addLast("codec-http", new HttpServerCodec());
+                        pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
+                        pipeline.addLast("handler", new WebSocketServerHandler("/simple-push", "push-notification", "/endpoint"));
+                    }
+            });
 
             final Channel ch = sb.bind(port).sync().channel();
             System.out.println("Web socket server started at port " + port);

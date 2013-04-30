@@ -24,7 +24,6 @@ import static io.netty.handler.codec.http.HttpMethod.GET;
 import static io.netty.handler.codec.http.HttpMethod.PUT;
 import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
-import static io.netty.handler.codec.http.HttpResponseStatus.NOT_FOUND;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.fromJson;
@@ -39,6 +38,7 @@ import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
@@ -47,10 +47,13 @@ import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.CharsetUtil;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GenericFutureListener;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jboss.aerogear.simplepush.protocol.Ack;
@@ -98,42 +101,42 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
 
     public void handleHttpRequest(final Channel channel, final FullHttpRequest req) throws Exception {
         if (!req.getDecoderResult().isSuccess()) {
-            sendHttpResponse(channel, req, new DefaultFullHttpResponse(HTTP_1_1, BAD_REQUEST));
+            sendHttpResponse(BAD_REQUEST, req, channel);
             return;
         }
-
         if (req.getMethod() != PUT && req.getMethod() != GET) {
-            sendHttpResponse(channel, req, new DefaultFullHttpResponse(HTTP_1_1, FORBIDDEN));
+            sendHttpResponse(FORBIDDEN, req, channel);
             return;
         }
 
         final String requestUri = req.getUri();
         if (requestUri.startsWith(endpointPath)) {
             final String channelId = requestUri.substring(requestUri.lastIndexOf('/')+1);
-            final NotificationEvent notificationEvent = new NotificationEvent(channelId, req.data().toString(CharsetUtil.UTF_8));
-            channel.eventLoop().execute(new Runnable() {
+            final String payload = req.data().toString(CharsetUtil.UTF_8);
+            final Future<Void> notificationFuture = channel.eventLoop().submit(new Callable<Void>() {
                 @Override
-                public void run() {
-                    handleNotification(notificationEvent);
+                public Void call() throws Exception {
+                    final Notification notification = simplePushServer.handleNotification(channelId, payload);
+                    final String json = JsonUtil.toJson(notification);
+                    final UUID uaid = simplePushServer.getUAID(channelId);
+                    writeJsonResponse(json, userAgents.get(uaid));
+                    return null;
                 }
             });
-            
-            ByteBuf content = Unpooled.copiedBuffer("", CharsetUtil.UTF_8);
-            FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, OK);
-
-            res.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
-            setContentLength(res, content.readableBytes());
-
-            sendHttpResponse(channel, req, res);
+            notificationFuture.addListener(new GenericFutureListener<Future<Void>>() {
+                @Override
+                public void operationComplete(final Future<Void> future) throws Exception {
+                    if (future.cause() != null) {
+                        sendHttpResponse(future.cause().getMessage(), BAD_REQUEST, req, channel);
+                    } else {
+                        sendHttpResponse("", OK, req, channel);
+                    }
+                }
+            });
             return;
         }
-        if ("/favicon.ico".equals(req.getUri())) {
-            FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, NOT_FOUND);
-            sendHttpResponse(channel, req, res);
-            return;
-        }
-
-        WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(getWebSocketLocation(req, path), subprotocol, false);
+        
+        final WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(getWebSocketLocation(req, path), subprotocol, false);
         handshaker = wsFactory.newHandshaker(req);
         if (handshaker == null) {
             WebSocketServerHandshakerFactory.sendUnsupportedWebSocketVersionResponse(channel);
@@ -142,21 +145,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         }
     }
     
-    private void handleNotification(final NotificationEvent event) {
-        try {
-            final Notification notification = simplePushServer.handleNotification(event.channelId, event.body);
-            final String json = JsonUtil.toJson(notification);
-            final UUID uaid = simplePushServer.getUAID(event.channelId);
-            writeJsonResponse(json, userAgents.get(uaid));
-        } catch (final Exception e) {
-            //TODO: error handling should be implemented here.
-            e.printStackTrace();
-        }
-    }
-
     protected void handleWebSocketFrame(final Channel channel, final WebSocketFrame frame) throws Exception { 
-
-        // Check for closing frame
         if (frame instanceof CloseWebSocketFrame) {
             frame.retain();
             handshaker.close(channel, (CloseWebSocketFrame) frame);
@@ -170,7 +159,6 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         if (!(frame instanceof TextWebSocketFrame)) {
             throw new UnsupportedOperationException(String.format("%s frame types not supported", frame.getClass() .getName()));
         }
-        
         handleSimplePushMessage(channel, (TextWebSocketFrame) frame);
     }
     
@@ -233,12 +221,22 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     private ChannelFuture writeJsonResponse(final String json, final Channel channel) {
         return channel.write(new TextWebSocketFrame(json));
     }
+    
+    private void sendHttpResponse(final HttpResponseStatus status, final FullHttpRequest request, final Channel channel) {
+        sendHttpResponse("", status, request, channel);
+    }
+    
+    private void sendHttpResponse(final String body,final HttpResponseStatus status, final FullHttpRequest request, final Channel channel) {
+        final ByteBuf content = Unpooled.copiedBuffer(body, CharsetUtil.UTF_8);
+        final FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, status);
+        res.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
+        setContentLength(res, content.readableBytes());
+        sendHttpResponse(channel, request, res);
+    }
 
     private static void sendHttpResponse(final Channel channel, final FullHttpRequest req, final FullHttpResponse res) {
-        if (res.getStatus().code() != 200) {
-            res.data().writeBytes(Unpooled.copiedBuffer(res.getStatus().toString(), CharsetUtil.UTF_8));
-            setContentLength(res, res.data().readableBytes());
-        }
+        res.data().writeBytes(Unpooled.copiedBuffer(res.getStatus().toString(), CharsetUtil.UTF_8));
+        setContentLength(res, res.data().readableBytes());
 
         ChannelFuture f = channel.write(res);
         if (!isKeepAlive(req) || res.getStatus().code() != 200) {
@@ -250,26 +248,11 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     public void exceptionCaught(final ChannelHandlerContext ctx, final Throwable cause) throws Exception {
         ctx.channel().write(new TextWebSocketFrame(new StatusImpl(400, cause.getMessage()).toString()));
         super.exceptionCaught(ctx, cause);
-        cause.printStackTrace();
     }
 
     private static String getWebSocketLocation(final FullHttpRequest req, final String path) {
+        //TODO: support wss, infact mandate it.
         return "ws://" + req.headers().get(HOST) + path;
     }
     
-    private static class NotificationEvent {
-        
-        private String channelId;
-        private String body;
-
-        public NotificationEvent(final String channelId, final String body) {
-            this.channelId = channelId;
-            this.body = body;
-        }
-        
-        @Override
-        public String toString() {
-            return "NotificationEvent[channelId=" + channelId + ", body=" + body + "]";
-        }
-    }
 }
