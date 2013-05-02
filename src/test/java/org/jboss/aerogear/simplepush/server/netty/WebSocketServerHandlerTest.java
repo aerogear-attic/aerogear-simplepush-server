@@ -315,7 +315,7 @@ public class WebSocketServerHandlerTest {
     
     private FullHttpRequest notification(final String channelId, final Long version) {
         final FullHttpRequest req = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.PUT, "/endpoint/" + channelId);
-        req.data().writeBytes(Unpooled.copiedBuffer("version=" + version.toString(), CharsetUtil.UTF_8));
+        req.content().writeBytes(Unpooled.copiedBuffer("version=" + version.toString(), CharsetUtil.UTF_8));
         return req;
     }
     
@@ -334,8 +334,8 @@ public class WebSocketServerHandlerTest {
         }
         
         public String payload() {
-            if (frame.data() != null) {
-                return getTextFrame().data().toString(CharsetUtil.UTF_8);
+            if (frame.content() != null) {
+                return getTextFrame().content().toString(CharsetUtil.UTF_8);
             }
             return null;
         }

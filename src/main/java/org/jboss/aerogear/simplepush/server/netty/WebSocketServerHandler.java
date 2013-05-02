@@ -72,10 +72,13 @@ import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<Object> {
     
     private static final Map<UUID, Channel> userAgents = new ConcurrentHashMap<UUID, Channel>();
+    private final Logger logger = LoggerFactory.getLogger(WebSocketServerHandler.class);
     
     private final String path;
     private final String subprotocol;
@@ -111,7 +114,8 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         final String requestUri = req.getUri();
         if (requestUri.startsWith(endpointPath)) {
             final String channelId = requestUri.substring(requestUri.lastIndexOf('/') + 1);
-            final String payload = req.data().toString(CharsetUtil.UTF_8);
+            final String payload = req.content().toString(CharsetUtil.UTF_8);
+            logger.info("Notification [" + channelId + ", " + payload + "]");
             channel.eventLoop().submit(new Notifier(channelId, payload)).addListener(new NotificationFutureListener(channel, req));
         } else {
             final String wsUrl = getWebSocketLocation(req, path);
@@ -144,8 +148,8 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
             return;
         }
         if (frame instanceof PingWebSocketFrame) {
-            frame.data().retain();
-            channel.write(new PongWebSocketFrame(frame.data()));
+            frame.content().retain();
+            channel.write(new PongWebSocketFrame(frame.content()));
             return;
         }
         if (!(frame instanceof TextWebSocketFrame)) {
@@ -163,11 +167,13 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
                 writeJsonResponse(toJson(response), channel);
                 userAgent = response.getUAID();
                 userAgents.put(userAgent, channel);
+                logger.info("UserAgent [" + userAgent + " handshake done");
             }
             break;
         case REGISTER:
             if (checkHandshakeCompleted(channel)) {
                 final RegisterResponse response = simplePushServer.handleRegister(fromJson(frame.text(), RegisterImpl.class), userAgent);
+                logger.info("UserAgent [" + userAgent + "] Registered[" + response.getChannelId() + "]");
                 writeJsonResponse(toJson(response), channel);
             }
             break;
@@ -175,6 +181,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
             if (checkHandshakeCompleted(channel)) {
                 final UnregisterMessage unregister = fromJson(frame.text(), UnregisterMessageImpl.class);
                 final UnregisterResponse response = simplePushServer.handleUnregister(unregister, userAgent);
+                logger.info("UserAgent [" + userAgent + "] Unregistered[" + response.getChannelId() + "]");
                 writeJsonResponse(toJson(response), channel);
             }
             break;
@@ -217,8 +224,8 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     }
 
     private static void sendHttpResponse(final Channel channel, final FullHttpRequest req, final FullHttpResponse res) {
-        res.data().writeBytes(Unpooled.copiedBuffer(res.getStatus().toString(), CharsetUtil.UTF_8));
-        setContentLength(res, res.data().readableBytes());
+        res.content().writeBytes(Unpooled.copiedBuffer(res.getStatus().toString(), CharsetUtil.UTF_8));
+        setContentLength(res, res.content().readableBytes());
 
         ChannelFuture f = channel.write(res);
         if (!isKeepAlive(req) || res.getStatus().code() != 200) {
@@ -250,6 +257,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         @Override
         public Void call() throws Exception {
             final UUID uaid = simplePushServer.fromChannel(channelId);
+            logger.info("UserAgent [" + uaid + "] Notification [" + channelId + ", " + payload + "]");
             final NotificationMessage notification = simplePushServer.handleNotification(channelId, uaid, payload);
             final String json = JsonUtil.toJson(notification);
             writeJsonResponse(json, userAgents.get(uaid)); 
