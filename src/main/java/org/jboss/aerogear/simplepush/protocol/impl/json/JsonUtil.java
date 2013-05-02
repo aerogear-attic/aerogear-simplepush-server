@@ -34,24 +34,24 @@ import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializerProvider;
 import org.codehaus.jackson.map.module.SimpleModule;
-import org.jboss.aerogear.simplepush.protocol.Ack;
-import org.jboss.aerogear.simplepush.protocol.Handshake;
+import org.jboss.aerogear.simplepush.protocol.AckMessage;
+import org.jboss.aerogear.simplepush.protocol.HandshakeMessage;
 import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
-import org.jboss.aerogear.simplepush.protocol.Notification;
-import org.jboss.aerogear.simplepush.protocol.Register;
+import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
+import org.jboss.aerogear.simplepush.protocol.RegisterMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
-import org.jboss.aerogear.simplepush.protocol.Unregister;
+import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
-import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.HandshakeImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.NotificationImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.UnregisterImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 
@@ -69,19 +69,19 @@ public class JsonUtil {
         module.addDeserializer(RegisterResponseImpl.class, new RegisterResponseDeserializer());
         module.addSerializer(RegisterResponseImpl.class, new RegisterResponseSerializer());
         
-        module.addDeserializer(HandshakeImpl.class, new HandshakeDeserializer());
-        module.addSerializer(HandshakeImpl.class, new HandshakeSerializer());
+        module.addDeserializer(HandshakeMessageImpl.class, new HandshakeDeserializer());
+        module.addSerializer(HandshakeMessageImpl.class, new HandshakeSerializer());
         module.addDeserializer(HandshakeResponseImpl.class, new HandshakeResponseDeserializer());
         module.addSerializer(HandshakeResponseImpl.class, new HandshakeResponseSerializer());
         
-        module.addDeserializer(AckImpl.class, new AckDeserializer());
-        module.addSerializer(AckImpl.class, new AckSerializer());
+        module.addDeserializer(AckMessageImpl.class, new AckDeserializer());
+        module.addSerializer(AckMessageImpl.class, new AckSerializer());
         
-        module.addDeserializer(NotificationImpl.class, new NotificationDeserializer());
-        module.addSerializer(NotificationImpl.class, new NotificationSerializer());
+        module.addDeserializer(NotificationMessageImpl.class, new NotificationDeserializer());
+        module.addSerializer(NotificationMessageImpl.class, new NotificationSerializer());
         
-        module.addDeserializer(UnregisterImpl.class, new UnregisterDeserializer());
-        module.addSerializer(UnregisterImpl.class, new UnregisterMessageSerializer());
+        module.addDeserializer(UnregisterMessageImpl.class, new UnregisterDeserializer());
+        module.addSerializer(UnregisterMessageImpl.class, new UnregisterMessageSerializer());
         module.addDeserializer(UnregisterResponseImpl.class, new UnregisterResponseDeserializer());
         module.addSerializer(UnregisterResponseImpl.class, new UnregisterResponseSerializer());
         
@@ -121,19 +121,19 @@ public class JsonUtil {
                 throws IOException, JsonProcessingException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
-            return new RegisterImpl(node.get(Register.CHANNEL_ID_FIELD).asText());
+            return new RegisterImpl(node.get(RegisterMessage.CHANNEL_ID_FIELD).asText());
         }
     }
 
-    private static class RegisterSerializer extends JsonSerializer<Register> {
+    private static class RegisterSerializer extends JsonSerializer<RegisterMessage> {
 
         @Override
-        public void serialize(final Register register, final JsonGenerator jgen,
+        public void serialize(final RegisterMessage register, final JsonGenerator jgen,
                 final SerializerProvider provider) throws IOException, JsonProcessingException {
             jgen.writeStartObject();
-            jgen.writeFieldName(Register.MESSSAGE_TYPE_FIELD);
+            jgen.writeFieldName(RegisterMessage.MESSSAGE_TYPE_FIELD);
             jgen.writeString(register.getMessageType().toString().toLowerCase());
-            jgen.writeFieldName(Register.CHANNEL_ID_FIELD);
+            jgen.writeFieldName(RegisterMessage.CHANNEL_ID_FIELD);
             jgen.writeString(register.getChannelId());
             jgen.writeEndObject();
         }
@@ -146,7 +146,7 @@ public class JsonUtil {
                 throws IOException, JsonProcessingException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
-            return new RegisterResponseImpl(node.get(Register.CHANNEL_ID_FIELD).asText(),
+            return new RegisterResponseImpl(node.get(RegisterMessage.CHANNEL_ID_FIELD).asText(),
                     new StatusImpl(node.get(RegisterResponseImpl.STATUS_FIELD).asInt(), "N/A"), 
                     node.get(RegisterResponseImpl.PUSH_ENDPOINT__FIELD).asText());
         }
@@ -170,40 +170,40 @@ public class JsonUtil {
         }
     }
 
-    private static class HandshakeDeserializer extends JsonDeserializer<HandshakeImpl> {
+    private static class HandshakeDeserializer extends JsonDeserializer<HandshakeMessageImpl> {
 
         @Override
-        public HandshakeImpl deserialize(final JsonParser jp, final DeserializationContext ctxt)
+        public HandshakeMessageImpl deserialize(final JsonParser jp, final DeserializationContext ctxt)
                 throws IOException, JsonProcessingException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
-            final JsonNode channelIdsNode = node.get(Handshake.CHANNEL_IDS_FIELD);
+            final JsonNode channelIdsNode = node.get(HandshakeMessage.CHANNEL_IDS_FIELD);
             final Set<String> channelIds = new HashSet<String>();
             if (channelIdsNode != null && channelIdsNode.isArray()) {
                 for (JsonNode channelIdNode : channelIdsNode) {
                     channelIds.add(channelIdNode.asText());
                 }
             }
-            final JsonNode uaid = node.get(Handshake.UAID_FIELD);
+            final JsonNode uaid = node.get(HandshakeMessage.UAID_FIELD);
             if (uaid !=null) {
-                return new HandshakeImpl(node.get(Handshake.UAID_FIELD).asText(), channelIds);
+                return new HandshakeMessageImpl(node.get(HandshakeMessage.UAID_FIELD).asText(), channelIds);
             } else {
-                return new HandshakeImpl();
+                return new HandshakeMessageImpl();
             }
         }
     }
 
-    private static class HandshakeSerializer extends JsonSerializer<Handshake> {
+    private static class HandshakeSerializer extends JsonSerializer<HandshakeMessage> {
 
         @Override
-        public void serialize(final Handshake handshake, final JsonGenerator jgen,
+        public void serialize(final HandshakeMessage handshake, final JsonGenerator jgen,
                 final SerializerProvider provider) throws IOException, JsonProcessingException {
             jgen.writeStartObject();
-            jgen.writeFieldName(Handshake.MESSSAGE_TYPE_FIELD);
+            jgen.writeFieldName(HandshakeMessage.MESSSAGE_TYPE_FIELD);
             jgen.writeString(handshake.getMessageType().toString().toLowerCase());
-            jgen.writeFieldName(Handshake.UAID_FIELD);
+            jgen.writeFieldName(HandshakeMessage.UAID_FIELD);
             jgen.writeString(handshake.getUAID().toString());
-            jgen.writeArrayFieldStart(Handshake.CHANNEL_IDS_FIELD);
+            jgen.writeArrayFieldStart(HandshakeMessage.CHANNEL_IDS_FIELD);
             for (String channelId : handshake.getChannelIds()) {
                 jgen.writeString(channelId);
             }
@@ -219,7 +219,7 @@ public class JsonUtil {
                 throws IOException, JsonProcessingException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
-            final JsonNode uaid = node.get(Handshake.UAID_FIELD);
+            final JsonNode uaid = node.get(HandshakeMessage.UAID_FIELD);
             return new HandshakeResponseImpl(UUID.fromString(uaid.asText()));
         }
     }
@@ -230,41 +230,41 @@ public class JsonUtil {
         public void serialize(final HandshakeResponse handshakeResponse, final JsonGenerator jgen,
                 final SerializerProvider provider) throws IOException, JsonProcessingException {
             jgen.writeStartObject();
-            jgen.writeFieldName(Handshake.MESSSAGE_TYPE_FIELD);
+            jgen.writeFieldName(HandshakeMessage.MESSSAGE_TYPE_FIELD);
             jgen.writeString(handshakeResponse.getMessageType().toString().toLowerCase());
-            jgen.writeFieldName(Handshake.UAID_FIELD);
+            jgen.writeFieldName(HandshakeMessage.UAID_FIELD);
             jgen.writeString(handshakeResponse.getUAID().toString());
             jgen.writeEndObject();
         }
     }
 
-    private static class AckDeserializer extends JsonDeserializer<AckImpl> {
+    private static class AckDeserializer extends JsonDeserializer<AckMessageImpl> {
 
         @Override
-        public AckImpl deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException,
+        public AckMessageImpl deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException,
                 JsonProcessingException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
-            final JsonNode updatesNode = node.get(Ack.UPDATES_FIELD);
+            final JsonNode updatesNode = node.get(AckMessage.UPDATES_FIELD);
             final Set<String> updates = new HashSet<String>();
             if (updatesNode.isArray()) {
                 for (JsonNode channelIdNode : updatesNode) {
                     updates.add(channelIdNode.asText());
                 }
             }
-            return new AckImpl(updates);
+            return new AckMessageImpl(updates);
         }
     }
 
-    private static class AckSerializer extends JsonSerializer<Ack> {
+    private static class AckSerializer extends JsonSerializer<AckMessage> {
 
         @Override
-        public void serialize(final Ack ack, final JsonGenerator jgen,
+        public void serialize(final AckMessage ack, final JsonGenerator jgen,
                 final SerializerProvider provider) throws IOException, JsonProcessingException {
             jgen.writeStartObject();
-            jgen.writeFieldName(Ack.MESSSAGE_TYPE_FIELD);
+            jgen.writeFieldName(AckMessage.MESSSAGE_TYPE_FIELD);
             jgen.writeString(ack.getMessageType().toString().toLowerCase());
-            jgen.writeArrayFieldStart(Ack.UPDATES_FIELD);
+            jgen.writeArrayFieldStart(AckMessage.UPDATES_FIELD);
             for (String channelId : ack.getUpdates()) {
                 jgen.writeString(channelId);
             }
@@ -273,40 +273,40 @@ public class JsonUtil {
         }
     }
     
-    private static class NotificationDeserializer extends JsonDeserializer<NotificationImpl> {
+    private static class NotificationDeserializer extends JsonDeserializer<NotificationMessageImpl> {
 
         @Override
-        public NotificationImpl deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException,
+        public NotificationMessageImpl deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException,
                 JsonProcessingException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
-            final JsonNode updatesNode = node.get(Notification.UPDATES_FIELD);
+            final JsonNode updatesNode = node.get(NotificationMessage.UPDATES_FIELD);
             final Set<Update> updates = new HashSet<Update>();
             if (updatesNode.isArray()) {
                 for (JsonNode channelNode : updatesNode) {
-                    final JsonNode versionNode = channelNode.get(Notification.VERSION_FIELD);
-                    final JsonNode channelIdNode = channelNode.get(Register.CHANNEL_ID_FIELD);
+                    final JsonNode versionNode = channelNode.get(NotificationMessage.VERSION_FIELD);
+                    final JsonNode channelIdNode = channelNode.get(RegisterMessage.CHANNEL_ID_FIELD);
                     updates.add(new UpdateImpl(channelIdNode.asText(), versionNode.asLong()));
                 }
             }
-            return new NotificationImpl(updates);
+            return new NotificationMessageImpl(updates);
         }
     }
     
-    private static class NotificationSerializer extends JsonSerializer<Notification> {
+    private static class NotificationSerializer extends JsonSerializer<NotificationMessage> {
 
         @Override
-        public void serialize(final Notification notification, final JsonGenerator jgen,
+        public void serialize(final NotificationMessage notification, final JsonGenerator jgen,
                 final SerializerProvider provider) throws IOException, JsonProcessingException {
             jgen.writeStartObject();
-            jgen.writeFieldName(Notification.MESSSAGE_TYPE_FIELD);
+            jgen.writeFieldName(NotificationMessage.MESSSAGE_TYPE_FIELD);
             jgen.writeString(notification.getMessageType().toString().toLowerCase());
-            jgen.writeArrayFieldStart(Notification.UPDATES_FIELD);
+            jgen.writeArrayFieldStart(NotificationMessage.UPDATES_FIELD);
             for (Update update : notification.getUpdates()) {
                 jgen.writeStartObject();
-                jgen.writeFieldName(Register.CHANNEL_ID_FIELD);
+                jgen.writeFieldName(RegisterMessage.CHANNEL_ID_FIELD);
                 jgen.writeString(update.getChannelId());
-                jgen.writeFieldName(Notification.VERSION_FIELD);
+                jgen.writeFieldName(NotificationMessage.VERSION_FIELD);
                 jgen.writeNumber(update.getVersion());
                 jgen.writeEndObject();
             }
@@ -315,27 +315,27 @@ public class JsonUtil {
         }
     }
     
-    private static class UnregisterDeserializer extends JsonDeserializer<UnregisterImpl> {
+    private static class UnregisterDeserializer extends JsonDeserializer<UnregisterMessageImpl> {
 
         @Override
-        public UnregisterImpl deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException,
+        public UnregisterMessageImpl deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException,
                 JsonProcessingException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
-            final JsonNode channelIdNode = node.get(Register.CHANNEL_ID_FIELD);
-            return new UnregisterImpl(channelIdNode.asText());
+            final JsonNode channelIdNode = node.get(RegisterMessage.CHANNEL_ID_FIELD);
+            return new UnregisterMessageImpl(channelIdNode.asText());
         }
     }
     
-    private static class UnregisterMessageSerializer extends JsonSerializer<Unregister> {
+    private static class UnregisterMessageSerializer extends JsonSerializer<UnregisterMessage> {
 
         @Override
-        public void serialize(final Unregister unregister, final JsonGenerator jgen,
+        public void serialize(final UnregisterMessage unregister, final JsonGenerator jgen,
                 final SerializerProvider provider) throws IOException, JsonProcessingException {
             jgen.writeStartObject();
-            jgen.writeFieldName(Unregister.MESSSAGE_TYPE_FIELD);
+            jgen.writeFieldName(UnregisterMessage.MESSSAGE_TYPE_FIELD);
             jgen.writeString(unregister.getMessageType().toString().toLowerCase());
-            jgen.writeFieldName(Register.CHANNEL_ID_FIELD);
+            jgen.writeFieldName(RegisterMessage.CHANNEL_ID_FIELD);
             jgen.writeString(unregister.getChannelId());
             jgen.writeEndObject();
         }

@@ -36,17 +36,17 @@ import java.util.UUID;
 
 import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
-import org.jboss.aerogear.simplepush.protocol.Notification;
+import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
-import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.HandshakeImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.NotificationImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.UnregisterImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
@@ -194,7 +194,7 @@ public class WebSocketServerHandlerTest {
     
     private Set<Update> doAcknowledge(final EmbeddedByteChannel channel, final String... channelIds) throws Exception {
         final Set<String> updates = new HashSet<String>(Arrays.asList(channelIds));
-        final Notification unackedNotification = handleWebSocketTextFrame(ackFrame(updates), NotificationImpl.class, channel);
+        final NotificationMessage unackedNotification = handleWebSocketTextFrame(ackFrame(updates), NotificationMessageImpl.class, channel);
         if (unackedNotification == null) {
             return Collections.emptySet();
         } 
@@ -237,7 +237,7 @@ public class WebSocketServerHandlerTest {
 
     private TextWebSocketFrame helloFrame(final UUID uaid) {
         final TextWebSocketFrame frame = mock(TextWebSocketFrame.class);
-        when(frame.text()).thenReturn(JsonUtil.toJson(new HandshakeImpl(uaid.toString())));
+        when(frame.text()).thenReturn(JsonUtil.toJson(new HandshakeMessageImpl(uaid.toString())));
         return frame;
     }
     
@@ -249,13 +249,13 @@ public class WebSocketServerHandlerTest {
     
     private TextWebSocketFrame unregisterFrame(final String channelId) {
         final TextWebSocketFrame frame = mock(TextWebSocketFrame.class);
-        when(frame.text()).thenReturn(JsonUtil.toJson(new UnregisterImpl(channelId)));
+        when(frame.text()).thenReturn(JsonUtil.toJson(new UnregisterMessageImpl(channelId)));
         return frame;
     }
     
     private TextWebSocketFrame ackFrame(final Set<String> updates) {
         final TextWebSocketFrame frame = mock(TextWebSocketFrame.class);
-        when(frame.text()).thenReturn(JsonUtil.toJson(new AckImpl(updates)));
+        when(frame.text()).thenReturn(JsonUtil.toJson(new AckMessageImpl(updates)));
         return frame;
     }
     

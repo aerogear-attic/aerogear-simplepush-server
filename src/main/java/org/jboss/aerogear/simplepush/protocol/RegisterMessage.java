@@ -14,34 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.simplepush.protocol.impl;
+package org.jboss.aerogear.simplepush.protocol;
 
-import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
-
-import org.jboss.aerogear.simplepush.protocol.RegisterMessage;
-
-public class RegisterImpl implements RegisterMessage {
+/**
+ * Represents the Register message, 'register' message type, in the 
+ * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>
+ * 
+ * This message is sent from the UserAgent to the PushServer to register for notifications using the 
+ * channelId. The channelId is create by the UserAgent.
+ *
+ */
+public interface RegisterMessage extends MessageType {
     
-    private final String channelId;
-
-    public RegisterImpl(final String channelId) {
-        checkNotNull(channelId, "channelId");
-        this.channelId = channelId;
-    }
-
-    @Override
-    public Type getMessageType() {
-        return Type.REGISTER;
-    }
-
-    @Override
-    public String getChannelId() {
-        return channelId;
-    }
+    String CHANNEL_ID_FIELD = "channelID";
     
-    @Override 
-    public String toString() {
-        return "RegisterImpl[messageType=" + getMessageType() + ", channelId=" + channelId + "]";
-    }
-    
+    /**
+     * Returns the channelId that was sent from the UserAgent.
+     * 
+     * @return {@code String} the channelId.
+     */
+    String getChannelId();
+
 }

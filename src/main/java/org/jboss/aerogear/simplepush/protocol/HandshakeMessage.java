@@ -27,7 +27,7 @@ import java.util.UUID;
  * between the UserAgent and the SimplePush Server.
  *
  */
-public interface Handshake extends MessageType {
+public interface HandshakeMessage extends MessageType {
     
     String CHANNEL_IDS_FIELD = "channelIDs";
     String UAID_FIELD = "uaid";

@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jboss.aerogear.simplepush.protocol.Ack;
+import org.jboss.aerogear.simplepush.protocol.AckMessage;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.junit.Test;
@@ -34,7 +34,7 @@ public class AckImplTest {
 
     @Test
     public void constructNullUpdates() {
-        final Ack ack = new AckImpl(null);
+        final AckMessage ack = new AckMessageImpl(null);
         assertThat(ack.getMessageType(), is(equalTo(MessageType.Type.ACK)));
         assertThat(ack.getUpdates().isEmpty(), is(true));
     }
@@ -42,14 +42,14 @@ public class AckImplTest {
     @Test
     public void constructWithUpdates() {
         final Set<String> updates = new HashSet<String>(Arrays.asList("abc123", "efg456"));
-        final Ack ack = new AckImpl(updates);
+        final AckMessage ack = new AckMessageImpl(updates);
         assertThat(ack.getUpdates(), hasItems("abc123", "efg456"));
     }
     
     @Test
     public void fromJson() {
         final String json = "{\"messageType\": \"ack\", \"updates\": [\"abc123\", \"efg456\"]}";
-        final Ack ack = JsonUtil.fromJson(json, AckImpl.class);
+        final AckMessage ack = JsonUtil.fromJson(json, AckMessageImpl.class);
         assertThat(ack.getMessageType(), is(equalTo(MessageType.Type.ACK)));
         assertThat(ack.getUpdates(), hasItems("abc123", "efg456"));
     }
@@ -57,8 +57,8 @@ public class AckImplTest {
     @Test 
     public void toJson() {
         final Set<String> updates = new HashSet<String>(Arrays.asList("abc123", "efg456"));
-        final String json = JsonUtil.toJson(new AckImpl(updates));
-        final Ack ack = JsonUtil.fromJson(json, AckImpl.class);
+        final String json = JsonUtil.toJson(new AckMessageImpl(updates));
+        final AckMessage ack = JsonUtil.fromJson(json, AckMessageImpl.class);
         assertThat(ack.getMessageType(), is(equalTo(MessageType.Type.ACK)));
         assertThat(ack.getUpdates(), hasItems("abc123", "efg456"));
     }

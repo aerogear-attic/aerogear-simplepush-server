@@ -27,14 +27,14 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.jboss.aerogear.simplepush.protocol.Handshake;
+import org.jboss.aerogear.simplepush.protocol.HandshakeMessage;
 import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
-import org.jboss.aerogear.simplepush.protocol.Notification;
+import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
-import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.HandshakeImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
@@ -53,14 +53,14 @@ public class DefaultSimplePushServerTest {
 
     @Test
     public void handleHandshake() {
-        final HandshakeResponse response = server.handleHandshake(new HandshakeImpl());
+        final HandshakeResponse response = server.handleHandshake(new HandshakeMessageImpl());
         assertThat(response.getUAID(), is(notNullValue()));
     }
     
     @Test
     public void handleHandshakeWithChannels() {
         final HashSet<String> channelIds = new HashSet<String>(Arrays.asList("channel1", "channel2"));
-        final Handshake handshakeImpl = new HandshakeImpl(UUIDUtil.newUAID().toString(), channelIds);
+        final HandshakeMessage handshakeImpl = new HandshakeMessageImpl(UUIDUtil.newUAID().toString(), channelIds);
         final HandshakeResponse response = server.handleHandshake(handshakeImpl);
         assertThat(response.getUAID(), is(notNullValue()));
         assertThat(server.getChannel("channel1").getChannelId(), is(equalTo("channel1")));
@@ -100,7 +100,7 @@ public class DefaultSimplePushServerTest {
         final String channelId = "testChannelId";
         final UUID uaid = UUIDUtil.newUAID();
         server.handleRegister(new RegisterImpl(channelId), uaid);
-        Notification notification = server.handleNotification(channelId, uaid, "version=1");
+        NotificationMessage notification = server.handleNotification(channelId, uaid, "version=1");
         assertThat(notification.getUpdates(), hasItem(new UpdateImpl(channelId, 1L)));
         assertThat(server.getChannel(channelId).getVersion(), is(1L));
         notification = server.handleNotification(channelId, uaid, "version=2");
@@ -127,7 +127,7 @@ public class DefaultSimplePushServerTest {
         server.handleNotification(channelId_1, uaid, "version=10");
         server.handleNotification(channelId_2, uaid, "version=23");
         
-        final Set<Update> unacked = server.handleAcknowledgement(new AckImpl(new HashSet<String>(Arrays.asList(channelId_1))), uaid);
+        final Set<Update> unacked = server.handleAcknowledgement(new AckMessageImpl(new HashSet<String>(Arrays.asList(channelId_1))), uaid);
         assertThat(unacked, hasItem(new UpdateImpl(channelId_2, 23L)));
     }
 

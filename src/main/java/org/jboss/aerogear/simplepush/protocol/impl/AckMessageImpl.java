@@ -14,28 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.simplepush.protocol;
+package org.jboss.aerogear.simplepush.protocol.impl;
 
+import java.util.Collections;
 import java.util.Set;
 
-/**
- * Represents the Notification message, 'notification' message type, in the 
- * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>.
- * 
- * A notification message is sent from the SimplePush Server to the UserAgent and contains the channels that
- * have had their versions updated.
- * 
- */
-public interface Notification extends MessageType {
+import org.jboss.aerogear.simplepush.protocol.AckMessage;
+
+public class AckMessageImpl implements AckMessage {
     
-    String UPDATES_FIELD = "updates";
-    String VERSION_FIELD = "version";
+    private final Set<String> updates;
     
-    /**
-     * Returns the channels that have been updated for a UserAgent
-     * 
-     * @return {@code Set<Channel>} the channels that have been updated.
-     */
-    Set<Update> getUpdates();
+    public AckMessageImpl(final Set<String> updates) {
+        this.updates = updates == null ? Collections.<String>emptySet() : updates;
+    }
+
+    @Override
+    public Type getMessageType() {
+        return Type.ACK;
+    }
+
+    @Override
+    public Set<String> getUpdates() {
+        return Collections.unmodifiableSet(updates);
+    }
+    
+    @Override
+    public String toString() {
+        return "AckImpl[messageType=" + getMessageType() + ",update=" + updates + "]";
+    }
 
 }

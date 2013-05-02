@@ -26,7 +26,7 @@ import java.util.Set;
  * processed and is hence acknowledging. TODO: verify this as I'm note 100% sure I'm reading the spec correctly.
  * 
  */
-public interface Ack extends MessageType {
+public interface AckMessage extends MessageType {
     
     String UPDATES_FIELD = "updates";
     

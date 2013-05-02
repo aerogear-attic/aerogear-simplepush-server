@@ -21,7 +21,7 @@ import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
 import org.jboss.aerogear.simplepush.protocol.Status;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 
-public class UnregisterResponseImpl extends UnregisterImpl implements UnregisterResponse {
+public class UnregisterResponseImpl extends UnregisterMessageImpl implements UnregisterResponse {
     
     private Status status;
 

@@ -21,18 +21,18 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.jboss.aerogear.simplepush.protocol.Ack;
-import org.jboss.aerogear.simplepush.protocol.Handshake;
+import org.jboss.aerogear.simplepush.protocol.AckMessage;
+import org.jboss.aerogear.simplepush.protocol.HandshakeMessage;
 import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
-import org.jboss.aerogear.simplepush.protocol.Notification;
-import org.jboss.aerogear.simplepush.protocol.Register;
+import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
+import org.jboss.aerogear.simplepush.protocol.RegisterMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Status;
-import org.jboss.aerogear.simplepush.protocol.Unregister;
+import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.NotificationImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
@@ -48,14 +48,14 @@ public class DefaultSimplePushServer implements SimplePushServer {
         this.store = store;
     }
     
-    public HandshakeResponse handleHandshake(final Handshake handshake) {
+    public HandshakeResponse handleHandshake(final HandshakeMessage handshake) {
         for (String channelId : handshake.getChannelIds()) {
             store.saveChannel(new DefaultChannel(handshake.getUAID(), channelId, defaultEndpoint(channelId)));
         }
         return new HandshakeResponseImpl(handshake.getUAID());
     }
     
-    public RegisterResponse handleRegister(final Register register, final UUID uaid) {
+    public RegisterResponse handleRegister(final RegisterMessage register, final UUID uaid) {
         final String channelId = register.getChannelId();
         final String pushEndpoint = defaultEndpoint(channelId);
         final boolean saved = store.saveChannel(new DefaultChannel(uaid, channelId, pushEndpoint));
@@ -63,16 +63,16 @@ public class DefaultSimplePushServer implements SimplePushServer {
         return new RegisterResponseImpl(channelId, status, pushEndpoint);
     }
     
-    public Notification handleNotification(final String channelId, final UUID uaid, final String body) {
+    public NotificationMessage handleNotification(final String channelId, final UUID uaid, final String body) {
         final Long version = Long.valueOf(VersionExtractor.extractVersion(body));
         final Channel channel = getChannel(channelId);
         channel.setVersion(version);
-        final Notification notification = new NotificationImpl(new HashSet<Update>(Arrays.asList(new UpdateImpl(channelId, version))));
+        final NotificationMessage notification = new NotificationMessageImpl(new HashSet<Update>(Arrays.asList(new UpdateImpl(channelId, version))));
         store.storeUpdates(notification.getUpdates(), uaid);
         return notification;
     }
     
-    public UnregisterResponse handleUnregister(Unregister unregister, final UUID uaid) {
+    public UnregisterResponse handleUnregister(UnregisterMessage unregister, final UUID uaid) {
         final String channelId = unregister.getChannelId();
         try {
             removeChannel(channelId, uaid);
@@ -82,7 +82,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
         }
     }
     
-    public Set<Update> handleAcknowledgement(final Ack ack, final UUID uaid) {
+    public Set<Update> handleAcknowledgement(final AckMessage ack, final UUID uaid) {
         final Set<String> acks = ack.getUpdates();
         final Set<Update> notifications = store.getUpdates(uaid);
         final Set<Update> unAcked = new HashSet<Update>();

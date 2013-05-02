@@ -56,20 +56,20 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.jboss.aerogear.simplepush.protocol.Ack;
+import org.jboss.aerogear.simplepush.protocol.AckMessage;
 import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
-import org.jboss.aerogear.simplepush.protocol.Notification;
+import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
-import org.jboss.aerogear.simplepush.protocol.Unregister;
+import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
-import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.HandshakeImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.NotificationImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.UnregisterImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
 
@@ -159,7 +159,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         switch (messageType.getMessageType()) {
         case HELLO:
             if (userAgent == null) {
-                final HandshakeResponse response = simplePushServer.handleHandshake(fromJson(frame.text(), HandshakeImpl.class));
+                final HandshakeResponse response = simplePushServer.handleHandshake(fromJson(frame.text(), HandshakeMessageImpl.class));
                 writeJsonResponse(toJson(response), channel);
                 userAgent = response.getUAID();
                 userAgents.put(userAgent, channel);
@@ -173,14 +173,14 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
             break;
         case UNREGISTER:
             if (checkHandshakeCompleted(channel)) {
-                final Unregister unregister = fromJson(frame.text(), UnregisterImpl.class);
+                final UnregisterMessage unregister = fromJson(frame.text(), UnregisterMessageImpl.class);
                 final UnregisterResponse response = simplePushServer.handleUnregister(unregister, userAgent);
                 writeJsonResponse(toJson(response), channel);
             }
             break;
         case ACK:
             if (checkHandshakeCompleted(channel)) {
-                final Ack ack = fromJson(frame.text(), AckImpl.class);
+                final AckMessage ack = fromJson(frame.text(), AckMessageImpl.class);
                 final Set<Update> unacked = simplePushServer.handleAcknowledgement(ack, userAgent);
                 if (!unacked.isEmpty()) {
                     channel.eventLoop().submit(new Acker(unacked));
@@ -250,7 +250,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         @Override
         public Void call() throws Exception {
             final UUID uaid = simplePushServer.fromChannel(channelId);
-            final Notification notification = simplePushServer.handleNotification(channelId, uaid, payload);
+            final NotificationMessage notification = simplePushServer.handleNotification(channelId, uaid, payload);
             final String json = JsonUtil.toJson(notification);
             writeJsonResponse(json, userAgents.get(uaid)); 
             return null;
@@ -267,7 +267,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     
         @Override
         public Void call() throws Exception {
-            final String json = JsonUtil.toJson(new NotificationImpl(updates));
+            final String json = JsonUtil.toJson(new NotificationMessageImpl(updates));
             writeJsonResponse(json, userAgents.get(userAgent)); 
             return null;
         }

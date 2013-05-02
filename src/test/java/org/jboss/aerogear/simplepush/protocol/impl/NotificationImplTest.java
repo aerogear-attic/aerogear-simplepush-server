@@ -27,7 +27,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.jboss.aerogear.simplepush.protocol.MessageType;
-import org.jboss.aerogear.simplepush.protocol.Notification;
+import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
 import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.junit.Test;
@@ -36,18 +36,18 @@ public class NotificationImplTest {
 
     @Test (expected = NullPointerException.class)
     public void constructWithNullUpdates() {
-        new NotificationImpl(null);
+        new NotificationMessageImpl(null);
     }
     
     @Test (expected = IllegalArgumentException.class)
     public void constructWithEmptyUpdates() {
-        new NotificationImpl(Collections.<Update>emptySet());
+        new NotificationMessageImpl(Collections.<Update>emptySet());
     }
     
     @Test
     public void fromJson() {
         final String json = "{\"messageType\": \"notification\", \"updates\": [{\"channelID\": \"abc123\", \"version\": 1}]}";
-        final Notification notification = JsonUtil.fromJson(json, NotificationImpl.class);
+        final NotificationMessage notification = JsonUtil.fromJson(json, NotificationMessageImpl.class);
         assertThat(notification.getMessageType(), is(equalTo(MessageType.Type.NOTIFICATION)));
         assertThat(notification.getUpdates(), hasItem(new UpdateImpl("abc123", 1L)));
     }
@@ -55,8 +55,8 @@ public class NotificationImplTest {
     @Test
     public void toJson() {
         final Set<Update> updates = new HashSet<Update>(Arrays.asList(new UpdateImpl("abc123", 2L)));
-        final String json = JsonUtil.toJson(new NotificationImpl(updates));
-        final NotificationImpl notification = JsonUtil.fromJson(json, NotificationImpl.class);
+        final String json = JsonUtil.toJson(new NotificationMessageImpl(updates));
+        final NotificationMessageImpl notification = JsonUtil.fromJson(json, NotificationMessageImpl.class);
         assertThat(notification.getMessageType(), is(equalTo(MessageType.Type.NOTIFICATION)));
         assertThat(notification.getUpdates(), hasItem(new UpdateImpl("abc123", 2L)));
     }

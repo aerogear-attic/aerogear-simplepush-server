@@ -23,7 +23,7 @@ package org.jboss.aerogear.simplepush.protocol;
  * This message is sent from the PushServer to the UserAgent with the result of a registration attempt
  *
  */
-public interface RegisterResponse extends Register {
+public interface RegisterResponse extends RegisterMessage {
     
     String STATUS_FIELD = "status";
     String PUSH_ENDPOINT__FIELD = "pushEndpoint";

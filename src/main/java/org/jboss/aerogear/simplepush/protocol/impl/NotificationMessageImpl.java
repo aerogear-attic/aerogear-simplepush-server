@@ -16,31 +16,36 @@
  */
 package org.jboss.aerogear.simplepush.protocol.impl;
 
-import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
-import org.jboss.aerogear.simplepush.protocol.Unregister;
+import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNullAndNotEmpty;
 
-public class UnregisterImpl implements Unregister {
+import java.util.Collections;
+import java.util.Set;
+
+import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
+import org.jboss.aerogear.simplepush.protocol.Update;
+
+public class NotificationMessageImpl implements NotificationMessage {
     
-    private String channelId;
+    private final Set<Update> updates;
 
-    public UnregisterImpl(final String channelId) {
-        checkNotNull(channelId, "channelId");
-        this.channelId = channelId;
+    public NotificationMessageImpl(final Set<Update> updates) {
+        checkNotNullAndNotEmpty(updates, "updates");
+        this.updates = updates;
     }
 
     @Override
     public Type getMessageType() {
-        return Type.UNREGISTER;
+        return Type.NOTIFICATION;
     }
 
     @Override
-    public String getChannelId() {
-        return channelId;
+    public Set<Update> getUpdates() {
+        return Collections.<Update>unmodifiableSet(updates);
     }
     
     @Override
     public String toString() {
-        return "UnregisterImpl[messageType=" + getMessageType() + ", channelId=" + channelId + "]";
+        return "NotificationImpl[messageType=" + getMessageType() + ", updates=" + updates + "]";
     }
 
 }

@@ -24,23 +24,23 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.UUID;
 
-import org.jboss.aerogear.simplepush.protocol.Handshake;
+import org.jboss.aerogear.simplepush.protocol.HandshakeMessage;
 
 
-public class HandshakeImpl implements Handshake {
+public class HandshakeMessageImpl implements HandshakeMessage {
     
     private final UUID uaid;
     private final Set<String> channelIds;
     
-    public HandshakeImpl() {
+    public HandshakeMessageImpl() {
         this(""); 
     }
     
-    public HandshakeImpl(final String uaid) {
+    public HandshakeMessageImpl(final String uaid) {
         this(uaid, Collections.<String>emptySet());
     }
 
-    public HandshakeImpl(final String uaid, final Set<String> channelIds) {
+    public HandshakeMessageImpl(final String uaid, final Set<String> channelIds) {
         this.uaid = nullOrEmpty(uaid) ? newUAID() : UUID.fromString(uaid);
         this.channelIds = channelIds;
     }

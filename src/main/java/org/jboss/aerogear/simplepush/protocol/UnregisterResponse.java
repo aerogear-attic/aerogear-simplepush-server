@@ -23,7 +23,7 @@ package org.jboss.aerogear.simplepush.protocol;
  * This message is sent from the PushServer to the UserAgent with the result of a unregistration attempt
  *
  */
-public interface UnregisterResponse extends Unregister {
+public interface UnregisterResponse extends UnregisterMessage {
     
     String STATUS_FIELD = "status";
     

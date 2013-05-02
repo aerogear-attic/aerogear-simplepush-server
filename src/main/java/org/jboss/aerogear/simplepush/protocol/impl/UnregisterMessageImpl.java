@@ -14,23 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.simplepush.protocol;
+package org.jboss.aerogear.simplepush.protocol.impl;
 
-/**
- * Represents the Unregister message, 'unregister' message type, in the 
- * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>
- * 
- * This message is sent from the UserAgent to the PushServer to unregister for notifications using the 
- * channelId. 
- *
- */
-public interface Unregister extends MessageType {
+import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
+import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
+
+public class UnregisterMessageImpl implements UnregisterMessage {
     
-    /**
-     * Returns the channelId that was sent from the UserAgent.
-     * 
-     * @return {@code String} the channelId.
-     */
-    String getChannelId();
+    private String channelId;
+
+    public UnregisterMessageImpl(final String channelId) {
+        checkNotNull(channelId, "channelId");
+        this.channelId = channelId;
+    }
+
+    @Override
+    public Type getMessageType() {
+        return Type.UNREGISTER;
+    }
+
+    @Override
+    public String getChannelId() {
+        return channelId;
+    }
+    
+    @Override
+    public String toString() {
+        return "UnregisterImpl[messageType=" + getMessageType() + ", channelId=" + channelId + "]";
+    }
 
 }

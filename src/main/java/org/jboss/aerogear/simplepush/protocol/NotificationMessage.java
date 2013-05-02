@@ -16,23 +16,26 @@
  */
 package org.jboss.aerogear.simplepush.protocol;
 
+import java.util.Set;
+
 /**
- * Represents the Register message, 'register' message type, in the 
- * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>
+ * Represents the Notification message, 'notification' message type, in the 
+ * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>.
  * 
- * This message is sent from the UserAgent to the PushServer to register for notifications using the 
- * channelId. The channelId is create by the UserAgent.
- *
+ * A notification message is sent from the SimplePush Server to the UserAgent and contains the channels that
+ * have had their versions updated.
+ * 
  */
-public interface Register extends MessageType {
+public interface NotificationMessage extends MessageType {
     
-    String CHANNEL_ID_FIELD = "channelID";
+    String UPDATES_FIELD = "updates";
+    String VERSION_FIELD = "version";
     
     /**
-     * Returns the channelId that was sent from the UserAgent.
+     * Returns the channels that have been updated for a UserAgent
      * 
-     * @return {@code String} the channelId.
+     * @return {@code Set<Channel>} the channels that have been updated.
      */
-    String getChannelId();
+    Set<Update> getUpdates();
 
 }
