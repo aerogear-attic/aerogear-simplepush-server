@@ -126,11 +126,12 @@ public class DefaultSimplePushServer implements SimplePushServer {
 
     @Override
     public UUID fromChannel(final String channelId) {
-        final Channel channel = store.getChannel(channelId);
-        if (channel != null) {
-            return channel.getUAID();
-        }
-        return null;
+        return getChannel(channelId).getUAID();
+    }
+
+    @Override
+    public void removeAllChannels(final UUID uaid) {
+        store.removeChannels(uaid);
     }
 
 }

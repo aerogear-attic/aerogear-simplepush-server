@@ -66,6 +66,13 @@ public interface SimplePushServer {
     NotificationMessage handleNotification(String channelId, UUID uaid, String payload);
     
     /**
+     * Removes all the channels associated with the UserAgent.
+     * 
+     * @param uaid the UserAgent Identifier for which all associated channels should be removed.
+     */
+    void removeAllChannels(UUID uaid);
+    
+    /**
      * Returns the UserAgent identifier that the passed-in channel belongs to.
      * 
      * @param channelId the channelId for which the UserAgent Identifier should be returned

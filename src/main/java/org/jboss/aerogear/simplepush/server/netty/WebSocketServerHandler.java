@@ -144,7 +144,14 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     protected void handleWebSocketFrame(final Channel channel, final WebSocketFrame frame) throws Exception { 
         if (frame instanceof CloseWebSocketFrame) {
             frame.retain();
-            handshaker.close(channel, (CloseWebSocketFrame) frame);
+            final ChannelFuture future = handshaker.close(channel, (CloseWebSocketFrame) frame);
+            future.addListener(new GenericFutureListener<Future<Void>>() {
+                @Override
+                public void operationComplete(Future<Void> future) throws Exception {
+                    simplePushServer.removeAllChannels(userAgent);
+                    userAgents.remove(userAgent);
+                }
+            });
             return;
         }
         if (frame instanceof PingWebSocketFrame) {
@@ -295,6 +302,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         @Override
         public void operationComplete(Future<Void> future) throws Exception {
             if (future.cause() != null) {
+                logger.debug("Notification failed: ", future.cause());
                 sendHttpResponse(future.cause().getMessage(), BAD_REQUEST, request, channel);
             } else {
                 sendHttpResponse(OK, request, channel);

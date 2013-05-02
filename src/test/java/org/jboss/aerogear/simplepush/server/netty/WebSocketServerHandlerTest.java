@@ -22,6 +22,7 @@ import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocket13FrameDecoder;
 import io.netty.handler.codec.http.websocketx.WebSocket13FrameEncoder;
@@ -192,6 +193,29 @@ public class WebSocketServerHandlerTest {
         assertThat(invalidResponse.getStatus().reasonPhrase(), equalTo("Bad Request"));
     }
     
+    @Test
+    public void closeWebSocketShouldRemoveChannels() throws Exception {
+        final String channelId = UUID.randomUUID().toString();
+        final EmbeddedByteChannel channel = createWebsocketChannel();
+        doWebSocketUpgradeRequest();
+        doHandshake(UUIDUtil.newUAID(), channel);
+        doRegister(channelId, channel);
+        doClose(channel);
+        
+        final HttpResponse response = doNotification(channelId, 10L);
+        assertThat(response.getStatus().code(), equalTo(400));
+        assertThat(response.getStatus().reasonPhrase(), equalTo("Bad Request"));
+    }
+    
+    private void doClose(final EmbeddedByteChannel channel) throws Exception {
+        wsHandler.handleWebSocketFrame(channel, closeFrame());
+        channel.runPendingTasks();
+    }
+    
+    private HttpResponse doWebSocketUpgradeRequest() throws Exception {
+        return handleHttpRequest(createHttpChannel(), websocketUpgradeRequest());
+    }
+    
     private Set<Update> doAcknowledge(final EmbeddedByteChannel channel, final String... channelIds) throws Exception {
         final Set<String> updates = new HashSet<String>(Arrays.asList(channelIds));
         final NotificationMessage unackedNotification = handleWebSocketTextFrame(ackFrame(updates), NotificationMessageImpl.class, channel);
@@ -204,7 +228,7 @@ public class WebSocketServerHandlerTest {
     private HttpResponse doNotification(final String channelId, final Long version) throws Exception {
         return handleHttpRequest(createHttpChannel(), notification(channelId, version));
     }
-
+    
     private UnregisterResponse doUnregister(final String channelId) throws Exception {
         return handleWebSocketTextFrame(unregisterFrame(channelId), UnregisterResponseImpl.class);
     }
@@ -245,6 +269,10 @@ public class WebSocketServerHandlerTest {
         final TextWebSocketFrame frame = mock(TextWebSocketFrame.class);
         when(frame.text()).thenReturn(JsonUtil.toJson(new RegisterImpl(channelId)));
         return frame;
+    }
+    
+    private CloseWebSocketFrame closeFrame() {
+        return new CloseWebSocketFrame();
     }
     
     private TextWebSocketFrame unregisterFrame(final String channelId) {

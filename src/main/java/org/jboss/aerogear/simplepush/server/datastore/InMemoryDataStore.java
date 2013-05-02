@@ -11,11 +11,14 @@ import java.util.concurrent.ConcurrentMap;
 import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.server.Channel;
 import org.jboss.aerogear.simplepush.server.DefaultChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InMemoryDataStore implements DataStore {
     
     private final ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<String, Channel>();
     private final ConcurrentMap<UUID, Set<Update>> notifiedChannels = new ConcurrentHashMap<UUID, Set<Update>>();
+    private final Logger logger = LoggerFactory.getLogger(InMemoryDataStore.class);
 
     @Override
     public boolean saveChannel(final Channel ch) {
@@ -43,8 +46,10 @@ public class InMemoryDataStore implements DataStore {
         for (Channel channel : channels.values()) {
             if (channel.getUAID().equals(uaid)) {
                 channels.remove(channel.getChannelId());
+                logger.info("Removing [" + channel.getChannelId() + "] for UserAgent [" + uaid + "]");
             }
         }
+        notifiedChannels.remove(uaid);
     }
 
     @Override
