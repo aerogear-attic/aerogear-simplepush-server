@@ -12,18 +12,18 @@ import org.jboss.aerogear.simplepush.server.DefaultChannel;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Test;
 
-public class DefaultDataStoreTest {
+public class InMemoryDataStoreTest {
 
     @Test
     public void saveChannel() {
-        final DefaultDataStore store = new DefaultDataStore();
+        final InMemoryDataStore store = new InMemoryDataStore();
         final boolean saved = store.saveChannel(new DefaultChannel(UUIDUtil.newUAID(), "channel-1", "endpoint/1"));
         assertThat(saved, is(true));
     }
     
     @Test
     public void getChannel() {
-        final DefaultDataStore store = new DefaultDataStore();
+        final InMemoryDataStore store = new InMemoryDataStore();
         store.saveChannel(new DefaultChannel(UUIDUtil.newUAID(), "channel-1", "endpoint/1"));
         assertThat(store.getChannel("channel-1"), is(notNullValue()));
         assertThat(store.getChannel("channel-1").getChannelId(), equalTo("channel-1"));
@@ -32,7 +32,7 @@ public class DefaultDataStoreTest {
     
     @Test
     public void removeChannel() {
-        final DefaultDataStore store = new DefaultDataStore();
+        final InMemoryDataStore store = new InMemoryDataStore();
         store.saveChannel(new DefaultChannel(UUIDUtil.newUAID(), "channel-1", "endpoint/1"));
         assertThat(store.removeChannel("channel-1"), is(true));
         assertThat(store.removeChannel("channel-1"), is(false));
@@ -40,7 +40,7 @@ public class DefaultDataStoreTest {
     
     @Test
     public void removeChannels() {
-        final DefaultDataStore store = new DefaultDataStore();
+        final InMemoryDataStore store = new InMemoryDataStore();
         final UUID uaid1 = UUIDUtil.newUAID();
         final UUID uaid2 = UUIDUtil.newUAID();
         store.saveChannel(new DefaultChannel(uaid1, "channel-1", "endpoint/1"));

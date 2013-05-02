@@ -50,7 +50,6 @@ import io.netty.util.CharsetUtil;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -64,32 +63,35 @@ import org.jboss.aerogear.simplepush.protocol.Notification;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Unregister;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
+import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.NotificationImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
-import org.jboss.aerogear.simplepush.server.datastore.DefaultDataStore;
 
 public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<Object> {
     
-    private static final SimplePushServer simplePushServer = new SimplePushServer(new DefaultDataStore());
     private static final Map<UUID, Channel> userAgents = new ConcurrentHashMap<UUID, Channel>();
     
     private final String path;
     private final String subprotocol;
     private final String endpointPath;
+    private final SimplePushServer simplePushServer;
     private UUID userAgent;
-    private Set<String> notifiedChannels = new HashSet<String>();
     private WebSocketServerHandshaker handshaker;
     
-    public WebSocketServerHandler(final String path, final String subprotocol, final String endpointPath) {
+    public WebSocketServerHandler(final String path, 
+            final String subprotocol, 
+            final String endpointPath, 
+            final SimplePushServer simplePushServer) {
         this.path = path;
         this.subprotocol = subprotocol;
         this.endpointPath = endpointPath;
+        this.simplePushServer = simplePushServer;
     }
 
     @Override
@@ -172,28 +174,17 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         case UNREGISTER:
             if (checkHandshakeCompleted(channel)) {
                 final Unregister unregister = fromJson(frame.text(), UnregisterImpl.class);
-                final String channelId = unregister.getChannelId();
-                UnregisterResponse response;
-                try {
-                    simplePushServer.removeChannel(channelId, userAgent);
-                    response = new UnregisterResponseImpl(channelId, new StatusImpl(200, "OK"));
-                } catch(final Exception e) {
-                    response = new UnregisterResponseImpl(channelId, new StatusImpl(500, "Could not remove the channel"));
-                }
+                final UnregisterResponse response = simplePushServer.handleUnregister(unregister, userAgent);
                 writeJsonResponse(toJson(response), channel);
             }
             break;
         case ACK:
             if (checkHandshakeCompleted(channel)) {
                 final Ack ack = fromJson(frame.text(), AckImpl.class);
-                final Set<String> updates = ack.getUpdates();
-                for (String channelId : updates) {
-                    final boolean removed = notifiedChannels.remove(channelId);
-                    if (removed) {
-                        System.out.println("removed: " + channelId);
-                    }
+                final Set<Update> unacked = simplePushServer.handleAcknowledgement(ack, userAgent);
+                if (!unacked.isEmpty()) {
+                    channel.eventLoop().submit(new Acker(unacked));
                 }
-                //TODO: resend unacknowledged notifications.
             }
             break;
         default:
@@ -248,28 +239,36 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
 
     private class Notifier implements Callable<Void> {
         
-        private String channelId;
-        private String payload;
+        private final String channelId;
+        private final String payload;
     
-        Notifier(final String channelId, final String payload) {
+        private Notifier(final String channelId, final String payload) {
             this.channelId = channelId;
             this.payload = payload;
         }
     
         @Override
         public Void call() throws Exception {
-            final Notification notification = simplePushServer.handleNotification(channelId, payload);
+            final UUID uaid = simplePushServer.fromChannel(channelId);
+            final Notification notification = simplePushServer.handleNotification(channelId, uaid, payload);
             final String json = JsonUtil.toJson(notification);
-            final UUID uaid = simplePushServer.getUAID(channelId);
-            final ChannelFuture channelFuture = writeJsonResponse(json, userAgents.get(uaid));
-            channelFuture.addListener(new GenericFutureListener<Future<Void>>() {
-                @Override
-                public void operationComplete(Future<Void> future) throws Exception {
-                    if (future.isSuccess()) {
-                        notifiedChannels.add(channelId);
-                    }
-                }
-            });
+            writeJsonResponse(json, userAgents.get(uaid)); 
+            return null;
+        }
+    }
+    
+    private class Acker implements Callable<Void> {
+        
+        private Set<Update> updates;
+    
+        private Acker(final Set<Update> updates) {
+            this.updates = updates;
+        }
+    
+        @Override
+        public Void call() throws Exception {
+            final String json = JsonUtil.toJson(new NotificationImpl(updates));
+            writeJsonResponse(json, userAgents.get(userAgent)); 
             return null;
         }
         
@@ -280,7 +279,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         private Channel channel;
         private FullHttpRequest request;
     
-        public NotificationFutureListener(final Channel channel, final FullHttpRequest request) {
+        private NotificationFutureListener(final Channel channel, final FullHttpRequest request) {
             this.channel = channel;
             this.request = request;
         }

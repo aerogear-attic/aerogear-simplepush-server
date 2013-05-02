@@ -1,7 +1,10 @@
 package org.jboss.aerogear.simplepush.server.datastore;
 
+import java.util.Set;
 import java.util.UUID;
 
+import org.jboss.aerogear.simplepush.protocol.Notification;
+import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.server.Channel;
 
 
@@ -42,4 +45,17 @@ public interface DataStore {
      *        that id should be removed.
      */
     void removeChannels(final UUID uaid);
+    
+    /**
+     * Stores a {@code Notifiation} so that the notification can be matched against
+     * acknowledged channelId from the UserAgent.
+     * 
+     * @param notification the {@link Notification} to store.
+     * @param uaid the {@link UUID} identifiying the UserAgent.
+     */
+    void storeUpdates(Set<Update> updates, UUID uaid);
+    
+    boolean removeUpdate(Update update, UUID uaid);
+    
+    Set<Update> getUpdates(UUID uaid);
 }

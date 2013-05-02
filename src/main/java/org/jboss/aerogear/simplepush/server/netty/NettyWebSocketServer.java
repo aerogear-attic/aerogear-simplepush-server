@@ -16,6 +16,10 @@
  */
 package org.jboss.aerogear.simplepush.server.netty;
 
+import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
+import org.jboss.aerogear.simplepush.server.datastore.DataStore;
+import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
+
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -36,6 +40,7 @@ public class NettyWebSocketServer {
     }
 
     public void run() throws Exception {
+        final DataStore dataStore = new InMemoryDataStore();
         final EventLoopGroup bossGroup = new NioEventLoopGroup();
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -48,7 +53,8 @@ public class NettyWebSocketServer {
                         final ChannelPipeline pipeline = ch.pipeline();
                         pipeline.addLast("codec-http", new HttpServerCodec());
                         pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
-                        pipeline.addLast("handler", new WebSocketServerHandler("/simple-push", "push-notification", "/endpoint"));
+                        pipeline.addLast("handler", 
+                                new WebSocketServerHandler("/simple-push", "push-notification", "/endpoint", new DefaultSimplePushServer(dataStore)));
                     }
             });
 

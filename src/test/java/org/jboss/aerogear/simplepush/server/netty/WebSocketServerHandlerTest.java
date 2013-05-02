@@ -4,6 +4,7 @@ import static io.netty.handler.codec.http.HttpHeaders.Values.WEBSOCKET;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -22,17 +23,22 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.WebSocket13FrameDecoder;
 import io.netty.handler.codec.http.websocketx.WebSocket13FrameEncoder;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.jboss.aerogear.simplepush.protocol.Ack;
+import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
+import org.jboss.aerogear.simplepush.protocol.Notification;
+import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
+import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeImpl;
@@ -44,6 +50,8 @@ import org.jboss.aerogear.simplepush.protocol.impl.UnregisterImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
+import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
+import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +62,7 @@ public class WebSocketServerHandlerTest {
     
     @Before
     public void setup() {
-        wsHandler = new WebSocketServerHandler("simplepush", "push-notification", "/endpoint");
+        wsHandler = new WebSocketServerHandler("simplepush", "push-notification", "/endpoint", new DefaultSimplePushServer(new InMemoryDataStore()));
     }
 
     @Test
@@ -67,16 +75,19 @@ public class WebSocketServerHandlerTest {
     @Test
     public void hello() throws Exception {
         final UUID uaid = UUIDUtil.newUAID();
-        final HandshakeResponseImpl response = handleWebSocketTextFrame(helloFrame(uaid), HandshakeResponseImpl.class);
+        final EmbeddedByteChannel channel = createWebsocketChannel();
+        final HandshakeResponse response = doHandshake(uaid, channel);
         assertThat(response.getMessageType(), equalTo(MessageType.Type.HELLO));
         assertThat(response.getUAID(), equalTo(uaid));
     }
     
     @Test
     public void register() throws Exception {
-        handleWebSocketTextFrame(helloFrame(UUIDUtil.newUAID()), HandshakeResponseImpl.class);
         final String channelId = UUID.randomUUID().toString();
-        final RegisterResponseImpl response = handleWebSocketTextFrame(registerFrame(channelId), RegisterResponseImpl.class);
+        final EmbeddedByteChannel channel = createWebsocketChannel();
+        doHandshake(UUIDUtil.newUAID(), channel);
+        
+        final RegisterResponse response = doRegister(channelId, channel);
         assertThat(response.getMessageType(), equalTo(MessageType.Type.REGISTER));
         assertThat(response.getChannelId(), equalTo(channelId));
         assertThat(response.getStatus().getCode(), equalTo(200));
@@ -85,10 +96,11 @@ public class WebSocketServerHandlerTest {
     
     @Test
     public void registerDuplicateChannelId() throws Exception {
-        handleWebSocketTextFrame(helloFrame(UUIDUtil.newUAID()), HandshakeResponseImpl.class);
         final String channelId = UUID.randomUUID().toString();
-        handleWebSocketTextFrame(registerFrame(channelId), RegisterResponseImpl.class);
-        final RegisterResponseImpl response = handleWebSocketTextFrame(registerFrame(channelId), RegisterResponseImpl.class);
+        doHandshake(UUIDUtil.newUAID());
+        doRegister(channelId);
+        
+        final RegisterResponse response = doRegister(channelId);
         assertThat(response.getMessageType(), equalTo(MessageType.Type.REGISTER));
         assertThat(response.getChannelId(), equalTo(channelId));
         assertThat(response.getStatus().getCode(), equalTo(409));
@@ -96,93 +108,133 @@ public class WebSocketServerHandlerTest {
     }
     
     @Test
-    public void unregister() throws Exception {
-        handleWebSocketTextFrame(helloFrame(UUIDUtil.newUAID()), HandshakeResponseImpl.class);
+    public void unregisterNonRegistered() throws Exception {
         final String channelId = UUID.randomUUID().toString();
-        handleWebSocketTextFrame(registerFrame(channelId), RegisterResponseImpl.class);
-        final UnregisterResponseImpl response = handleWebSocketTextFrame(unregisterFrame(channelId), UnregisterResponseImpl.class);
+        final EmbeddedByteChannel channel = createWebsocketChannel();
+        doHandshake(UUIDUtil.newUAID(), channel);
+        doRegister(channelId, channel);
+        
+        final UnregisterResponse response = doUnregister("notRegistered", channel);
+        assertThat(response.getMessageType(), equalTo(MessageType.Type.UNREGISTER));
+        assertThat(response.getChannelId(), equalTo("notRegistered"));
+        assertThat(response.getStatus().getCode(), equalTo(200));
+    }
+    
+    @Test
+    public void unregister() throws Exception {
+        final String channelId = UUID.randomUUID().toString();
+        doHandshake(UUIDUtil.newUAID());
+        doRegister(channelId);
+        
+        final UnregisterResponse response = doUnregister(channelId);
         assertThat(response.getMessageType(), equalTo(MessageType.Type.UNREGISTER));
         assertThat(response.getChannelId(), equalTo(channelId));
         assertThat(response.getStatus().getCode(), equalTo(200));
     }
     
     @Test
-    public void unregisterNonRegistered() throws Exception {
-        handleWebSocketTextFrame(helloFrame(UUIDUtil.newUAID()), HandshakeResponseImpl.class);
-        final String channelId = UUID.randomUUID().toString();
-        handleWebSocketTextFrame(registerFrame(channelId), RegisterResponseImpl.class);
-        final UnregisterResponseImpl response = handleWebSocketTextFrame(unregisterFrame("notRegistered"), UnregisterResponseImpl.class);
-        assertThat(response.getMessageType(), equalTo(MessageType.Type.UNREGISTER));
-        assertThat(response.getChannelId(), equalTo("notRegistered"));
-        assertThat(response.getStatus().getCode(), equalTo(200));
-    }
-    
-    @Test
-    public void unregisterRegistered() throws Exception {
-        handleWebSocketTextFrame(helloFrame(UUIDUtil.newUAID()), HandshakeResponseImpl.class);
-        final String channelId = UUID.randomUUID().toString();
-        handleWebSocketTextFrame(registerFrame(channelId), RegisterResponseImpl.class);
-        final UnregisterResponseImpl response = handleWebSocketTextFrame(unregisterFrame("notRegistered"), UnregisterResponseImpl.class);
-        assertThat(response.getMessageType(), equalTo(MessageType.Type.UNREGISTER));
-        assertThat(response.getChannelId(), equalTo("notRegistered"));
-        assertThat(response.getStatus().getCode(), equalTo(200));
-    }
-    
-    @Test
     public void notification() throws Exception {
-        handleWebSocketTextFrame(helloFrame(UUIDUtil.newUAID()), HandshakeResponseImpl.class);
         final String channelId = UUID.randomUUID().toString();
-        handleWebSocketTextFrame(registerFrame(channelId), RegisterResponseImpl.class);
+        doHandshake(UUIDUtil.newUAID());
+        doRegister(channelId);
         
-        final HttpResponse response = handleHttpRequest(createHttpChannel(), notification(channelId, 1L));
+        final HttpResponse response = doNotification(channelId, 1L);
         assertThat(response.getStatus().code(), equalTo(200));
     }
     
     @Test
-    public void notificationWithAck() throws Exception {
-        handleWebSocketTextFrame(helloFrame(UUIDUtil.newUAID()), HandshakeResponseImpl.class);
+    public void notificationWithAcknowlegement() throws Exception {
         final String channelId = UUID.randomUUID().toString();
-        handleWebSocketTextFrame(registerFrame(channelId), RegisterResponseImpl.class);
+        final EmbeddedByteChannel channel = createWebsocketChannel();
+        doHandshake(UUIDUtil.newUAID(), channel);
+        doRegister(channelId, channel);
+        doNotification(channelId, 1L);
         
-        final HttpResponse response = handleHttpRequest(createHttpChannel(), notification(channelId, 1L));
-        assertThat(response.getStatus().code(), equalTo(200));
+        final Set<Update> unacked = doAcknowledge(channel, channelId);
+        assertThat(unacked.isEmpty(), is(true));
+    }
+    
+    @Test
+    public void notificationAcknowlegeOne() throws Exception {
+        final String channelId1 = UUID.randomUUID().toString();
+        final String channelId2 = UUID.randomUUID().toString();
+        final EmbeddedByteChannel channel = createWebsocketChannel();
+        doHandshake(UUIDUtil.newUAID(), channel);
+        doRegister(channel, channelId1, channelId2);
+        doNotification(channelId1, 1L);
+        doNotification(channelId2, 1L);
         
-        final Set<String> updates = new HashSet<String>(Arrays.asList(channelId));
-        handleWebSocketTextFrame(ackFrame(updates), AckImpl.class);
+        final Set<Update> unacked = doAcknowledge(channel, channelId1);
+        assertThat(unacked, hasItem(new UpdateImpl(channelId2, 1L)));
     }
     
     @Test
     public void notificationWithVersionEqualToCurrentShouldReturn400() throws Exception {
-        handleWebSocketTextFrame(helloFrame(UUIDUtil.newUAID()), HandshakeResponseImpl.class);
         final String channelId = UUID.randomUUID().toString();
-        handleWebSocketTextFrame(registerFrame(channelId), RegisterResponseImpl.class);
+        doHandshake(UUIDUtil.newUAID());
+        doRegister(channelId);
+        doNotification(channelId, 1L);
         
-        final FullHttpRequest notification = notification(channelId, 1L);
-        HttpResponse response = handleHttpRequest(createHttpChannel(), notification);
-        assertThat(response.getStatus().code(), equalTo(200));
-        
-        final FullHttpRequest invalidVersion = notification(channelId, 1L);
-        response = handleHttpRequest(createHttpChannel(), invalidVersion);
-        assertThat(response.getStatus().code(), equalTo(400));
-        assertThat(response.getStatus().reasonPhrase(), equalTo("Bad Request"));
+        final HttpResponse invalidResponse = doNotification(channelId, 1L);
+        assertThat(invalidResponse.getStatus().code(), equalTo(400));
+        assertThat(invalidResponse.getStatus().reasonPhrase(), equalTo("Bad Request"));
     }
     
     @Test
     public void notificationWithVersionLessThanCurrentShouldReturn400() throws Exception {
-        handleWebSocketTextFrame(helloFrame(UUIDUtil.newUAID()), HandshakeResponseImpl.class);
         final String channelId = UUID.randomUUID().toString();
-        handleWebSocketTextFrame(registerFrame(channelId), RegisterResponseImpl.class);
+        doHandshake(UUIDUtil.newUAID());
+        doRegister(channelId);
+        doNotification(channelId, 10L);
         
-        final FullHttpRequest notification = notification(channelId, 10L);
-        HttpResponse response = handleHttpRequest(createHttpChannel(), notification);
-        assertThat(response.getStatus().code(), equalTo(200));
-        
-        final FullHttpRequest invalidVersion = notification(channelId, 9L);
-        response = handleHttpRequest(createHttpChannel(), invalidVersion);
-        assertThat(response.getStatus().code(), equalTo(400));
-        assertThat(response.getStatus().reasonPhrase(), equalTo("Bad Request"));
+        final HttpResponse invalidResponse = doNotification(channelId, 9L);
+        assertThat(invalidResponse.getStatus().code(), equalTo(400));
+        assertThat(invalidResponse.getStatus().reasonPhrase(), equalTo("Bad Request"));
     }
     
+    private Set<Update> doAcknowledge(final EmbeddedByteChannel channel, final String... channelIds) throws Exception {
+        final Set<String> updates = new HashSet<String>(Arrays.asList(channelIds));
+        final Notification unackedNotification = handleWebSocketTextFrame(ackFrame(updates), NotificationImpl.class, channel);
+        if (unackedNotification == null) {
+            return Collections.emptySet();
+        } 
+        return unackedNotification.getUpdates();
+    }
+
+    private HttpResponse doNotification(final String channelId, final Long version) throws Exception {
+        return handleHttpRequest(createHttpChannel(), notification(channelId, version));
+    }
+
+    private UnregisterResponse doUnregister(final String channelId) throws Exception {
+        return handleWebSocketTextFrame(unregisterFrame(channelId), UnregisterResponseImpl.class);
+    }
+    
+    private UnregisterResponse doUnregister(final String channelId, final EmbeddedByteChannel channel) throws Exception {
+        return handleWebSocketTextFrame(unregisterFrame(channelId), UnregisterResponseImpl.class, channel);
+    }
+    
+    private void doRegister(final EmbeddedByteChannel channel, final String... channelIds) throws Exception {
+        for (String channelId : channelIds) {
+            handleWebSocketTextFrame(registerFrame(channelId), RegisterResponseImpl.class, channel);
+        }
+    }
+    
+    private RegisterResponse doRegister(final String channelId, final EmbeddedByteChannel channel) throws Exception {
+        return handleWebSocketTextFrame(registerFrame(channelId), RegisterResponseImpl.class, channel);
+    }
+
+    private RegisterResponse doRegister(final String channelId) throws Exception {
+        return handleWebSocketTextFrame(registerFrame(channelId), RegisterResponseImpl.class);
+    }
+
+    private HandshakeResponse doHandshake(final UUID uaid) throws Exception {
+        return handleWebSocketTextFrame(helloFrame(uaid), HandshakeResponseImpl.class);
+    }
+    
+    private HandshakeResponse doHandshake(final UUID uaid, final EmbeddedByteChannel channel) throws Exception {
+        return handleWebSocketTextFrame(helloFrame(uaid), HandshakeResponseImpl.class, channel);
+    }
+
     private TextWebSocketFrame helloFrame(final UUID uaid) {
         final TextWebSocketFrame frame = mock(TextWebSocketFrame.class);
         when(frame.text()).thenReturn(JsonUtil.toJson(new HandshakeImpl(uaid.toString())));
@@ -208,12 +260,21 @@ public class WebSocketServerHandlerTest {
     }
     
     private <T> T handleWebSocketTextFrame(final TextWebSocketFrame frame,  final Class<T> type) throws Exception {
-        final EmbeddedByteChannel channel = createHttpChannel();
-        // perform upgrade request. This will add websocket encoder/decoder to the pipeline
-        handleHttpRequest(channel, websocketUpgradeRequest());
-        final StubFrameEncoder stubFrameEncoder = new StubFrameEncoder();
-        channel.pipeline().replace(WebSocket13FrameEncoder.class, "wsencoder", stubFrameEncoder);
+        final EmbeddedByteChannel channel = createWebsocketChannel();
+        return handleWebSocketTextFrame(frame, type, channel);
+    }
+    
+    private <T> T handleWebSocketTextFrame(final TextWebSocketFrame frame,  final Class<T> type, final EmbeddedByteChannel channel) throws Exception {
+        StubFrameEncoder stubFrameEncoder = (StubFrameEncoder) channel.pipeline().get("stubEncoder");
+        if (stubFrameEncoder == null) {
+            stubFrameEncoder = new StubFrameEncoder();
+            channel.pipeline().addLast("stubEncoder", stubFrameEncoder);
+        } else {
+            stubFrameEncoder.clearFrame();
+        }
+        
         wsHandler.handleWebSocketFrame(channel, frame);
+        channel.runPendingTasks();
         return stubFrameEncoder.payloadAsType(type);
     }
     
@@ -232,6 +293,12 @@ public class WebSocketServerHandlerTest {
                 new HttpObjectAggregator(42), 
                 new HttpRequestDecoder(), 
                 new HttpResponseEncoder());
+    }
+    
+    private EmbeddedByteChannel createWebsocketChannel() throws Exception {
+        return new EmbeddedByteChannel(
+                new WebSocket13FrameEncoder(true), 
+                new WebSocket13FrameDecoder(true, false, 2048));
     }
     
     private FullHttpRequest websocketUpgradeRequest() {
@@ -255,7 +322,7 @@ public class WebSocketServerHandlerTest {
     public static class StubFrameEncoder extends MessageToByteEncoder<WebSocketFrame> {
         
         private WebSocketFrame frame;
-
+        
         @Override
         protected void encode(ChannelHandlerContext ctx, WebSocketFrame msg, ByteBuf out) throws Exception {
             this.frame = msg;
@@ -278,7 +345,15 @@ public class WebSocketServerHandlerTest {
                 return JsonUtil.fromJson(payload(), type);
             }
             return null;
-            
+        }
+        
+        public void clearFrame() {
+            frame = null;
+        }
+        
+        @Override
+        public String toString() {
+            return "StubFrameEncoder[" + hashCode() + "]";
         }
         
     }
