@@ -145,6 +145,9 @@ A notification is triggered by sending a ```PUT``` request to the ```pushEndpoin
       "messageType": "ack",
       "updates": [{"channelID": "d9b74644-4f97-46aa-b8fa-9393985cd6cd", "version" 2}]"
     }  
+The ```updates``` are the channels that the UserAgent acknowledges that it has processed.   
+The SimplePush server will try to will resend the the un-acknowledged notifications once. This should be a scheduled job 
+later if this is turned into more than a proof of concept.
 
 ### Unregister
 
