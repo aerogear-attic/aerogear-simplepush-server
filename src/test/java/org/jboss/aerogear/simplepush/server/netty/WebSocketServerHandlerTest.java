@@ -4,6 +4,7 @@ import static io.netty.handler.codec.http.HttpHeaders.Values.WEBSOCKET;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -151,12 +152,12 @@ public class WebSocketServerHandlerTest {
         doRegister(channelId, channel);
         doNotification(channelId, 1L);
         
-        final Set<Update> unacked = doAcknowledge(channel, channelId);
+        final Set<Update> unacked = doAcknowledge(channel, update(channelId, 1L));
         assertThat(unacked.isEmpty(), is(true));
     }
     
     @Test
-    public void notificationAcknowlegeOne() throws Exception {
+    public void notificationWithMultipleAcks() throws Exception {
         final String channelId1 = UUID.randomUUID().toString();
         final String channelId2 = UUID.randomUUID().toString();
         final EmbeddedByteChannel channel = createWebsocketChannel();
@@ -165,8 +166,42 @@ public class WebSocketServerHandlerTest {
         doNotification(channelId1, 1L);
         doNotification(channelId2, 1L);
         
-        final Set<Update> unacked = doAcknowledge(channel, channelId1);
+        final Set<Update> unacked = doAcknowledge(channel, update(channelId1, 1L), update(channelId2, 1L));
+        assertThat(unacked.isEmpty(), is(true));
+    }
+    
+    @Test
+    public void notificationWithNoneUnacknowleged() throws Exception {
+        final String channelId1 = UUID.randomUUID().toString();
+        final String channelId2 = UUID.randomUUID().toString();
+        final EmbeddedByteChannel channel = createWebsocketChannel();
+        doHandshake(UUIDUtil.newUAID(), channel);
+        doRegister(channel, channelId1, channelId2);
+        doNotification(channelId1, 1L);
+        doNotification(channelId2, 1L);
+        
+        final Set<Update> unacked = doAcknowledge(channel);
+        assertThat(unacked.size(), is(2));
+        assertThat(unacked, hasItems(update(channelId1, 1L), update(channelId2, 1L)));
+    }
+    
+    @Test
+    public void notificationWithUnacknowleged() throws Exception {
+        final String channelId1 = UUID.randomUUID().toString();
+        final String channelId2 = UUID.randomUUID().toString();
+        final EmbeddedByteChannel channel = createWebsocketChannel();
+        doHandshake(UUIDUtil.newUAID(), channel);
+        doRegister(channel, channelId1, channelId2);
+        doNotification(channelId1, 1L);
+        doNotification(channelId2, 1L);
+        
+        final Set<Update> unacked = doAcknowledge(channel, update(channelId1, 1L));
+        assertThat(unacked.size(), is(1));
         assertThat(unacked, hasItem(new UpdateImpl(channelId2, 1L)));
+    }
+    
+    private Update update(final String channelId, final Long version) {
+        return new UpdateImpl(channelId, version);
     }
     
     @Test
@@ -216,9 +251,9 @@ public class WebSocketServerHandlerTest {
         return handleHttpRequest(createHttpChannel(), websocketUpgradeRequest());
     }
     
-    private Set<Update> doAcknowledge(final EmbeddedByteChannel channel, final String... channelIds) throws Exception {
-        final Set<String> updates = new HashSet<String>(Arrays.asList(channelIds));
-        final NotificationMessage unackedNotification = handleWebSocketTextFrame(ackFrame(updates), NotificationMessageImpl.class, channel);
+    private Set<Update> doAcknowledge(final EmbeddedByteChannel channel, final Update... updates) throws Exception {
+        final Set<Update> ups = new HashSet<Update>(Arrays.asList(updates));
+        final NotificationMessage unackedNotification = handleWebSocketTextFrame(ackFrame(ups), NotificationMessageImpl.class, channel);
         if (unackedNotification == null) {
             return Collections.emptySet();
         } 
@@ -281,24 +316,23 @@ public class WebSocketServerHandlerTest {
         return frame;
     }
     
-    private TextWebSocketFrame ackFrame(final Set<String> updates) {
+    private TextWebSocketFrame ackFrame(final Set<Update> updates) {
         final TextWebSocketFrame frame = mock(TextWebSocketFrame.class);
         when(frame.text()).thenReturn(JsonUtil.toJson(new AckMessageImpl(updates)));
         return frame;
     }
     
-    private <T> T handleWebSocketTextFrame(final TextWebSocketFrame frame,  final Class<T> type) throws Exception {
+    private <T> T handleWebSocketTextFrame(final TextWebSocketFrame frame, final Class<T> type) throws Exception {
         final EmbeddedByteChannel channel = createWebsocketChannel();
         return handleWebSocketTextFrame(frame, type, channel);
     }
     
-    private <T> T handleWebSocketTextFrame(final TextWebSocketFrame frame,  final Class<T> type, final EmbeddedByteChannel channel) throws Exception {
-        StubFrameEncoder stubFrameEncoder = (StubFrameEncoder) channel.pipeline().get("stubEncoder");
-        if (stubFrameEncoder == null) {
-            stubFrameEncoder = new StubFrameEncoder();
+    private <T> T handleWebSocketTextFrame(final TextWebSocketFrame frame, final Class<T> type, final EmbeddedByteChannel channel) throws Exception {
+        StubFrameEncoder stubFrameEncoder = new StubFrameEncoder();
+        if (channel.pipeline().get("stubEncoder") == null) {
             channel.pipeline().addLast("stubEncoder", stubFrameEncoder);
         } else {
-            stubFrameEncoder.clearFrame();
+            channel.pipeline().replace(StubFrameEncoder.class, "stubEncoder", stubFrameEncoder);
         }
         
         wsHandler.handleWebSocketFrame(channel, frame);

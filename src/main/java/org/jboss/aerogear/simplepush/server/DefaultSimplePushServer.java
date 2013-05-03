@@ -83,17 +83,18 @@ public class DefaultSimplePushServer implements SimplePushServer {
     }
     
     public Set<Update> handleAcknowledgement(final AckMessage ack, final UUID uaid) {
-        final Set<String> acks = ack.getUpdates();
-        final Set<Update> notifications = store.getUpdates(uaid);
-        final Set<Update> unAcked = new HashSet<Update>();
-        for (Update update : notifications) {
-            if (acks.contains(update.getChannelId())) {
-                store.removeUpdate(update, uaid);
-            } else {
-                unAcked.add(update);
+        final Set<Update> acks = ack.getUpdates();
+        final Set<Update> waitingForAcks = store.getUpdates(uaid);
+        final Set<Update> unacked = new HashSet<Update>(waitingForAcks);
+        for (Update update : waitingForAcks) {
+            if (acks.contains(update)) {
+                final boolean removed = store.removeUpdate(update, uaid);
+                if (removed) {
+                    unacked.remove(update);
+                }
             }
         }
-        return unAcked;
+        return unacked;
     }
     
     public UUID getUAID(final String channelId) {

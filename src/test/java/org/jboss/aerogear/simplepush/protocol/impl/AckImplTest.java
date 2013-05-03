@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
+import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.junit.Test;
 
@@ -41,26 +42,34 @@ public class AckImplTest {
     
     @Test
     public void constructWithUpdates() {
-        final Set<String> updates = new HashSet<String>(Arrays.asList("abc123", "efg456"));
+        final Set<Update> updates = updates(update("abc123", 1L), update("efg456", 20L));
         final AckMessage ack = new AckMessageImpl(updates);
-        assertThat(ack.getUpdates(), hasItems("abc123", "efg456"));
+        assertThat(ack.getUpdates(), hasItems(update("abc123", 1L), update("efg456", 20L)));
     }
     
     @Test
     public void fromJson() {
-        final String json = "{\"messageType\": \"ack\", \"updates\": [\"abc123\", \"efg456\"]}";
+        final String json = "{\"messageType\": \"ack\", \"updates\": [{\"channelID\": \"abc123\", \"version\": 20}, {\"channelID\": \"efg456\", \"version\": 10}]}";
         final AckMessage ack = JsonUtil.fromJson(json, AckMessageImpl.class);
         assertThat(ack.getMessageType(), is(equalTo(MessageType.Type.ACK)));
-        assertThat(ack.getUpdates(), hasItems("abc123", "efg456"));
+        assertThat(ack.getUpdates(), hasItems(update("abc123", 20L), update("efg456", 10L)));
     }
     
     @Test 
     public void toJson() {
-        final Set<String> updates = new HashSet<String>(Arrays.asList("abc123", "efg456"));
+        final Set<Update> updates = updates(update("abc123", 1L), update("efg456", 20L));
         final String json = JsonUtil.toJson(new AckMessageImpl(updates));
         final AckMessage ack = JsonUtil.fromJson(json, AckMessageImpl.class);
         assertThat(ack.getMessageType(), is(equalTo(MessageType.Type.ACK)));
-        assertThat(ack.getUpdates(), hasItems("abc123", "efg456"));
+        assertThat(ack.getUpdates(), hasItems(update("abc123", 1L), update("efg456", 20L)));
+    }
+    
+    private Update update(final String channelId, final Long version) {
+        return new UpdateImpl(channelId, version);
+    }
+    
+    private Set<Update> updates(final Update... updates) {
+        return new HashSet<Update>(Arrays.asList(updates));
     }
 
 }

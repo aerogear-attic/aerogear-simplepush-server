@@ -115,7 +115,6 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         if (requestUri.startsWith(endpointPath)) {
             final String channelId = requestUri.substring(requestUri.lastIndexOf('/') + 1);
             final String payload = req.content().toString(CharsetUtil.UTF_8);
-            logger.info("Notification [" + channelId + ", " + payload + "]");
             channel.eventLoop().submit(new Notifier(channelId, payload)).addListener(new NotificationFutureListener(channel, req));
         } else {
             final String wsUrl = getWebSocketLocation(req, path);
@@ -144,6 +143,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     protected void handleWebSocketFrame(final Channel channel, final WebSocketFrame frame) throws Exception { 
         if (frame instanceof CloseWebSocketFrame) {
             frame.retain();
+            logger.info("Closing WebSocket for UserAgent [" + userAgent + "]");
             final ChannelFuture future = handshaker.close(channel, (CloseWebSocketFrame) frame);
             future.addListener(new GenericFutureListener<Future<Void>>() {
                 @Override
@@ -303,7 +303,8 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         public void operationComplete(Future<Void> future) throws Exception {
             if (future.cause() != null) {
                 logger.debug("Notification failed: ", future.cause());
-                sendHttpResponse(future.cause().getMessage(), BAD_REQUEST, request, channel);
+                final String body = future.cause().getMessage() != null ? future.cause().getMessage() : "";
+                sendHttpResponse(body, BAD_REQUEST, request, channel);
             } else {
                 sendHttpResponse(OK, request, channel);
             }

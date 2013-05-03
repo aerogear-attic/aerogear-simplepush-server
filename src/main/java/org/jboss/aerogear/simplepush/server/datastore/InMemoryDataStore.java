@@ -54,33 +54,58 @@ public class InMemoryDataStore implements DataStore {
 
     @Override
     public void storeUpdates(final Set<Update> updates, final UUID uaid) {
-        Set<Update> currentUpdates = notifiedChannels.get(uaid);
-        if (currentUpdates == null) {
-            currentUpdates = Collections.newSetFromMap(new ConcurrentHashMap<Update, Boolean>());
-            final Set<Update> concurrentUpdates = notifiedChannels.putIfAbsent(uaid, currentUpdates);
-            if (concurrentUpdates != null) {
-                currentUpdates = concurrentUpdates;
+        checkNotNull(uaid, "uaid");
+        checkNotNull(updates, "updates");
+        final Set<Update> newUpdates = Collections.newSetFromMap(new ConcurrentHashMap<Update, Boolean>());
+        newUpdates.addAll(updates);
+        while (true) {
+            final Set<Update> currentUpdates = notifiedChannels.get(uaid);
+            if (currentUpdates == null) {
+                final Set<Update> previous = notifiedChannels.putIfAbsent(uaid, newUpdates);
+                if (previous != null) {
+                    newUpdates.addAll(previous);
+                    if (notifiedChannels.replace(uaid, previous, newUpdates)) {
+                        break;
+                    }
+                }
+            } else {
+                newUpdates.addAll(currentUpdates);
+                if (notifiedChannels.replace(uaid, currentUpdates, newUpdates)) {
+                    break;
+                }
             }
         }
-        currentUpdates.addAll(updates);
     }
 
     @Override
-    public Set<Update> getUpdates(UUID uaid) {
+    public Set<Update> getUpdates(final UUID uaid) {
+        checkNotNull(uaid, "uaid");
         final Set<Update> updates = notifiedChannels.get(uaid);
         if (updates == null) {
             return Collections.emptySet();
         }
-        return updates;
+        return Collections.unmodifiableSet(updates);
     }
 
     @Override
-    public boolean removeUpdate(Update update, UUID uaid) {
-        final Set<Update> updates = notifiedChannels.get(uaid);
-        if (updates != null) {
-            return updates.remove(update);
+    public boolean removeUpdate(final Update update, final UUID uaid) {
+        checkNotNull(update, "update");
+        checkNotNull(uaid, "uaid");
+        while (true) {
+            final Set<Update> currentUpdates = notifiedChannels.get(uaid);
+            if (currentUpdates == null || currentUpdates.isEmpty()) {
+                return false;
+            }
+            final Set<Update> newUpdates = Collections.newSetFromMap(new ConcurrentHashMap<Update, Boolean>());
+            newUpdates.addAll(currentUpdates);
+            if (newUpdates.remove(update)) {
+                if (notifiedChannels.replace(uaid, currentUpdates, newUpdates)) {
+                    return true;
+                }
+            } else {
+                return false;
+            }
         }
-        return false;
     }
 
 }

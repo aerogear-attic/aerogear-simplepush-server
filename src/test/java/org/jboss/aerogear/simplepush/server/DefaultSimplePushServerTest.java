@@ -127,7 +127,8 @@ public class DefaultSimplePushServerTest {
         server.handleNotification(channelId_1, uaid, "version=10");
         server.handleNotification(channelId_2, uaid, "version=23");
         
-        final Set<Update> unacked = server.handleAcknowledgement(new AckMessageImpl(new HashSet<String>(Arrays.asList(channelId_1))), uaid);
+        final Update updateChannel_1 = new UpdateImpl(channelId_1, 10L);
+        final Set<Update> unacked = server.handleAcknowledgement(new AckMessageImpl(new HashSet<Update>(Arrays.asList(updateChannel_1))), uaid);
         assertThat(unacked, hasItem(new UpdateImpl(channelId_2, 23L)));
     }
 

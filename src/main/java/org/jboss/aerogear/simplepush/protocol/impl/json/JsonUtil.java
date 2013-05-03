@@ -246,10 +246,10 @@ public class JsonUtil {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
             final JsonNode updatesNode = node.get(AckMessage.UPDATES_FIELD);
-            final Set<String> updates = new HashSet<String>();
+            final Set<Update> updates = new HashSet<Update>();
             if (updatesNode.isArray()) {
-                for (JsonNode channelIdNode : updatesNode) {
-                    updates.add(channelIdNode.asText());
+                for (JsonNode updateNode : updatesNode) {
+                    updates.add(new UpdateImpl(updateNode.get("channelID").asText(), updateNode.get("version").asLong()));
                 }
             }
             return new AckMessageImpl(updates);
@@ -265,8 +265,13 @@ public class JsonUtil {
             jgen.writeFieldName(AckMessage.MESSSAGE_TYPE_FIELD);
             jgen.writeString(ack.getMessageType().toString().toLowerCase());
             jgen.writeArrayFieldStart(AckMessage.UPDATES_FIELD);
-            for (String channelId : ack.getUpdates()) {
-                jgen.writeString(channelId);
+            for (Update update : ack.getUpdates()) {
+                jgen.writeStartObject();
+                jgen.writeFieldName("channelID");
+                jgen.writeString(update.getChannelId());
+                jgen.writeFieldName(AckMessage.VERSION_FIELD);
+                jgen.writeNumber(update.getVersion());
+                jgen.writeEndObject();
             }
             jgen.writeEndArray();
             jgen.writeEndObject();
