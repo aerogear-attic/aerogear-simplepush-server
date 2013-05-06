@@ -122,6 +122,25 @@
                 <version>1.1</version>
                 <configuration>
                     <mainClass>org.jboss.aerogear.simplepush.server.netty.NettyWebSocketServer</mainClass>
+                    <arguments>
+                        <argument>7777</argument>
+                    </arguments>
+                    <systemProperties>
+                        <systemProperty>
+                          <key>keystore.file.path</key>
+                          <value>${basedir}/src/test/resources/simplepushServer.keystore</value>
+                        </systemProperty>
+                        <systemProperty>
+                          <key>keystore.file.password</key>
+                          <value>simplepush</value>
+                        </systemProperty>
+                        <!--
+                        <systemProperty>
+                          <key>javax.net.debug</key>
+                          <value>all</value>
+                        </systemProperty>
+                        -->
+                    </systemProperties>
                 </configuration>
             </plugin>
             

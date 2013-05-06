@@ -64,7 +64,7 @@ public class WebSocketServerHandlerTest {
     
     @Before
     public void setup() {
-        wsHandler = new WebSocketServerHandler("simplepush", "push-notification", "/endpoint", new DefaultSimplePushServer(new InMemoryDataStore()));
+        wsHandler = new WebSocketServerHandler("simplepush", false, "push-notification", "/endpoint", new DefaultSimplePushServer(new InMemoryDataStore()));
     }
 
     @Test

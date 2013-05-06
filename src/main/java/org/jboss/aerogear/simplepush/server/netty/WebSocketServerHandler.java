@@ -81,6 +81,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     private final Logger logger = LoggerFactory.getLogger(WebSocketServerHandler.class);
     
     private final String path;
+    private final boolean tls;
     private final String subprotocol;
     private final String endpointPath;
     private final SimplePushServer simplePushServer;
@@ -88,10 +89,12 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     private WebSocketServerHandshaker handshaker;
     
     public WebSocketServerHandler(final String path, 
+            final boolean transportLayerSecurity,
             final String subprotocol, 
             final String endpointPath, 
             final SimplePushServer simplePushServer) {
         this.path = path;
+        this.tls = transportLayerSecurity;
         this.subprotocol = subprotocol;
         this.endpointPath = endpointPath;
         this.simplePushServer = simplePushServer;
@@ -117,7 +120,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
             final String payload = req.content().toString(CharsetUtil.UTF_8);
             channel.eventLoop().submit(new Notifier(channelId, payload)).addListener(new NotificationFutureListener(channel, req));
         } else {
-            final String wsUrl = getWebSocketLocation(req, path);
+            final String wsUrl = getWebSocketLocation(tls, req, path);
             final WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(wsUrl, subprotocol, false);
             handshaker = wsFactory.newHandshaker(req);
             if (handshaker == null) {
@@ -246,9 +249,8 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         super.exceptionCaught(ctx, cause);
     }
 
-    private static String getWebSocketLocation(final FullHttpRequest req, final String path) {
-        //TODO: support wss, infact mandate it.
-        return "ws://" + req.headers().get(HOST) + path;
+    private static String getWebSocketLocation(final boolean tls, final FullHttpRequest req, final String path) {
+        return tls ? "wss://" : "ws://" + req.headers().get(HOST) + path;
     }
 
     private class Notifier implements Callable<Void> {

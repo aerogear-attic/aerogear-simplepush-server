@@ -10,9 +10,19 @@ This project is a Java implementation of the server side that follows the [Simpl
 
 ### Start the SimplePush Server
 
-    mvn exec:java -Dexec.args="7777"
+    mvn exec:java
     
 ### Access the demo html page
+
+
+#### Setting up TLS/SSL
+This SimplePush Server uses Web Sockets on top transport layer security/secure socket layer and there for requires
+a certifcate to be accepted by the client. The serveris already configured which you can see by inspecting the pom.xml, but
+the browsers need to import the certificate.  
+
+For some broswers is will be enough to access ```https://localhost:7777``` once, and then accept the certificate.  For other
+systems it migth be required to import the certificate through the browser preferens/settings page. For this case we
+have exported the cerfificate and it can be found in ```src/test/resources/cert.cer```.
 
 #### Mac WebServer
 
@@ -43,7 +53,7 @@ You will automatically be registered to receive push notifications for mail and 
 
 Use one of the above mentioned IDs in the following ```curl``` command:
 
-    curl -i --header "Accept: application/x-www-form-urlencoded" -X PUT -d "version=1" "http://localhost:7777/endpoint/{ChannelID}"
+    curl -i --header "Accept: application/x-www-form-urlencoded" -X PUT -d "version=1" "https://localhost:7777/endpoint/{ChannelID}"
 
 A push notification stating the version will be displayed in the textarea of the _websocket.html_ page that has registerd for that channel.
 

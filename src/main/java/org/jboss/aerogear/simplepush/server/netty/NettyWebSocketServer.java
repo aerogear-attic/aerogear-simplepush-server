@@ -16,9 +16,7 @@
  */
 package org.jboss.aerogear.simplepush.server.netty;
 
-import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
-import org.jboss.aerogear.simplepush.server.datastore.DataStore;
-import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
+import javax.net.ssl.SSLEngine;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -30,6 +28,11 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.ssl.SslHandler;
+
+import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
+import org.jboss.aerogear.simplepush.server.datastore.DataStore;
+import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 
 public class NettyWebSocketServer {
 
@@ -51,10 +54,13 @@ public class NettyWebSocketServer {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {
                         final ChannelPipeline pipeline = ch.pipeline();
+                        final SSLEngine engine = WebSocketSslServerSslContext.getInstance().serverContext().createSSLEngine();
+                        engine.setUseClientMode(false);
+                        pipeline.addLast("ssl", new SslHandler(engine));
                         pipeline.addLast("codec-http", new HttpServerCodec());
                         pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
                         pipeline.addLast("handler", 
-                                new WebSocketServerHandler("/simple-push", "push-notification", "/endpoint", new DefaultSimplePushServer(dataStore)));
+                                new WebSocketServerHandler("/simple-push", true, "push-notification", "/endpoint", new DefaultSimplePushServer(dataStore)));
                     }
             });
 
