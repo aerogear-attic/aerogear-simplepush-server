@@ -12,6 +12,11 @@ This project is a Java implementation of the server side that follows the [Simpl
 
     mvn exec:java
     
+This will start the server listening to port 7777 and using transport layer security. To toggle these arguments you can
+specify overrides on the command lind:  
+
+    mvn exec:java -Dexec.args="8888 false"
+    
 ### Access the demo html page
 
 

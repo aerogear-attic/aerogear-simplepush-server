@@ -123,7 +123,10 @@
                 <configuration>
                     <mainClass>org.jboss.aerogear.simplepush.server.netty.NettyWebSocketServer</mainClass>
                     <arguments>
+                        <!-- Port -->
                         <argument>7777</argument>
+                        <!-- Transport Layer Security option -->
+                        <argument>true</argument>
                     </arguments>
                     <systemProperties>
                         <systemProperty>

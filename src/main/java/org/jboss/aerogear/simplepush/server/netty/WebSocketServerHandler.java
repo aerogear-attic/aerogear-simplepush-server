@@ -121,6 +121,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
             channel.eventLoop().submit(new Notifier(channelId, payload)).addListener(new NotificationFutureListener(channel, req));
         } else {
             final String wsUrl = getWebSocketLocation(tls, req, path);
+            logger.info("WebSocket location: " + wsUrl);
             final WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(wsUrl, subprotocol, false);
             handshaker = wsFactory.newHandshaker(req);
             if (handshaker == null) {
@@ -250,7 +251,8 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     }
 
     private static String getWebSocketLocation(final boolean tls, final FullHttpRequest req, final String path) {
-        return tls ? "wss://" : "ws://" + req.headers().get(HOST) + path;
+        final String protocol = tls ? "wss://" : "ws://";
+        return protocol + req.headers().get(HOST) + path;
     }
 
     private class Notifier implements Callable<Void> {

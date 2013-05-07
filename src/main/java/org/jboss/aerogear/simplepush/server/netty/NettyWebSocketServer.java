@@ -37,9 +37,11 @@ import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 public class NettyWebSocketServer {
 
     private final int port;
+    private final boolean tls;
 
-    public NettyWebSocketServer(final int port) {
+    public NettyWebSocketServer(final int port, final boolean tls) {
         this.port = port;
+        this.tls = tls;
     }
 
     public void run() throws Exception {
@@ -54,13 +56,15 @@ public class NettyWebSocketServer {
                     @Override
                     public void initChannel(SocketChannel ch) throws Exception {
                         final ChannelPipeline pipeline = ch.pipeline();
-                        final SSLEngine engine = WebSocketSslServerSslContext.getInstance().serverContext().createSSLEngine();
-                        engine.setUseClientMode(false);
-                        pipeline.addLast("ssl", new SslHandler(engine));
+                        if (tls) {
+                            final SSLEngine engine = WebSocketSslServerSslContext.getInstance().serverContext().createSSLEngine();
+                            engine.setUseClientMode(false);
+                            pipeline.addLast("ssl", new SslHandler(engine));
+                        }
                         pipeline.addLast("codec-http", new HttpServerCodec());
                         pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
                         pipeline.addLast("handler", 
-                                new WebSocketServerHandler("/simple-push", true, "push-notification", "/endpoint", new DefaultSimplePushServer(dataStore)));
+                                new WebSocketServerHandler("/simple-push", tls, "push-notification", "/endpoint", new DefaultSimplePushServer(dataStore)));
                     }
             });
 
@@ -75,8 +79,9 @@ public class NettyWebSocketServer {
     }
 
     public static void main(final String[] args) throws Exception {
-        int port =  args.length > 0 ? Integer.parseInt(args[0]) : 8080;
-        new NettyWebSocketServer(port).run();
+        final int port =  args.length > 0 ? Integer.parseInt(args[0]) : 8080;
+        final boolean transportLayerSecurity =  args.length > 1 ? Boolean.parseBoolean(args[1]) : true;
+        new NettyWebSocketServer(port, transportLayerSecurity).run();
     }
 
 }
