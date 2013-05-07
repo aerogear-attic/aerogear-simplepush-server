@@ -16,8 +16,6 @@
  */
 package org.jboss.aerogear.simplepush.server.netty;
 
-import static io.netty.handler.codec.http.HttpHeaders.isKeepAlive;
-import static io.netty.handler.codec.http.HttpHeaders.setContentLength;
 import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpHeaders.Names.HOST;
 import static io.netty.handler.codec.http.HttpMethod.GET;
@@ -38,6 +36,7 @@ import io.netty.channel.ChannelInboundMessageHandlerAdapter;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
@@ -117,8 +116,8 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         final String requestUri = req.getUri();
         if (requestUri.startsWith(endpointPath)) {
             final String channelId = requestUri.substring(requestUri.lastIndexOf('/') + 1);
-            final String payload = req.content().toString(CharsetUtil.UTF_8);
-            channel.eventLoop().submit(new Notifier(channelId, payload)).addListener(new NotificationFutureListener(channel, req));
+            final Future<Void> future = channel.eventLoop().submit(new Notifier(channelId, req.content()));
+            future.addListener(new NotificationFutureListener(channel, req));
         } else {
             final String wsUrl = getWebSocketLocation(tls, req, path);
             logger.info("WebSocket location: " + wsUrl);
@@ -212,7 +211,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     
     private boolean checkHandshakeCompleted(final Channel channel) {
         if (userAgent == null) {
-            channel.write(new TextWebSocketFrame("Hello message has not been sent"));
+            logger.debug("Hello message has not been sent, ignoring the frame");
             return false;
         }
         return true;
@@ -227,19 +226,19 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     }
     
     private void sendHttpResponse(final String body,final HttpResponseStatus status, final FullHttpRequest request, final Channel channel) {
-        final ByteBuf content = Unpooled.copiedBuffer(body, CharsetUtil.UTF_8);
         final FullHttpResponse res = new DefaultFullHttpResponse(HTTP_1_1, status);
         res.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
-        setContentLength(res, content.readableBytes());
+        final ByteBuf content = Unpooled.copiedBuffer(body, CharsetUtil.UTF_8);
+        HttpHeaders.setContentLength(res, content.readableBytes());
         sendHttpResponse(channel, request, res);
     }
 
     private static void sendHttpResponse(final Channel channel, final FullHttpRequest req, final FullHttpResponse res) {
         res.content().writeBytes(Unpooled.copiedBuffer(res.getStatus().toString(), CharsetUtil.UTF_8));
-        setContentLength(res, res.content().readableBytes());
+        HttpHeaders.setContentLength(res, res.content().readableBytes());
 
         ChannelFuture f = channel.write(res);
-        if (!isKeepAlive(req) || res.getStatus().code() != 200) {
+        if (!HttpHeaders.isKeepAlive(req) || res.getStatus().code() != 200) {
             f.addListener(ChannelFutureListener.CLOSE);
         }
     }
@@ -258,21 +257,26 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     private class Notifier implements Callable<Void> {
         
         private final String channelId;
-        private final String payload;
+        private final ByteBuf content;
     
-        private Notifier(final String channelId, final String payload) {
+        private Notifier(final String channelId, final ByteBuf content) {
             this.channelId = channelId;
-            this.payload = payload;
+            this.content = content;
+            this.content.retain();
         }
     
         @Override
         public Void call() throws Exception {
-            final UUID uaid = simplePushServer.fromChannel(channelId);
-            logger.info("UserAgent [" + uaid + "] Notification [" + channelId + ", " + payload + "]");
-            final NotificationMessage notification = simplePushServer.handleNotification(channelId, uaid, payload);
-            final String json = JsonUtil.toJson(notification);
-            writeJsonResponse(json, userAgents.get(uaid)); 
-            return null;
+            try {
+                final UUID uaid = simplePushServer.fromChannel(channelId);
+                final String payload = content.toString(CharsetUtil.UTF_8);
+                logger.info("UserAgent [" + uaid + "] Notification [" + channelId + ", " + payload + "]");
+                final NotificationMessage notification = simplePushServer.handleNotification(channelId, uaid, payload);
+                writeJsonResponse(toJson(notification), userAgents.get(uaid)); 
+                return null;
+            } finally {
+                content.release();
+            }
         }
     }
     
@@ -286,8 +290,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     
         @Override
         public Void call() throws Exception {
-            final String json = JsonUtil.toJson(new NotificationMessageImpl(updates));
-            writeJsonResponse(json, userAgents.get(userAgent)); 
+            writeJsonResponse(toJson(new NotificationMessageImpl(updates)), userAgents.get(userAgent)); 
             return null;
         }
         
