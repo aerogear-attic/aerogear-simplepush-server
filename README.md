@@ -1,8 +1,15 @@
 # AeroGear SimplePush Server
-__Disclaimer: This is only a proof of concept.__
+__Disclaimer: This is only a proof of concept.__  
 This project is a Java implementation of the server side that follows the [SimplePush Protocol](https://wiki.mozilla.org/WebAPI/SimplePush/Protocol)
 
 ## Usage
+
+### Prerequisites
+This project uses Netty 4.x and requires the lastest to be build locally:
+
+    git clone https://github.com/netty/netty.git
+    cd netty
+    mvn install -DskipTests=true
 
 ### Build the SimplePush Server
 
