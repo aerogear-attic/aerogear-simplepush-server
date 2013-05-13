@@ -20,6 +20,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Arrays;
@@ -64,6 +65,15 @@ public class DefaultSimplePushServerTest {
         final HandshakeResponse response = server.handleHandshake(handshakeImpl);
         assertThat(response.getUAID(), is(notNullValue()));
         assertThat(server.getChannel("channel1").getChannelId(), is(equalTo("channel1")));
+    }
+    
+    @Test 
+    public void handleHandshakeWithChannelsButNoUaid() {
+        final HashSet<String> channelIds = new HashSet<String>(Arrays.asList("channel1", "channel2"));
+        final HandshakeMessage handshakeImpl = new HandshakeMessageImpl(null, channelIds);
+        final HandshakeResponse response = server.handleHandshake(handshakeImpl);
+        assertThat(response.getUAID(), is(notNullValue()));
+        assertThat(server.hasChannel("channel1"), is(false));
     }
     
     @Test

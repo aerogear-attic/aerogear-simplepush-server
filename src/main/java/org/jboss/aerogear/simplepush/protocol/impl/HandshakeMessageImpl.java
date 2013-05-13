@@ -41,8 +41,13 @@ public class HandshakeMessageImpl implements HandshakeMessage {
     }
 
     public HandshakeMessageImpl(final String uaid, final Set<String> channelIds) {
-        this.uaid = nullOrEmpty(uaid) ? newUAID() : UUID.fromString(uaid);
-        this.channelIds = channelIds;
+        if (nullOrEmpty(uaid)) {
+            this.uaid = newUAID();
+            this.channelIds = Collections.emptySet();
+        } else {
+            this.uaid = UUID.fromString(uaid);
+            this.channelIds = channelIds;
+        }
     }
     
     @Override

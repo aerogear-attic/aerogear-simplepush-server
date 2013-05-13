@@ -109,6 +109,11 @@ public class DefaultSimplePushServer implements SimplePushServer {
         return channel;
     }
     
+    public boolean hasChannel(final String channelId) {
+        final Channel channel = store.getChannel(channelId);
+        return channel != null;
+    }
+    
     public boolean removeChannel(final String channnelId, final UUID uaid) {
         final Channel channel = store.getChannel(channnelId);
         if (channel != null && channel.getUAID().equals(uaid)) {
