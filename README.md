@@ -4,13 +4,6 @@ This project is a Java implementation of the server side that follows the [Simpl
 
 ## Usage
 
-### Prerequisites
-This project uses Netty 4.x and requires the lastest to be build locally:
-
-    git clone https://github.com/netty/netty.git
-    cd netty
-    mvn install -DskipTests=true
-
 ### Build the SimplePush Server
 
     mvn install
