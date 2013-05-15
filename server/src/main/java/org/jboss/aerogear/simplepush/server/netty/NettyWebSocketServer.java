@@ -56,7 +56,7 @@ public class NettyWebSocketServer {
     }
 
     public static void main(final String[] args) throws Exception {
-        final int port =  args.length > 0 ? Integer.parseInt(args[0]) : 8080;
+        final int port =  args.length > 0 ? Integer.parseInt(args[0]) : 7777;
         final boolean transportLayerSecurity =  args.length > 1 ? Boolean.parseBoolean(args[1]) : true;
         new NettyWebSocketServer(port, transportLayerSecurity).run();
     }
