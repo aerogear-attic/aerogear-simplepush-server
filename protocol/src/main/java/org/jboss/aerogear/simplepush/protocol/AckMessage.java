@@ -23,7 +23,7 @@ import java.util.Set;
  * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>.
  * 
  * A ack message is sent from the UserAgent to the SimplePush contains the channels that the UserAgent has 
- * processed and is hence acknowledging. TODO: verify this as I'm note 100% sure I'm reading the spec correctly.
+ * processed and is hence acknowledging. 
  * 
  */
 public interface AckMessage extends MessageType {

@@ -28,6 +28,11 @@
     <dependencies>
     
         <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-protocol</artifactId>
+        </dependency>
+    
+        <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
         </dependency>

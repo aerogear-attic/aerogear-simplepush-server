@@ -34,12 +34,18 @@
   </properties>
 
   <modules>
+    <module>protocol</module>
     <module>server</module>
     <module>wildfly-module</module>
   </modules>
   
     <dependencyManagement>
       <dependencies>
+          <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-protocol</artifactId>
+            <version>${project.version}</version>
+          </dependency>
           <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
