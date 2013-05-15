@@ -61,12 +61,13 @@ public final class WebSocketSslServerSslContext {
                 algorithm = "SunX509";
             }
 
+            FileInputStream fin = null;
             try {
                 String keyStoreFilePath = System.getProperty("keystore.file.path");
                 String keyStoreFilePassword = System.getProperty("keystore.file.password");
 
                 KeyStore ks = KeyStore.getInstance("JKS");
-                FileInputStream fin = new FileInputStream(keyStoreFilePath);
+                fin = new FileInputStream(keyStoreFilePath);
                 ks.load(fin, keyStoreFilePassword.toCharArray());
 
                 // Set up key manager factory to use our key store
@@ -80,6 +81,10 @@ public final class WebSocketSslServerSslContext {
                 serverContext.init(kmf.getKeyManagers(), null, null);
             } catch (Exception e) {
                 throw new Error("Failed to initialize the server-side SSLContext", e);
+            } finally {
+               if (fin != null) {
+                   fin.close();
+               }
             }
         } catch (Exception ex) {
             logger.log(Level.WARNING, "Error initializing SslContextManager.", ex);
