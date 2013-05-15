@@ -4,10 +4,10 @@ This project is a Java implementation of the server side that follows the [Simpl
 It consists of three modules:  
 
 * [protocol](https://github.com/danbev/aerogear-simplepush-server/tree/master/protocol)  
-The SimplsPush Server Protocol.
+The SimplePush Server Protocol.
 
 * [server](https://github.com/danbev/aerogear-simplepush-server/tree/master/server)  
-The SimplsPush Server implememtation.
+The SimplePush Server implememtation.
 
 * [wildfly-module](https://github.com/danbev/aerogear-simplepush-server/tree/master/wildfly-module)  
 A WildFly/AS7 module for the SimplePush Server.
