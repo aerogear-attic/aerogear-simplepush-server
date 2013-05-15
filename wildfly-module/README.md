@@ -31,7 +31,7 @@ Open up your WildFly server's configuration xml file, for example standalone.xml
 
     <subsystem xmlns="urn:org.jboss.aerogear.netty:1.0">
         <netty>
-            <server name="simplepush-server" socket-binding="simplepush" factoryClass="org.jboss.aerogear.simplepush.netty.SimplePushBootstrapFactory" thread-factory="netty-thread-factory"/>
+            <server name="simplepush-server" socket-binding="simplepush" factoryClass="org.jboss.aerogear.simplepush.netty.SimplePushBootstrapFactory"/>
         </netty>
     </subsystem>
     
