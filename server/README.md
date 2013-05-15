@@ -67,7 +67,7 @@ A push notification stating the version will be displayed in the textarea of the
 ### Hello Handshake
 Is sent by the UserAgent to the SimplePush Server:
 
-![Hello Message](https://raw.github.com/danbev/aerogear-simplepush-server/master/src/etc/images/hello-message.png)  
+![Hello Message](https://raw.github.com/danbev/aerogear-simplepush-server/master/server/src/etc/images/hello-message.png)  
 
 The SimplePush Server will ignore any additional Hello Messages after the first one on the web socket connection. 
 
@@ -103,7 +103,7 @@ of a Hello Message the _channelIDs_ represent channels that the UserAgent want t
 Register is used to register a ```channelId``` with the SimplePush server and enables the the client to be notified when the version 
 for this channel is updated.
 
-![Register Channel](https://raw.github.com/danbev/aerogear-simplepush-server/master/src/etc/images/register-channel.png)  
+![Register Channel](https://raw.github.com/danbev/aerogear-simplepush-server/master/server/src/etc/images/register-channel.png)  
 Notice that the ```UAID``` is absent from this message. This is because we have already performed hello message handshake and the current 
 web socket connection is for the current UserAgent (identified by the UAID).
 
@@ -134,7 +134,7 @@ channelId.
 ### Notification
 A notification is triggered by sending a ```PUT``` request to the ```pushEndpoint```.
 
-![Notification](https://raw.github.com/danbev/aerogear-simplepush-server/master/src/etc/images/notification.png)  
+![Notification](https://raw.github.com/danbev/aerogear-simplepush-server/master/server/src/etc/images/notification.png)  
 
 #### Request PUT format
 
@@ -166,7 +166,7 @@ later if this is turned into more than a proof of concept.
 
 ### Unregister
 
-![Unregister](https://raw.github.com/danbev/aerogear-simplepush-server/master/src/etc/images/unregister-channel.png)  
+![Unregister](https://raw.github.com/danbev/aerogear-simplepush-server/master/server/src/etc/images/unregister-channel.png)  
 
 #### Request format
 

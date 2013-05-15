@@ -23,86 +23,58 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <module.name>org.jboss.aerogear.simplepush</module.name>
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-simplepush-server</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>netty-subsystem-api</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-    
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
         </dependency>
-        
-         <dependency>
+        <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
             <version>1.9.2</version>
         </dependency>
-        
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.5</version>
         </dependency>
-        
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-        
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
-        
         <dependency>
             <groupId>org.easytesting</groupId>
             <artifactId>fest-assert</artifactId>
             <scope>test</scope>
         </dependency>
-        
     </dependencies>
 
     <build>
-        <!-- Set the name of the war, used as the context root when the app
-      is deployed -->
       <finalName>${project.artifactId}</finalName>
         <plugins>
-            <plugin>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.1.1</version>
-                <configuration>
-                    <!-- Java EE 6 doesn't require web.xml, Maven needs to catch
-                   up! -->
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                </configuration>
-            </plugin>
-            <!-- JBoss AS plugin to deploy war -->
-            <plugin>
-                <groupId>org.jboss.as.plugins</groupId>
-                <artifactId>jboss-as-maven-plugin</artifactId>
-                <version>7.1.1.Final</version>
-            </plugin>
-            <!-- Compiler plugin enforces Java 1.6 compatibility and activates
-          annotation processors -->
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>2.3.1</version>
@@ -111,52 +83,93 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
-
             <plugin>
-                <groupId>com.mycila.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
-                <version>1.9.0</version>
-                <configuration>
-                    <header>src/etc/license.txt</header>
-                    <includes>
-                        <include>src/**</include>
-                    </includes>
-                    <strictCheck>true</strictCheck>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.7</version>
+                <executions>
+                  <execution>
+                    <id>copy-dependencies</id>
+                    <phase>package</phase>
+                    <goals>
+                      <goal>copy-dependencies</goal>
+                    </goals>
+                    <configuration>
+                      <outputDirectory>${project.build.directory}/deps</outputDirectory>
+                      <overWriteReleases>false</overWriteReleases>
+                      <overWriteSnapshots>false</overWriteSnapshots>
+                      <overWriteIfNewer>true</overWriteIfNewer>
+                    </configuration>
+                  </execution>
+            </executions>
+          </plugin>
+          <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <inherited>false</inherited>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <id>build-dist</id>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <phase>package</phase>
+                        <configuration>
+                           <target>
+                               <!-- Replace the '.' in ${module.name} with '/' to get its path  -->
+                               <tempfile property="temp.file" />
+                               <echo message="${module.name}" file="${temp.file}" />
+                               <replace file="${temp.file}" token="." value="/" />
+                               <loadfile srcfile="${temp.file}" property="module.path" />
+                               <delete file="${temp.file}" />
+                               
+                               <delete dir="target/module" />
+                               <property name="module.dir" value="target/module/${module.path}/main" />
+                               
+                               <copy file="src/main/resources/module/main/module.xml" tofile="${module.dir}/module.xml" />
+                               <copy file="target/${project.artifactId}.jar" tofile="${module.dir}/${project.artifactId}-${project.version}.jar" />
+                               <copy file="target/deps/aerogear-simplepush-server-1.0.0-SNAPSHOT.jar" todir="${module.dir}" />
+                               <copy file="target/deps/netty-all-4.0.0.CR2.jar" todir="${module.dir}" />
+                               <copy file="target/deps/jackson-core-asl-1.9.2.jar" todir="${module.dir}" />
+                               <copy file="target/deps/jackson-mapper-asl-1.9.2.jar" todir="${module.dir}" />
+                              <echo>Module ${module.name} has been created in the target/module directory. Copy to your JBoss AS 7 installation.</echo>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
-            
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.1</version>
-                <configuration>
-                    <mainClass>org.jboss.aerogear.simplepush.server.netty.NettyWebSocketServer</mainClass>
-                    <arguments>
-                        <!-- Port -->
-                        <argument>7777</argument>
-                        <!-- Transport Layer Security option -->
-                        <argument>true</argument>
-                    </arguments>
-                    <systemProperties>
-                        <systemProperty>
-                          <key>keystore.file.path</key>
-                          <value>${basedir}/src/test/resources/simplepushServer.keystore</value>
-                        </systemProperty>
-                        <systemProperty>
-                          <key>keystore.file.password</key>
-                          <value>simplepush</value>
-                        </systemProperty>
-                        <!--
-                        <systemProperty>
-                          <key>javax.net.debug</key>
-                          <value>all</value>
-                        </systemProperty>
-                        -->
-                    </systemProperties>
-                </configuration>
-            </plugin>
-            
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <!-- Ignore/Execute plugin execution -->
+                <plugin>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <!-- copy-dependency plugin -->
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-dependency-plugin</artifactId>
+                                        <versionRange>[1.0.0,)</versionRange>
+                                        <goals>
+                                            <goal>copy-dependencies</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore />
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
+                </plugin>
+           </plugins>
+       </pluginManagement>
     </build>
 
 </project>
