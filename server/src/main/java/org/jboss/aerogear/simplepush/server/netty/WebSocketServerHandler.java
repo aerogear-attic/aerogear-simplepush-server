@@ -251,9 +251,11 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     
     @Override
     public void channelUnregistered(final ChannelHandlerContext ctx) throws Exception {
-        userAgents.remove(userAgent);
-        logger.info("UserAgent [" + userAgent + "] unregistered");
-        userAgent = null;
+        if (userAgent != null) {
+            userAgents.remove(userAgent);
+            logger.info("UserAgent [" + userAgent + "] unregistered");
+            userAgent = null;
+        }
         super.channelUnregistered(ctx);
     }
 
