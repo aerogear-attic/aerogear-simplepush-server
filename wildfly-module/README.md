@@ -1,16 +1,22 @@
 # Aerogear SimplePush Server WildFly module
 This project is a module intended to be used with the [Netty Subsystem](https://github.com/danbev/netty-subsystem)
 
-## Building
+## Prerequisites 
+This project depends on _aerogear-simple-push_ which needs to be installed manually as it is currently not available in any
+maven repository. 
 
-    mvn package
+## Building
+From the root folder of this project run the following command:
+
+    mvn install
 
 ## Installing
 Copy the module produced by ```mvn package``` to the _modules_ directory of the application server.
 
-    cp -r target/module/org $WILDFLY_HOME/modules
+    cp -r wildfly-module/target/module/org $WILDFLY_HOME/modules
+    
 Make sure you have installed the [Netty Subsystem](https://github.com/danbev/netty-subsystem), and then add this module as 
-a dependency to the Netty subsystem module _modules/org/jboss/aerogear/netty/main/module.xml_:
+a dependency to the Netty subsystem module (_modules/org/jboss/aerogear/netty/main/module.xml_):
 
     <dependencies>
         ...
