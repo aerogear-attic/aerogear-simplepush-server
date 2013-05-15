@@ -4,6 +4,8 @@ This project is a module intended to be used with the [Netty Subsystem](https://
 ## Prerequisites 
 This project depends on _aerogear-simple-push_ which needs to be installed manually as it is currently not available in any
 maven repository. 
+It also requires that [Netty Subsystem](https://github.com/danbev/netty-subsystem) be installed on the local system, as this
+dependency is currently not available in a maven repository.
 
 ## Building
 From the root folder of this project run the following command:
