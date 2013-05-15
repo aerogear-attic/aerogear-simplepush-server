@@ -248,6 +248,14 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         ctx.channel().write(new TextWebSocketFrame(new StatusImpl(400, cause.getMessage()).toString()));
         super.exceptionCaught(ctx, cause);
     }
+    
+    @Override
+    public void channelUnregistered(final ChannelHandlerContext ctx) throws Exception {
+        userAgents.remove(userAgent);
+        logger.info("UserAgent [" + userAgent + "] unregistered");
+        userAgent = null;
+        super.channelUnregistered(ctx);
+    }
 
     private static String getWebSocketLocation(final boolean tls, final FullHttpRequest req, final String path) {
         final String protocol = tls ? "wss://" : "ws://";
