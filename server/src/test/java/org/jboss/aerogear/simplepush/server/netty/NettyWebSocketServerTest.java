@@ -48,10 +48,10 @@ public class NettyWebSocketServerTest {
     public static void startSimplePushServer() throws Exception {
         final DataStore datastore = new InMemoryDataStore();
         final ServerBootstrap sb = new ServerBootstrap();
+        final Config config = Config.path("simplepush").subprotocol("push-notification").endpointUrl("/endpoint").tls(false).build();
         sb.group(bossGroup, workerGroup)
             .channel(NioServerSocketChannel.class)
-            .childHandler(new WebSocketChannelInitializer(datastore, false));
-            
+            .childHandler(new WebSocketChannelInitializer(config, datastore));
         channel = sb.bind(port).sync().channel();
     }
     
@@ -90,7 +90,50 @@ public class NettyWebSocketServerTest {
 
             final UUID uaid = UUIDUtil.newUAID();
             final String json = JsonUtil.toJson(new HandshakeMessageImpl(uaid.toString()));
-            ChannelFuture future = ch.write(new TextWebSocketFrame(json));
+            final ChannelFuture future = ch.write(new TextWebSocketFrame(json));
+            future.sync();
+            final TextWebSocketFrame textFrame = handler.getTextFrame();
+            final HandshakeResponse fromJson = JsonUtil.fromJson(textFrame.text(), HandshakeResponseImpl.class);
+            assertThat(fromJson.getMessageType(), equalTo(MessageType.Type.HELLO));
+            assertThat(fromJson.getUAID(), equalTo(uaid));
+            textFrame.release();
+
+            ch.write(new CloseWebSocketFrame());
+
+            ch.closeFuture().sync();
+        } finally {
+            group.shutdownGracefully();
+        }
+    }
+    
+    @Test
+    public void userAgentReaper() throws Exception {
+        final URI uri = new URI("ws://localhost:" + port + "/simplepush");
+        final EventLoopGroup group = new NioEventLoopGroup();
+        try {
+            final Bootstrap b = new Bootstrap();
+            final HttpHeaders customHeaders = new DefaultHttpHeaders();
+            final WebSocketClientHandler handler = new WebSocketClientHandler(
+                            WebSocketClientHandshakerFactory.newHandshaker(
+                                    uri, WebSocketVersion.V13, null, false, customHeaders));
+            b.group(group)
+             .channel(NioSocketChannel.class)
+             .handler(new ChannelInitializer<SocketChannel>() {
+                 @Override
+                 public void initChannel(SocketChannel ch) throws Exception {
+                     ChannelPipeline pipeline = ch.pipeline();
+                     pipeline.addLast("http-codec", new HttpClientCodec());
+                     pipeline.addLast("aggregator", new HttpObjectAggregator(8192));
+                     pipeline.addLast("ws-handler", handler);
+                 }
+             });
+
+            final Channel ch = b.connect(uri.getHost(), uri.getPort()).sync().channel();
+            handler.handshakeFuture().sync();
+
+            final UUID uaid = UUIDUtil.newUAID();
+            final String json = JsonUtil.toJson(new HandshakeMessageImpl(uaid.toString()));
+            final ChannelFuture future = ch.write(new TextWebSocketFrame(json));
             future.sync();
             final TextWebSocketFrame textFrame = handler.getTextFrame();
             final HandshakeResponse fromJson = JsonUtil.fromJson(textFrame.text(), HandshakeResponseImpl.class);

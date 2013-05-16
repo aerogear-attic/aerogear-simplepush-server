@@ -27,6 +27,7 @@ import java.util.concurrent.ThreadFactory;
 import org.jboss.aerogear.netty.extension.api.ServerBootstrapFactory;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
+import org.jboss.aerogear.simplepush.server.netty.Config;
 import org.jboss.aerogear.simplepush.server.netty.WebSocketChannelInitializer;
 import org.jboss.as.network.SocketBinding;
 
@@ -34,8 +35,9 @@ public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
 
     @Override
     public ServerBootstrap createServerBootstrap(final SocketBinding socketBinding, final ThreadFactory threadFactory) {
+        final Config config = Config.path("simplepush").subprotocol("push-notification").endpointUrl("/endpoint").tls(false).build();
         final DataStore datastore = new InMemoryDataStore();
-        final WebSocketChannelInitializer channelInitializer = new WebSocketChannelInitializer(datastore, false);
+        final WebSocketChannelInitializer channelInitializer = new WebSocketChannelInitializer(config, datastore);
         final EventLoopGroup bossGroup = newEventLoopGroup(threadFactory);
         final EventLoopGroup workerGroup = newEventLoopGroup(threadFactory);
         final ServerBootstrap sb = new ServerBootstrap();

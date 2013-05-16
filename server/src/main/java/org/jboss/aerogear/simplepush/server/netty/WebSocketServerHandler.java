@@ -79,23 +79,13 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     private static final Map<UUID, Channel> userAgents = new ConcurrentHashMap<UUID, Channel>();
     private final Logger logger = LoggerFactory.getLogger(WebSocketServerHandler.class);
     
-    private final String path;
-    private final boolean tls;
-    private final String subprotocol;
-    private final String endpointPath;
+    private final Config config;
     private final SimplePushServer simplePushServer;
     private UUID userAgent;
     private WebSocketServerHandshaker handshaker;
     
-    public WebSocketServerHandler(final String path, 
-            final boolean transportLayerSecurity,
-            final String subprotocol, 
-            final String endpointPath, 
-            final SimplePushServer simplePushServer) {
-        this.path = path;
-        this.tls = transportLayerSecurity;
-        this.subprotocol = subprotocol;
-        this.endpointPath = endpointPath;
+    public WebSocketServerHandler(final Config config, final SimplePushServer simplePushServer) {
+        this.config = config;
         this.simplePushServer = simplePushServer;
     }
 
@@ -114,14 +104,14 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         }
 
         final String requestUri = req.getUri();
-        if (requestUri.startsWith(endpointPath)) {
+        if (requestUri.startsWith(config.endpointUrl())) {
             final String channelId = requestUri.substring(requestUri.lastIndexOf('/') + 1);
             final Future<Void> future = channel.eventLoop().submit(new Notifier(channelId, req.content()));
             future.addListener(new NotificationFutureListener(channel, req));
         } else {
-            final String wsUrl = getWebSocketLocation(tls, req, path);
+            final String wsUrl = getWebSocketLocation(config.tls(), req, config.path());
             logger.info("WebSocket location: " + wsUrl);
-            final WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(wsUrl, subprotocol, false);
+            final WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(wsUrl, config.subprotocol(), false);
             handshaker = wsFactory.newHandshaker(req);
             if (handshaker == null) {
                 WebSocketServerHandshakerFactory.sendUnsupportedWebSocketVersionResponse(channel);
@@ -177,7 +167,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
                 writeJsonResponse(toJson(response), channel);
                 userAgent = response.getUAID();
                 userAgents.put(userAgent, channel);
-                logger.info("UserAgent [" + userAgent + " handshake done");
+                logger.info("UserAgent [" + userAgent + "] handshake done");
             }
             break;
         case REGISTER:

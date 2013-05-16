@@ -28,11 +28,11 @@ import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 public class NettyWebSocketServer {
 
     private final int port;
-    private final boolean tls;
+    private final Config config;
 
-    public NettyWebSocketServer(final int port, final boolean tls) {
+    public NettyWebSocketServer(final Config config , final int port) {
         this.port = port;
-        this.tls = tls;
+        this.config = config;
     }
 
     public void run() throws Exception {
@@ -43,11 +43,9 @@ public class NettyWebSocketServer {
             final ServerBootstrap sb = new ServerBootstrap();
             sb.group(bossGroup, workerGroup)
             .channel(NioServerSocketChannel.class)
-            .childHandler(new WebSocketChannelInitializer(datastore, tls));
-            
+            .childHandler(new WebSocketChannelInitializer(config, datastore));
             final Channel ch = sb.bind(port).sync().channel();
             System.out.println("Web socket server started at port " + port);
-
             ch.closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();
@@ -58,7 +56,8 @@ public class NettyWebSocketServer {
     public static void main(final String[] args) throws Exception {
         final int port =  args.length > 0 ? Integer.parseInt(args[0]) : 7777;
         final boolean transportLayerSecurity =  args.length > 1 ? Boolean.parseBoolean(args[1]) : true;
-        new NettyWebSocketServer(port, transportLayerSecurity).run();
+        final Config config = Config.path("simplepush").subprotocol("push-notification").endpointUrl("/endpoint").tls(transportLayerSecurity).build();
+        new NettyWebSocketServer(config, port).run();
     }
 
 }

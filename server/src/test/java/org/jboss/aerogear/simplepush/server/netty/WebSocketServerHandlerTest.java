@@ -64,7 +64,8 @@ public class WebSocketServerHandlerTest {
     
     @Before
     public void setup() {
-        wsHandler = new WebSocketServerHandler("simplepush", false, "push-notification", "/endpoint", new DefaultSimplePushServer(new InMemoryDataStore()));
+        final Config config = Config.path("simplepush").subprotocol("push-notification").endpointUrl("/endpoint").tls(false).build();
+        wsHandler = new WebSocketServerHandler(config, new DefaultSimplePushServer(new InMemoryDataStore()));
     }
 
     @Test

@@ -29,6 +29,13 @@ public class ArgumentUtil {
         }
     }
     
+    public static <T> void checkNotNullAndNotEmpty(final T ref, final String name) {
+        checkNotNull(ref, name);
+        if ("".equals(ref)) {
+            throw new IllegalArgumentException("[" + name + "] must not be empty");
+        }
+    }
+    
     public static void checkNotNullAndNotEmpty(final Collection<?> c, final String name) {
         checkNotNull(c, name);
         if (c.isEmpty()) {
