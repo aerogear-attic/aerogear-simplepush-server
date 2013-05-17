@@ -102,7 +102,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>1.1</version>
+                <version>1.2</version>
                 <configuration>
                     <mainClass>org.jboss.aerogear.simplepush.server.netty.NettyWebSocketServer</mainClass>
                     <arguments>
@@ -110,6 +110,8 @@
                         <argument>7777</argument>
                         <!-- Transport Layer Security option -->
                         <argument>true</argument>
+                        <!-- UserAgent Reaper timeout in ms -->
+                        <argument>300000</argument>
                     </arguments>
                     <systemProperties>
                         <systemProperty>

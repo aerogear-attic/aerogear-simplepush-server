@@ -21,6 +21,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
@@ -39,13 +40,14 @@ public class NettyWebSocketServer {
         final DataStore datastore = new InMemoryDataStore();
         final EventLoopGroup bossGroup = new NioEventLoopGroup();
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
+        final DefaultEventExecutorGroup reaperExcutorGroup = new DefaultEventExecutorGroup(1);
         try {
             final ServerBootstrap sb = new ServerBootstrap();
             sb.group(bossGroup, workerGroup)
             .channel(NioServerSocketChannel.class)
-            .childHandler(new WebSocketChannelInitializer(config, datastore));
+            .childHandler(new WebSocketChannelInitializer(config, datastore, reaperExcutorGroup));
             final Channel ch = sb.bind(port).sync().channel();
-            System.out.println("Web socket server started at port " + port);
+            System.out.println("Web socket server started on port [" + port + "], " + config);
             ch.closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();
@@ -55,8 +57,12 @@ public class NettyWebSocketServer {
 
     public static void main(final String[] args) throws Exception {
         final int port =  args.length > 0 ? Integer.parseInt(args[0]) : 7777;
-        final boolean transportLayerSecurity =  args.length > 1 ? Boolean.parseBoolean(args[1]) : true;
-        final Config config = Config.path("simplepush").subprotocol("push-notification").endpointUrl("/endpoint").tls(transportLayerSecurity).build();
+        final Config config = Config.path("/simplepush")
+                .subprotocol("push-notification")
+                .endpointUrl("/endpoint")
+                .tls(args.length > 1 ? Boolean.parseBoolean(args[1]) : true)
+                .userAgentReaperTimeout(args.length > 2 ? Long.parseLong(args[2]) : -1)
+                .build();
         new NettyWebSocketServer(config, port).run();
     }
 

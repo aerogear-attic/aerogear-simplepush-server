@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.embedded.EmbeddedByteChannel;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
@@ -64,7 +65,11 @@ public class WebSocketServerHandlerTest {
     
     @Before
     public void setup() {
-        final Config config = Config.path("simplepush").subprotocol("push-notification").endpointUrl("/endpoint").tls(false).build();
+        final Config config = Config.path("simplepush")
+                .subprotocol("push-notification")
+                .endpointUrl("/endpoint")
+                .tls(false)
+                .build();
         wsHandler = new WebSocketServerHandler(config, new DefaultSimplePushServer(new InMemoryDataStore()));
     }
 
@@ -82,6 +87,17 @@ public class WebSocketServerHandlerTest {
         final HandshakeResponse response = doHandshake(uaid, channel);
         assertThat(response.getMessageType(), equalTo(MessageType.Type.HELLO));
         assertThat(response.getUAID(), equalTo(uaid));
+    }
+    
+    @Test
+    public void helloWithChannels() throws Exception {
+        final UUID uaid = UUIDUtil.newUAID();
+        final EmbeddedByteChannel channel = createWebsocketChannel();
+        final String channelId = UUID.randomUUID().toString();
+        final HandshakeResponse response = doHandshake(uaid, channel, channelId);
+        assertThat(response.getUAID(), equalTo(uaid));
+        final HttpResponse notificationResponse = doNotification(channelId, 1L);
+        assertThat(notificationResponse.getStatus().code(), equalTo(200));
     }
     
     @Test
@@ -230,7 +246,7 @@ public class WebSocketServerHandlerTest {
     }
     
     @Test
-    public void closeWebSocketShouldRemoveChannels() throws Exception {
+    public void closeWebSocketShouldNotRemoveChannels() throws Exception {
         final String channelId = UUID.randomUUID().toString();
         final EmbeddedByteChannel channel = createWebsocketChannel();
         doWebSocketUpgradeRequest();
@@ -239,12 +255,14 @@ public class WebSocketServerHandlerTest {
         doClose(channel);
         
         final HttpResponse response = doNotification(channelId, 10L);
-        assertThat(response.getStatus().code(), equalTo(400));
-        assertThat(response.getStatus().reasonPhrase(), equalTo("Bad Request"));
+        assertThat(response.getStatus().code(), equalTo(200));
+        assertThat(response.getStatus().reasonPhrase(), equalTo("OK"));
     }
     
     private void doClose(final EmbeddedByteChannel channel) throws Exception {
-        wsHandler.handleWebSocketFrame(channel, closeFrame());
+        final ChannelHandlerContext context = mock(ChannelHandlerContext.class);
+        when(context.channel()).thenReturn(channel);
+        wsHandler.messageReceived(context, closeFrame());
         channel.runPendingTasks();
     }
     
@@ -294,10 +312,20 @@ public class WebSocketServerHandlerTest {
     private HandshakeResponse doHandshake(final UUID uaid, final EmbeddedByteChannel channel) throws Exception {
         return handleWebSocketTextFrame(helloFrame(uaid), HandshakeResponseImpl.class, channel);
     }
+    
+    private HandshakeResponse doHandshake(final UUID uaid, final EmbeddedByteChannel channel, String... channelIds) throws Exception {
+        return handleWebSocketTextFrame(helloFrame(uaid, channelIds), HandshakeResponseImpl.class, channel);
+    }
 
     private TextWebSocketFrame helloFrame(final UUID uaid) {
         final TextWebSocketFrame frame = mock(TextWebSocketFrame.class);
         when(frame.text()).thenReturn(JsonUtil.toJson(new HandshakeMessageImpl(uaid.toString())));
+        return frame;
+    }
+    
+    private TextWebSocketFrame helloFrame(final UUID uaid, final String... channelIds) {
+        final TextWebSocketFrame frame = mock(TextWebSocketFrame.class);
+        when(frame.text()).thenReturn(JsonUtil.toJson(new HandshakeMessageImpl(uaid.toString(), new HashSet<String>(Arrays.asList(channelIds)))));
         return frame;
     }
     
@@ -336,13 +364,18 @@ public class WebSocketServerHandlerTest {
             channel.pipeline().replace(StubFrameEncoder.class, "stubEncoder", stubFrameEncoder);
         }
         
-        wsHandler.handleWebSocketFrame(channel, frame);
+        final ChannelHandlerContext context = mock(ChannelHandlerContext.class);
+        when(context.channel()).thenReturn(channel);
+        wsHandler.messageReceived(context, frame);
         channel.runPendingTasks();
         return stubFrameEncoder.payloadAsType(type);
     }
     
     private HttpResponse handleHttpRequest(final EmbeddedByteChannel channel, final FullHttpRequest req) throws Exception {
-        wsHandler.handleHttpRequest(channel, req);
+        final ChannelHandlerContext context = mock(ChannelHandlerContext.class);
+        when(context.channel()).thenReturn(channel);
+        when(context.pipeline()).thenReturn(mock(ChannelPipeline.class));
+        wsHandler.messageReceived(context, req);
         // make the callable notification task run
         channel.runPendingTasks();
         final EmbeddedByteChannel responseChannel = new EmbeddedByteChannel(new HttpResponseDecoder());

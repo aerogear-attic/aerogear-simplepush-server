@@ -21,6 +21,7 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import java.net.URI;
 import java.util.UUID;
@@ -29,6 +30,8 @@ import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
@@ -48,10 +51,15 @@ public class NettyWebSocketServerTest {
     public static void startSimplePushServer() throws Exception {
         final DataStore datastore = new InMemoryDataStore();
         final ServerBootstrap sb = new ServerBootstrap();
-        final Config config = Config.path("simplepush").subprotocol("push-notification").endpointUrl("/endpoint").tls(false).build();
+        final Config config = Config.path("simplepush")
+                .subprotocol("push-notification")
+                .endpointUrl("/endpoint")
+                .tls(false)
+                .userAgentReaperTimeout(2000)
+                .build();
         sb.group(bossGroup, workerGroup)
             .channel(NioServerSocketChannel.class)
-            .childHandler(new WebSocketChannelInitializer(config, datastore));
+            .childHandler(new WebSocketChannelInitializer(config, datastore, new DefaultEventExecutorGroup(1)));
         channel = sb.bind(port).sync().channel();
     }
     
@@ -97,6 +105,15 @@ public class NettyWebSocketServerTest {
             assertThat(fromJson.getMessageType(), equalTo(MessageType.Type.HELLO));
             assertThat(fromJson.getUAID(), equalTo(uaid));
             textFrame.release();
+            
+            final String channelId = UUID.randomUUID().toString();
+            final String register = JsonUtil.toJson(new RegisterImpl(channelId));
+            final ChannelFuture registerFuture = ch.write(new TextWebSocketFrame(register));
+            registerFuture.sync();
+            final TextWebSocketFrame registerFrame = handler.getTextFrame();
+            final RegisterResponseImpl registerResponse = JsonUtil.fromJson(registerFrame.text(), RegisterResponseImpl.class);
+            assertThat(registerResponse.getMessageType(), equalTo(MessageType.Type.REGISTER));
+            assertThat(registerResponse.getChannelId(), equalTo(channelId));
 
             ch.write(new CloseWebSocketFrame());
 
@@ -116,9 +133,7 @@ public class NettyWebSocketServerTest {
             final WebSocketClientHandler handler = new WebSocketClientHandler(
                             WebSocketClientHandshakerFactory.newHandshaker(
                                     uri, WebSocketVersion.V13, null, false, customHeaders));
-            b.group(group)
-             .channel(NioSocketChannel.class)
-             .handler(new ChannelInitializer<SocketChannel>() {
+            b.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer<SocketChannel>() {
                  @Override
                  public void initChannel(SocketChannel ch) throws Exception {
                      ChannelPipeline pipeline = ch.pipeline();
@@ -140,9 +155,13 @@ public class NettyWebSocketServerTest {
             assertThat(fromJson.getMessageType(), equalTo(MessageType.Type.HELLO));
             assertThat(fromJson.getUAID(), equalTo(uaid));
             textFrame.release();
-
+            
+            Thread.sleep(3000);
+            final String channelId = UUID.randomUUID().toString();
+            final String register = JsonUtil.toJson(new RegisterImpl(channelId));
+            final ChannelFuture registerFuture = ch.write(new TextWebSocketFrame(register));
+            registerFuture.sync();
             ch.write(new CloseWebSocketFrame());
-
             ch.closeFuture().sync();
         } finally {
             group.shutdownGracefully();

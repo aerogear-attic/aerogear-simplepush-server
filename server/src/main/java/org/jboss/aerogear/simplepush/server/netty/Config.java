@@ -38,6 +38,14 @@ public final class Config {
         return reaperTimeout;
     }
     
+    public boolean hasReaperTimeout() {
+        return reaperTimeout != -1;
+    }
+    
+    public String toString() {
+        return "Config[path=" + path + ", tsl=" + tls + ", subprotocol=" + subprotocol + ", endpointUrl=" + endpointUrl + ", reaperTimeout=" + reaperTimeout + "]";
+    }
+    
     public static Builder path(final String path) {
         ArgumentUtil.checkNotNullAndNotEmpty(path, "path");
         return new Config.Builder(path);
@@ -80,5 +88,6 @@ public final class Config {
             return new Config(this);
         }
     }
+
 
 }
