@@ -46,7 +46,7 @@ public interface SimplePushServer {
     UnregisterResponse handleUnregister(UnregisterMessage unregisterMessage, UUID uaid);
     
     /**
-     * Handles the 'unregister' message in the SimplePush protocol which is used to register a channel.
+     * Handles the 'ack' message in the SimplePush protocol which is acknowledge a notification.
      * 
      * @param ackMessage the {@link UnregisterMessage}.
      * @param uaid the UserAgent identifier that this channel will be unregistered for.
@@ -55,7 +55,15 @@ public interface SimplePushServer {
     Set<Update> handleAcknowledgement(AckMessage ackMessage, UUID uaid);
     
     /**
-     * Handles the notification fo a sinlge channel
+     * Returns all the un-acknowledged notifications for a specific UserAgent.
+     * 
+     * @param uaid the UserAgent identifier for which unacked notifications should be retrieved.
+     * @return {@code Set<Update>} a set of un-acknowledged channel ids.
+     */
+    Set<Update> getUnacknowledged(UUID uaid);
+    
+    /**
+     * Handles the notification for a single channel
      * 
      * @param channelId the channelId to be notified.
      * @param uaid the UserAgent identifier 'owning' the channel.

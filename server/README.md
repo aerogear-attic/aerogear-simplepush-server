@@ -15,11 +15,12 @@ This project is a Java implementation of the server side that follows the [Simpl
 This will start the server listening to port 7777 and using transport layer security. To toggle these arguments you can
 specify overrides on the command lind:  
 
-    mvn exec:java -Dexec.args="8888 false 10000"
+    mvn exec:java -Dexec.args="8888 false 10000 60000"
     
 The first argument is the _port_ to listen to.  
 The second argument is whether to use transport layer security or not.  
-The last arguement is the how often the UserAgentReaper job will run to clean up inactive user agents.
+The third arguement is the how often the UserAgent reaper job will run to clean up inactive user agents.
+The last arguement is the how often the acknowledge job will run to re-send unacknowledged notifications.
     
 ### Access the demo html page
 
@@ -165,8 +166,7 @@ A notification is triggered by sending a ```PUT``` request to the ```pushEndpoin
       "updates": [{"channelID": "d9b74644-4f97-46aa-b8fa-9393985cd6cd", "version" 2}]"
     }  
 The ```updates``` are the channels that the UserAgent acknowledges that it has processed.   
-The SimplePush server will try to will resend the the un-acknowledged notifications once. This should be a scheduled job 
-later if this is turned into more than a proof of concept.
+The SimplePush server will try to will resend the the un-acknowledged notifications every 60 seconds. 
 
 ### Unregister
 
