@@ -21,6 +21,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import java.util.concurrent.ThreadFactory;
 
@@ -37,9 +38,10 @@ public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
     public ServerBootstrap createServerBootstrap(final SocketBinding socketBinding, final ThreadFactory threadFactory) {
         final Config config = Config.path("simplepush").subprotocol("push-notification").endpointUrl("/endpoint").tls(false).build();
         final DataStore datastore = new InMemoryDataStore();
-        final WebSocketChannelInitializer channelInitializer = new WebSocketChannelInitializer(config, datastore);
+        final DefaultEventExecutorGroup reaperExcutorGroup = newEventExecutorGroup(1, threadFactory);
         final EventLoopGroup bossGroup = newEventLoopGroup(threadFactory);
         final EventLoopGroup workerGroup = newEventLoopGroup(threadFactory);
+        final WebSocketChannelInitializer channelInitializer = new WebSocketChannelInitializer(config, datastore, reaperExcutorGroup);
         final ServerBootstrap sb = new ServerBootstrap();
         sb.group(bossGroup, workerGroup)
         .channel(NioServerSocketChannel.class)
@@ -47,12 +49,18 @@ public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
         return sb;
     }
     
-    private EventLoopGroup newEventLoopGroup(final ThreadFactory threadFactory) {
-        if (threadFactory == null) {
-            return new NioEventLoopGroup(NioEventLoopGroup.DEFAULT_EVENT_LOOP_THREADS, threadFactory);
-        } else {
-            return new NioEventLoopGroup();
+    private DefaultEventExecutorGroup newEventExecutorGroup(int i, ThreadFactory threadFactory) {
+        if (threadFactory != null) {
+            return new DefaultEventExecutorGroup(1, threadFactory);
         }
+        return new DefaultEventExecutorGroup(1);
+    }
+
+    private EventLoopGroup newEventLoopGroup(final ThreadFactory threadFactory) {
+        if (threadFactory != null) {
+            return new NioEventLoopGroup(NioEventLoopGroup.DEFAULT_EVENT_LOOP_THREADS, threadFactory);
+        } 
+        return new NioEventLoopGroup();
     }
 
 }

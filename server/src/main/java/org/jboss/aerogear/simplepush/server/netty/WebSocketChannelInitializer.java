@@ -6,6 +6,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.ssl.SslHandler;
+import io.netty.util.concurrent.EventExecutorGroup;
 
 import javax.net.ssl.SSLEngine;
 
@@ -16,10 +17,12 @@ public class WebSocketChannelInitializer extends ChannelInitializer<SocketChanne
     
     private final DataStore datastore;
     private final Config config;
+    private final EventExecutorGroup reaperGroup;
     
-    public WebSocketChannelInitializer(final Config config, final DataStore datastore) {
+    public WebSocketChannelInitializer(final Config config, final DataStore datastore, final EventExecutorGroup reaperGroup) {
         this.config = config;
         this.datastore = datastore;
+        this.reaperGroup = reaperGroup;
     }
 
     @Override
@@ -33,6 +36,7 @@ public class WebSocketChannelInitializer extends ChannelInitializer<SocketChanne
         pipeline.addLast("codec-http", new HttpServerCodec());
         pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
         pipeline.addLast("handler", new WebSocketServerHandler(config, new DefaultSimplePushServer(datastore)));
+        pipeline.addLast(reaperGroup, new ReaperHandler(config));
     }
 
 }

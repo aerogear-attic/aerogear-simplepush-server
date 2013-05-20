@@ -49,6 +49,7 @@ import io.netty.util.CharsetUtil;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -76,12 +77,12 @@ import org.slf4j.LoggerFactory;
 
 public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<Object> {
     
-    private static final Map<UUID, Channel> userAgents = new ConcurrentHashMap<UUID, Channel>();
+    private static final Map<UUID, UserAgent> userAgents = new ConcurrentHashMap<UUID, UserAgent>();
     private final Logger logger = LoggerFactory.getLogger(WebSocketServerHandler.class);
     
     private final Config config;
     private final SimplePushServer simplePushServer;
-    private UUID userAgent;
+    private UUID uaid;
     private WebSocketServerHandshaker handshaker;
     
     public WebSocketServerHandler(final Config config, final SimplePushServer simplePushServer) {
@@ -92,31 +93,34 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     @Override
     public void messageReceived(final ChannelHandlerContext ctx , final Object msg) throws Exception {
         if (msg instanceof FullHttpRequest) {
-            handleHttpRequest(ctx.channel(), (FullHttpRequest) msg);
+            handleHttpRequest(ctx, (FullHttpRequest) msg);
         } else if (msg instanceof WebSocketFrame) {
-            handleWebSocketFrame(ctx.channel(), (WebSocketFrame) msg);
+            handleWebSocketFrame(ctx, (WebSocketFrame) msg);
         }
     }
 
-    public void handleHttpRequest(final Channel channel, final FullHttpRequest req) throws Exception {
-        if (!isHttpRequestValid(req, channel)) {
+    private void handleHttpRequest(final ChannelHandlerContext ctx, final FullHttpRequest req) throws Exception {
+        if (!isHttpRequestValid(req, ctx.channel())) {
             return;
         }
 
         final String requestUri = req.getUri();
         if (requestUri.startsWith(config.endpointUrl())) {
             final String channelId = requestUri.substring(requestUri.lastIndexOf('/') + 1);
-            final Future<Void> future = channel.eventLoop().submit(new Notifier(channelId, req.content()));
-            future.addListener(new NotificationFutureListener(channel, req));
+            final Future<Void> future = ctx.channel().eventLoop().submit(new Notifier(channelId, req.content()));
+            future.addListener(new NotificationFutureListener(ctx.channel(), req));
         } else {
             final String wsUrl = getWebSocketLocation(config.tls(), req, config.path());
             logger.info("WebSocket location: " + wsUrl);
             final WebSocketServerHandshakerFactory wsFactory = new WebSocketServerHandshakerFactory(wsUrl, config.subprotocol(), false);
             handshaker = wsFactory.newHandshaker(req);
             if (handshaker == null) {
-                WebSocketServerHandshakerFactory.sendUnsupportedWebSocketVersionResponse(channel);
+                WebSocketServerHandshakerFactory.sendUnsupportedWebSocketVersionResponse(ctx.channel());
             } else {
-                handshaker.handshake(channel, req);
+                handshaker.handshake(ctx.channel(), req);
+                if (ctx.pipeline().get(ReaperHandler.class) != null) {
+                    ctx.fireUserEventTriggered(this);
+                }
             }
         }
     }
@@ -133,78 +137,97 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         return true;
     }
     
-    protected void handleWebSocketFrame(final Channel channel, final WebSocketFrame frame) throws Exception { 
+    private void handleWebSocketFrame(final ChannelHandlerContext ctx, final WebSocketFrame frame) throws Exception { 
         if (frame instanceof CloseWebSocketFrame) {
             frame.retain();
-            logger.info("Closing WebSocket for UserAgent [" + userAgent + "]");
-            final ChannelFuture future = handshaker.close(channel, (CloseWebSocketFrame) frame);
-            future.addListener(new GenericFutureListener<Future<Void>>() {
-                @Override
-                public void operationComplete(Future<Void> future) throws Exception {
-                    simplePushServer.removeAllChannels(userAgent);
-                    userAgents.remove(userAgent);
-                }
-            });
+            logger.info("Closing WebSocket for UserAgent [" + uaid + "]");
+            handshaker.close(ctx.channel(), (CloseWebSocketFrame) frame);
             return;
         }
         if (frame instanceof PingWebSocketFrame) {
             frame.content().retain();
-            channel.write(new PongWebSocketFrame(frame.content()));
+            ctx.channel().write(new PongWebSocketFrame(frame.content()));
+            updateAccessedTime(uaid);
             return;
         }
         if (!(frame instanceof TextWebSocketFrame)) {
             throw new UnsupportedOperationException(String.format("%s frame types not supported", frame.getClass() .getName()));
         }
-        handleSimplePushMessage(channel, (TextWebSocketFrame) frame);
+        handleSimplePushMessage(ctx, (TextWebSocketFrame) frame);
     }
     
-    private void handleSimplePushMessage(final Channel channel, final TextWebSocketFrame frame) throws Exception {
+    @SuppressWarnings("incomplete-switch")
+    private void handleSimplePushMessage(final ChannelHandlerContext ctx, final TextWebSocketFrame frame) throws Exception {
         final MessageType messageType = JsonUtil.parseFrame(frame.text());
         switch (messageType.getMessageType()) {
         case HELLO:
-            if (userAgent == null) {
+            if (!checkHandshakeCompleted(uaid)) {
                 final HandshakeResponse response = simplePushServer.handleHandshake(fromJson(frame.text(), HandshakeMessageImpl.class));
-                writeJsonResponse(toJson(response), channel);
-                userAgent = response.getUAID();
-                userAgents.put(userAgent, channel);
-                logger.info("UserAgent [" + userAgent + "] handshake done");
+                writeJsonResponse(toJson(response), ctx.channel());
+                uaid = response.getUAID();
+                userAgents.put(uaid, new UserAgent(uaid, ctx, System.currentTimeMillis()));
+                logger.info("UserAgent [" + uaid + "] handshake done");
             }
             break;
         case REGISTER:
-            if (checkHandshakeCompleted(channel)) {
-                final RegisterResponse response = simplePushServer.handleRegister(fromJson(frame.text(), RegisterImpl.class), userAgent);
-                logger.info("UserAgent [" + userAgent + "] Registered[" + response.getChannelId() + "]");
-                writeJsonResponse(toJson(response), channel);
+            if (checkHandshakeCompleted(uaid)) {
+                final RegisterResponse response = simplePushServer.handleRegister(fromJson(frame.text(), RegisterImpl.class), uaid);
+                writeJsonResponse(toJson(response), ctx.channel());
+                logger.info("UserAgent [" + uaid + "] Registered[" + response.getChannelId() + "]");
             }
             break;
         case UNREGISTER:
-            if (checkHandshakeCompleted(channel)) {
+            if (checkHandshakeCompleted(uaid)) {
                 final UnregisterMessage unregister = fromJson(frame.text(), UnregisterMessageImpl.class);
-                final UnregisterResponse response = simplePushServer.handleUnregister(unregister, userAgent);
-                logger.info("UserAgent [" + userAgent + "] Unregistered[" + response.getChannelId() + "]");
-                writeJsonResponse(toJson(response), channel);
+                final UnregisterResponse response = simplePushServer.handleUnregister(unregister, uaid);
+                writeJsonResponse(toJson(response), ctx.channel());
+                logger.info("UserAgent [" + uaid + "] Unregistered[" + response.getChannelId() + "]");
             }
             break;
         case ACK:
-            if (checkHandshakeCompleted(channel)) {
+            if (checkHandshakeCompleted(uaid)) {
                 final AckMessage ack = fromJson(frame.text(), AckMessageImpl.class);
-                final Set<Update> unacked = simplePushServer.handleAcknowledgement(ack, userAgent);
+                final Set<Update> unacked = simplePushServer.handleAcknowledgement(ack, uaid);
                 if (!unacked.isEmpty()) {
-                    channel.eventLoop().submit(new Acker(unacked));
+                    ctx.channel().eventLoop().submit(new Acker(unacked));
                 }
             }
             break;
-        default:
-            break;
+        }
+        updateAccessedTime(uaid);
+    }
+    
+    private void updateAccessedTime(final UUID uaid) {
+        if (uaid != null) {
+            final UserAgent userAgent = userAgents.get(uaid);
+            userAgent.timestamp(System.currentTimeMillis());
         }
     }
     
-    private boolean checkHandshakeCompleted(final Channel channel) {
-        if (userAgent == null) {
-            logger.debug("Hello message has not been sent, ignoring the frame");
+    private boolean checkHandshakeCompleted(final UUID uaid) {
+        if (uaid == null) {
+            logger.info("Hello frame has not been sent");
+            return false;
+        }
+        if (!userAgents.containsKey(uaid)) {
+            logger.info("UserAgent ["+ uaid + "] was cleaned up due to unactivity for " + config.reaperTimeout() + "ms");
+            this.uaid = null;
             return false;
         }
         return true;
+    }
+    
+    void cleanupUserAgents() {
+        for (Iterator<UserAgent> it = userAgents.values().iterator(); it.hasNext();) {
+            final UserAgent userAgent = it.next();
+            final long now = System.currentTimeMillis();
+            if (userAgent.timestamp() + config.reaperTimeout() < now) {
+                logger.info("Removing userAgent=" + userAgent.uaid().toString());
+                it.remove();
+                simplePushServer.removeAllChannels(userAgent.uaid());
+                handshaker.close(userAgent.context().channel(), new CloseWebSocketFrame(1008, "Closing due to inactivity"));
+            }
+        }
     }
     
     private ChannelFuture writeJsonResponse(final String json, final Channel channel) {
@@ -239,16 +262,6 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         super.exceptionCaught(ctx, cause);
     }
     
-    @Override
-    public void channelUnregistered(final ChannelHandlerContext ctx) throws Exception {
-        if (userAgent != null) {
-            userAgents.remove(userAgent);
-            logger.info("UserAgent [" + userAgent + "] unregistered");
-            userAgent = null;
-        }
-        super.channelUnregistered(ctx);
-    }
-
     private static String getWebSocketLocation(final boolean tls, final FullHttpRequest req, final String path) {
         final String protocol = tls ? "wss://" : "ws://";
         return protocol + req.headers().get(HOST) + path;
@@ -272,7 +285,8 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
                 final String payload = content.toString(CharsetUtil.UTF_8);
                 logger.info("UserAgent [" + uaid + "] Notification [" + channelId + ", " + payload + "]");
                 final NotificationMessage notification = simplePushServer.handleNotification(channelId, uaid, payload);
-                writeJsonResponse(toJson(notification), userAgents.get(uaid)); 
+                writeJsonResponse(toJson(notification), userAgents.get(uaid).context().channel()); 
+                updateAccessedTime(uaid);
                 return null;
             } finally {
                 content.release();
@@ -290,7 +304,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     
         @Override
         public Void call() throws Exception {
-            writeJsonResponse(toJson(new NotificationMessageImpl(updates)), userAgents.get(userAgent)); 
+            writeJsonResponse(toJson(new NotificationMessageImpl(updates)), userAgents.get(uaid).context().channel()); 
             return null;
         }
         
