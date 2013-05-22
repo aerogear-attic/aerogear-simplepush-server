@@ -41,12 +41,14 @@ public class ConfigTest {
                 .subprotocol("notification")
                 .endpointUrl("/endpoint")
                 .userAgentReaperTimeout(1000)
+                .ackInterval(60000)
                 .build();
         assertThat(config.path(), equalTo("/simplepush"));
         assertThat(config.tls(), is(true));
         assertThat(config.subprotocol(), equalTo("notification"));
         assertThat(config.endpointUrl(), equalTo("/endpoint"));
         assertThat(config.reaperTimeout(), is(1000L));
+        assertThat(config.ackInterval(), is(60000L));
     }
 
 }

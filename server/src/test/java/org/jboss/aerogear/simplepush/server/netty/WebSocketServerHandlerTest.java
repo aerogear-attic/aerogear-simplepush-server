@@ -11,8 +11,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.ChannelPromise;
+import io.netty.channel.EventLoop;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.embedded.EmbeddedByteChannel;
 import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
@@ -30,12 +35,17 @@ import io.netty.handler.codec.http.websocketx.WebSocket13FrameDecoder;
 import io.netty.handler.codec.http.websocketx.WebSocket13FrameEncoder;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.CharsetUtil;
+import io.netty.util.concurrent.AbstractEventExecutor;
+import io.netty.util.concurrent.ScheduledFuture;
 
+import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Queue;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
@@ -366,7 +376,10 @@ public class WebSocketServerHandlerTest {
         
         final ChannelHandlerContext context = mock(ChannelHandlerContext.class);
         when(context.channel()).thenReturn(channel);
+        when(context.pipeline()).thenReturn(mock(ChannelPipeline.class));
+        when(context.executor()).thenReturn(new EmbeddedEventLoop());
         wsHandler.messageReceived(context, frame);
+        //wsHandler.proces);
         channel.runPendingTasks();
         return stubFrameEncoder.payloadAsType(type);
     }
@@ -453,5 +466,99 @@ public class WebSocketServerHandlerTest {
         }
         
     }
+    
+    final class EmbeddedEventLoop extends AbstractEventExecutor implements EventLoop {
+
+        private final Queue<Runnable> tasks = new ArrayDeque<Runnable>(2);
+
+        @Override
+        public void execute(Runnable command) {
+            if (command == null) {
+                throw new NullPointerException("command");
+            }
+            tasks.add(command);
+        }
+
+        void runTasks() {
+            for (;;) {
+                Runnable task = tasks.poll();
+                if (task == null) {
+                    break;
+                }
+
+                task.run();
+            }
+        }
+
+        @Override
+        public void shutdownGracefully(long quietPeriod, long timeout, TimeUnit unit) { }
+
+        @Override
+        @Deprecated
+        public void shutdown() { }
+
+        @Override
+        public boolean isShuttingDown() {
+            return false;
+        }
+
+        @Override
+        public boolean isShutdown() {
+            return false;
+        }
+
+        @Override
+        public boolean isTerminated() {
+            return false;
+        }
+
+        @Override
+        public boolean awaitTermination(long timeout, TimeUnit unit)
+                throws InterruptedException {
+            Thread.sleep(unit.toMillis(timeout));
+            return false;
+        }
+
+        @Override
+        public ChannelFuture register(Channel channel) {
+            return register(channel, channel.newPromise());
+        }
+
+        @Override
+        public ChannelFuture register(Channel channel, ChannelPromise promise) {
+            channel.unsafe().register(this, promise);
+            return promise;
+        }
+
+        @Override
+        public boolean inEventLoop() {
+            return true;
+        }
+
+        @Override
+        public boolean inEventLoop(Thread thread) {
+            return true;
+        }
+
+        @Override
+        public EventLoop next() {
+            return this;
+        }
+
+        @Override
+        public EventLoopGroup parent() {
+            return this;
+        }
+        
+        @Override
+        public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
+            command.run();
+            final ScheduledFuture<?> future = mock(ScheduledFuture.class);
+            when(future.isSuccess()).thenReturn(true);
+            when(future.isDone()).thenReturn(true);
+            return future;
+        }
+    }
+
     
 }

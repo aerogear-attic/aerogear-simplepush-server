@@ -9,6 +9,7 @@ public final class Config {
     private final String subprotocol;
     private final String endpointUrl;
     private final long reaperTimeout;
+    private final long ackInterval;
     
     private Config(final Builder builder) {
         path = builder.path;
@@ -16,6 +17,7 @@ public final class Config {
         subprotocol = builder.subprotocol;
         endpointUrl = builder.endpointUrl;
         reaperTimeout = builder.timeout;
+        ackInterval = builder.ackInterval;
     }
     
     public String path() {
@@ -42,8 +44,18 @@ public final class Config {
         return reaperTimeout != -1;
     }
     
+    public long ackInterval() {
+        return ackInterval;
+    }
+    
     public String toString() {
-        return "Config[path=" + path + ", tsl=" + tls + ", subprotocol=" + subprotocol + ", endpointUrl=" + endpointUrl + ", reaperTimeout=" + reaperTimeout + "]";
+        return new StringBuilder("Config[path=").append(path)
+            .append(", tsl=").append(tls)
+            .append(", subprotocol=").append(subprotocol)
+            .append(", endpointUrl=").append(endpointUrl)
+            .append(", reaperTimeout=").append(reaperTimeout)
+            .append(", ackInterval=").append(ackInterval)
+            .append("]").toString();
     }
     
     public static Builder path(final String path) {
@@ -57,6 +69,7 @@ public final class Config {
         private String subprotocol;
         private String endpointUrl;
         private long timeout = -1;
+        private long ackInterval;
         
         public Builder(final String path) {
             this.path = path;
@@ -79,6 +92,11 @@ public final class Config {
         
         public Builder userAgentReaperTimeout(final long ms) {
             this.timeout = ms;
+            return this;
+        }
+        
+        public Builder ackInterval(final long ms) {
+            this.ackInterval = ms;
             return this;
         }
         

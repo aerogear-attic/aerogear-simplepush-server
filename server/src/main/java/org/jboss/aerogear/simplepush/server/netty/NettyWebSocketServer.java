@@ -62,6 +62,7 @@ public class NettyWebSocketServer {
                 .endpointUrl("/endpoint")
                 .tls(args.length > 1 ? Boolean.parseBoolean(args[1]) : true)
                 .userAgentReaperTimeout(args.length > 2 ? Long.parseLong(args[2]) : -1)
+                .ackInterval(args.length > 3 ? Long.parseLong(args[3]) : 60000)
                 .build();
         new NettyWebSocketServer(config, port).run();
     }

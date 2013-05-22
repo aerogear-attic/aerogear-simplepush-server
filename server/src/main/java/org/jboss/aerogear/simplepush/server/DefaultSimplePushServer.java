@@ -97,6 +97,11 @@ public class DefaultSimplePushServer implements SimplePushServer {
         return unacked;
     }
     
+    @Override
+    public Set<Update> getUnacknowledged(final UUID uaid) {
+        return store.getUpdates(uaid);
+    }
+    
     public UUID getUAID(final String channelId) {
         return getChannel(channelId).getUAID();
     }

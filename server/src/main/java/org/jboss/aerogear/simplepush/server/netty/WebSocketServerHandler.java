@@ -48,6 +48,7 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.util.CharsetUtil;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
+import io.netty.util.concurrent.ScheduledFuture;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -55,6 +56,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
 import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
@@ -84,6 +86,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     private final SimplePushServer simplePushServer;
     private UUID uaid;
     private WebSocketServerHandshaker handshaker;
+    private ScheduledFuture<?> ackJobFuture;
     
     public WebSocketServerHandler(final Config config, final SimplePushServer simplePushServer) {
         this.config = config;
@@ -166,6 +169,7 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
                 writeJsonResponse(toJson(response), ctx.channel());
                 uaid = response.getUAID();
                 userAgents.put(uaid, new UserAgent(uaid, ctx, System.currentTimeMillis()));
+                processUnacked(uaid, ctx, 0);
                 logger.info("UserAgent [" + uaid + "] handshake done");
             }
             break;
@@ -187,14 +191,34 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         case ACK:
             if (checkHandshakeCompleted(uaid)) {
                 final AckMessage ack = fromJson(frame.text(), AckMessageImpl.class);
-                final Set<Update> unacked = simplePushServer.handleAcknowledgement(ack, uaid);
-                if (!unacked.isEmpty()) {
-                    ctx.channel().eventLoop().submit(new Acker(unacked));
-                }
+                simplePushServer.handleAcknowledgement(ack, uaid);
+                processUnacked(uaid, ctx, config.ackInterval());
             }
             break;
         }
         updateAccessedTime(uaid);
+    }
+    
+    private void processUnacked(final UUID uaid, final ChannelHandlerContext ctx, final long delay) {
+        final Set<Update> unacked = simplePushServer.getUnacknowledged(uaid);
+        if (unacked.isEmpty()) {
+            if (ackJobFuture != null && !ackJobFuture.isCancelled()) {
+                ackJobFuture.cancel(false);
+                logger.info("Cancelled Re-Acknowledger job");
+            }
+        } else if (ackJobFuture == null) {
+            ackJobFuture = ctx.executor().scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    final Set<Update> unacked = simplePushServer.getUnacknowledged(uaid);
+                    logger.info("Resending " + unacked);
+                    writeJsonResponse(toJson(new NotificationMessageImpl(unacked)), userAgents.get(uaid).context().channel()); 
+                }
+            },
+            delay,
+            config.ackInterval(), 
+            TimeUnit.MILLISECONDS);
+        }
     }
     
     private void updateAccessedTime(final UUID uaid) {
@@ -206,18 +230,26 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
     
     private boolean checkHandshakeCompleted(final UUID uaid) {
         if (uaid == null) {
-            logger.info("Hello frame has not been sent");
+            logger.debug("Hello frame has not been sent");
             return false;
         }
         if (!userAgents.containsKey(uaid)) {
-            logger.info("UserAgent ["+ uaid + "] was cleaned up due to unactivity for " + config.reaperTimeout() + "ms");
+            logger.debug("UserAgent ["+ uaid + "] was cleaned up due to unactivity for " + config.reaperTimeout() + "ms");
             this.uaid = null;
             return false;
         }
         return true;
     }
     
+    @Override
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+        if (ackJobFuture != null) {
+            ackJobFuture.cancel(false);
+        }
+    }
+
     void cleanupUserAgents() {
+        logger.info("Running clean up of UserAgents");
         for (Iterator<UserAgent> it = userAgents.values().iterator(); it.hasNext();) {
             final UserAgent userAgent = it.next();
             final long now = System.currentTimeMillis();
@@ -294,22 +326,6 @@ public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<
         }
     }
     
-    private class Acker implements Callable<Void> {
-        
-        private Set<Update> updates;
-    
-        private Acker(final Set<Update> updates) {
-            this.updates = updates;
-        }
-    
-        @Override
-        public Void call() throws Exception {
-            writeJsonResponse(toJson(new NotificationMessageImpl(updates)), userAgents.get(uaid).context().channel()); 
-            return null;
-        }
-        
-    }
-
     private class NotificationFutureListener implements GenericFutureListener<Future<Void>> {
         
         private Channel channel;

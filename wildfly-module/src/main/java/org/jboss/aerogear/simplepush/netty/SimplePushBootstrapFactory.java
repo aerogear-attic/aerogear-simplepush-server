@@ -36,7 +36,13 @@ public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
 
     @Override
     public ServerBootstrap createServerBootstrap(final SocketBinding socketBinding, final ThreadFactory threadFactory) {
-        final Config config = Config.path("simplepush").subprotocol("push-notification").endpointUrl("/endpoint").tls(false).build();
+        final Config config = Config.path("/simplepush")
+                .subprotocol("push-notification")
+                .endpointUrl("/endpoint")
+                .tls(false)
+                .userAgentReaperTimeout(300000)
+                .ackInterval(60000)
+                .build();
         final DataStore datastore = new InMemoryDataStore();
         final DefaultEventExecutorGroup reaperExcutorGroup = newEventExecutorGroup(1, threadFactory);
         final EventLoopGroup bossGroup = newEventLoopGroup(threadFactory);

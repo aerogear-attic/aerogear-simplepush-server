@@ -17,12 +17,12 @@ public class WebSocketChannelInitializer extends ChannelInitializer<SocketChanne
     
     private final DataStore datastore;
     private final Config config;
-    private final EventExecutorGroup reaperGroup;
+    private final EventExecutorGroup backgroundGroup;
     
-    public WebSocketChannelInitializer(final Config config, final DataStore datastore, final EventExecutorGroup reaperGroup) {
+    public WebSocketChannelInitializer(final Config config, final DataStore datastore, final EventExecutorGroup backgroundGroup) {
         this.config = config;
         this.datastore = datastore;
-        this.reaperGroup = reaperGroup;
+        this.backgroundGroup = backgroundGroup;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class WebSocketChannelInitializer extends ChannelInitializer<SocketChanne
         pipeline.addLast("codec-http", new HttpServerCodec());
         pipeline.addLast("aggregator", new HttpObjectAggregator(65536));
         pipeline.addLast("handler", new WebSocketServerHandler(config, new DefaultSimplePushServer(datastore)));
-        pipeline.addLast(reaperGroup, new ReaperHandler(config));
+        pipeline.addLast(backgroundGroup, new ReaperHandler(config));
     }
 
 }

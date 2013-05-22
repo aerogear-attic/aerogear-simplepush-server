@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 @Sharable
 public class ReaperHandler extends ChannelStateHandlerAdapter {
     
-    private final Logger logger = LoggerFactory.getLogger(ReaperHandler.class);
     private final Config config;
     private static AtomicBoolean reaperStarted = new AtomicBoolean(false);
     
@@ -39,21 +38,17 @@ public class ReaperHandler extends ChannelStateHandlerAdapter {
     
     @Override
     public void userEventTriggered(final ChannelHandlerContext ctx, final Object evt) throws Exception {
-        if (reaperStarted.get()) {
-            return;
-        }
-        
-        if (config.hasReaperTimeout()) {
-            if (evt instanceof WebSocketServerHandler) {
-                final WebSocketServerHandler wsHandler = (WebSocketServerHandler) evt;
-                logger.info("ReadperHandler invoked" );
-                ctx.executor().scheduleAtFixedRate(
-                        new UserAgentReaper(config.reaperTimeout(), wsHandler),
+        if (!reaperStarted.get()) {
+            if (config.hasReaperTimeout()) {
+                if (evt instanceof WebSocketServerHandler) {
+                    final WebSocketServerHandler wsHandler = (WebSocketServerHandler) evt;
+                    ctx.executor().scheduleAtFixedRate(new UserAgentReaper(config.reaperTimeout(), wsHandler),
                         config.reaperTimeout(), 
                         config.reaperTimeout(), 
                         TimeUnit.MILLISECONDS);
-                reaperStarted.set(true);
-                ctx.pipeline().remove(this);
+                        reaperStarted.set(true);
+                        ctx.pipeline().remove(this);
+                }
             }
         }
     }

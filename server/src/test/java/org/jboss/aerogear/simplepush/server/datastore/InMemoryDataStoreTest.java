@@ -20,6 +20,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 import org.jboss.aerogear.simplepush.server.DefaultChannel;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class InMemoryDataStoreTest {
@@ -65,13 +66,25 @@ public class InMemoryDataStoreTest {
     }
     
     @Test
-    public void updates() {
+    public void storeUpdates() {
         final InMemoryDataStore store = new InMemoryDataStore();
         final UUID uaid = UUIDUtil.newUAID();
         final String channelId1 = UUID.randomUUID().toString();
         store.storeUpdates(updates(update(channelId1, 10L)), uaid);
         final Set<Update> updates = store.getUpdates(uaid);
         assertThat(updates, hasItem(update(channelId1, 10L)));
+    }
+    
+    @Test 
+    public void storeUpdateWithGreatVersion() {
+        final InMemoryDataStore store = new InMemoryDataStore();
+        final UUID uaid = UUIDUtil.newUAID();
+        final String channelId1 = UUID.randomUUID().toString();
+        store.storeUpdates(updates(update(channelId1, 10L)), uaid);
+        store.storeUpdates(updates(update(channelId1, 11L)), uaid);
+        final Set<Update> updates = store.getUpdates(uaid);
+        assertThat(updates, hasItem(update(channelId1, 11L)));
+        assertThat(updates.size(), is(1));
     }
     
     @Test
@@ -83,16 +96,6 @@ public class InMemoryDataStoreTest {
         assertThat(store.removeUpdate(update(channelId1, 10L), uaid), is(true));
         assertThat(store.removeUpdate(update(channelId1, 10L), uaid), is(false));
         assertThat(store.removeUpdate(update(channelId1, 11L), uaid), is(false));
-    }
-    
-    @Test
-    public void removeUpdateVersionMissMatch() {
-        final InMemoryDataStore store = new InMemoryDataStore();
-        final UUID uaid = UUIDUtil.newUAID();
-        final String channelId1 = UUID.randomUUID().toString();
-        store.storeUpdates(updates(update(channelId1, 10L)), uaid);
-        final boolean removed = store.removeUpdate(update(channelId1, 11L), uaid);
-        assertThat(removed, is(false));
     }
     
     @Test
@@ -116,10 +119,7 @@ public class InMemoryDataStoreTest {
                             store.storeUpdates(updates(update(channelId, 12L)), uaid);
                             store.storeUpdates(updates(update(channelId, 13L)), uaid);
                             final Set<Update> updates = store.getUpdates(uaid);
-                            assertThat(updates, hasItems(update(channelId, 10L), update(channelId, 11L), update(channelId, 12L), update(channelId, 13L)));
-                            assertThat(store.removeUpdate(update(channelId, 10L), uaid), is(true));
-                            assertThat(store.removeUpdate(update(channelId, 11L), uaid), is(true));
-                            assertThat(store.removeUpdate(update(channelId, 12L), uaid), is(true));
+                            assertThat(updates, hasItems(update(channelId, 13L)));
                             assertThat(store.removeUpdate(update(channelId, 13L), uaid), is(true));
                         } catch (final Exception e) {
                             e.printStackTrace();
