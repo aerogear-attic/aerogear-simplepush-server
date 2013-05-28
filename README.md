@@ -6,14 +6,14 @@ It consists of the following modules:
 * [protocol](https://github.com/danbev/aerogear-simplepush-server/tree/master/protocol)  
 The SimplePush Server Protocol.
 
-* [server-api](https://github.com/danbev/aerogear-simplepush-server-api/tree/master/server-api)  
+* [server-api](https://github.com/danbev/aerogear-simplepush-server/tree/master/server-api)  
 An API for the SimplePush Server
 
-* [server-core](https://github.com/danbev/aerogear-simplepush-server-core/tree/master/server-core)  
+* [server-core](https://github.com/danbev/aerogear-simplepush-server/tree/master/server-core)  
 An implementation of the server-api.
 
-* [server-netty](https://github.com/danbev/aerogear-simplepush-server-netty/tree/master/server-netty)  
-The SimplePush Server implememtation that uses Netty.
+* [server-netty](https://github.com/danbev/aerogear-simplepush-server/tree/master/server-netty)  
+The SimplePush Server implementation that uses Netty.
 
 * [wildfly-module](https://github.com/danbev/aerogear-simplepush-server/tree/master/wildfly-module)  
 A WildFly/AS7 module for the SimplePush Server.
