@@ -15,6 +15,9 @@ An implementation of the server-api.
 * [server-netty](https://github.com/danbev/aerogear-simplepush-server/tree/master/server-netty)  
 The SimplePush Server implementation that uses Netty.
 
+* [server-vertx](https://github.com/danbev/aerogear-simplepush-server/tree/master/server-vertx)  
+The SimplePush Server implementation that uses vert.x.
+
 * [wildfly-module](https://github.com/danbev/aerogear-simplepush-server/tree/master/wildfly-module)  
 A WildFly/AS7 module for the SimplePush Server.
 

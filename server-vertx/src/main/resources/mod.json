@@ -1,0 +1,3 @@
+{
+    "main": "org.jboss.aerogear.simplepush.vertx.VertxSimplePushServer"
+}
