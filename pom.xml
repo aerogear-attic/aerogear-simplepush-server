@@ -36,7 +36,8 @@
   <modules>
     <module>protocol</module>
     <module>server-api</module>
-    <module>server</module>
+    <module>server-core</module>
+    <module>server-netty</module>
     <module>wildfly-module</module>
   </modules>
   
@@ -50,6 +51,16 @@
           <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-simplepush-server-api</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-server-core</artifactId>
+            <version>${project.version}</version>
+          </dependency>
+          <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-server-netty</artifactId>
             <version>${project.version}</version>
           </dependency>
           <dependency>

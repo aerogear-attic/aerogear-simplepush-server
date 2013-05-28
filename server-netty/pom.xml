@@ -8,9 +8,9 @@
 		<version>1.0.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-    <artifactId>aerogear-simplepush-server</artifactId>
+    <artifactId>aerogear-simplepush-server-netty</artifactId>
     <packaging>jar</packaging>
-    <name>AeroGear SimplePush Server</name>
+    <name>AeroGear SimplePush Server Netty</name>
 
     <url>http://aerogear.org</url>
     <licenses>
@@ -35,6 +35,11 @@
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-simplepush-server-api</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-server-core</artifactId>
         </dependency>
     
         <dependency>
