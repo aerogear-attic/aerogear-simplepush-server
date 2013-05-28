@@ -18,6 +18,7 @@
 <module xmlns="urn:jboss:module:1.1" name="org.jboss.aerogear.simplepush">
 
     <resources>
+        <resource-root path="aerogear-simplepush-server-api-1.0.0-SNAPSHOT.jar"/>
         <resource-root path="aerogear-simplepush-server-1.0.0-SNAPSHOT.jar"/>
         <resource-root path="aerogear-simplepush-protocol-1.0.0-SNAPSHOT.jar"/>
         <resource-root path="aerogear-simplepush-server-wildfly-1.0.0-SNAPSHOT.jar"/>

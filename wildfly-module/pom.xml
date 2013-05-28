@@ -33,6 +33,10 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-server-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-simplepush-server</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
@@ -133,6 +137,7 @@
                                
                                <copy file="src/main/resources/module/main/module.xml" tofile="${module.dir}/module.xml" />
                                <copy file="target/${project.artifactId}.jar" tofile="${module.dir}/${project.artifactId}-${project.version}.jar" />
+                               <copy file="target/deps/aerogear-simplepush-server-api-1.0.0-SNAPSHOT.jar" todir="${module.dir}" />
                                <copy file="target/deps/aerogear-simplepush-server-1.0.0-SNAPSHOT.jar" todir="${module.dir}" />
                                <copy file="target/deps/aerogear-simplepush-protocol-1.0.0-SNAPSHOT.jar" todir="${module.dir}" />
                                <copy file="target/deps/netty-all-4.0.0.CR2.jar" todir="${module.dir}" />

@@ -31,6 +31,11 @@
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-simplepush-protocol</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-server-api</artifactId>
+        </dependency>
     
         <dependency>
             <groupId>io.netty</groupId>
