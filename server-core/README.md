@@ -4,7 +4,9 @@ The project contains a base implementation of AeroGear SimplePush Server API and
 use this implementation to create a concrete server, for example using Netty or Vert.x as the framework that hosts the 
 server.
 
-Please refer to aerogear-simplepush-server-netty for an example of using this base implementation.
+Please refer to [server-netty](https://github.com/danbev/aerogear-simplepush-server/tree/master/server-netty) for an 
+example of using this base implementation.
+
 
 ## Usage
 
