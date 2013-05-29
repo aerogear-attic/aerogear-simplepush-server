@@ -57,10 +57,14 @@ The SimplePush Server vert.x module can be configured using a json configuration
 are available:
 
     {
+      "port" : 7777,
       "reaperTimeout" : 300000,
       "ackInterval" : 60000
     }
     
+#### port
+The port that the server should listen to.
+
 #### reaperTimeout
 This is a scheduled job that will clean up UserAgent that have been inactive for the specified amount of time.
 
