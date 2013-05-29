@@ -56,6 +56,14 @@ options and their default values.
 The SimplePush Server vert.x module can be configured using a json configuration file. The following configuration options
 are available:
 
+    {
+      "reaperTimeout" : 300000,
+      "ackInterval" : 60000
+    }
+    
+#### reaperTimeout
+This is a scheduled job that will clean up UserAgent that have been inactive for the specified amount of time.
+
 #### ackInterval
 The time, in milliseconds, that a scheduled job will try to resend unacknowledge notifications.    
 

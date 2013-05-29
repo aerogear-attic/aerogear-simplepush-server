@@ -1,3 +1,4 @@
 {
-    "ackInterval": 60000
+    "reaperTimeout" : 300000,
+    "ackInterval" : 60000
 }

@@ -33,12 +33,10 @@ public class HttpNotificationHandler implements Handler<HttpServerRequest> {
         request.bodyHandler(new Handler<Buffer>() {
             @Override
             public void handle(final Buffer buffer) {
-                logger.info("Notification Request " + request.uri());
                 final String channelId = request.uri().substring(request.uri().lastIndexOf('/') + 1);
-                logger.info("channelId = " + channelId);
                 final UUID uaid = simplePushServer.fromChannel(channelId);
                 final String payload = buffer.toString();
-                logger.info("payload = " + payload);
+                logger.info("Notification channelId  [" + channelId + "] " + payload);
                 final NotificationMessage notification = simplePushServer.handleNotification(channelId, uaid, payload);
                 vertx.eventBus().send(writeHandlerMap.get(uaid.toString()), new Buffer(toJson(notification)));
             }
