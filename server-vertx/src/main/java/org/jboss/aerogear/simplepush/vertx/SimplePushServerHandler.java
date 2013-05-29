@@ -8,6 +8,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
+import org.jboss.aerogear.simplepush.protocol.HandshakeMessage;
 import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
@@ -21,6 +22,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
+import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.buffer.Buffer;
@@ -55,7 +57,11 @@ public class SimplePushServerHandler implements Handler<SockJSSocket>{
                 final MessageType messageType = JsonUtil.parseFrame(buffer.toString());
                 switch (messageType.getMessageType()) {
                     case HELLO: 
-                        final HandshakeResponse helloResponse = simplePushServer.handleHandshake(fromJson(buffer.toString(), HandshakeMessageImpl.class));
+                        HandshakeMessage handshakeMessage = fromJson(buffer.toString(), HandshakeMessageImpl.class);
+                        if (!writeHandlerMap.containsKey(handshakeMessage.getUAID().toString())) {
+                            handshakeMessage = new HandshakeMessageImpl(UUIDUtil.newUAID().toString());
+                        } 
+                        final HandshakeResponse helloResponse = simplePushServer.handleHandshake(handshakeMessage);
                         sock.write(new Buffer(toJson(helloResponse)));
                         uaid = helloResponse.getUAID();
                         writeHandlerMap.put(uaid.toString(), sock.writeHandlerID());
