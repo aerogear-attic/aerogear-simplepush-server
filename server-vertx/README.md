@@ -45,4 +45,18 @@ the ```bin``` directory to your PATH and you should be good to go.
     cd target
     vertx runmod aerogear~simplepush~0.0.8
     
+You can also start the server with a different configuration:
+
+    vertx runmod aerogear~simplepush~0.0.8 -c classes/config.json
+
+The config file can be anything file you like but the ```config.json``` file above contains an example of the configuration 
+options and their default values.    
+
+## Configuration
+The SimplePush Server vert.x module can be configured using a json configuration file. The following configuration options
+are available:
+
+#### ackInterval
+The time, in milliseconds, that a scheduled job will try to resend unacknowledge notifications.    
+
 

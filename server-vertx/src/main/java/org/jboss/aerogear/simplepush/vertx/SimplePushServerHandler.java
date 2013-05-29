@@ -3,6 +3,7 @@ package org.jboss.aerogear.simplepush.vertx;
 import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.fromJson;
 import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.toJson;
 
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 
@@ -12,8 +13,10 @@ import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
+import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
@@ -31,18 +34,21 @@ public class SimplePushServerHandler implements Handler<SockJSSocket>{
     private final Logger logger;
     private final ConcurrentMap<String, String> writeHandlerMap;
     private final ConcurrentMap<String, Long> lastAccessedMap;
+    private final Vertx vertx;
+    private final Container container;
     private UUID uaid;
 
     public SimplePushServerHandler(final SimplePushServer simplePushServer, final Vertx vertx, final Container container) {
         this.simplePushServer = simplePushServer;
+        this.container = container;
         logger = container.logger();
+        this.vertx = vertx;
         writeHandlerMap = vertx.sharedData().getMap(VertxSimplePushServer.WRITE_HANDLER_MAP);
         lastAccessedMap = vertx.sharedData().getMap(VertxSimplePushServer.LAST_ACCESSED_MAP);
     }
 
     @Override
     public void handle(final SockJSSocket sock) {
-        logger.info("Sock: writeHandlerID=" + sock.writeHandlerID());
         sock.dataHandler(new Handler<Buffer>() {
             @Override
             public void handle(final Buffer buffer) {
@@ -75,7 +81,7 @@ public class SimplePushServerHandler implements Handler<SockJSSocket>{
                         if (checkHandshakeCompleted(uaid)) {
                             final AckMessage ack = fromJson(buffer.toString(), AckMessageImpl.class);
                             simplePushServer.handleAcknowledgement(ack, uaid);
-                            //processUnacked(uaid, ctx, config.ackInterval());
+                            processUnacked(uaid);
                         }
                         break;
                 default:
@@ -84,7 +90,6 @@ public class SimplePushServerHandler implements Handler<SockJSSocket>{
                 updateAccessedTime(uaid);
             }
         });
-        //Pump.createPump(sock, sock).start();
     }
     
     private boolean checkHandshakeCompleted(final UUID uaid) {
@@ -92,13 +97,6 @@ public class SimplePushServerHandler implements Handler<SockJSSocket>{
             logger.debug("Hello frame has not been sent");
             return false;
         }
-        /*
-        if (!userAgents.containsKey(uaid)) {
-            logger.debug("UserAgent ["+ uaid + "] was cleaned up due to unactivity for " + config.reaperTimeout() + "ms");
-            this.uaid = null;
-            return false;
-        }
-        */
         return true;
     }
     
@@ -106,6 +104,26 @@ public class SimplePushServerHandler implements Handler<SockJSSocket>{
         if (uaid != null) {
             lastAccessedMap.put(uaid.toString(), System.currentTimeMillis());
         }
+    }
+    
+    private void processUnacked(final UUID uaid) {
+        final Set<Update> unacked = simplePushServer.getUnacknowledged(uaid);
+        if (!unacked.isEmpty()) {
+            final Long interval = container.config().getLong("ackInterval", 60000);
+            vertx.setPeriodic(interval, new Handler<Long>() {
+                public void handle(final Long timerID) {
+                    final Set<Update> unacked = simplePushServer.getUnacknowledged(uaid);
+                    if (unacked.isEmpty()) {
+                        logger.info("Nothing to ack. Stopping periodic task");
+                        vertx.cancelTimer(timerID);
+                    } else {
+                        logger.info("Resending " + unacked);
+                        final Buffer buf = new Buffer(toJson(new NotificationMessageImpl(unacked)));
+                        vertx.eventBus().send(writeHandlerMap.get(uaid.toString()), buf);
+                    }
+                }
+            });
+        } 
     }
 
 }
