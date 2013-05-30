@@ -25,7 +25,10 @@ public class VertxSimplePushServer extends Verticle {
         final HttpServer httpServer = vertx.createHttpServer();
         setupHttpNotificationHandler(httpServer, simplePushServer);
         setupSimplePushSockJSServer(httpServer, simplePushServer);
-        httpServer.listen(container.config().getInteger("port", 7777));
+        final String host = container.config().getString("host", "localhost");
+        final int port = container.config().getInteger("port", 7777);
+        httpServer.listen(port, host);
+        container.logger().info("Started VertxSimplePushServer on host [" + host + "] port [" + port + "]");
         setupReaperJob(simplePushServer);
     }
 
