@@ -33,7 +33,7 @@ public class HttpNotificationHandler implements Handler<HttpServerRequest> {
         request.bodyHandler(new Handler<Buffer>() {
             @Override
             public void handle(final Buffer buffer) {
-                final String channelId = request.uri().substring(request.uri().lastIndexOf('/') + 1);
+                final String channelId = request.params().get("channelId");
                 try {
                     final String payload = buffer.toString();
                     logger.info("Notification channelId  [" + channelId + "] " + payload);

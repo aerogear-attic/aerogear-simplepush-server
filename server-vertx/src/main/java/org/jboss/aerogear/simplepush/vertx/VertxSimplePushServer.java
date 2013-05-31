@@ -40,7 +40,7 @@ public class VertxSimplePushServer extends Verticle {
     }
 
     private void setupHttpNotificationHandler(final HttpServer httpServer, final SimplePushServer simplePushServer) {
-        RouteMatcher rm = new RouteMatcher();
+        final RouteMatcher rm = new RouteMatcher();
         rm.put("/endpoint/:channelId",new HttpNotificationHandler(simplePushServer, vertx, container));
         httpServer.requestHandler(rm);
     }
