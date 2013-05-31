@@ -8,6 +8,7 @@ import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
 import org.vertx.java.core.http.HttpServer;
+import org.vertx.java.core.http.RouteMatcher;
 import org.vertx.java.core.json.JsonObject;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.sockjs.SockJSServer;
@@ -39,7 +40,9 @@ public class VertxSimplePushServer extends Verticle {
     }
 
     private void setupHttpNotificationHandler(final HttpServer httpServer, final SimplePushServer simplePushServer) {
-        httpServer.requestHandler(new HttpNotificationHandler(simplePushServer, vertx, container));
+        final RouteMatcher rm = new RouteMatcher();
+        rm.put("/endpoint/:channelId",new HttpNotificationHandler(simplePushServer, vertx, container));
+        httpServer.requestHandler(rm);
     }
     
     private void setupSimplePushSockJSServer(final HttpServer httpServer, final SimplePushServer simplePushServer) {
