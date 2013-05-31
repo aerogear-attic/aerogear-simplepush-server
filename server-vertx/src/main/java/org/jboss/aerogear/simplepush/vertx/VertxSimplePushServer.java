@@ -18,6 +18,8 @@ public class VertxSimplePushServer extends Verticle {
     public static final String WRITE_HANDLER_MAP = "simplepush.writehandler.map";
     public static final String LAST_ACCESSED_MAP = "simplepush.lastaccessed.map";
     public static final String USER_AGENT_REMOVER = "simplepush.useragent.remover";
+    public static final String DEFAULT_HOST = "localhost";
+    public static final int DEFAULT_PORT = 7777;
         
     @Override
     public void start() {
@@ -25,11 +27,15 @@ public class VertxSimplePushServer extends Verticle {
         final HttpServer httpServer = vertx.createHttpServer();
         setupHttpNotificationHandler(httpServer, simplePushServer);
         setupSimplePushSockJSServer(httpServer, simplePushServer);
-        final String host = container.config().getString("host", "localhost");
-        final int port = container.config().getInteger("port", 7777);
+        startHttpServer(httpServer);
+        setupUserAgentReaperJob(simplePushServer);
+    }
+
+    private void startHttpServer(final HttpServer httpServer) {
+        final String host = container.config().getString("host", DEFAULT_HOST);
+        final int port = container.config().getInteger("port", DEFAULT_PORT);
         httpServer.listen(port, host);
         container.logger().info("Started VertxSimplePushServer on host [" + host + "] port [" + port + "]");
-        setupReaperJob(simplePushServer);
     }
 
     private void setupHttpNotificationHandler(final HttpServer httpServer, final SimplePushServer simplePushServer) {
@@ -42,7 +48,7 @@ public class VertxSimplePushServer extends Verticle {
         sockJSServer.installApp(appConfig, new SimplePushServerHandler(simplePushServer, vertx, container));
     }
     
-    private void setupReaperJob(final SimplePushServer simplePushServer) {
+    private void setupUserAgentReaperJob(final SimplePushServer simplePushServer) {
         final Logger logger = container.logger();
         vertx.eventBus().registerHandler(USER_AGENT_REMOVER, new Handler<Message<String>>() {
             @Override
