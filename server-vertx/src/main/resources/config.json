@@ -1,0 +1,5 @@
+{
+    "port" : 7777,
+    "reaperTimeout" : 300000,
+    "ackInterval" : 60000
+}

@@ -38,6 +38,7 @@
     <module>server-api</module>
     <module>server-core</module>
     <module>server-netty</module>
+    <module>server-vertx</module>
     <module>wildfly-module</module>
   </modules>
   
