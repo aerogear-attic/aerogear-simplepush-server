@@ -13,6 +13,7 @@ import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
+import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
 
 /**
  * A Java implementation of a <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush</a> Server.
@@ -72,7 +73,7 @@ public interface SimplePushServer {
      * @return {@link NotificationMessage} The notification message that should be sent over the network to the
      *         UserAgent. The actual communication is left to the underlying implementation.
      */
-    NotificationMessage handleNotification(String channelId, UUID uaid, String payload);
+    NotificationMessage handleNotification(String channelId, UUID uaid, String payload) throws ChannelNotFoundException;
     
     /**
      * Removes all the channels associated with the UserAgent.
@@ -86,7 +87,8 @@ public interface SimplePushServer {
      * 
      * @param channelId the channelId for which the UserAgent Identifier should be returned
      * @return {@link UUID} the UserAgent identifier.
+     * @throws ChannelNotFoundException if the channel could not be found.
      */
-    UUID fromChannel(final String channelId);
+    UUID fromChannel(final String channelId) throws ChannelNotFoundException;
 
 }

@@ -37,6 +37,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
+import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.util.VersionExtractor;
 
@@ -63,7 +64,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
         return new RegisterResponseImpl(channelId, status, pushEndpoint);
     }
     
-    public NotificationMessage handleNotification(final String channelId, final UUID uaid, final String body) {
+    public NotificationMessage handleNotification(final String channelId, final UUID uaid, final String body) throws ChannelNotFoundException {
         final Long version = Long.valueOf(VersionExtractor.extractVersion(body));
         final Channel channel = getChannel(channelId);
         channel.setVersion(version);
@@ -102,14 +103,14 @@ public class DefaultSimplePushServer implements SimplePushServer {
         return store.getUpdates(uaid);
     }
     
-    public UUID getUAID(final String channelId) {
+    public UUID getUAID(final String channelId) throws ChannelNotFoundException {
         return getChannel(channelId).getUAID();
     }
     
-    public Channel getChannel(final String channelId) {
+    public Channel getChannel(final String channelId) throws ChannelNotFoundException {
         final Channel channel = store.getChannel(channelId);
         if (channel == null) {
-            throw new RuntimeException("Could not find a channel with id [" + channelId + "]");
+            throw new ChannelNotFoundException("Could not find a channel with id [" + channelId + "]", channelId);
         }
         return channel;
     }
@@ -136,7 +137,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
     }
 
     @Override
-    public UUID fromChannel(final String channelId) {
+    public UUID fromChannel(final String channelId) throws ChannelNotFoundException {
         return getChannel(channelId).getUAID();
     }
 

@@ -37,6 +37,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
+import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Before;
@@ -58,7 +59,7 @@ public class DefaultSimplePushServerTest {
     }
     
     @Test
-    public void handleHandshakeWithChannels() {
+    public void handleHandshakeWithChannels() throws ChannelNotFoundException {
         final HashSet<String> channelIds = new HashSet<String>(Arrays.asList("channel1", "channel2"));
         final HandshakeMessage handshakeImpl = new HandshakeMessageImpl(UUIDUtil.newUAID().toString(), channelIds);
         final HandshakeResponse response = server.handleHandshake(handshakeImpl);
@@ -86,7 +87,7 @@ public class DefaultSimplePushServerTest {
     }
     
     @Test
-    public void removeChannel() {
+    public void removeChannel() throws ChannelNotFoundException {
         final String channelId = "testChannelId";
         final UUID uaid = UUIDUtil.newUAID();
         server.handleRegister(new RegisterImpl(channelId), uaid);
@@ -97,7 +98,7 @@ public class DefaultSimplePushServerTest {
     }
     
     @Test
-    public void getUAID() {
+    public void getUAID() throws ChannelNotFoundException {
         final String channelId = "testChannelId";
         final UUID uaid = UUIDUtil.newUAID();
         server.handleRegister(new RegisterImpl(channelId), uaid);
@@ -105,7 +106,7 @@ public class DefaultSimplePushServerTest {
     }
     
     @Test
-    public void handleNotification() {
+    public void handleNotification() throws ChannelNotFoundException {
         final String channelId = "testChannelId";
         final UUID uaid = UUIDUtil.newUAID();
         server.handleRegister(new RegisterImpl(channelId), uaid);
@@ -117,7 +118,7 @@ public class DefaultSimplePushServerTest {
     }
     
     @Test (expected = IllegalArgumentException.class)
-    public void handleNotificationWithVersionLessThanCurrentVersion() {
+    public void handleNotificationWithVersionLessThanCurrentVersion() throws ChannelNotFoundException {
         final String channelId = "testChannelId";
         final UUID uaid = UUIDUtil.newUAID();
         server.handleRegister(new RegisterImpl(channelId), uaid);
@@ -127,7 +128,7 @@ public class DefaultSimplePushServerTest {
     }
     
     @Test
-    public void handleAck() {
+    public void handleAck() throws ChannelNotFoundException {
         final String channelId_1 = "testChannelId_1";
         final String channelId_2 = "testChannelId_2";
         final UUID uaid = UUIDUtil.newUAID();

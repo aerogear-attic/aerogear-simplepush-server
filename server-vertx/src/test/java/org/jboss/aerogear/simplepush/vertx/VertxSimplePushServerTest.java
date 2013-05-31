@@ -16,14 +16,29 @@
  */
 package org.jboss.aerogear.simplepush.vertx;
 
-import static org.junit.Assert.*;
 
-import org.junit.Test;
-
-public class VertxSimplePushServerTest {
-
-    @Test
-    public void test() {
+public class VertxSimplePushServerTest {//extends TestVerticle {
+    
+    /*
+     * TODO: Add tests
+    public void testSomething() {
+        container.deployVerticle(VertxSimplePushServer.class.getName(), new JsonObject(), 1, new Handler<AsyncResult<String>>() {
+            @Override
+            public void handle(AsyncResult<String> ar) {
+                if (ar.failed()) {
+                    ar.cause().printStackTrace();
+                }
+                assertThat(ar.succeeded(), is(true));
+                final HttpClient httpClient = vertx.createHttpClient();
+                httpClient.setHost("localhost").setPort(7777);
+                httpClient.post("/simplepush/000/232", new Handler<HttpClientResponse>(){
+                    @Override
+                    public void handle(final HttpClientResponse response) {
+                        System.out.println("Response : " + response.statusCode());
+                    }
+                });
+            }
+        });
     }
-
+    */
 }

@@ -34,15 +34,22 @@ public class HttpNotificationHandler implements Handler<HttpServerRequest> {
             @Override
             public void handle(final Buffer buffer) {
                 final String channelId = request.uri().substring(request.uri().lastIndexOf('/') + 1);
-                final UUID uaid = simplePushServer.fromChannel(channelId);
-                final String payload = buffer.toString();
-                logger.info("Notification channelId  [" + channelId + "] " + payload);
-                final NotificationMessage notification = simplePushServer.handleNotification(channelId, uaid, payload);
-                vertx.eventBus().send(writeHandlerMap.get(uaid.toString()), new Buffer(toJson(notification)));
+                try {
+                    final String payload = buffer.toString();
+                    logger.info("Notification channelId  [" + channelId + "] " + payload);
+                    final UUID uaid = simplePushServer.fromChannel(channelId);
+                    final NotificationMessage notification = simplePushServer.handleNotification(channelId, uaid, payload);
+                    vertx.eventBus().send(writeHandlerMap.get(uaid.toString()), new Buffer(toJson(notification)));
+                    request.response().setStatusCode(200);
+                    request.response().end();
+                } catch (final Exception e) {
+                    logger.error(e);
+                    request.response().setStatusCode(400);
+                    request.response().setStatusMessage(e.getMessage());
+                    request.response().end();
+                }
             }
         });
-        request.response().setStatusCode(200);
-        request.response().end();;
     }
 
 }
