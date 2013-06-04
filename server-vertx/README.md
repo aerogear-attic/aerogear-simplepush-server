@@ -2,7 +2,8 @@
 This project is a Java implementation of the server side that follows the [SimplePush Protocol](https://wiki.mozilla.org/WebAPI/SimplePush/Protocol)
 and uses [vert.x](http://vertx.io/).
 
-__Disclaimer__ This is currently only a skeleton impl with a simple http handler. 
+__Disclaimer__ This version uses an in-memory data store as will loose all registrations upon shutdown restart. 
+A persistent data store will be added with [AGPUSH-81](https://issues.jboss.org/browse/AGPUSH-81).
 
 ## Prerequisites 
 This project requires [vert.x 2.0.0-beta4-SNAPSHOT](https://github.com/vert-x/vert.x) to be installed locally.

@@ -1,6 +1,8 @@
 # AeroGear SimplePush Server
-__Disclaimer: This is only a proof of concept.__  
+__Disclaimer __  
 This project is a Java implementation of the server side that follows the [SimplePush Protocol](https://wiki.mozilla.org/WebAPI/SimplePush/Protocol)
+This version uses an in-memory data store as will loose all registrations upon shutdown restart. 
+A persistent data store will be added with [AGPUSH-18](https://issues.jboss.org/browse/AGPUSH-18).
 
 ## Usage
 
