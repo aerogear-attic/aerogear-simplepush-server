@@ -18,7 +18,7 @@ package org.jboss.aerogear.simplepush.server.netty;
 
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelStateHandlerAdapter;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Sharable
-public class ReaperHandler extends ChannelStateHandlerAdapter {
+public class ReaperHandler extends ChannelInboundHandlerAdapter {
     
     private final Config config;
     private static AtomicBoolean reaperStarted = new AtomicBoolean(false);
@@ -69,11 +69,6 @@ public class ReaperHandler extends ChannelStateHandlerAdapter {
             logger.info("Running reaper at interval of " + timeout);
             wsHandler.cleanupUserAgents();
         }
-    }
-
-    @Override
-    public void inboundBufferUpdated(ChannelHandlerContext ctx) throws Exception {
-        ctx.fireInboundBufferUpdated();
     }
 
 }
