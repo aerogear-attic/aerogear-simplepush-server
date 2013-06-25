@@ -32,7 +32,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundMessageHandlerAdapter;
+import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -77,7 +77,7 @@ import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WebSocketServerHandler extends ChannelInboundMessageHandlerAdapter<Object> {
+public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> {
     
     private static final Map<UUID, UserAgent> userAgents = new ConcurrentHashMap<UUID, UserAgent>();
     private final Logger logger = LoggerFactory.getLogger(WebSocketServerHandler.class);

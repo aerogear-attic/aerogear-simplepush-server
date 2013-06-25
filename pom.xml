@@ -30,7 +30,7 @@
   </description>
 
   <properties>
-	  <version.io.netty>4.0.0.CR2</version.io.netty>
+	  <version.io.netty>4.0.0.CR7-SNAPSHOT</version.io.netty>
   </properties>
 
   <modules>
