@@ -69,7 +69,7 @@ import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
@@ -79,16 +79,16 @@ import org.slf4j.LoggerFactory;
 
 public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> {
     
-    private static final Map<UUID, UserAgent> userAgents = new ConcurrentHashMap<UUID, UserAgent>();
+    private static final Map<UUID, UserAgent<ChannelHandlerContext>> userAgents = new ConcurrentHashMap<UUID, UserAgent<ChannelHandlerContext>>();
     private final Logger logger = LoggerFactory.getLogger(WebSocketServerHandler.class);
     
-    private final Config config;
+    private final SimplePushConfig config;
     private final SimplePushServer simplePushServer;
     private UUID uaid;
     private WebSocketServerHandshaker handshaker;
     private ScheduledFuture<?> ackJobFuture;
     
-    public WebSocketServerHandler(final Config config, final SimplePushServer simplePushServer) {
+    public WebSocketServerHandler(final SimplePushConfig config, final SimplePushServer simplePushServer) {
         this.config = config;
         this.simplePushServer = simplePushServer;
     }
@@ -122,7 +122,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
             } else {
                 handshaker.handshake(ctx.channel(), req);
                 if (ctx.pipeline().get(ReaperHandler.class) != null) {
-                    ctx.fireUserEventTriggered(this);
+                    ctx.fireUserEventTriggered(simplePushServer);
                 }
             }
         }
@@ -168,14 +168,14 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
                 final HandshakeResponse response = simplePushServer.handleHandshake(fromJson(frame.text(), HandshakeMessageImpl.class));
                 writeJsonResponse(toJson(response), ctx.channel());
                 uaid = response.getUAID();
-                userAgents.put(uaid, new UserAgent(uaid, ctx, System.currentTimeMillis()));
+                userAgents.put(uaid, new UserAgent<ChannelHandlerContext>(uaid, ctx, System.currentTimeMillis()));
                 processUnacked(uaid, ctx, 0);
                 logger.info("UserAgent [" + uaid + "] handshake done");
             }
             break;
         case REGISTER:
             if (checkHandshakeCompleted(uaid)) {
-                final RegisterResponse response = simplePushServer.handleRegister(fromJson(frame.text(), RegisterImpl.class), uaid);
+                final RegisterResponse response = simplePushServer.handleRegister(fromJson(frame.text(), RegisterMessageImpl.class), uaid);
                 writeJsonResponse(toJson(response), ctx.channel());
                 logger.info("UserAgent [" + uaid + "] Registered[" + response.getChannelId() + "]");
             }
@@ -223,7 +223,7 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
     
     private void updateAccessedTime(final UUID uaid) {
         if (uaid != null) {
-            final UserAgent userAgent = userAgents.get(uaid);
+            final UserAgent<ChannelHandlerContext> userAgent = userAgents.get(uaid);
             userAgent.timestamp(System.currentTimeMillis());
         }
     }
@@ -250,8 +250,8 @@ public class WebSocketServerHandler extends SimpleChannelInboundHandler<Object> 
 
     void cleanupUserAgents() {
         logger.info("Running clean up of UserAgents");
-        for (Iterator<UserAgent> it = userAgents.values().iterator(); it.hasNext();) {
-            final UserAgent userAgent = it.next();
+        for (Iterator<UserAgent<ChannelHandlerContext>> it = userAgents.values().iterator(); it.hasNext();) {
+            final UserAgent<ChannelHandlerContext> userAgent = it.next();
             final long now = System.currentTimeMillis();
             if (userAgent.timestamp() + config.reaperTimeout() < now) {
                 logger.info("Removing userAgent=" + userAgent.uaid().toString());

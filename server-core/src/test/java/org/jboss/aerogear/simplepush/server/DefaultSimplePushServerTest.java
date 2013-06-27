@@ -35,7 +35,7 @@ import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
@@ -78,7 +78,7 @@ public class DefaultSimplePushServerTest {
     
     @Test
     public void handeRegister() {
-        final RegisterResponse response = server.handleRegister(new RegisterImpl("someChannelId"), UUIDUtil.newUAID());
+        final RegisterResponse response = server.handleRegister(new RegisterMessageImpl("someChannelId"), UUIDUtil.newUAID());
         assertThat(response.getChannelId(), equalTo("someChannelId"));
         assertThat(response.getMessageType(), equalTo(MessageType.Type.REGISTER));
         assertThat(response.getStatus().getCode(), equalTo(200));
@@ -90,7 +90,7 @@ public class DefaultSimplePushServerTest {
     public void removeChannel() throws ChannelNotFoundException {
         final String channelId = "testChannelId";
         final UUID uaid = UUIDUtil.newUAID();
-        server.handleRegister(new RegisterImpl(channelId), uaid);
+        server.handleRegister(new RegisterMessageImpl(channelId), uaid);
         assertThat(server.getChannel(channelId).getChannelId(), is(equalTo(channelId)));
         assertThat(server.removeChannel(channelId, UUIDUtil.newUAID()), is(false));
         assertThat(server.removeChannel(channelId, uaid), is(true));
@@ -101,7 +101,7 @@ public class DefaultSimplePushServerTest {
     public void getUAID() throws ChannelNotFoundException {
         final String channelId = "testChannelId";
         final UUID uaid = UUIDUtil.newUAID();
-        server.handleRegister(new RegisterImpl(channelId), uaid);
+        server.handleRegister(new RegisterMessageImpl(channelId), uaid);
         assertThat(server.getUAID(channelId), is(equalTo(uaid)));
     }
     
@@ -109,7 +109,7 @@ public class DefaultSimplePushServerTest {
     public void handleNotification() throws ChannelNotFoundException {
         final String channelId = "testChannelId";
         final UUID uaid = UUIDUtil.newUAID();
-        server.handleRegister(new RegisterImpl(channelId), uaid);
+        server.handleRegister(new RegisterMessageImpl(channelId), uaid);
         NotificationMessage notification = server.handleNotification(channelId, uaid, "version=1");
         assertThat(notification.getUpdates(), hasItem(new UpdateImpl(channelId, 1L)));
         assertThat(server.getChannel(channelId).getVersion(), is(1L));
@@ -121,7 +121,7 @@ public class DefaultSimplePushServerTest {
     public void handleNotificationWithVersionLessThanCurrentVersion() throws ChannelNotFoundException {
         final String channelId = "testChannelId";
         final UUID uaid = UUIDUtil.newUAID();
-        server.handleRegister(new RegisterImpl(channelId), uaid);
+        server.handleRegister(new RegisterMessageImpl(channelId), uaid);
         server.handleNotification(channelId, uaid, "version=10");
         assertThat(server.getChannel(channelId).getVersion(), is(10L));
         server.handleNotification(channelId, uaid, "version=2");
@@ -132,8 +132,8 @@ public class DefaultSimplePushServerTest {
         final String channelId_1 = "testChannelId_1";
         final String channelId_2 = "testChannelId_2";
         final UUID uaid = UUIDUtil.newUAID();
-        server.handleRegister(new RegisterImpl(channelId_1), uaid);
-        server.handleRegister(new RegisterImpl(channelId_2), uaid);
+        server.handleRegister(new RegisterMessageImpl(channelId_1), uaid);
+        server.handleRegister(new RegisterMessageImpl(channelId_2), uaid);
         server.handleNotification(channelId_1, uaid, "version=10");
         server.handleNotification(channelId_2, uaid, "version=23");
         

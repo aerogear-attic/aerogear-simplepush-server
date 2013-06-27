@@ -19,37 +19,46 @@ package org.jboss.aerogear.simplepush.server.netty;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.handler.codec.sockjs.Session;
 
+import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Sharable
 public class ReaperHandler extends ChannelInboundHandlerAdapter {
     
-    private final Config config;
+    private static final Logger logger = LoggerFactory.getLogger(NotificationHandler.class);
+    private final SimplePushConfig config;
     private static AtomicBoolean reaperStarted = new AtomicBoolean(false);
     
-    public ReaperHandler(final Config config) {
+    public ReaperHandler(final SimplePushConfig config) {
         this.config = config;
     }
+    
     
     @Override
     public void userEventTriggered(final ChannelHandlerContext ctx, final Object evt) throws Exception {
         if (!reaperStarted.get()) {
             if (config.hasReaperTimeout()) {
-                if (evt instanceof WebSocketServerHandler) {
-                    final WebSocketServerHandler wsHandler = (WebSocketServerHandler) evt;
-                    ctx.executor().scheduleAtFixedRate(new UserAgentReaper(config.reaperTimeout(), wsHandler),
+                if (evt instanceof SimplePushServer) {
+                    final SimplePushServer simplePushServer = (SimplePushServer) evt;
+                    ctx.executor().scheduleAtFixedRate(new UserAgentReaper(config.reaperTimeout(), simplePushServer, config),
                         config.reaperTimeout(), 
                         config.reaperTimeout(), 
                         TimeUnit.MILLISECONDS);
                         reaperStarted.set(true);
                         ctx.pipeline().remove(this);
+                } else if (evt instanceof SimplePushSockJSService) {
+                    
                 }
             }
+        } else {
+            logger.info("Reaper allready started. Do nothing");
         }
     }
     
@@ -57,18 +66,31 @@ public class ReaperHandler extends ChannelInboundHandlerAdapter {
         
         private final Logger logger = LoggerFactory.getLogger(UserAgentReaper.class);
         private final long timeout;
-        private final WebSocketServerHandler wsHandler;
+        private final SimplePushServer simplePushServer;
+        private final UserAgents userAgents = UserAgents.getInstance();
+        private final SimplePushConfig config;
 
-        public UserAgentReaper(final long timeout, final WebSocketServerHandler wsHandler) {
+        public UserAgentReaper(final long timeout, final SimplePushServer simplePushServer, final SimplePushConfig config) {
             this.timeout = timeout;
-            this.wsHandler = wsHandler;
+            this.simplePushServer = simplePushServer;
+            this.config = config;
         }
         
         @Override
         public void run() {
             logger.info("Running reaper at interval of " + timeout);
-            wsHandler.cleanupUserAgents();
+            for (Iterator<UserAgent<Session>> it = userAgents.all().iterator(); it.hasNext();) {
+                final UserAgent<Session> userAgent = it.next();
+                final long now = System.currentTimeMillis();
+                if (userAgent.timestamp() + config.reaperTimeout() < now) {
+                    logger.info("Removing userAgent=" + userAgent.uaid().toString());
+                    it.remove();
+                    simplePushServer.removeAllChannels(userAgent.uaid());
+                    userAgent.context().close();
+                }
+            }
         }
     }
+    
 
 }

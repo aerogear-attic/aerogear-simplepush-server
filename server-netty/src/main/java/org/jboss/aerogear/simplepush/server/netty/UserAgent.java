@@ -16,20 +16,18 @@
  */
 package org.jboss.aerogear.simplepush.server.netty;
 
-import io.netty.channel.ChannelHandlerContext;
-
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class UserAgent {
+public class UserAgent<T> {
     
     private final UUID uaid;
-    private final ChannelHandlerContext ctx;
+    private final T transport;
     private AtomicLong timestamp;
 
-    public UserAgent(final UUID uaid, final ChannelHandlerContext ctx, final long timestamp) {
+    public UserAgent(final UUID uaid, final T transport, final long timestamp) {
         this.uaid = uaid;
-        this.ctx = ctx;
+        this.transport = transport;
         this.timestamp = new AtomicLong(timestamp);
     }
     
@@ -37,8 +35,8 @@ public class UserAgent {
         return uaid;
     }
     
-    public ChannelHandlerContext context() {
-        return ctx;
+    public T context() {
+        return transport;
     }
     
     public long timestamp() {
@@ -51,7 +49,7 @@ public class UserAgent {
     
     @Override
     public String toString() {
-        return "UserAgent[uaid=" + uaid + ", ctx=" + ctx + ", timestamp=" + timestamp() + "]";
+        return "UserAgent[uaid=" + uaid + ", transport=" + transport + ", timestamp=" + timestamp() + "]";
     }
 
 }

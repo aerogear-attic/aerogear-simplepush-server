@@ -20,7 +20,7 @@ import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Status;
 
-public class RegisterResponseImpl extends RegisterImpl implements RegisterResponse {
+public class RegisterResponseImpl extends RegisterMessageImpl implements RegisterResponse {
     
     private Status status;
     private String pushEndpoint;

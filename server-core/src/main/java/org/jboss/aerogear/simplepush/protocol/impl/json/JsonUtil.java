@@ -48,7 +48,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
@@ -64,8 +64,8 @@ public class JsonUtil {
         final SimpleModule module = new SimpleModule("MyModule", new Version(1, 0, 0, null));
         module.addDeserializer(MessageType.class, new MessageTypeDeserializer());
         
-        module.addDeserializer(RegisterImpl.class, new RegisterDeserializer());
-        module.addSerializer(RegisterImpl.class, new RegisterSerializer());
+        module.addDeserializer(RegisterMessageImpl.class, new RegisterDeserializer());
+        module.addSerializer(RegisterMessageImpl.class, new RegisterSerializer());
         module.addDeserializer(RegisterResponseImpl.class, new RegisterResponseDeserializer());
         module.addSerializer(RegisterResponseImpl.class, new RegisterResponseSerializer());
         
@@ -114,14 +114,14 @@ public class JsonUtil {
         return fromJson(json, MessageType.class);
     }
 
-    private static class RegisterDeserializer extends JsonDeserializer<RegisterImpl> {
+    private static class RegisterDeserializer extends JsonDeserializer<RegisterMessageImpl> {
 
         @Override
-        public RegisterImpl deserialize(final JsonParser jp, final DeserializationContext ctxt)
+        public RegisterMessageImpl deserialize(final JsonParser jp, final DeserializationContext ctxt)
                 throws IOException, JsonProcessingException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
-            return new RegisterImpl(node.get(RegisterMessage.CHANNEL_ID_FIELD).asText());
+            return new RegisterMessageImpl(node.get(RegisterMessage.CHANNEL_ID_FIELD).asText());
         }
     }
 

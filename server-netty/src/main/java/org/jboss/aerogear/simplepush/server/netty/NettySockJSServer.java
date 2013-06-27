@@ -21,35 +21,41 @@ import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.sockjs.Config;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 
-public class NettyWebSocketServer {
+public class NettySockJSServer {
 
     private final String host;
     private final int port;
-    private final SimplePushConfig config;
+    private final SimplePushConfig simplePushConfig;
+    private final Config sockJSConfig;
 
-    public NettyWebSocketServer(final SimplePushConfig config , final String host, final int port) {
+    public NettySockJSServer(final SimplePushConfig simplePushConfig, final Config sockJSConfig, final String host, final int port) {
         this.port = port;
-        this.config = config;
+        this.simplePushConfig = simplePushConfig;
+        this.sockJSConfig = sockJSConfig;
         this.host = host;
     }
 
     public void run() throws Exception {
         final DataStore datastore = new InMemoryDataStore();
+        
         final EventLoopGroup bossGroup = new NioEventLoopGroup();
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
         final DefaultEventExecutorGroup reaperExcutorGroup = new DefaultEventExecutorGroup(1);
+        
         try {
             final ServerBootstrap sb = new ServerBootstrap();
             sb.group(bossGroup, workerGroup)
             .channel(NioServerSocketChannel.class)
-            .childHandler(new WebSocketChannelInitializer(config, datastore, reaperExcutorGroup));
-            final Channel ch = sb.bind(host, port).sync().channel();
-            System.out.println("Web socket server started on " + host + ":" + port + " " + config);
+            .childHandler(new SockJSChannelInitializer(simplePushConfig, datastore, sockJSConfig, reaperExcutorGroup));
+            
+            final Channel ch = sb.bind(host,  port).sync().channel();
+            System.out.println("Web socket server started on " + host + ":" + port + " " + simplePushConfig);
             ch.closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();
@@ -60,14 +66,22 @@ public class NettyWebSocketServer {
     public static void main(final String[] args) throws Exception {
         final String host =  args.length > 0 ? args[0] : "localhost";
         final int port =  args.length > 1 ? Integer.parseInt(args[1]) : 7777;
-        final SimplePushConfig config = SimplePushConfig.path("/simplepush")
+        
+        final SimplePushConfig simplePushConfig = SimplePushConfig.path("/simplepush")
                 .subprotocol("push-notification")
                 .endpointUrl("/endpoint")
-                .tls(args.length > 2 ? Boolean.parseBoolean(args[2]) : true)
-                .userAgentReaperTimeout(args.length > 3 ? Long.parseLong(args[3]) : -1)
-                .ackInterval(args.length > 4 ? Long.parseLong(args[4]) : 60000)
+                //.tls(args.length > 1 ? Boolean.parseBoolean(args[1]) : true)
+                .tls(false)
+                .userAgentReaperTimeout(args.length > 2 ? Long.parseLong(args[2]) : -1)
+                .ackInterval(args.length > 3 ? Long.parseLong(args[3]) : 60000)
                 .build();
-        new NettyWebSocketServer(config, host, port).run();
+        
+        final Config sockJSConfig = Config.prefix(simplePushConfig.path())
+                //.disableWebsocket()
+                .cookiesNeeded()
+                .sessionTimeout(60000)
+                .build();
+        new NettySockJSServer(simplePushConfig, sockJSConfig, host, port).run();
     }
-
+    
 }

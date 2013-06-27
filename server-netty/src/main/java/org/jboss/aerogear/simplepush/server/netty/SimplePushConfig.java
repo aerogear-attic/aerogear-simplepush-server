@@ -2,7 +2,7 @@ package org.jboss.aerogear.simplepush.server.netty;
 
 import org.jboss.aerogear.simplepush.util.ArgumentUtil;
 
-public final class Config {
+public final class SimplePushConfig {
     
     private final String path;
     private final boolean tls;
@@ -11,7 +11,7 @@ public final class Config {
     private final long reaperTimeout;
     private final long ackInterval;
     
-    private Config(final Builder builder) {
+    private SimplePushConfig(final Builder builder) {
         path = builder.path;
         tls = builder.tls;
         subprotocol = builder.subprotocol;
@@ -60,13 +60,13 @@ public final class Config {
     
     public static Builder path(final String path) {
         ArgumentUtil.checkNotNullAndNotEmpty(path, "path");
-        return new Config.Builder(path);
+        return new SimplePushConfig.Builder(path);
     }
     
     public static class Builder {
         private final String path;
         private boolean tls;
-        private String subprotocol;
+        private String subprotocol = "push-notification";
         private String endpointUrl;
         private long timeout = -1;
         private long ackInterval;
@@ -100,10 +100,10 @@ public final class Config {
             return this;
         }
         
-        public Config build() {
+        public SimplePushConfig build() {
             ArgumentUtil.checkNotNullAndNotEmpty(subprotocol, "subprotocol");
             ArgumentUtil.checkNotNullAndNotEmpty(endpointUrl, "endpointUrl");
-            return new Config(this);
+            return new SimplePushConfig(this);
         }
     }
 

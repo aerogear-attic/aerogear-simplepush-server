@@ -20,11 +20,11 @@ import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
 
 import org.jboss.aerogear.simplepush.protocol.RegisterMessage;
 
-public class RegisterImpl implements RegisterMessage {
+public class RegisterMessageImpl implements RegisterMessage {
     
     private final String channelId;
 
-    public RegisterImpl(final String channelId) {
+    public RegisterMessageImpl(final String channelId) {
         checkNotNull(channelId, "channelId");
         this.channelId = channelId;
     }

@@ -7,7 +7,6 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.toJson;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import io.netty.buffer.Unpooled;
@@ -37,10 +36,9 @@ import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
@@ -71,7 +69,7 @@ public class WebSocketServerHandlerTest {
     public void hello() throws Exception {
         final UUID uaid = UUIDUtil.newUAID();
         final EmbeddedChannel channel = createWebsocketChannel();
-        channel.writeInbound(helloFrame(uaid.toString()));
+        channel.writeInbound(TestUtil.helloWebSocketFrame(uaid.toString()));
         final HandshakeResponse response = responseToType(channel.readOutbound(), HandshakeResponseImpl.class);
         assertThat(response.getMessageType(), equalTo(MessageType.Type.HELLO));
         assertThat(response.getUAID(), equalTo(uaid));
@@ -82,7 +80,7 @@ public class WebSocketServerHandlerTest {
         final EmbeddedChannel channel = createWebsocketChannel();
         final UUID uaid = UUIDUtil.newUAID();
         final String channelId = UUID.randomUUID().toString();
-        channel.writeInbound(helloFrame(uaid.toString(), channelId));
+        channel.writeInbound(TestUtil.helloWebSocketFrame(uaid.toString(), channelId));
         final HandshakeResponse response = responseToType(channel.readOutbound(), HandshakeResponseImpl.class);
         assertThat(response.getUAID(), equalTo(uaid));
         
@@ -281,11 +279,6 @@ public class WebSocketServerHandlerTest {
         throw new IllegalArgumentException("Response is expected to be of type TextWebSocketFrame was: " + response);
     }
 
-    private TextWebSocketFrame helloFrame(final String uaid, final String... channelIds) {
-        final HashSet<String> channels = new HashSet<String>(Arrays.asList(channelIds));
-        return new TextWebSocketFrame(toJson(new HandshakeMessageImpl(uaid.toString(), channels)));
-    }
-
     private void doClose(final EmbeddedChannel channel) throws Exception {
         final CloseWebSocketFrame closeFrame = new CloseWebSocketFrame();
         channel.writeInbound(closeFrame);
@@ -348,13 +341,13 @@ public class WebSocketServerHandlerTest {
     }
 
     private HandshakeResponse doHandshake(final UUID uaid, final EmbeddedChannel channel) throws Exception {
-        channel.writeInbound(helloFrame(uaid.toString()));
+        channel.writeInbound(TestUtil.helloWebSocketFrame(uaid.toString()));
         return responseToType(channel.readOutbound(), HandshakeResponseImpl.class);
     }
     
     private TextWebSocketFrame registerFrame(final String channelId) {
         final TextWebSocketFrame frame = mock(TextWebSocketFrame.class);
-        when(frame.text()).thenReturn(JsonUtil.toJson(new RegisterImpl(channelId)));
+        when(frame.text()).thenReturn(JsonUtil.toJson(new RegisterMessageImpl(channelId)));
         return frame;
     }
     
@@ -384,7 +377,7 @@ public class WebSocketServerHandlerTest {
     }
     
     private WebSocketServerHandler newWebSocketServerHandler() {
-        final Config config = Config.path("simplepush")
+        final SimplePushConfig config = SimplePushConfig.path("simplepush")
                 .subprotocol("push-notification")
                 .endpointUrl("/endpoint")
                 .tls(false)
@@ -394,7 +387,7 @@ public class WebSocketServerHandlerTest {
     }
     
     private EmbeddedChannel createWebsocketChannel() throws Exception {
-        final Config config = Config.path("simplepush")
+        final SimplePushConfig config = SimplePushConfig.path("simplepush")
                 .subprotocol("push-notification")
                 .endpointUrl("/endpoint")
                 .tls(false)

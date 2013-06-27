@@ -18,7 +18,7 @@ import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
@@ -70,7 +70,7 @@ public class SimplePushServerHandler implements Handler<SockJSSocket>{
                         break;
                     case REGISTER:
                         if (checkHandshakeCompleted(uaid)) {
-                            final RegisterResponse response = simplePushServer.handleRegister(fromJson(buffer.toString(), RegisterImpl.class), uaid);
+                            final RegisterResponse response = simplePushServer.handleRegister(fromJson(buffer.toString(), RegisterMessageImpl.class), uaid);
                             sock.write(new Buffer(toJson(response)));
                             logger.info("UserAgent [" + uaid + "] Registered[" + response.getChannelId() + "]");
                         }

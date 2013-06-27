@@ -30,7 +30,7 @@ import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
@@ -51,7 +51,7 @@ public class NettyWebSocketServerTest {
     public static void startSimplePushServer() throws Exception {
         final DataStore datastore = new InMemoryDataStore();
         final ServerBootstrap sb = new ServerBootstrap();
-        final Config config = Config.path("simplepush")
+        final SimplePushConfig config = SimplePushConfig.path("simplepush")
                 .subprotocol("push-notification")
                 .endpointUrl("/endpoint")
                 .tls(false)
@@ -107,7 +107,7 @@ public class NettyWebSocketServerTest {
             textFrame.release();
             
             final String channelId = UUID.randomUUID().toString();
-            final String register = JsonUtil.toJson(new RegisterImpl(channelId));
+            final String register = JsonUtil.toJson(new RegisterMessageImpl(channelId));
             final ChannelFuture registerFuture = ch.write(new TextWebSocketFrame(register));
             registerFuture.sync();
             final TextWebSocketFrame registerFrame = handler.getTextFrame();
@@ -158,7 +158,7 @@ public class NettyWebSocketServerTest {
             
             Thread.sleep(3000);
             final String channelId = UUID.randomUUID().toString();
-            final String register = JsonUtil.toJson(new RegisterImpl(channelId));
+            final String register = JsonUtil.toJson(new RegisterMessageImpl(channelId));
             final ChannelFuture registerFuture = ch.write(new TextWebSocketFrame(register));
             registerFuture.sync();
             ch.write(new CloseWebSocketFrame());

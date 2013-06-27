@@ -14,7 +14,7 @@ public class UserAgentTest {
 
     @Test
     public void timestamp() {
-        final UserAgent userAgent = new UserAgent(UUIDUtil.newUAID(), mock(ChannelHandlerContext.class), 1368781528407L);
+        final UserAgent<ChannelHandlerContext> userAgent = new UserAgent<ChannelHandlerContext>(UUIDUtil.newUAID(), mock(ChannelHandlerContext.class), 1368781528407L);
         System.out.println(new Date(userAgent.timestamp()));
         final long addedTimeout = userAgent.timestamp() + 10000;
         System.out.println(new Date(addedTimeout));

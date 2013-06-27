@@ -16,10 +16,10 @@ import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 public class WebSocketChannelInitializer extends ChannelInitializer<SocketChannel> {
     
     private final DataStore datastore;
-    private final Config config;
+    private final SimplePushConfig config;
     private final EventExecutorGroup backgroundGroup;
     
-    public WebSocketChannelInitializer(final Config config, final DataStore datastore, final EventExecutorGroup backgroundGroup) {
+    public WebSocketChannelInitializer(final SimplePushConfig config, final DataStore datastore, final EventExecutorGroup backgroundGroup) {
         this.config = config;
         this.datastore = datastore;
         this.backgroundGroup = backgroundGroup;

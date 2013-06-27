@@ -28,7 +28,7 @@ import java.util.concurrent.ThreadFactory;
 import org.jboss.aerogear.netty.extension.api.ServerBootstrapFactory;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
-import org.jboss.aerogear.simplepush.server.netty.Config;
+import org.jboss.aerogear.simplepush.server.netty.SimplePushConfig;
 import org.jboss.aerogear.simplepush.server.netty.WebSocketChannelInitializer;
 import org.jboss.as.network.SocketBinding;
 
@@ -36,7 +36,7 @@ public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
 
     @Override
     public ServerBootstrap createServerBootstrap(final SocketBinding socketBinding, final ThreadFactory threadFactory) {
-        final Config config = Config.path("/simplepush")
+        final SimplePushConfig config = SimplePushConfig.path("/simplepush")
                 .subprotocol("push-notification")
                 .endpointUrl("/endpoint")
                 .tls(false)
