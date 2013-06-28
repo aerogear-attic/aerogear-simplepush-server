@@ -28,12 +28,14 @@ import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 
 public class NettyWebSocketServer {
 
+    private final String host;
     private final int port;
     private final Config config;
 
-    public NettyWebSocketServer(final Config config , final int port) {
+    public NettyWebSocketServer(final Config config , final String host, final int port) {
         this.port = port;
         this.config = config;
+        this.host = host;
     }
 
     public void run() throws Exception {
@@ -46,8 +48,8 @@ public class NettyWebSocketServer {
             sb.group(bossGroup, workerGroup)
             .channel(NioServerSocketChannel.class)
             .childHandler(new WebSocketChannelInitializer(config, datastore, reaperExcutorGroup));
-            final Channel ch = sb.bind(port).sync().channel();
-            System.out.println("Web socket server started on port [" + port + "], " + config);
+            final Channel ch = sb.bind(host, port).sync().channel();
+            System.out.println("Web socket server started on " + host + ":" + port + " " + config);
             ch.closeFuture().sync();
         } finally {
             bossGroup.shutdownGracefully();
@@ -56,15 +58,16 @@ public class NettyWebSocketServer {
     }
 
     public static void main(final String[] args) throws Exception {
-        final int port =  args.length > 0 ? Integer.parseInt(args[0]) : 7777;
+        final String host =  args.length > 0 ? args[0] : "localhost";
+        final int port =  args.length > 1 ? Integer.parseInt(args[1]) : 7777;
         final Config config = Config.path("/simplepush")
                 .subprotocol("push-notification")
                 .endpointUrl("/endpoint")
-                .tls(args.length > 1 ? Boolean.parseBoolean(args[1]) : true)
-                .userAgentReaperTimeout(args.length > 2 ? Long.parseLong(args[2]) : -1)
-                .ackInterval(args.length > 3 ? Long.parseLong(args[3]) : 60000)
+                .tls(args.length > 2 ? Boolean.parseBoolean(args[2]) : true)
+                .userAgentReaperTimeout(args.length > 3 ? Long.parseLong(args[3]) : -1)
+                .ackInterval(args.length > 4 ? Long.parseLong(args[4]) : 60000)
                 .build();
-        new NettyWebSocketServer(config, port).run();
+        new NettyWebSocketServer(config, host, port).run();
     }
 
 }
