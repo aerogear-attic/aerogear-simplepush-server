@@ -149,7 +149,7 @@ public class SimplePushSockJSService implements SockJSService {
         
     @Override
     public void onClose() {
-        System.out.println("SimplePushSockJSServer onClose");
+        logger.info("SimplePushSockJSServer onClose");
         if (ackJobFuture != null) {
             ackJobFuture.cancel(true);
         }

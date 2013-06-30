@@ -128,7 +128,6 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
         @Override
         public Void call() throws Exception {
             try {
-                logger.info("--> " + channelId);
                 final UUID uaid = simplePushServer.fromChannel(channelId);
                 final String payload = content.toString(CharsetUtil.UTF_8);
                 logger.info("UserAgent [" + uaid + "] Notification [" + channelId + ", " + payload + "]");
