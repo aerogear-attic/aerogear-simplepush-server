@@ -129,11 +129,7 @@ public class NotificationHandlerTest {
     }
     
     private EmbeddedChannel createWebsocketChannel(SimplePushServer simplePushServer) throws Exception {
-        final SimplePushConfig config = SimplePushConfig.path("simplepush")
-                .subprotocol("push-notification")
-                .endpointUrl("/endpoint")
-                .tls(false)
-                .build();
+        final SimplePushConfig config = SimplePushConfig.create().build();
         return new EmbeddedChannel(new NotificationHandler(config, simplePushServer));
     }
     

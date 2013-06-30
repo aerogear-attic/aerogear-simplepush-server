@@ -24,28 +24,12 @@ import org.junit.Test;
 
 public class SimplePushConfigTest {
     
-    @Test (expected = NullPointerException.class)
-    public void shouldThrowIfPathIsNull() {
-        SimplePushConfig.path(null);
-    }
-    
-    @Test (expected = IllegalArgumentException.class)
-    public void shouldThrowIfPathIsEmpty() {
-        SimplePushConfig.path("");
-    }
-
     @Test
     public void buildConfig() {
-        final SimplePushConfig config = SimplePushConfig.path("/simplepush")
-                .tls(true)
-                .subprotocol("push-notification")
-                .endpointUrl("/endpoint")
+        final SimplePushConfig config = SimplePushConfig.create()
                 .userAgentReaperTimeout(1000)
                 .ackInterval(60000)
                 .build();
-        assertThat(config.path(), equalTo("/simplepush"));
-        assertThat(config.tls(), is(true));
-        assertThat(config.subprotocol(), equalTo("push-notification"));
         assertThat(config.endpointUrl(), equalTo("/endpoint"));
         assertThat(config.reaperTimeout(), is(1000L));
         assertThat(config.ackInterval(), is(60000L));

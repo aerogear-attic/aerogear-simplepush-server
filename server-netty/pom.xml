@@ -114,16 +114,18 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.2</version>
                 <configuration>
-                    <mainClass>org.jboss.aerogear.simplepush.server.netty.NettyWebSocketServer</mainClass>
+                    <mainClass>org.jboss.aerogear.simplepush.server.netty.NettySockJSServer</mainClass>
                     <arguments>
                         <!-- Host -->
-                        <argument>localhost</argument>
+                        <argument>-host=localhost</argument>
                         <!-- Port -->
-                        <argument>7777</argument>
+                        <argument>-port=7777</argument>
                         <!-- Transport Layer Security option -->
-                        <argument>true</argument>
+                        <argument>-tls=false</argument>
                         <!-- UserAgent Reaper timeout in ms -->
-                        <argument>300000</argument>
+                        <argument>-reaper_timeout=600000</argument>
+                        <!-- Acknowledgment interval -->
+                        <argument>-ack_interval=300000</argument>
                     </arguments>
                     <systemProperties>
                         <systemProperty>

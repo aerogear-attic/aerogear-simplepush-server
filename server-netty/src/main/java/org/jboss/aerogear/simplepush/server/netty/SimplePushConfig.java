@@ -1,35 +1,18 @@
 package org.jboss.aerogear.simplepush.server.netty;
 
-import org.jboss.aerogear.simplepush.util.ArgumentUtil;
 
 public final class SimplePushConfig {
     
-    private final String path;
-    private final boolean tls;
-    private final String subprotocol;
+    public static final String DEFAULT_ENDPOINT_URL = "/endpoint";
+    
     private final String endpointUrl;
     private final long reaperTimeout;
     private final long ackInterval;
     
     private SimplePushConfig(final Builder builder) {
-        path = builder.path;
-        tls = builder.tls;
-        subprotocol = builder.subprotocol;
         endpointUrl = builder.endpointUrl;
         reaperTimeout = builder.timeout;
         ackInterval = builder.ackInterval;
-    }
-    
-    public String path() {
-        return path;
-    }
-    
-    public boolean tls() {
-        return tls;
-    }
-    
-    public String subprotocol() {
-        return subprotocol;
     }
     
     public String endpointUrl() {
@@ -49,41 +32,20 @@ public final class SimplePushConfig {
     }
     
     public String toString() {
-        return new StringBuilder("Config[path=").append(path)
-            .append(", tsl=").append(tls)
-            .append(", subprotocol=").append(subprotocol)
-            .append(", endpointUrl=").append(endpointUrl)
+        return new StringBuilder("SimplePushConfig[endpointUrl=").append(endpointUrl)
             .append(", reaperTimeout=").append(reaperTimeout)
             .append(", ackInterval=").append(ackInterval)
             .append("]").toString();
     }
     
-    public static Builder path(final String path) {
-        ArgumentUtil.checkNotNullAndNotEmpty(path, "path");
-        return new SimplePushConfig.Builder(path);
+    public static Builder create() {
+        return new SimplePushConfig.Builder();
     }
     
     public static class Builder {
-        private final String path;
-        private boolean tls;
-        private String subprotocol = "push-notification";
-        private String endpointUrl;
+        private String endpointUrl = DEFAULT_ENDPOINT_URL;
         private long timeout = -1;
         private long ackInterval;
-        
-        public Builder(final String path) {
-            this.path = path;
-        }
-        
-        public Builder tls(final boolean tls) {
-            this.tls = tls;
-            return this;
-        }
-        
-        public Builder subprotocol(final String protocol) {
-            this.subprotocol = protocol;
-            return this;
-        }
         
         public Builder endpointUrl(final String endpointUrl) {
             this.endpointUrl = endpointUrl;
@@ -101,11 +63,8 @@ public final class SimplePushConfig {
         }
         
         public SimplePushConfig build() {
-            ArgumentUtil.checkNotNullAndNotEmpty(subprotocol, "subprotocol");
-            ArgumentUtil.checkNotNullAndNotEmpty(endpointUrl, "endpointUrl");
             return new SimplePushConfig(this);
         }
     }
-
 
 }

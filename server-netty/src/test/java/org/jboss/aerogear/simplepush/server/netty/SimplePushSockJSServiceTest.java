@@ -147,8 +147,8 @@ public class SimplePushSockJSServiceTest {
     
     @Test 
     public void rawWebSocketUpgradeRequest() throws Exception {
-        final SimplePushConfig simplePushConfig = SimplePushConfig.path("/simplepush").endpointUrl("/endpoint").build();
-        final Config sockjsConf = Config.prefix(simplePushConfig.path()).websocketProtocols("push-notification").build();
+        final SimplePushConfig simplePushConfig = SimplePushConfig.create().build();
+        final Config sockjsConf = Config.prefix("/simplepush").websocketProtocols("push-notification").build();
         final SimplePushServiceFactory factory = new SimplePushServiceFactory(sockjsConf, new InMemoryDataStore(), simplePushConfig);
         final EmbeddedChannel channel = createChannel(factory);
         final FullHttpRequest request = websocketUpgradeRequest(factory.config().prefix() + Transports.Types.WEBSOCKET.path());
@@ -451,14 +451,14 @@ public class SimplePushSockJSServiceTest {
     }
     
     private SockJSServiceFactory defaultFactory() {
-        final SimplePushConfig simplePushConfig = SimplePushConfig.path("/simplepush").subprotocol("push-notification").endpointUrl("/endpoint").build();
-        final Config sockjsConf = Config.prefix(simplePushConfig.path()).build();
+        final SimplePushConfig simplePushConfig = SimplePushConfig.create().build();
+        final Config sockjsConf = Config.prefix("/simplepush").build();
         return new SimplePushServiceFactory(sockjsConf, new InMemoryDataStore(), simplePushConfig);
     }
     
     private SockJSServiceFactory defaultFactory(final SimplePushServer simplePushServer) {
-        final SimplePushConfig simplePushConfig = SimplePushConfig.path("/simplepush").subprotocol("push-notification").endpointUrl("/endpoint").build();
-        final Config sockJSConfig = Config.prefix(simplePushConfig.path()).build();
+        final SimplePushConfig simplePushConfig = SimplePushConfig.create().build();
+        final Config sockJSConfig = Config.prefix("/simplepush").build();
         return new SockJSServiceFactory() {
             @Override
             public SockJSService create() {

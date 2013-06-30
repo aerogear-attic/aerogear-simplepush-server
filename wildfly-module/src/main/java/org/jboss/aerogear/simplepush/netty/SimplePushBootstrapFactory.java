@@ -21,6 +21,7 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.sockjs.Config;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import java.util.concurrent.ThreadFactory;
@@ -29,25 +30,27 @@ import org.jboss.aerogear.netty.extension.api.ServerBootstrapFactory;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 import org.jboss.aerogear.simplepush.server.netty.SimplePushConfig;
-import org.jboss.aerogear.simplepush.server.netty.WebSocketChannelInitializer;
+import org.jboss.aerogear.simplepush.server.netty.SockJSChannelInitializer;
 import org.jboss.as.network.SocketBinding;
 
 public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
 
     @Override
     public ServerBootstrap createServerBootstrap(final SocketBinding socketBinding, final ThreadFactory threadFactory) {
-        final SimplePushConfig config = SimplePushConfig.path("/simplepush")
-                .subprotocol("push-notification")
-                .endpointUrl("/endpoint")
-                .tls(false)
+        final SimplePushConfig simplePushConfig = SimplePushConfig.create()
                 .userAgentReaperTimeout(300000)
                 .ackInterval(60000)
                 .build();
-        final DataStore datastore = new InMemoryDataStore();
+        final Config sockjsConfig = Config.prefix("/simplepush")
+                .websocketProtocols("push-notification")
+                .tls(false)
+                .cookiesNeeded()
+                .build();
         final DefaultEventExecutorGroup reaperExcutorGroup = newEventExecutorGroup(1, threadFactory);
         final EventLoopGroup bossGroup = newEventLoopGroup(threadFactory);
         final EventLoopGroup workerGroup = newEventLoopGroup(threadFactory);
-        final WebSocketChannelInitializer channelInitializer = new WebSocketChannelInitializer(config, datastore, reaperExcutorGroup);
+        final DataStore datastore = new InMemoryDataStore();
+        final SockJSChannelInitializer channelInitializer = new SockJSChannelInitializer(simplePushConfig, datastore, sockjsConfig, reaperExcutorGroup);
         final ServerBootstrap sb = new ServerBootstrap();
         sb.group(bossGroup, workerGroup)
         .channel(NioServerSocketChannel.class)

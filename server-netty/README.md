@@ -1,5 +1,5 @@
 # AeroGear SimplePush Server
-__Disclaimer __  
+__Disclaimer__  
 This project is a Java implementation of the server side that follows the [SimplePush Protocol](https://wiki.mozilla.org/WebAPI/SimplePush/Protocol).  
 This version uses an in-memory data store and will loose all registrations upon shutdown restart. 
 A persistent data store will be added with [AGPUSH-18](https://issues.jboss.org/browse/AGPUSH-18).
@@ -17,13 +17,22 @@ A persistent data store will be added with [AGPUSH-18](https://issues.jboss.org/
 This will start the server listening to the localhost addresss, port 7777 and using transport layer security. To toggle these arguments you can
 specify overrides on the command lind:  
 
-    mvn exec:java -Dexec.args="localhost 8888 false 10000 60000"
+    mvn exec:java -Dexec.args="-host=localhost -port=8888 -tls=false -ack_interval=10000 -reaper_timeout=60000"
     
-The first argument is the _host_ to listen to.  
-The second argument is the _port_ to listen to.  
-The third argument is whether to use transport layer security or not.  
-The fourth arguement is the how often the UserAgent reaper job will run to clean up inactive user agents.
-The last arguement is the how often the acknowledge job will run to re-send unacknowledged notifications.
+__host__  
+The host that the server will bind to.
+
+__port__  
+The port that the server will bind to.
+
+__tls__  
+Whether to use transport layer security or not.  
+
+__ack_interval__ 
+How often the acknowledge job will run to re-send unacknowledged notifications.
+
+__reaper_timeout__ 
+How often the UserAgent reaper job will run to clean up inactive user agents.
     
 ### Access the demo html page
 
@@ -75,7 +84,7 @@ A push notification stating the version will be displayed in the textarea of the
 ### Hello Handshake
 Is sent by the UserAgent to the SimplePush Server:
 
-![Hello Message](https://raw.github.com/danbev/aerogear-simplepush-server/master/server/src/etc/images/hello-message.png)  
+![Hello Message](https://raw.github.com/aerogear/aerogear-simple-push-server/master/server-netty/src/etc/images/hello-message.png)  
 
 The SimplePush Server will ignore any additional Hello Messages after the first one on the web socket connection. 
 
@@ -111,7 +120,7 @@ of a Hello Message the _channelIDs_ represent channels that the UserAgent want t
 Register is used to register a ```channelId``` with the SimplePush server and enables the the client to be notified when the version 
 for this channel is updated.
 
-![Register Channel](https://raw.github.com/danbev/aerogear-simplepush-server/master/server/src/etc/images/register-channel.png)  
+![Register Channel](https://raw.github.com/aerogear/aerogear-simple-push-server/master/server-netty/src/etc/images/register-channel.png)  
 Notice that the ```UAID``` is absent from this message. This is because we have already performed hello message handshake and the current 
 web socket connection is for the current UserAgent (identified by the UAID).
 
@@ -142,7 +151,7 @@ channelId.
 ### Notification
 A notification is triggered by sending a ```PUT``` request to the ```pushEndpoint```.
 
-![Notification](https://raw.github.com/danbev/aerogear-simplepush-server/master/server/src/etc/images/notification.png)  
+![Notification](https://raw.github.com/aerogear/aerogear-simple-push-server/master/server-netty/src/etc/images/notification.png)  
 
 #### Request PUT format
 
@@ -173,7 +182,7 @@ The SimplePush server will try to will resend the the un-acknowledged notificati
 
 ### Unregister
 
-![Unregister](https://raw.github.com/danbev/aerogear-simplepush-server/master/server/src/etc/images/unregister-channel.png)  
+![Unregister](https://raw.github.com/aerogear/aerogear-simple-push-server/master/server-netty/src/etc/images/unregister-channel.png)  
 
 #### Request format
 

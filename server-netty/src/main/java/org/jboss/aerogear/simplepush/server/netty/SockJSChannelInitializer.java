@@ -6,7 +6,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.sockjs.Config;
-import io.netty.handler.codec.sockjs.SockJSServiceFactory;
 import io.netty.handler.codec.sockjs.handlers.CorsInboundHandler;
 import io.netty.handler.codec.sockjs.handlers.CorsOutboundHandler;
 import io.netty.handler.codec.sockjs.handlers.SockJSHandler;
@@ -21,24 +20,24 @@ import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> {
     
     private final DataStore datastore;
-    private final SimplePushConfig config;
+    private final SimplePushConfig simplePushConfig;
     private final EventExecutorGroup backgroundGroup;
-    private final SockJSServiceFactory serviceFactory;
+    private final Config sockjsConfig;
     
     public SockJSChannelInitializer(final SimplePushConfig simplePushConfig, 
             final DataStore datastore,
-            final Config sockJSConfig,
+            final Config sockjsConfig,
             final EventExecutorGroup backgroundGroup) {
-        this.config = simplePushConfig;
+        this.simplePushConfig = simplePushConfig;
         this.datastore = datastore;
+        this.sockjsConfig = sockjsConfig;
         this.backgroundGroup = backgroundGroup;
-        this.serviceFactory = new SimplePushServiceFactory(sockJSConfig, datastore, config);
     }
 
     @Override
     protected void initChannel(final SocketChannel socketChannel) throws Exception {
         final ChannelPipeline pipeline = socketChannel.pipeline();
-        if (config.tls()) {
+        if (sockjsConfig.tls()) {
             final SSLEngine engine = WebSocketSslServerSslContext.getInstance().serverContext().createSSLEngine();
             engine.setUseClientMode(false);
             pipeline.addLast(new SslHandler(engine));
@@ -47,10 +46,10 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
         pipeline.addLast(new HttpObjectAggregator(65536));
         
         final DefaultSimplePushServer simplePushServer = new DefaultSimplePushServer(datastore);
-        pipeline.addLast(new NotificationHandler(config, simplePushServer));
+        pipeline.addLast(new NotificationHandler(simplePushConfig, simplePushServer));
         pipeline.addLast(new CorsInboundHandler());
-        pipeline.addLast(new SockJSHandler(serviceFactory));
-        pipeline.addLast(backgroundGroup, new ReaperHandler(config));
+        pipeline.addLast(new SockJSHandler(new SimplePushServiceFactory(sockjsConfig, datastore, simplePushConfig)));
+        pipeline.addLast(backgroundGroup, new ReaperHandler(simplePushConfig));
         pipeline.addLast(new CorsOutboundHandler());
     }
     
