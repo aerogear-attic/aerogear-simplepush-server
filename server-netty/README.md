@@ -14,14 +14,15 @@ A persistent data store will be added with [AGPUSH-18](https://issues.jboss.org/
 
     mvn exec:java
     
-This will start the server listening to port 7777 and using transport layer security. To toggle these arguments you can
+This will start the server listening to the localhost addresss, port 7777 and using transport layer security. To toggle these arguments you can
 specify overrides on the command lind:  
 
-    mvn exec:java -Dexec.args="8888 false 10000 60000"
+    mvn exec:java -Dexec.args="localhost 8888 false 10000 60000"
     
-The first argument is the _port_ to listen to.  
-The second argument is whether to use transport layer security or not.  
-The third arguement is the how often the UserAgent reaper job will run to clean up inactive user agents.
+The first argument is the _host_ to listen to.  
+The second argument is the _port_ to listen to.  
+The third argument is whether to use transport layer security or not.  
+The fourth arguement is the how often the UserAgent reaper job will run to clean up inactive user agents.
 The last arguement is the how often the acknowledge job will run to re-send unacknowledged notifications.
     
 ### Access the demo html page

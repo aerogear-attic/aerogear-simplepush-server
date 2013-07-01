@@ -64,7 +64,7 @@ public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
 
     private EventLoopGroup newEventLoopGroup(final ThreadFactory threadFactory) {
         if (threadFactory != null) {
-            return new NioEventLoopGroup(NioEventLoopGroup.DEFAULT_EVENT_LOOP_THREADS, threadFactory);
+            return new NioEventLoopGroup(0, threadFactory);
         } 
         return new NioEventLoopGroup();
     }
