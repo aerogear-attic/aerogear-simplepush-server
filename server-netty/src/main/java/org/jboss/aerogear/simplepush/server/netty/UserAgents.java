@@ -16,7 +16,7 @@
  */
 package org.jboss.aerogear.simplepush.server.netty;
 
-import io.netty.handler.codec.sockjs.Session;
+import io.netty.handler.codec.sockjs.SessionContext;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -28,29 +28,26 @@ public class UserAgents {
     private UserAgents() {
     }
     
-    private static final ConcurrentMap<UUID, UserAgent<Session>> userAgents = new ConcurrentHashMap<UUID, UserAgent<Session>>();
+    private static final ConcurrentMap<UUID, UserAgent<SessionContext>> userAgents = new ConcurrentHashMap<UUID, UserAgent<SessionContext>>();
     private static final UserAgents INSTANCE = new UserAgents();
     
     public static UserAgents getInstance() {
         return INSTANCE;
     }
     
-    public void add(final UUID uaid, final Session session) {
-        final UserAgent<Session> userAgent = userAgents.putIfAbsent(uaid, new UserAgent<Session>(uaid, session, System.currentTimeMillis()));
-        if (userAgent != null) {
-            throw new IllegalStateException("A session already exists for UserAgent [" + uaid.toString() + "]");
-        }
+    public void add(final UUID uaid, final SessionContext session) {
+        userAgents.put(uaid, new UserAgent<SessionContext>(uaid, session, System.currentTimeMillis()));
     }
     
-    public UserAgent<Session> get(final UUID uaid) {
-        final UserAgent<Session> userAgent = userAgents.get(uaid);
+    public UserAgent<SessionContext> get(final UUID uaid) {
+        final UserAgent<SessionContext> userAgent = userAgents.get(uaid);
         if (userAgent == null) {
             throw new IllegalStateException("Cound not find UserAgent [" + uaid.toString() + "]");
         }
         return userAgent;
     }
     
-    public Collection<UserAgent<Session>> all() {
+    public Collection<UserAgent<SessionContext>> all() {
         return userAgents.values();
     }
     
