@@ -3,7 +3,7 @@ package org.jboss.aerogear.simplepush.server.netty;
 import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.fromJson;
 import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.toJson;
 import io.netty.handler.codec.sockjs.Config;
-import io.netty.handler.codec.sockjs.Session;
+import io.netty.handler.codec.sockjs.SessionContext;
 import io.netty.handler.codec.sockjs.SockJSService;
 import io.netty.util.concurrent.ScheduledFuture;
 
@@ -40,7 +40,7 @@ public class SimplePushSockJSService implements SockJSService {
     private final SimplePushServer simplePushServer;
     private final SimplePushConfig config;
     private UUID uaid;
-    private Session session;
+    private SessionContext session;
     private ScheduledFuture<?> ackJobFuture;
 
     public SimplePushSockJSService(final Config sockjsConfig, final SimplePushServer simplePushServer, 
@@ -56,7 +56,7 @@ public class SimplePushSockJSService implements SockJSService {
     }
 
     @Override
-    public void onOpen(final Session session) {
+    public void onOpen(final SessionContext session) {
         logger.info("SimplePushSockJSServer onOpen");
         this.session = session;
         if (session.getContext().pipeline().get(ReaperHandler.class) != null) {
@@ -107,12 +107,12 @@ public class SimplePushSockJSService implements SockJSService {
     
     private void updateAccessedTime(final UUID uaid) {
         if (uaid != null) {
-            final UserAgent<Session> userAgent = userAgents.get(uaid);
+            final UserAgent<SessionContext> userAgent = userAgents.get(uaid);
             userAgent.timestamp(System.currentTimeMillis());
         }
     }
     
-    private void processUnacked(final UUID uaid, final Session session, final long delay) {
+    private void processUnacked(final UUID uaid, final SessionContext session, final long delay) {
         final Set<Update> unacked = simplePushServer.getUnacknowledged(uaid);
         if (unacked.isEmpty()) {
             if (ackJobFuture != null && !ackJobFuture.isCancelled()) {

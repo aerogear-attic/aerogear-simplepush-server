@@ -19,7 +19,7 @@ package org.jboss.aerogear.simplepush.server.netty;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.sockjs.Session;
+import io.netty.handler.codec.sockjs.SessionContext;
 
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
@@ -79,8 +79,8 @@ public class ReaperHandler extends ChannelInboundHandlerAdapter {
         @Override
         public void run() {
             logger.info("Running reaper at interval of " + timeout);
-            for (Iterator<UserAgent<Session>> it = userAgents.all().iterator(); it.hasNext();) {
-                final UserAgent<Session> userAgent = it.next();
+            for (Iterator<UserAgent<SessionContext>> it = userAgents.all().iterator(); it.hasNext();) {
+                final UserAgent<SessionContext> userAgent = it.next();
                 final long now = System.currentTimeMillis();
                 if (userAgent.timestamp() + config.reaperTimeout() < now) {
                     logger.info("Removing userAgent=" + userAgent.uaid().toString());

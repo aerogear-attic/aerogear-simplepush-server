@@ -32,7 +32,7 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.sockjs.Session;
+import io.netty.handler.codec.sockjs.SessionContext;
 import io.netty.handler.codec.sockjs.transports.Transports;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
@@ -103,7 +103,7 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
     
     private void updateAccessedTime(final UUID uaid) {
         if (uaid != null) {
-            final UserAgent<Session> userAgent = userAgents.get(uaid);
+            final UserAgent<SessionContext> userAgent = userAgents.get(uaid);
             userAgent.timestamp(System.currentTimeMillis());
         }
     }
@@ -132,7 +132,7 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
                 final String payload = content.toString(CharsetUtil.UTF_8);
                 logger.info("UserAgent [" + uaid + "] Notification [" + channelId + ", " + payload + "]");
                 final NotificationMessage notification = simplePushServer.handleNotification(channelId, uaid, payload);
-                final Session session = userAgents.get(uaid).context();
+                final SessionContext session = userAgents.get(uaid).context();
                 session.send(toJson(notification));
                 updateAccessedTime(uaid);
                 return null;

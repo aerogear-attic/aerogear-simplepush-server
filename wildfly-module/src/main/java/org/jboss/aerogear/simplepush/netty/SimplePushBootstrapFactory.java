@@ -38,7 +38,7 @@ public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
     @Override
     public ServerBootstrap createServerBootstrap(final SocketBinding socketBinding, final ThreadFactory threadFactory) {
         final SimplePushConfig simplePushConfig = SimplePushConfig.create()
-                .userAgentReaperTimeout(300000)
+                .userAgentReaperTimeout(604800000)
                 .ackInterval(60000)
                 .build();
         final Config sockjsConfig = Config.prefix("/simplepush")
