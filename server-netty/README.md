@@ -1,8 +1,16 @@
 # AeroGear SimplePush Server
-__Disclaimer __  
+__Disclaimer__  
 This project is a Java implementation of the server side that follows the [SimplePush Protocol](https://wiki.mozilla.org/WebAPI/SimplePush/Protocol).  
 This version uses an in-memory data store and will loose all registrations upon shutdown restart. 
 A persistent data store will be added with [AGPUSH-18](https://issues.jboss.org/browse/AGPUSH-18).
+
+### Prerequisites
+This version uses SockJS in combination with Netty 4. This support currently not availble in any release of Netty and 
+you have to build the following branch manually:
+
+    git clone https://github.com/danbev/netty/tree/sockjs
+    cd netty
+    mvn install -DskipTests=true
 
 ## Usage
 
@@ -14,23 +22,32 @@ A persistent data store will be added with [AGPUSH-18](https://issues.jboss.org/
 
     mvn exec:java
     
-This will start the server listening to the localhost addresss, port 7777 and using transport layer security. To toggle these arguments you can
-specify overrides on the command lind:  
+This will start the server listening localhost using port 7777. To toggle these arguments you can
+specify overrides on the command line:  
 
-    mvn exec:java -Dexec.args="localhost 8888 false 10000 60000"
+    mvn exec:java -Dexec.args="-host=localhost -port=8888 -tls=false -ack_interval=10000 -reaper_timeout=60000"
     
-The first argument is the _host_ to listen to.  
-The second argument is the _port_ to listen to.  
-The third argument is whether to use transport layer security or not.  
-The fourth arguement is the how often the UserAgent reaper job will run to clean up inactive user agents.
-The last arguement is the how often the acknowledge job will run to re-send unacknowledged notifications.
+__host__  
+The host that the server will bind to.
+
+__port__  
+The port that the server will bind to.
+
+__tls__  
+Whether to use transport layer security or not.  
+
+__ack_interval__ 
+How often the acknowledge job will run to re-send unacknowledged notifications.
+
+__reaper_timeout__ 
+How often the UserAgent reaper job will run to clean up inactive user agents.
     
 ### Access the demo html page
 
 
 #### Setting up TLS/SSL
-This SimplePush Server uses Web Sockets on top transport layer security/secure socket layer and there for requires
-a certifcate to be accepted by the client. The serveris already configured which you can see by inspecting the pom.xml, but
+This SimplePush Server uses SockJS with transport layer security/secure socket layer and therefor requires
+a certifcate to be accepted by the client. The server can be enabled with TLS by changing the _tls_ setting in pom.xml, but
 the browsers need to import the certificate.  
 
 For some broswers is will be enough to access ```https://localhost:7777``` once, and then accept the certificate.  For other
@@ -75,7 +92,7 @@ A push notification stating the version will be displayed in the textarea of the
 ### Hello Handshake
 Is sent by the UserAgent to the SimplePush Server:
 
-![Hello Message](https://raw.github.com/danbev/aerogear-simplepush-server/master/server/src/etc/images/hello-message.png)  
+![Hello Message](https://raw.github.com/aerogear/aerogear-simple-push-server/master/server-netty/src/etc/images/hello-message.png)  
 
 The SimplePush Server will ignore any additional Hello Messages after the first one on the web socket connection. 
 
@@ -111,7 +128,7 @@ of a Hello Message the _channelIDs_ represent channels that the UserAgent want t
 Register is used to register a ```channelId``` with the SimplePush server and enables the the client to be notified when the version 
 for this channel is updated.
 
-![Register Channel](https://raw.github.com/danbev/aerogear-simplepush-server/master/server/src/etc/images/register-channel.png)  
+![Register Channel](https://raw.github.com/aerogear/aerogear-simple-push-server/master/server-netty/src/etc/images/register-channel.png)  
 Notice that the ```UAID``` is absent from this message. This is because we have already performed hello message handshake and the current 
 web socket connection is for the current UserAgent (identified by the UAID).
 
@@ -142,7 +159,7 @@ channelId.
 ### Notification
 A notification is triggered by sending a ```PUT``` request to the ```pushEndpoint```.
 
-![Notification](https://raw.github.com/danbev/aerogear-simplepush-server/master/server/src/etc/images/notification.png)  
+![Notification](https://raw.github.com/aerogear/aerogear-simple-push-server/master/server-netty/src/etc/images/notification.png)  
 
 #### Request PUT format
 
@@ -173,7 +190,7 @@ The SimplePush server will try to will resend the the un-acknowledged notificati
 
 ### Unregister
 
-![Unregister](https://raw.github.com/danbev/aerogear-simplepush-server/master/server/src/etc/images/unregister-channel.png)  
+![Unregister](https://raw.github.com/aerogear/aerogear-simple-push-server/master/server-netty/src/etc/images/unregister-channel.png)  
 
 #### Request format
 
@@ -189,3 +206,109 @@ The SimplePush server will try to will resend the the un-acknowledged notificati
       "channelID": "d9b74644-4f97-46aa-b8fa-9393985cd6cd"
       "status": 200
     }  
+
+## Deploying to OpenShift
+Deploying the SimplePush server to OpenShift involves creating a new application of type AS 7.
+After this has been done you need to clone this application.  
+Next, remove the pom.xml, src, and deployments/ROOT.war files from git:
+
+    git rm -r pom.xml src deployments/ROOT.war
+    git commit -m "removing src files"
+    
+### Add the modules for the Netty subsystem and SimplePush
+We are going to add two modules to the AS7 instance which is done by adding the modules to the _.openshift/config/modules_
+directory.
+
+You need to bulid the [Netty subystem](https://github.com/danbev/netty-subsystem) locally first:
+
+    git clone https://github.com/danbev/netty-subsystem
+    cd netty-subsystem
+    mvn install
+Next, copy the module produced by the above build (your path to the simplepush openshift clone might differ):
+
+    cp -r subsystem/target/module/org ~/work/openshift/simplepush/.openshift/config/modules
+ 
+We also need the module for the SimplePush server which is build by the wildfly-module in the current project:
+
+    cp -r wildfly-module/target/module/org ~/work/openshift/simplepush/.openshift/config/modules
+    
+Currently, we also need to add the SimplePush module as a dependency to Netty subsystem so that Netty can
+find classes and resources in the SimplePush module. This will later be fixed and the module reference will be
+part of the subsystem configuration([AGPUSH-129](https://issues.jboss.org/browse/AGPUSH-129)
+Edit .openshift/config/modules/org/jboss/aerogear/netty/main/modules.xml, and add the following dependency:
+
+    <dependencies>
+        ...
+        <module name="org.jboss.aerogear.simplepush"/>
+    </dependencies>
+      
+### Adding the subsystem to WildFly
+The Netty subsystem can be added to any of the configurations that are shipped with WildFly. 
+As an example, add the following elements to _.openshift/standalone.xml_.
+
+
+#### Add the extension
+
+    <extensions>
+        ...
+        <extension module="org.jboss.aerogear.netty"/>
+    <extensions>
+    
+    
+#### Add a socket-binding    
+
+    
+    <socket-binding-group name="standard-sockets" default-interface="public" port-offset="${jboss.socket.binding.port-offset:0}">
+        <socket-binding name="http" port="8099"/>
+        ...
+        <socket-binding name="simplepush" port="8080"/>
+    </socket-binding-group>  
+We are changing the _http_ binding so that we can have the SimplePush server be accessed externally.    
+    
+#### Add the Netty subsystem
+
+    <profile>
+        ...
+        <subsystem xmlns="urn:org.jboss.aerogear.netty:1.0">
+            <netty>
+                <server name="simplepush-server" socket-binding="simplepush" factoryClass="org.jboss.aerogear.simplepush.netty.SimplePushBootstrapFactory" />
+            </netty>
+        </subsystem>
+    </profile>    
+    
+Add all the changes by using git add and commit:
+    
+    git add .openshift
+    git commit -m 'adding Netty Subsystem and SimplePush module'
+    git push origin master
+      
+#### How do I know that it works?
+You can hit the SockJS info page and verify that it returns the expected result
+
+    http://simplepush-danbev.rhcloud.com/simplepush/info
+    
+Which should return:
+    
+    {"websocket": true, "origins": ["*:*"], "cookie_needed": true, "entropy": 1625422556}    
+    
+#### Registering a Web Variant
+When registering a Web Variant you have to give a url to the service that handles the notifications, which is often referred
+to as the endpoint url. This url should look like this:
+
+    http://simplepush-danbev.rhcloud.com/endpoint/
+    
+#### Use the OpenShift WebSocket port 8000 to connect
+OpenShift as the external port 8000 available for WebSockets and the client must use this port to succeed. Depending
+on the client this might look different but the url should look like the following example:
+
+    http://sockjs-danbev.rhcloud.com:8000/simplepush
+    
+    
+#### Known issues
+When SockJS tries to estabilish a WebSocket connection the following error is raised:
+
+    WebSocket connection to 'ws://simplepush-danbev.rhcloud.com/simplepush/933/5plrvach/websocket' failed: WebSocket is closed before the connection is established.
+
+This issue is covered by [AGPUSH-120](https://issues.jboss.org/browse/AGPUSH-120).
+    
+    

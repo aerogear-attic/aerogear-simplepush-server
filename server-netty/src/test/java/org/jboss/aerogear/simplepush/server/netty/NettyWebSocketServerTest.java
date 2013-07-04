@@ -21,6 +21,7 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
+import io.netty.handler.codec.sockjs.Config;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import java.net.URI;
@@ -30,7 +31,7 @@ import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.RegisterImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
@@ -49,17 +50,13 @@ public class NettyWebSocketServerTest {
     
     @BeforeClass
     public static void startSimplePushServer() throws Exception {
+        final Config sockJSConfig = Config.prefix("/simplepush").cookiesNeeded().build();
         final DataStore datastore = new InMemoryDataStore();
         final ServerBootstrap sb = new ServerBootstrap();
-        final Config config = Config.path("simplepush")
-                .subprotocol("push-notification")
-                .endpointUrl("/endpoint")
-                .tls(false)
-                .userAgentReaperTimeout(2000)
-                .build();
+        final SimplePushConfig simplePushConfig = SimplePushConfig.create().userAgentReaperTimeout(2000) .build();
         sb.group(bossGroup, workerGroup)
             .channel(NioServerSocketChannel.class)
-            .childHandler(new WebSocketChannelInitializer(config, datastore, new DefaultEventExecutorGroup(1)));
+            .childHandler(new SockJSChannelInitializer(simplePushConfig, datastore, sockJSConfig, new DefaultEventExecutorGroup(1)));
         channel = sb.bind(port).sync().channel();
     }
     
@@ -71,9 +68,9 @@ public class NettyWebSocketServerTest {
         workerGroup.shutdownGracefully();
     }
 
-    @Test
+    @Test 
     public void withoutTLS() throws Exception {
-        final URI uri = new URI("ws://localhost:" + port + "/simplepush");
+        final URI uri = new URI("ws://localhost:" + port + "/simplepush/websocket");
         final EventLoopGroup group = new NioEventLoopGroup();
         try {
             final Bootstrap b = new Bootstrap();
@@ -107,7 +104,7 @@ public class NettyWebSocketServerTest {
             textFrame.release();
             
             final String channelId = UUID.randomUUID().toString();
-            final String register = JsonUtil.toJson(new RegisterImpl(channelId));
+            final String register = JsonUtil.toJson(new RegisterMessageImpl(channelId));
             final ChannelFuture registerFuture = ch.write(new TextWebSocketFrame(register));
             registerFuture.sync();
             final TextWebSocketFrame registerFrame = handler.getTextFrame();
@@ -125,7 +122,7 @@ public class NettyWebSocketServerTest {
     
     @Test
     public void userAgentReaper() throws Exception {
-        final URI uri = new URI("ws://localhost:" + port + "/simplepush");
+        final URI uri = new URI("ws://localhost:" + port + "/simplepush/websocket");
         final EventLoopGroup group = new NioEventLoopGroup();
         try {
             final Bootstrap b = new Bootstrap();
@@ -158,7 +155,7 @@ public class NettyWebSocketServerTest {
             
             Thread.sleep(3000);
             final String channelId = UUID.randomUUID().toString();
-            final String register = JsonUtil.toJson(new RegisterImpl(channelId));
+            final String register = JsonUtil.toJson(new RegisterMessageImpl(channelId));
             final ChannelFuture registerFuture = ch.write(new TextWebSocketFrame(register));
             registerFuture.sync();
             ch.write(new CloseWebSocketFrame());

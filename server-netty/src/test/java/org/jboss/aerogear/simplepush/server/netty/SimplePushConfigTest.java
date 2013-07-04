@@ -22,30 +22,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.Test;
 
-public class ConfigTest {
+public class SimplePushConfigTest {
     
-    @Test (expected = NullPointerException.class)
-    public void shouldThrowIfPathIsNull() {
-        Config.path(null);
-    }
-    
-    @Test (expected = IllegalArgumentException.class)
-    public void shouldThrowIfPathIsEmpty() {
-        Config.path("");
-    }
-
     @Test
     public void buildConfig() {
-        final Config config = Config.path("/simplepush")
-                .tls(true)
-                .subprotocol("notification")
-                .endpointUrl("/endpoint")
+        final SimplePushConfig config = SimplePushConfig.create()
                 .userAgentReaperTimeout(1000)
                 .ackInterval(60000)
                 .build();
-        assertThat(config.path(), equalTo("/simplepush"));
-        assertThat(config.tls(), is(true));
-        assertThat(config.subprotocol(), equalTo("notification"));
         assertThat(config.endpointUrl(), equalTo("/endpoint"));
         assertThat(config.reaperTimeout(), is(1000L));
         assertThat(config.ackInterval(), is(60000L));
