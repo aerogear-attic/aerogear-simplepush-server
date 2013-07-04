@@ -44,21 +44,23 @@ import org.jboss.aerogear.simplepush.util.VersionExtractor;
 public class DefaultSimplePushServer implements SimplePushServer {
     
     private final DataStore store;
+    private final SimplePushServerConfig config;
     
-    public DefaultSimplePushServer(final DataStore store) {
+    public DefaultSimplePushServer(final DataStore store, final SimplePushServerConfig config) {
         this.store = store;
+        this.config = config;
     }
     
     public HandshakeResponse handleHandshake(final HandshakeMessage handshake) {
         for (String channelId : handshake.getChannelIds()) {
-            store.saveChannel(new DefaultChannel(handshake.getUAID(), channelId, defaultEndpoint(channelId)));
+            store.saveChannel(new DefaultChannel(handshake.getUAID(), channelId, endpointUrl(channelId)));
         }
         return new HandshakeResponseImpl(handshake.getUAID());
     }
     
     public RegisterResponse handleRegister(final RegisterMessage register, final UUID uaid) {
         final String channelId = register.getChannelId();
-        final String pushEndpoint = defaultEndpoint(channelId);
+        final String pushEndpoint = endpointUrl(channelId);
         final boolean saved = store.saveChannel(new DefaultChannel(uaid, channelId, pushEndpoint));
         final Status status = saved ? new StatusImpl(200, "OK") : new StatusImpl(409, "Conflict: channeld [" + channelId + " is already in use");
         return new RegisterResponseImpl(channelId, status, pushEndpoint);
@@ -132,8 +134,8 @@ public class DefaultSimplePushServer implements SimplePushServer {
         store.removeChannels(uaid);
     }
     
-    private String defaultEndpoint(final String channelId) {
-        return "/endpoint/" + channelId;
+    private String endpointUrl(final String channelId) {
+        return config.endpointUrlPrefix() + "/" + channelId;
     }
 
     @Override
@@ -144,6 +146,11 @@ public class DefaultSimplePushServer implements SimplePushServer {
     @Override
     public void removeAllChannels(final UUID uaid) {
         store.removeChannels(uaid);
+    }
+
+    @Override
+    public SimplePushServerConfig config() {
+        return config;
     }
 
 }

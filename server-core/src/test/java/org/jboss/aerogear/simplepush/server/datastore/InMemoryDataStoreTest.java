@@ -20,7 +20,6 @@ import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 import org.jboss.aerogear.simplepush.server.DefaultChannel;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class InMemoryDataStoreTest {

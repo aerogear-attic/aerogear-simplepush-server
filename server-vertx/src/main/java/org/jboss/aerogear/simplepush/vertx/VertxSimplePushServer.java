@@ -2,8 +2,10 @@ package org.jboss.aerogear.simplepush.vertx;
 
 import java.util.UUID;
 
+import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
+import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
@@ -24,12 +26,20 @@ public class VertxSimplePushServer extends Verticle {
         
     @Override
     public void start() {
-        final SimplePushServer simplePushServer = new DefaultSimplePushServer(new InMemoryDataStore());
+        final SimplePushServerConfig config = fromConfig(container.config());
+        final SimplePushServer simplePushServer = new DefaultSimplePushServer(new InMemoryDataStore(), config);
         final HttpServer httpServer = vertx.createHttpServer();
         setupHttpNotificationHandler(httpServer, simplePushServer);
         setupSimplePushSockJSServer(httpServer, simplePushServer);
         startHttpServer(httpServer);
         setupUserAgentReaperJob(simplePushServer);
+    }
+
+    private SimplePushServerConfig fromConfig(JsonObject config) {
+        return DefaultSimplePushConfig.create()
+            .ackInterval(config.getLong("ackInterval"))
+            .endpointUrl(config.getString("endpointUrlPrefix"))
+            .userAgentReaperTimeout(config.getLong("userAgentReaperTimeout")).build();
     }
 
     private void startHttpServer(final HttpServer httpServer) {
@@ -41,7 +51,8 @@ public class VertxSimplePushServer extends Verticle {
 
     private void setupHttpNotificationHandler(final HttpServer httpServer, final SimplePushServer simplePushServer) {
         final RouteMatcher rm = new RouteMatcher();
-        rm.put("/endpoint/:channelId",new HttpNotificationHandler(simplePushServer, vertx, container));
+        final String endpointUrlPrefix = simplePushServer.config().endpointUrlPrefix();
+        rm.put(endpointUrlPrefix + "/:channelId", new HttpNotificationHandler(simplePushServer, vertx, container));
         httpServer.requestHandler(rm);
     }
     

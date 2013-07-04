@@ -26,29 +26,29 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
+import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Sharable
 public class ReaperHandler extends ChannelInboundHandlerAdapter {
     
-    private final SimplePushConfig config;
+    private final SimplePushServerConfig config;
     private static AtomicBoolean reaperStarted = new AtomicBoolean(false);
     
-    public ReaperHandler(final SimplePushConfig config) {
+    public ReaperHandler(final SimplePushServerConfig config) {
         this.config = config;
     }
-    
     
     @Override
     public void userEventTriggered(final ChannelHandlerContext ctx, final Object evt) throws Exception {
         if (!reaperStarted.get()) {
-            if (config.hasReaperTimeout()) {
+            if (config.userAgentReaperTimeout() != -1) {
                 if (evt instanceof SimplePushServer) {
                     final SimplePushServer simplePushServer = (SimplePushServer) evt;
-                    ctx.executor().scheduleAtFixedRate(new UserAgentReaper(config.reaperTimeout(), simplePushServer, config),
-                        config.reaperTimeout(), 
-                        config.reaperTimeout(), 
+                    ctx.executor().scheduleAtFixedRate(new UserAgentReaper(config.userAgentReaperTimeout(), simplePushServer, config),
+                        config.userAgentReaperTimeout(), 
+                        config.userAgentReaperTimeout(), 
                         TimeUnit.MILLISECONDS);
                         reaperStarted.set(true);
                         ctx.pipeline().remove(this);
@@ -63,9 +63,9 @@ public class ReaperHandler extends ChannelInboundHandlerAdapter {
         private final long timeout;
         private final SimplePushServer simplePushServer;
         private final UserAgents userAgents = UserAgents.getInstance();
-        private final SimplePushConfig config;
+        private final SimplePushServerConfig config;
 
-        public UserAgentReaper(final long timeout, final SimplePushServer simplePushServer, final SimplePushConfig config) {
+        public UserAgentReaper(final long timeout, final SimplePushServer simplePushServer, final SimplePushServerConfig config) {
             this.timeout = timeout;
             this.simplePushServer = simplePushServer;
             this.config = config;
@@ -77,7 +77,7 @@ public class ReaperHandler extends ChannelInboundHandlerAdapter {
             for (Iterator<UserAgent<SessionContext>> it = userAgents.all().iterator(); it.hasNext();) {
                 final UserAgent<SessionContext> userAgent = it.next();
                 final long now = System.currentTimeMillis();
-                if (userAgent.timestamp() + config.reaperTimeout() < now) {
+                if (userAgent.timestamp() + config.userAgentReaperTimeout() < now) {
                     logger.info("Removing userAgent=" + userAgent.uaid().toString());
                     it.remove();
                     simplePushServer.removeAllChannels(userAgent.uaid());

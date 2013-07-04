@@ -1,6 +1,7 @@
 {
     "port" : 7777,
     "host" : "localhost",
-    "reaperTimeout" : 300000,
-    "ackInterval" : 60000
+    "userAgentReaperTimeout" : 604800000,
+    "ackInterval" : 60000,
+    "endpointUrlPrefix" : "/endpoint"
 }

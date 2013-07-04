@@ -39,6 +39,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
+import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
@@ -50,7 +51,7 @@ public class NotificationHandlerTest {
     public void notification() throws Exception {
         final UUID uaid = UUIDUtil.newUAID();
         final String channelId = UUID.randomUUID().toString();
-        final SimplePushServer simplePushServer = new DefaultSimplePushServer(new InMemoryDataStore());
+        final SimplePushServer simplePushServer = defaultPushServer();
         final EmbeddedChannel channel = createWebsocketChannel(simplePushServer);
         registerUserAgent(uaid, channel);
         doRegister(channelId, uaid, simplePushServer);
@@ -61,7 +62,7 @@ public class NotificationHandlerTest {
     public void notificationVersionEqualToCurrentVersion() throws Exception {
         final UUID uaid = UUIDUtil.newUAID();
         final String channelId = UUID.randomUUID().toString();
-        final SimplePushServer simplePushServer = new DefaultSimplePushServer(new InMemoryDataStore());
+        final SimplePushServer simplePushServer = defaultPushServer();
         final EmbeddedChannel channel = createWebsocketChannel(simplePushServer);
         registerUserAgent(uaid, channel);
         doRegister(channelId, uaid, simplePushServer);
@@ -75,7 +76,7 @@ public class NotificationHandlerTest {
     public void notificationVersionLessThanCurrent() throws Exception {
         final UUID uaid = UUIDUtil.newUAID();
         final String channelId = UUID.randomUUID().toString();
-        final SimplePushServer simplePushServer = new DefaultSimplePushServer(new InMemoryDataStore());
+        final SimplePushServer simplePushServer = defaultPushServer();
         final EmbeddedChannel channel = createWebsocketChannel(simplePushServer);
         registerUserAgent(uaid, channel);
         doRegister(channelId, uaid, simplePushServer);
@@ -83,6 +84,10 @@ public class NotificationHandlerTest {
         
         final HttpResponse response = sendNotification(channelId, 9L, simplePushServer);
         assertThat(response.getStatus(), is(HttpResponseStatus.BAD_REQUEST));
+    }
+    
+    private SimplePushServer defaultPushServer() {
+        return new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.create().build());
     }
     
     private HttpResponse sendNotification(final String channelId, final long version, final SimplePushServer simplePushServer) throws Exception {
@@ -129,8 +134,8 @@ public class NotificationHandlerTest {
     }
     
     private EmbeddedChannel createWebsocketChannel(SimplePushServer simplePushServer) throws Exception {
-        final SimplePushConfig config = SimplePushConfig.create().build();
-        return new EmbeddedChannel(new NotificationHandler(config, simplePushServer));
+        final DefaultSimplePushConfig config = DefaultSimplePushConfig.create().build();
+        return new EmbeddedChannel(new NotificationHandler(simplePushServer));
     }
     
     private SessionContext channelSession(final EmbeddedChannel ch) {

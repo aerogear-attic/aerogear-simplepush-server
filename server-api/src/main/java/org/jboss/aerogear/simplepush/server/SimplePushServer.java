@@ -90,5 +90,12 @@ public interface SimplePushServer {
      * @throws ChannelNotFoundException if the channel could not be found.
      */
     UUID fromChannel(final String channelId) throws ChannelNotFoundException;
+    
+    /**
+     * Returns the configuration for this SimplePush server.
+     * 
+     * @return {@link SimplePushServerConfig} this servers configuration.
+     */
+    SimplePushServerConfig config();
 
 }

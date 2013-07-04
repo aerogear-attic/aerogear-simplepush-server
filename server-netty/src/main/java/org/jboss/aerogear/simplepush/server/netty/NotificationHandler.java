@@ -44,6 +44,7 @@ import java.util.concurrent.Callable;
 
 import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
+import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,11 +57,11 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
     private final UserAgents userAgents = UserAgents.getInstance();
     private final Logger logger = LoggerFactory.getLogger(NotificationHandler.class);
     
-    private final SimplePushConfig config;
+    private final SimplePushServerConfig config;
     private final SimplePushServer simplePushServer;
    
-    public NotificationHandler(final SimplePushConfig config, final SimplePushServer simplePushServer) {
-        this.config = config;
+    public NotificationHandler(final SimplePushServer simplePushServer) {
+        this.config = simplePushServer.config();
         this.simplePushServer = simplePushServer;
     }
 
@@ -69,7 +70,7 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
         if (msg instanceof FullHttpRequest) {
             final FullHttpRequest request = (FullHttpRequest) msg;
             final String requestUri = request.getUri();
-            if (requestUri.startsWith(config.endpointUrl())) {
+            if (requestUri.startsWith(config.endpointUrlPrefix())) {
                 handleHttpRequest(ctx, request);
             } else {
                 ctx.fireMessageReceived(ReferenceCountUtil.retain(msg));
