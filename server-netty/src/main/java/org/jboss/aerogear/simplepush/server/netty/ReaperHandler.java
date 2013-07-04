@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 @Sharable
 public class ReaperHandler extends ChannelInboundHandlerAdapter {
     
-    private static final Logger logger = LoggerFactory.getLogger(NotificationHandler.class);
     private final SimplePushConfig config;
     private static AtomicBoolean reaperStarted = new AtomicBoolean(false);
     
@@ -53,13 +52,9 @@ public class ReaperHandler extends ChannelInboundHandlerAdapter {
                         TimeUnit.MILLISECONDS);
                         reaperStarted.set(true);
                         ctx.pipeline().remove(this);
-                } else if (evt instanceof SimplePushSockJSService) {
-                    
-                }
+                } 
             }
-        } else {
-            logger.info("Reaper allready started. Do nothing");
-        }
+        } 
     }
     
     private static class UserAgentReaper implements Runnable {

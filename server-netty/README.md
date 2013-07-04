@@ -297,10 +297,18 @@ to as the endpoint url. This url should look like this:
 
     http://simplepush-danbev.rhcloud.com/endpoint/
     
+#### Use the OpenShift WebSocket port 8000 to connect
+OpenShift as the external port 8000 available for WebSockets and the client must use this port to succeed. Depending
+on the client this might look different but the url should look like the following example:
+
+    http://sockjs-danbev.rhcloud.com:8000/simplepush
+    
     
 #### Known issues
 When SockJS tries to estabilish a WebSocket connection the following error is raised:
 
     WebSocket connection to 'ws://simplepush-danbev.rhcloud.com/simplepush/933/5plrvach/websocket' failed: WebSocket is closed before the connection is established.
+
+This issue is covered by [AGPUSH-120](https://issues.jboss.org/browse/AGPUSH-120).
     
     
