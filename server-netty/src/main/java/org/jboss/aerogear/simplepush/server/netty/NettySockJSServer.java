@@ -76,7 +76,6 @@ public class NettySockJSServer {
         
         final Config sockJSConfig = Config.prefix("/simplepush")
                 .tls(value(Args.TLS, options, false))
-                .disableWebsocket()
                 .websocketProtocols("push-notification")
                 .cookiesNeeded()
                 .sessionTimeout(60000)
