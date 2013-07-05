@@ -49,7 +49,7 @@ public class DefaultSimplePushServerTest {
     
     @Before
     public void setup() {
-        server = new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.create().build());
+        server = new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.defaultConfig());
     }
 
     @Test

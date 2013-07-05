@@ -42,6 +42,10 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         return new DefaultSimplePushConfig.Builder();
     }
     
+    public static SimplePushServerConfig defaultConfig() {
+        return new DefaultSimplePushConfig.Builder().build();
+    }
+    
     public static class Builder {
         private String endpointUrl = DEFAULT_ENDPOINT_URL_PREFIX;
         private long timeout = 604800000L;

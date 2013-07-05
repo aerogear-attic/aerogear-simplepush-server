@@ -54,5 +54,12 @@ public class UserAgents {
     public boolean contains(final UUID uaid) {
         return userAgents.containsKey(uaid);
     }
+    
+    public void updateAccessedTime(final UUID uaid) {
+        if (uaid != null) {
+            final UserAgent<SessionContext> userAgent = userAgents.get(uaid);
+            userAgent.timestamp(System.currentTimeMillis());
+        }
+    }
 
 }

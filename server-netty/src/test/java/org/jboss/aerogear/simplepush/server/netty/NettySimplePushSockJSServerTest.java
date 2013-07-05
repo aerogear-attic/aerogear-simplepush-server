@@ -42,12 +42,13 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class NettyWebSocketServerTest {
+public class NettySimplePushSockJSServerTest {
     
     private static final int port = 1111;
     private static Channel channel;
     private static final EventLoopGroup bossGroup = new NioEventLoopGroup();
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private static final DefaultEventExecutorGroup eventExecutorGroup = new DefaultEventExecutorGroup(1);
     
     @BeforeClass
     public static void startSimplePushServer() throws Exception {
@@ -57,7 +58,7 @@ public class NettyWebSocketServerTest {
         final DefaultSimplePushConfig simplePushConfig = DefaultSimplePushConfig.create().userAgentReaperTimeout(2000L) .build();
         sb.group(bossGroup, workerGroup)
             .channel(NioServerSocketChannel.class)
-            .childHandler(new SockJSChannelInitializer(simplePushConfig, datastore, sockJSConfig, new DefaultEventExecutorGroup(1)));
+            .childHandler(new SockJSChannelInitializer(simplePushConfig, datastore, sockJSConfig, eventExecutorGroup));
         channel = sb.bind(port).sync().channel();
     }
     
@@ -67,6 +68,7 @@ public class NettyWebSocketServerTest {
         disconnect.await(1000);
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
+        eventExecutorGroup.shutdownGracefully();
     }
 
     @Test 
