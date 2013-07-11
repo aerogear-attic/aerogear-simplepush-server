@@ -64,7 +64,9 @@ import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
+import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
+import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
@@ -147,7 +149,7 @@ public class SimplePushSockJSServiceTest {
     
     @Test 
     public void rawWebSocketUpgradeRequest() throws Exception {
-        final SimplePushConfig simplePushConfig = SimplePushConfig.create().build();
+        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create().build();
         final Config sockjsConf = Config.prefix("/simplepush").websocketProtocols("push-notification").build();
         final SimplePushServiceFactory factory = new SimplePushServiceFactory(sockjsConf, new InMemoryDataStore(), simplePushConfig);
         final EmbeddedChannel channel = createChannel(factory);
@@ -222,7 +224,7 @@ public class SimplePushSockJSServiceTest {
     
     @Test 
     public void websocketHandleAcknowledgement() throws Exception {
-        final DefaultSimplePushServer simplePushServer = new DefaultSimplePushServer(new InMemoryDataStore());
+        final SimplePushServer simplePushServer = defaultPushServer();
         final SockJSServiceFactory serviceFactory = defaultFactory(simplePushServer);
         final EmbeddedChannel channel = createWebSocketChannel(serviceFactory);
         final UUID uaid = UUIDUtil.newUAID();
@@ -238,7 +240,7 @@ public class SimplePushSockJSServiceTest {
     
     @Test 
     public void websocketHandleAcknowledgements() throws Exception {
-        final DefaultSimplePushServer simplePushServer = new DefaultSimplePushServer(new InMemoryDataStore());
+        final SimplePushServer simplePushServer = defaultPushServer();
         final SockJSServiceFactory serviceFactory = defaultFactory(simplePushServer);
         final EmbeddedChannel channel = createWebSocketChannel(serviceFactory);
         final UUID uaid = UUIDUtil.newUAID();
@@ -258,7 +260,7 @@ public class SimplePushSockJSServiceTest {
     @Test @Ignore ("Need to figure out how to run a schedules job with the new EmbeddedChannel")
     // https://groups.google.com/forum/#!topic/netty/Q-_wat_9Odo
     public void websocketHandleOneUnacknowledgement() throws Exception {
-        final DefaultSimplePushServer simplePushServer = new DefaultSimplePushServer(new InMemoryDataStore());
+        final SimplePushServer simplePushServer = defaultPushServer();
         final SockJSServiceFactory serviceFactory = defaultFactory(simplePushServer);
         final EmbeddedChannel channel = createWebSocketChannel(serviceFactory);
         final UUID uaid = UUIDUtil.newUAID();
@@ -279,7 +281,7 @@ public class SimplePushSockJSServiceTest {
     @Test @Ignore ("Need to figure out how to run a schedules job with the new EmbeddedChannel")
     // https://groups.google.com/forum/#!topic/netty/Q-_wat_9Odo
     public void websocketHandleUnacknowledgement() throws Exception {
-        final DefaultSimplePushServer simplePushServer = new DefaultSimplePushServer(new InMemoryDataStore());
+        final SimplePushServer simplePushServer = defaultPushServer();
         final SockJSServiceFactory serviceFactory = defaultFactory(simplePushServer);
         final EmbeddedChannel channel = createWebSocketChannel(serviceFactory);
         final UUID uaid = UUIDUtil.newUAID();
@@ -295,6 +297,10 @@ public class SimplePushSockJSServiceTest {
         final Set<Update> unacked = sendAcknowledge(channel);
         assertThat(unacked.size(), is(1));
         assertThat(unacked, hasItems(update(channelId1, 1L), update(channelId2, 1L)));
+    }
+    
+    private SimplePushServer defaultPushServer() {
+        return new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.create().build());
     }
     
     private void sendNotification(final String channelId, final UUID uaid, final long version, 
@@ -451,18 +457,17 @@ public class SimplePushSockJSServiceTest {
     }
     
     private SockJSServiceFactory defaultFactory() {
-        final SimplePushConfig simplePushConfig = SimplePushConfig.create().build();
+        final DefaultSimplePushConfig simplePushConfig = DefaultSimplePushConfig.create().build();
         final Config sockjsConf = Config.prefix("/simplepush").build();
         return new SimplePushServiceFactory(sockjsConf, new InMemoryDataStore(), simplePushConfig);
     }
     
     private SockJSServiceFactory defaultFactory(final SimplePushServer simplePushServer) {
-        final SimplePushConfig simplePushConfig = SimplePushConfig.create().build();
         final Config sockJSConfig = Config.prefix("/simplepush").build();
         return new SockJSServiceFactory() {
             @Override
             public SockJSService create() {
-                return new SimplePushSockJSService(config(), simplePushServer, simplePushConfig);
+                return new SimplePushSockJSService(config(), simplePushServer);
             }
             @Override
             public Config config() {

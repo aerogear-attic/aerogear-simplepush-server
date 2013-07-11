@@ -31,16 +31,17 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 
 public class NettySockJSServer {
 
-    private final SimplePushConfig simplePushConfig;
+    private final DefaultSimplePushConfig simplePushConfig;
     private final Config sockJSConfig;
     private Map<Options.Args, Option<?>> options;
 
-    public NettySockJSServer(final Map<Args, Option<?>> options, final SimplePushConfig simplePushConfig, final Config sockJSConfig) {
+    public NettySockJSServer(final Map<Args, Option<?>> options, final DefaultSimplePushConfig simplePushConfig, final Config sockJSConfig) {
         this.options = options;
         this.simplePushConfig = simplePushConfig;
         this.sockJSConfig = sockJSConfig;
@@ -69,13 +70,13 @@ public class NettySockJSServer {
     public static void main(final String[] args) throws Exception {
         final Map<Args, Option<?>> options = Options.options(args);
         
-        final SimplePushConfig simplePushConfig = SimplePushConfig.create()
-                .userAgentReaperTimeout(value(Args.REAPER_TIMEOUT, options, -1L))
-                .ackInterval(value(Args.ACK_INTERVAL, options, 60000L))
+        final DefaultSimplePushConfig simplePushConfig = DefaultSimplePushConfig.create()
+                .userAgentReaperTimeout(Options.<Long>value(Args.USERAGENT_REAPER_TIMEOUT, options))
+                .ackInterval(Options.<Long>value(Args.ACK_INTERVAL, options))
                 .build();
         
         final Config sockJSConfig = Config.prefix("/simplepush")
-                .tls(value(Args.TLS, options, false))
+                .tls(Options.value(Args.TLS, options, false))
                 .websocketProtocols("push-notification")
                 .cookiesNeeded()
                 .sessionTimeout(60000)
@@ -91,7 +92,7 @@ public class NettySockJSServer {
         public enum Args {
             HOST(String.class), 
             PORT(Integer.class), 
-            REAPER_TIMEOUT(Long.class), 
+            USERAGENT_REAPER_TIMEOUT(Long.class), 
             ACK_INTERVAL(Long.class), 
             TLS(Boolean.class);
             
@@ -106,11 +107,16 @@ public class NettySockJSServer {
             }
         };
         
-        @SuppressWarnings("unchecked")
         public static <T> T value(final Options.Args name, final Map<Options.Args, Option<?>> options, final T defaultValue) {
+            final T t = value(name, options);
+            return options == null ? defaultValue: t;
+        }
+        
+        @SuppressWarnings("unchecked")
+        public static <T> T value(final Options.Args name, final Map<Options.Args, Option<?>> options) {
             final Option<?> option = options.get(name);
             if (option == null) {
-                return defaultValue;
+                return null;
             }
             if (option.name().type() == String.class) {
                 return (T) option.value();
@@ -138,7 +144,7 @@ public class NettySockJSServer {
                 case PORT:
                     options.put(option.name(), new Option<Integer>(option.name(), Integer.parseInt(option.value())));
                     break;
-                case REAPER_TIMEOUT:
+                case USERAGENT_REAPER_TIMEOUT:
                     options.put(option.name(), new Option<Long>(option.name(), Long.parseLong(option.value())));
                     break;
                 case ACK_INTERVAL:

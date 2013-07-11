@@ -16,20 +16,21 @@
  */
 package org.jboss.aerogear.simplepush.server.netty;
 
-import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
-import org.jboss.aerogear.simplepush.server.datastore.DataStore;
-
 import io.netty.handler.codec.sockjs.AbstractServiceFactory;
 import io.netty.handler.codec.sockjs.Config;
 import io.netty.handler.codec.sockjs.SockJSService;
 
+import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
+import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
+import org.jboss.aerogear.simplepush.server.datastore.DataStore;
+
 public class SimplePushServiceFactory extends AbstractServiceFactory {
 
     private final DataStore datastore;
-    private final SimplePushConfig simplePushConfig;
+    private final SimplePushServerConfig simplePushConfig;
     
     public SimplePushServiceFactory(final Config sockjsConfig, final DataStore datastore,
-            final SimplePushConfig simplePushConfig) {
+            final SimplePushServerConfig simplePushConfig) {
         super(sockjsConfig);
         this.datastore = datastore;
         this.simplePushConfig = simplePushConfig;
@@ -37,7 +38,7 @@ public class SimplePushServiceFactory extends AbstractServiceFactory {
 
     @Override
     public SockJSService create() {
-        return new SimplePushSockJSService(config(), new DefaultSimplePushServer(datastore), simplePushConfig);
+        return new SimplePushSockJSService(config(), new DefaultSimplePushServer(datastore, simplePushConfig));
     }
 
 }

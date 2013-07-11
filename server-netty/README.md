@@ -25,7 +25,7 @@ you have to build the following branch manually:
 This will start the server listening localhost using port 7777. To toggle these arguments you can
 specify overrides on the command line:  
 
-    mvn exec:java -Dexec.args="-host=localhost -port=8888 -tls=false -ack_interval=10000 -reaper_timeout=60000"
+    mvn exec:java -Dexec.args="-host=localhost -port=8888 -tls=false -ack_interval=10000 -useragent_reaper_timeout=60000"
     
 __host__  
 The host that the server will bind to.
@@ -39,7 +39,7 @@ Whether to use transport layer security or not.
 __ack_interval__ 
 How often the acknowledge job will run to re-send unacknowledged notifications.
 
-__reaper_timeout__ 
+__useragent_reaper_timeout__ 
 How often the UserAgent reaper job will run to clean up inactive user agents.
     
 ### Access the demo html page

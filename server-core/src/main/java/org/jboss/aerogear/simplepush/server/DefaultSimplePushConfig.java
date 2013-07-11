@@ -1,25 +1,25 @@
-package org.jboss.aerogear.simplepush.server.netty;
+package org.jboss.aerogear.simplepush.server;
 
-
-public final class SimplePushConfig {
-    
-    public static final String DEFAULT_ENDPOINT_URL = "/endpoint";
+/**
+ * Configuration settings for SimplePush server
+ */
+public final class DefaultSimplePushConfig implements SimplePushServerConfig {
     
     private final String endpointUrl;
     private final long reaperTimeout;
     private final long ackInterval;
     
-    private SimplePushConfig(final Builder builder) {
+    private DefaultSimplePushConfig(final Builder builder) {
         endpointUrl = builder.endpointUrl;
         reaperTimeout = builder.timeout;
         ackInterval = builder.ackInterval;
     }
     
-    public String endpointUrl() {
+    public String endpointUrlPrefix() {
         return endpointUrl;
     }
     
-    public long reaperTimeout() {
+    public long userAgentReaperTimeout() {
         return reaperTimeout;
     }
     
@@ -27,7 +27,7 @@ public final class SimplePushConfig {
         return reaperTimeout != -1;
     }
     
-    public long ackInterval() {
+    public long acknowledmentInterval() {
         return ackInterval;
     }
     
@@ -39,31 +39,37 @@ public final class SimplePushConfig {
     }
     
     public static Builder create() {
-        return new SimplePushConfig.Builder();
+        return new DefaultSimplePushConfig.Builder();
     }
     
     public static class Builder {
-        private String endpointUrl = DEFAULT_ENDPOINT_URL;
-        private long timeout = -1;
-        private long ackInterval;
+        private String endpointUrl = DEFAULT_ENDPOINT_URL_PREFIX;
+        private long timeout = 604800000L;
+        private long ackInterval = 60000;
         
         public Builder endpointUrl(final String endpointUrl) {
-            this.endpointUrl = endpointUrl;
+            if (endpointUrl != null) {
+                this.endpointUrl = endpointUrl;
+            }
             return this;
         }
         
-        public Builder userAgentReaperTimeout(final long ms) {
-            this.timeout = ms;
+        public Builder userAgentReaperTimeout(final Long ms) {
+            if (ms != null) {
+                this.timeout = ms;
+            }
             return this;
         }
         
-        public Builder ackInterval(final long ms) {
-            this.ackInterval = ms;
+        public Builder ackInterval(final Long ms) {
+            if (ms != null) {
+                this.ackInterval = ms;
+            }
             return this;
         }
         
-        public SimplePushConfig build() {
-            return new SimplePushConfig(this);
+        public DefaultSimplePushConfig build() {
+            return new DefaultSimplePushConfig(this);
         }
     }
 

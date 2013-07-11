@@ -27,9 +27,9 @@ import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import java.util.concurrent.ThreadFactory;
 
 import org.jboss.aerogear.netty.extension.api.ServerBootstrapFactory;
+import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
-import org.jboss.aerogear.simplepush.server.netty.SimplePushConfig;
 import org.jboss.aerogear.simplepush.server.netty.SockJSChannelInitializer;
 import org.jboss.as.network.SocketBinding;
 
@@ -37,10 +37,7 @@ public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
 
     @Override
     public ServerBootstrap createServerBootstrap(final SocketBinding socketBinding, final ThreadFactory threadFactory) {
-        final SimplePushConfig simplePushConfig = SimplePushConfig.create()
-                .userAgentReaperTimeout(604800000)
-                .ackInterval(60000)
-                .build();
+        final DefaultSimplePushConfig simplePushConfig = DefaultSimplePushConfig.create().build();
         final Config sockjsConfig = Config.prefix("/simplepush")
                 .websocketProtocols("push-notification")
                 .tls(false)

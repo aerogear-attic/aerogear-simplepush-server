@@ -123,7 +123,7 @@
                         <!-- Transport Layer Security option -->
                         <argument>-tls=false</argument>
                         <!-- UserAgent Reaper timeout in ms -->
-                        <argument>-reaper_timeout=600000</argument>
+                        <argument>-useragent_reaper_timeout=604800000</argument>
                         <!-- Acknowledgment interval -->
                         <argument>-ack_interval=300000</argument>
                     </arguments>

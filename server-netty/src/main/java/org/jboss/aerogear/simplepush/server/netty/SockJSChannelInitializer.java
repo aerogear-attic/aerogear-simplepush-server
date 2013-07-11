@@ -15,16 +15,18 @@ import io.netty.util.concurrent.EventExecutorGroup;
 import javax.net.ssl.SSLEngine;
 
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
+import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
+import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 
 public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> {
     
     private final DataStore datastore;
-    private final SimplePushConfig simplePushConfig;
+    private final SimplePushServerConfig simplePushConfig;
     private final EventExecutorGroup backgroundGroup;
     private final Config sockjsConfig;
     
-    public SockJSChannelInitializer(final SimplePushConfig simplePushConfig, 
+    public SockJSChannelInitializer(final DefaultSimplePushConfig simplePushConfig, 
             final DataStore datastore,
             final Config sockjsConfig,
             final EventExecutorGroup backgroundGroup) {
@@ -45,8 +47,8 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
         pipeline.addLast(new HttpServerCodec());
         pipeline.addLast(new HttpObjectAggregator(65536));
         
-        final DefaultSimplePushServer simplePushServer = new DefaultSimplePushServer(datastore);
-        pipeline.addLast(new NotificationHandler(simplePushConfig, simplePushServer));
+        final DefaultSimplePushServer simplePushServer = new DefaultSimplePushServer(datastore, simplePushConfig);
+        pipeline.addLast(new NotificationHandler(simplePushServer));
         pipeline.addLast(new CorsInboundHandler());
         pipeline.addLast(new SockJSHandler(new SimplePushServiceFactory(sockjsConfig, datastore, simplePushConfig)));
         pipeline.addLast(backgroundGroup, new ReaperHandler(simplePushConfig));

@@ -34,6 +34,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
+import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
@@ -53,7 +54,7 @@ public class NettyWebSocketServerTest {
         final Config sockJSConfig = Config.prefix("/simplepush").cookiesNeeded().build();
         final DataStore datastore = new InMemoryDataStore();
         final ServerBootstrap sb = new ServerBootstrap();
-        final SimplePushConfig simplePushConfig = SimplePushConfig.create().userAgentReaperTimeout(2000) .build();
+        final DefaultSimplePushConfig simplePushConfig = DefaultSimplePushConfig.create().userAgentReaperTimeout(2000L) .build();
         sb.group(bossGroup, workerGroup)
             .channel(NioServerSocketChannel.class)
             .childHandler(new SockJSChannelInitializer(simplePushConfig, datastore, sockJSConfig, new DefaultEventExecutorGroup(1)));
