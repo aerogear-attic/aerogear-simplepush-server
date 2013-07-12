@@ -25,7 +25,6 @@ import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
-import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +38,6 @@ public class SimplePushSockJSService implements SockJSService {
     private final UserAgents userAgents = UserAgents.getInstance();
     private final Config sockjsConfig;
     private final SimplePushServer simplePushServer;
-    private final SimplePushServerConfig config;
     private UUID uaid;
     private SessionContext session;
     private ScheduledFuture<?> ackJobFuture;
@@ -47,7 +45,6 @@ public class SimplePushSockJSService implements SockJSService {
     public SimplePushSockJSService(final Config sockjsConfig, final SimplePushServer simplePushServer) {
         this.sockjsConfig = sockjsConfig;
         this.simplePushServer = simplePushServer;
-        this.config = simplePushServer.config();
     }
 
     @Override
@@ -59,9 +56,6 @@ public class SimplePushSockJSService implements SockJSService {
     public void onOpen(final SessionContext session) {
         logger.info("SimplePushSockJSServer onOpen");
         this.session = session;
-        if (session.getContext().pipeline().get(ReaperHandler.class) != null) {
-            session.getContext().fireUserEventTriggered(simplePushServer);
-        }
     }
 
     @Override @SuppressWarnings("incomplete-switch")
@@ -98,18 +92,11 @@ public class SimplePushSockJSService implements SockJSService {
             if (checkHandshakeCompleted(uaid)) {
                 final AckMessage ack = fromJson(message, AckMessageImpl.class);
                 simplePushServer.handleAcknowledgement(ack, uaid);
-                processUnacked(uaid, session, config.acknowledmentInterval());
+                processUnacked(uaid, session, simplePushServer.config().acknowledmentInterval());
             }
             break;
         }
-        updateAccessedTime(uaid);
-    }
-    
-    private void updateAccessedTime(final UUID uaid) {
-        if (uaid != null) {
-            final UserAgent<SessionContext> userAgent = userAgents.get(uaid);
-            userAgent.timestamp(System.currentTimeMillis());
-        }
+        userAgents.updateAccessedTime(uaid);
     }
     
     private void processUnacked(final UUID uaid, final SessionContext session, final long delay) {
@@ -129,7 +116,7 @@ public class SimplePushSockJSService implements SockJSService {
                 }
             },
             delay,
-            config.acknowledmentInterval(), 
+            simplePushServer.config().acknowledmentInterval(), 
             TimeUnit.MILLISECONDS);
         }
     }
@@ -140,7 +127,7 @@ public class SimplePushSockJSService implements SockJSService {
             return false;
         }
         if (!userAgents.contains(uaid)) {
-            logger.debug("UserAgent ["+ uaid + "] was cleaned up due to unactivity for " + config.userAgentReaperTimeout() + "ms");
+            logger.debug("UserAgent ["+ uaid + "] was cleaned up due to unactivity for " + simplePushServer.config().userAgentReaperTimeout() + "ms");
             this.uaid = null;
             return false;
         }

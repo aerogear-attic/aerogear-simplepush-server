@@ -56,6 +56,7 @@ public class NotificationHandlerTest {
         registerUserAgent(uaid, channel);
         doRegister(channelId, uaid, simplePushServer);
         doNotification(channelId, 1L, channel);
+        channel.close();
     }
     
     @Test
@@ -70,6 +71,7 @@ public class NotificationHandlerTest {
         
         final HttpResponse response = sendNotification(channelId, 1L, simplePushServer);
         assertThat(response.getStatus(), is(HttpResponseStatus.BAD_REQUEST));
+        channel.close();
     }
     
     @Test
@@ -84,10 +86,11 @@ public class NotificationHandlerTest {
         
         final HttpResponse response = sendNotification(channelId, 9L, simplePushServer);
         assertThat(response.getStatus(), is(HttpResponseStatus.BAD_REQUEST));
+        channel.close();
     }
     
     private SimplePushServer defaultPushServer() {
-        return new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.create().build());
+        return new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.defaultConfig());
     }
     
     private HttpResponse sendNotification(final String channelId, final long version, final SimplePushServer simplePushServer) throws Exception {
@@ -134,7 +137,6 @@ public class NotificationHandlerTest {
     }
     
     private EmbeddedChannel createWebsocketChannel(SimplePushServer simplePushServer) throws Exception {
-        final DefaultSimplePushConfig config = DefaultSimplePushConfig.create().build();
         return new EmbeddedChannel(new NotificationHandler(simplePushServer));
     }
     

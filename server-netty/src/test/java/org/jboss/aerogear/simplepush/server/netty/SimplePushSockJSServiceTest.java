@@ -145,11 +145,12 @@ public class SimplePushSockJSServiceTest {
         assertThat(response.headers().get(HttpHeaders.Names.UPGRADE), equalTo("websocket"));
         assertThat(response.headers().get(HttpHeaders.Names.CONNECTION), equalTo("Upgrade"));
         assertThat(response.headers().get(Names.SEC_WEBSOCKET_ACCEPT), equalTo("s3pPLMBiTxaQ9kYGzzhZRbK+xOo="));
+        channel.close();
     }
     
     @Test 
     public void rawWebSocketUpgradeRequest() throws Exception {
-        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create().build();
+        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.defaultConfig();
         final Config sockjsConf = Config.prefix("/simplepush").websocketProtocols("push-notification").build();
         final SimplePushServiceFactory factory = new SimplePushServiceFactory(sockjsConf, new InMemoryDataStore(), simplePushConfig);
         final EmbeddedChannel channel = createChannel(factory);
@@ -162,6 +163,7 @@ public class SimplePushSockJSServiceTest {
         assertThat(response.headers().get(HttpHeaders.Names.CONNECTION), equalTo("Upgrade"));
         assertThat(response.headers().get(Names.SEC_WEBSOCKET_PROTOCOL), equalTo("push-notification"));
         assertThat(response.headers().get(Names.SEC_WEBSOCKET_ACCEPT), equalTo("s3pPLMBiTxaQ9kYGzzhZRbK+xOo="));
+        channel.close();
     }
     
     @Test 
@@ -173,6 +175,7 @@ public class SimplePushSockJSServiceTest {
         final HandshakeResponse response = sendWebSocketHelloFrame(uaid, channel);
         assertThat(response.getMessageType(), equalTo(MessageType.Type.HELLO));
         assertThat(response.getUAID(), equalTo(uaid));
+        channel.close();
     }
     
     @Test 
@@ -185,6 +188,7 @@ public class SimplePushSockJSServiceTest {
         final RegisterResponse registerResponse = sendWebSocketRegisterFrame(channelId, channel);
         assertThat(registerResponse.getStatus().getCode(), is(200));
         assertThat(registerResponse.getChannelId(), equalTo(channelId));
+        channel.close();
     }
     
     @Test 
@@ -196,6 +200,7 @@ public class SimplePushSockJSServiceTest {
         
         assertThat(sendWebSocketRegisterFrame(channelId, channel).getStatus().getCode(), is(200));
         assertThat(sendWebSocketRegisterFrame(channelId, channel).getStatus().getCode(), is(409));
+        channel.close();
     }
     
     @Test 
@@ -208,6 +213,7 @@ public class SimplePushSockJSServiceTest {
         
         final UnregisterResponse registerResponse = websocketUnRegisterFrame(channelId, channel);
         assertThat(registerResponse.getStatus().getCode(), is(200));
+        channel.close();
     }
     
     @Test 
@@ -220,6 +226,7 @@ public class SimplePushSockJSServiceTest {
         assertThat(registerResponse.getMessageType(), equalTo(MessageType.Type.UNREGISTER));
         assertThat(registerResponse.getChannelId(), equalTo("notRegistered"));
         assertThat(registerResponse.getStatus().getCode(), is(200));
+        channel.close();
     }
     
     @Test 
@@ -236,6 +243,7 @@ public class SimplePushSockJSServiceTest {
         
         final Set<Update> unacked = sendAcknowledge(channel, update(channelId, 1L));
         assertThat(unacked.isEmpty(), is(true));
+        channel.close();
     }
     
     @Test 
@@ -255,6 +263,7 @@ public class SimplePushSockJSServiceTest {
         
         final Set<Update> unacked = sendAcknowledge(channel, update(channelId1, 1L), update(channelId2, 1L));
         assertThat(unacked.isEmpty(), is(true));
+        channel.close();
     }
     
     @Test @Ignore ("Need to figure out how to run a schedules job with the new EmbeddedChannel")
@@ -276,6 +285,7 @@ public class SimplePushSockJSServiceTest {
         final Set<Update> unacked = sendAcknowledge(channel, update(channelId1, 1L));
         assertThat(unacked.size(), is(1));
         assertThat(unacked, hasItem(new UpdateImpl(channelId2, 1L)));
+        channel.close();
     }
     
     @Test @Ignore ("Need to figure out how to run a schedules job with the new EmbeddedChannel")
@@ -297,10 +307,11 @@ public class SimplePushSockJSServiceTest {
         final Set<Update> unacked = sendAcknowledge(channel);
         assertThat(unacked.size(), is(1));
         assertThat(unacked, hasItems(update(channelId1, 1L), update(channelId2, 1L)));
+        channel.close();
     }
     
     private SimplePushServer defaultPushServer() {
-        return new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.create().build());
+        return new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.defaultConfig());
     }
     
     private void sendNotification(final String channelId, final UUID uaid, final long version, 
@@ -457,7 +468,7 @@ public class SimplePushSockJSServiceTest {
     }
     
     private SockJSServiceFactory defaultFactory() {
-        final DefaultSimplePushConfig simplePushConfig = DefaultSimplePushConfig.create().build();
+        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.defaultConfig();
         final Config sockjsConf = Config.prefix("/simplepush").build();
         return new SimplePushServiceFactory(sockjsConf, new InMemoryDataStore(), simplePushConfig);
     }
