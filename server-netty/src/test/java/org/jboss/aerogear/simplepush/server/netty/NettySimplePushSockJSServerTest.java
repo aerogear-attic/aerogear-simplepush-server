@@ -98,7 +98,7 @@ public class NettySimplePushSockJSServerTest {
 
             final UUID uaid = UUIDUtil.newUAID();
             final String json = JsonUtil.toJson(new HandshakeMessageImpl(uaid.toString()));
-            final ChannelFuture future = ch.write(new TextWebSocketFrame(json));
+            final ChannelFuture future = ch.writeAndFlush(new TextWebSocketFrame(json));
             future.sync();
             final TextWebSocketFrame textFrame = handler.getTextFrame();
             final HandshakeResponse fromJson = JsonUtil.fromJson(textFrame.text(), HandshakeResponseImpl.class);
@@ -108,14 +108,14 @@ public class NettySimplePushSockJSServerTest {
             
             final String channelId = UUID.randomUUID().toString();
             final String register = JsonUtil.toJson(new RegisterMessageImpl(channelId));
-            final ChannelFuture registerFuture = ch.write(new TextWebSocketFrame(register));
+            final ChannelFuture registerFuture = ch.writeAndFlush(new TextWebSocketFrame(register));
             registerFuture.sync();
             final TextWebSocketFrame registerFrame = handler.getTextFrame();
             final RegisterResponseImpl registerResponse = JsonUtil.fromJson(registerFrame.text(), RegisterResponseImpl.class);
             assertThat(registerResponse.getMessageType(), equalTo(MessageType.Type.REGISTER));
             assertThat(registerResponse.getChannelId(), equalTo(channelId));
 
-            ch.write(new CloseWebSocketFrame());
+            ch.writeAndFlush(new CloseWebSocketFrame());
 
             ch.closeFuture().sync();
         } finally {
@@ -148,7 +148,7 @@ public class NettySimplePushSockJSServerTest {
 
             final UUID uaid = UUIDUtil.newUAID();
             final String json = JsonUtil.toJson(new HandshakeMessageImpl(uaid.toString()));
-            final ChannelFuture future = ch.write(new TextWebSocketFrame(json));
+            final ChannelFuture future = ch.writeAndFlush(new TextWebSocketFrame(json));
             future.sync();
             final TextWebSocketFrame textFrame = handler.getTextFrame();
             final HandshakeResponse fromJson = JsonUtil.fromJson(textFrame.text(), HandshakeResponseImpl.class);
@@ -159,9 +159,9 @@ public class NettySimplePushSockJSServerTest {
             Thread.sleep(3000);
             final String channelId = UUID.randomUUID().toString();
             final String register = JsonUtil.toJson(new RegisterMessageImpl(channelId));
-            final ChannelFuture registerFuture = ch.write(new TextWebSocketFrame(register));
+            final ChannelFuture registerFuture = ch.writeAndFlush(new TextWebSocketFrame(register));
             registerFuture.sync();
-            ch.write(new CloseWebSocketFrame());
+            ch.writeAndFlush(new CloseWebSocketFrame());
             ch.closeFuture().sync();
         } finally {
             group.shutdownGracefully();

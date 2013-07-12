@@ -63,17 +63,17 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
     }
 
     @Override
-    public void messageReceived(final ChannelHandlerContext ctx , final Object msg) throws Exception {
+    public void channelRead0(final ChannelHandlerContext ctx , final Object msg) throws Exception {
         if (msg instanceof FullHttpRequest) {
             final FullHttpRequest request = (FullHttpRequest) msg;
             final String requestUri = request.getUri();
             if (requestUri.startsWith(simplePushServer.config().endpointUrlPrefix())) {
                 handleHttpRequest(ctx, request);
             } else {
-                ctx.fireMessageReceived(ReferenceCountUtil.retain(msg));
+                ctx.fireChannelRead(ReferenceCountUtil.retain(msg));
             }
         } else {
-            ctx.fireMessageReceived(ReferenceCountUtil.retain(msg));
+            ctx.fireChannelRead(ReferenceCountUtil.retain(msg));
         }
     }
     
@@ -99,17 +99,10 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
         return true;
     }
     
-    private void updateAccessedTime(final UUID uaid) {
-        if (uaid != null) {
-            final UserAgent<SessionContext> userAgent = userAgents.get(uaid);
-            userAgent.timestamp(System.currentTimeMillis());
-        }
-    }
-    
     private void sendHttpResponse(final HttpResponseStatus status, final FullHttpRequest request, final Channel channel) {
         final FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status);
         Transports.writeContent(response, response.getStatus().toString(), Transports.CONTENT_TYPE_HTML);
-        channel.write(response).addListener(ChannelFutureListener.CLOSE);
+        channel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 
     private class Notifier implements Callable<Void> {
@@ -132,7 +125,7 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
                 final NotificationMessage notification = simplePushServer.handleNotification(channelId, uaid, payload);
                 final SessionContext session = userAgents.get(uaid).context();
                 session.send(toJson(notification));
-                updateAccessedTime(uaid);
+                userAgents.updateAccessedTime(uaid);
                 return null;
             } finally {
                 content.release();
