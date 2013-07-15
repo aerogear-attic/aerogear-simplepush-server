@@ -20,7 +20,6 @@ import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
 
 import java.util.Collections;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -33,7 +32,7 @@ import org.slf4j.LoggerFactory;
 public class InMemoryDataStore implements DataStore {
 
     private final ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<String, Channel>();
-    private final ConcurrentMap<UUID, Set<Update>> notifiedChannels = new ConcurrentHashMap<UUID, Set<Update>>();
+    private final ConcurrentMap<String, Set<Update>> notifiedChannels = new ConcurrentHashMap<String, Set<Update>>();
     private final Logger logger = LoggerFactory.getLogger(InMemoryDataStore.class);
 
     @Override
@@ -51,13 +50,17 @@ public class InMemoryDataStore implements DataStore {
     }
 
     @Override
-    public Channel getChannel(final String channelId) {
+    public Channel getChannel(final String channelId) throws ChannelNotFoundException {
         checkNotNull(channelId, "channelId");
-        return channels.get(channelId);
+        final Channel channel = channels.get(channelId);
+        if (channel == null) {
+            throw new ChannelNotFoundException("No Channel for [" + channelId + "] was found", channelId);
+        }
+        return channel;
     }
 
     @Override
-    public void removeChannels(final UUID uaid) {
+    public void removeChannels(final String uaid) {
         checkNotNull(uaid, "uaid");
         for (Channel channel : channels.values()) {
             if (channel.getUAID().equals(uaid)) {
@@ -69,7 +72,7 @@ public class InMemoryDataStore implements DataStore {
     }
 
     @Override
-    public void storeUpdates(final Set<Update> updates, final UUID uaid) {
+    public void saveUpdates(final Set<Update> updates, final String uaid) {
         checkNotNull(uaid, "uaid");
         checkNotNull(updates, "updates");
         final Set<Update> newUpdates = Collections.newSetFromMap(new ConcurrentHashMap<Update, Boolean>());
@@ -94,7 +97,7 @@ public class InMemoryDataStore implements DataStore {
     }
 
     @Override
-    public Set<Update> getUpdates(final UUID uaid) {
+    public Set<Update> getUpdates(final String uaid) {
         checkNotNull(uaid, "uaid");
         final Set<Update> updates = notifiedChannels.get(uaid);
         if (updates == null) {
@@ -104,7 +107,7 @@ public class InMemoryDataStore implements DataStore {
     }
 
     @Override
-    public boolean removeUpdate(final Update update, final UUID uaid) {
+    public boolean removeUpdate(final Update update, final String uaid) {
         checkNotNull(update, "update");
         checkNotNull(uaid, "uaid");
         while (true) {

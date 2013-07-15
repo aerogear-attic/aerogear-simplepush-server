@@ -17,21 +17,20 @@
 package org.jboss.aerogear.simplepush.protocol.impl;
 
 import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
-import java.util.UUID;
 
 import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
 
 public class HandshakeResponseImpl implements HandshakeResponse {
 
-    private final UUID uaid;
+    private final String uaid;
 
-    public HandshakeResponseImpl(final UUID uaid) {
+    public HandshakeResponseImpl(final String uaid) {
         checkNotNull(uaid, "uaid");
         this.uaid = uaid;
     }
 
     @Override
-    public UUID getUAID() {
+    public String getUAID() {
         return uaid;
     }
 

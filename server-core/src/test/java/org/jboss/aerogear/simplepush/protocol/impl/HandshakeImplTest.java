@@ -26,7 +26,6 @@ import static org.jboss.aerogear.simplepush.util.UUIDUtil.newUAID;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import org.jboss.aerogear.simplepush.protocol.HandshakeMessage;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
@@ -65,7 +64,7 @@ public class HandshakeImplTest {
 
     @Test
     public void fromJson() {
-        final UUID uaid = UUIDUtil.newUAID();
+        final String uaid = UUIDUtil.newUAID();
         final String json = "{\"messageType\": \"hello\", \"uaid\": \"" + uaid + "\", \"channelIDs\": [\"123abc\", \"efg456\"]}";
         final HandshakeMessage handshake = JsonUtil.fromJson(json, HandshakeMessageImpl.class);
         assertThat(handshake.getMessageType(), is(equalTo(MessageType.Type.HELLO)));
@@ -84,7 +83,7 @@ public class HandshakeImplTest {
 
     @Test
     public void fromJsonWithNullChannelIds() {
-        final UUID uaid = UUIDUtil.newUAID();
+        final String uaid = UUIDUtil.newUAID();
         final String json = "{\"messageType\": \"hello\", \"uaid\": \"" + uaid + "\"}";
         final HandshakeMessage handshake = JsonUtil.fromJson(json, HandshakeMessageImpl.class);
         assertThat(handshake.getMessageType(), is(equalTo(MessageType.Type.HELLO)));
@@ -94,12 +93,12 @@ public class HandshakeImplTest {
 
     @Test
     public void toJson() {
-        final UUID uaid = UUIDUtil.newUAID();
+        final String uaid = UUIDUtil.newUAID();
         final HandshakeMessageImpl handshake = new HandshakeMessageImpl(uaid.toString(), channelIds("123abc", "efg456"));
         final String asJson = JsonUtil.toJson(handshake);
         final HandshakeMessage parsed = JsonUtil.fromJson(asJson, HandshakeMessageImpl.class);
         assertThat(parsed.getMessageType(), is(equalTo(MessageType.Type.HELLO)));
-        assertThat(parsed.getUAID(), is(equalTo(uaid)));
+        assertThat(parsed.getUAID().toString(), is(equalTo(uaid)));
         assertThat(parsed.getChannelIds(), hasItems("123abc", "efg456"));
     }
 

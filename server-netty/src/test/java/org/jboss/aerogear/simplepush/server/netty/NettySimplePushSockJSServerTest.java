@@ -112,7 +112,7 @@ public class NettySimplePushSockJSServerTest {
             final Channel ch = b.connect(uri.getHost(), uri.getPort()).sync().channel();
             handler.handshakeFuture().sync();
 
-            final UUID uaid = UUIDUtil.newUAID();
+            final String uaid = UUIDUtil.newUAID();
             final String json = JsonUtil.toJson(new HandshakeMessageImpl(uaid.toString()));
             final ChannelFuture future = ch.writeAndFlush(new TextWebSocketFrame(json));
             future.sync();
@@ -162,7 +162,7 @@ public class NettySimplePushSockJSServerTest {
             final Channel ch = b.connect(uri.getHost(), uri.getPort()).sync().channel();
             handler.handshakeFuture().sync();
 
-            final UUID uaid = UUIDUtil.newUAID();
+            final String uaid = UUIDUtil.newUAID();
             final String json = JsonUtil.toJson(new HandshakeMessageImpl(uaid.toString()));
             final ChannelFuture future = ch.writeAndFlush(new TextWebSocketFrame(json));
             future.sync();

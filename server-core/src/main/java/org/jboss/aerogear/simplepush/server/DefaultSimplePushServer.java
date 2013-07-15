@@ -19,7 +19,6 @@ package org.jboss.aerogear.simplepush.server;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
 import org.jboss.aerogear.simplepush.protocol.HandshakeMessage;
@@ -58,24 +57,24 @@ public class DefaultSimplePushServer implements SimplePushServer {
         return new HandshakeResponseImpl(handshake.getUAID());
     }
 
-    public RegisterResponse handleRegister(final RegisterMessage register, final UUID uaid) {
+    public RegisterResponse handleRegister(final RegisterMessage register, final String uaid) {
         final String channelId = register.getChannelId();
         final String pushEndpoint = endpointUrl(channelId);
-        final boolean saved = store.saveChannel(new DefaultChannel(uaid, channelId, pushEndpoint));
+        final boolean saved = store.saveChannel(new DefaultChannel(uaid.toString(), channelId, pushEndpoint));
         final Status status = saved ? new StatusImpl(200, "OK") : new StatusImpl(409, "Conflict: channeld [" + channelId + " is already in use");
         return new RegisterResponseImpl(channelId, status, pushEndpoint);
     }
 
-    public NotificationMessage handleNotification(final String channelId, final UUID uaid, final String body) throws ChannelNotFoundException {
+    public NotificationMessage handleNotification(final String channelId, final String uaid, final String body) throws ChannelNotFoundException {
         final Long version = Long.valueOf(VersionExtractor.extractVersion(body));
         final Channel channel = getChannel(channelId);
         channel.setVersion(version);
         final NotificationMessage notification = new NotificationMessageImpl(new HashSet<Update>(Arrays.asList(new UpdateImpl(channelId, version))));
-        store.storeUpdates(notification.getUpdates(), uaid);
+        store.saveUpdates(notification.getUpdates(), uaid);
         return notification;
     }
 
-    public UnregisterResponse handleUnregister(UnregisterMessage unregister, final UUID uaid) {
+    public UnregisterResponse handleUnregister(UnregisterMessage unregister, final String uaid) {
         final String channelId = unregister.getChannelId();
         try {
             removeChannel(channelId, uaid);
@@ -85,7 +84,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
         }
     }
 
-    public Set<Update> handleAcknowledgement(final AckMessage ack, final UUID uaid) {
+    public Set<Update> handleAcknowledgement(final AckMessage ack, final String uaid) {
         final Set<Update> acks = ack.getUpdates();
         final Set<Update> waitingForAcks = store.getUpdates(uaid);
         final Set<Update> unacked = new HashSet<Update>(waitingForAcks);
@@ -101,36 +100,39 @@ public class DefaultSimplePushServer implements SimplePushServer {
     }
 
     @Override
-    public Set<Update> getUnacknowledged(final UUID uaid) {
+    public Set<Update> getUnacknowledged(final String uaid) {
         return store.getUpdates(uaid);
     }
 
-    public UUID getUAID(final String channelId) throws ChannelNotFoundException {
+    public String getUAID(final String channelId) throws ChannelNotFoundException {
         return getChannel(channelId).getUAID();
     }
 
     public Channel getChannel(final String channelId) throws ChannelNotFoundException {
-        final Channel channel = store.getChannel(channelId);
-        if (channel == null) {
-            throw new ChannelNotFoundException("Could not find a channel with id [" + channelId + "]", channelId);
-        }
-        return channel;
+        return store.getChannel(channelId);
     }
 
     public boolean hasChannel(final String channelId) {
-        final Channel channel = store.getChannel(channelId);
-        return channel != null;
+        try {
+            store.getChannel(channelId);
+            return true;
+        } catch (final ChannelNotFoundException e) {
+            return false;
+        }
     }
 
-    public boolean removeChannel(final String channnelId, final UUID uaid) {
-        final Channel channel = store.getChannel(channnelId);
-        if (channel != null && channel.getUAID().equals(uaid)) {
-            return store.removeChannel(channnelId);
+    public boolean removeChannel(final String channnelId, final String uaid) {
+        try {
+            final Channel channel = store.getChannel(channnelId);
+            if (channel.getUAID().equals(uaid)) {
+                return store.removeChannel(channnelId);
+            }
+        } catch (final ChannelNotFoundException ignored) {
         }
         return false;
     }
 
-    public void removeChannels(final UUID uaid) {
+    public void removeChannels(final String uaid) {
         store.removeChannels(uaid);
     }
 
@@ -139,12 +141,12 @@ public class DefaultSimplePushServer implements SimplePushServer {
     }
 
     @Override
-    public UUID fromChannel(final String channelId) throws ChannelNotFoundException {
+    public String fromChannel(final String channelId) throws ChannelNotFoundException {
         return getChannel(channelId).getUAID();
     }
 
     @Override
-    public void removeAllChannels(final UUID uaid) {
+    public void removeAllChannels(final String uaid) {
         store.removeChannels(uaid);
     }
 

@@ -29,7 +29,7 @@ import org.jboss.aerogear.netty.extension.api.ServerBootstrapFactory;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
-import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
+import org.jboss.aerogear.simplepush.server.datastore.JpaDataStore;
 import org.jboss.aerogear.simplepush.server.netty.SockJSChannelInitializer;
 import org.jboss.as.network.SocketBinding;
 
@@ -46,7 +46,7 @@ public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
         final DefaultEventExecutorGroup reaperExcutorGroup = newEventExecutorGroup(1, threadFactory);
         final EventLoopGroup bossGroup = newEventLoopGroup(threadFactory);
         final EventLoopGroup workerGroup = newEventLoopGroup(threadFactory);
-        final DataStore datastore = new InMemoryDataStore();
+        final DataStore datastore = new JpaDataStore("SimplePushPU");
         final SockJSChannelInitializer channelInitializer = new SockJSChannelInitializer(simplePushConfig, datastore, sockjsConfig, reaperExcutorGroup);
         final ServerBootstrap sb = new ServerBootstrap();
         sb.group(bossGroup, workerGroup)

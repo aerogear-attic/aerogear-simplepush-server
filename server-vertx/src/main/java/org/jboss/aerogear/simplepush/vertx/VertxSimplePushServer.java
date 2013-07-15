@@ -16,8 +16,6 @@
  */
 package org.jboss.aerogear.simplepush.vertx;
 
-import java.util.UUID;
-
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
@@ -84,7 +82,7 @@ public class VertxSimplePushServer extends Verticle {
             @Override
             public void handle(final Message<String> msg) {
                 final String uaid = msg.body();
-                simplePushServer.removeAllChannels(UUID.fromString(uaid));
+                simplePushServer.removeAllChannels(uaid);
                 logger.info("Removed all channels for [" + uaid + "] due to inactivity");
             }
         });
