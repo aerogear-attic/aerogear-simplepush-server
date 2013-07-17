@@ -30,9 +30,7 @@ This involves adding a _server_ element to the Netty subsystem.
 Open up your WildFly server's configuration xml file, for example standalone.xml, and add the following to the _netty_ subsystem:
 
     <subsystem xmlns="urn:org.jboss.aerogear.netty:1.0">
-        <netty>
-            <server name="simplepush-server" socket-binding="simplepush" factoryClass="org.jboss.aerogear.simplepush.netty.SimplePushBootstrapFactory"/>
-        </netty>
+        <server name="simplepush-server" socket-binding="simplepush" factory-class="org.jboss.aerogear.simplepush.netty.SimplePushBootstrapFactory"/>
     </subsystem>
     
 For details regarding the attirbutes of the _server_ element, please refer to [Netty Subsystem](https://github.com/danbev/netty-subsystem) .
