@@ -14,8 +14,13 @@ before_install:
   - cd ../..
   - git clone git://github.com/danbev/netty-subsystem.git
   - cd netty-subsystem
-  - ../apache-maven-3.0.5/bin/mvn install -DskipTests -N --quiet
+  - ../apache-maven-3.0.5/bin/mvn install -DskipTests -N
+  - cd subsystem-api
+  - ../../apache-maven-3.0.5/bin/mvn install -DskipTests -N
   - cd ..
+  - cd subsystem
+  - ../../apache-maven-3.0.5/bin/mvn install -DskipTests -N
+  - cd ../..
 
 notifications:
   irc: "irc.freenode.org#aerogear"
