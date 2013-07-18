@@ -29,6 +29,12 @@
         A SimplePush Server Implementation.
     </description>
 
+    <parent>
+        <groupId>org.jboss.aerogear</groupId>
+        <artifactId>aerogear-parent</artifactId>
+        <version>0.1.0</version>
+    </parent>
+
     <properties>
         <version.io.netty>4.0.0.CR10-SNAPSHOT</version.io.netty>
     </properties>
