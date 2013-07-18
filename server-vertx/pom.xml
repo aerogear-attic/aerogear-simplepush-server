@@ -80,22 +80,9 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.1</version>
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.mycila.maven-license-plugin</groupId>
-                <artifactId>maven-license-plugin</artifactId>
-                <version>1.9.0</version>
-                <configuration>
-                    <header>src/etc/license.txt</header>
-                    <includes>
-                        <include>src/**</include>
-                    </includes>
-                    <strictCheck>true</strictCheck>
                 </configuration>
             </plugin>
             <plugin>
