@@ -1,0 +1,13 @@
+language: java
+
+jdk:
+  - oraclejdk7
+#  - openjdk7
+before_install:
+  - git clone git://github.com/danbev/netty
+  - cd $PWD/netty
+  - git checkout -t origin/sockjs
+  - cd sockjs
+  - mvn install -DskipTests -N
+notifications:
+  irc: "irc.freenode.org#aerogear"
