@@ -1,13 +1,12 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.jboss.aerogear</groupId>
-		<artifactId>simplepush-server-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
+    <parent>
+        <groupId>org.jboss.aerogear</groupId>
+        <artifactId>simplepush-server-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
     <artifactId>aerogear-simplepush-server-wildfly</artifactId>
     <packaging>jar</packaging>
     <name>AeroGear SimplePush Server WildFly</name>
@@ -54,7 +53,7 @@
     </dependencies>
 
     <build>
-      <finalName>${project.artifactId}</finalName>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -69,22 +68,22 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>2.7</version>
                 <executions>
-                  <execution>
-                    <id>copy-dependencies</id>
-                    <phase>package</phase>
-                    <goals>
-                      <goal>copy-dependencies</goal>
-                    </goals>
-                    <configuration>
-                      <outputDirectory>${project.build.directory}/deps</outputDirectory>
-                      <overWriteReleases>false</overWriteReleases>
-                      <overWriteSnapshots>false</overWriteSnapshots>
-                      <overWriteIfNewer>true</overWriteIfNewer>
-                    </configuration>
-                  </execution>
-            </executions>
-          </plugin>
-          <plugin>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/deps</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <inherited>false</inherited>
@@ -97,27 +96,29 @@
                         </goals>
                         <phase>package</phase>
                         <configuration>
-                           <target>
-                               <!-- Replace the '.' in ${module.name} with '/' to get its path  -->
-                               <tempfile property="temp.file" />
-                               <echo message="${module.name}" file="${temp.file}" />
-                               <replace file="${temp.file}" token="." value="/" />
-                               <loadfile srcfile="${temp.file}" property="module.path" />
-                               <delete file="${temp.file}" />
-                               
-                               <delete dir="target/module" />
-                               <property name="module.dir" value="target/module/${module.path}/main" />
-                               
-                               <copy file="src/main/resources/module/main/module.xml" tofile="${module.dir}/module.xml" />
-                               <copy file="target/${project.artifactId}.jar" tofile="${module.dir}/${project.artifactId}-${project.version}.jar" />
-                               <copy file="target/deps/aerogear-simplepush-server-api-1.0.0-SNAPSHOT.jar" todir="${module.dir}" />
-                               <copy file="target/deps/aerogear-simplepush-server-core-1.0.0-SNAPSHOT.jar" todir="${module.dir}" />
-                               <copy file="target/deps/aerogear-simplepush-server-netty-1.0.0-SNAPSHOT.jar" todir="${module.dir}" />
-                               <copy file="target/deps/aerogear-simplepush-protocol-1.0.0-SNAPSHOT.jar" todir="${module.dir}" />
-                               <copy file="target/deps/netty-all-4.0.0.CR10-SNAPSHOT.jar" todir="${module.dir}" />
-                               <copy file="target/deps/jackson-core-asl-1.9.2.jar" todir="${module.dir}" />
-                               <copy file="target/deps/jackson-mapper-asl-1.9.2.jar" todir="${module.dir}" />
-                              <echo>Module ${module.name} has been created in the target/module directory. Copy to your JBoss AS 7 installation.</echo>
+                            <target>
+                                <!-- Replace the '.' in ${module.name} with '/' to get its path  -->
+                                <tempfile property="temp.file"/>
+                                <echo message="${module.name}" file="${temp.file}"/>
+                                <replace file="${temp.file}" token="." value="/"/>
+                                <loadfile srcfile="${temp.file}" property="module.path"/>
+                                <delete file="${temp.file}"/>
+
+                                <delete dir="target/module"/>
+                                <property name="module.dir" value="target/module/${module.path}/main"/>
+
+                                <copy file="src/main/resources/module/main/module.xml" tofile="${module.dir}/module.xml"/>
+                                <copy file="target/${project.artifactId}.jar" tofile="${module.dir}/${project.artifactId}-${project.version}.jar"/>
+                                <copy file="target/deps/aerogear-simplepush-server-api-1.0.0-SNAPSHOT.jar" todir="${module.dir}"/>
+                                <copy file="target/deps/aerogear-simplepush-server-core-1.0.0-SNAPSHOT.jar" todir="${module.dir}"/>
+                                <copy file="target/deps/aerogear-simplepush-server-netty-1.0.0-SNAPSHOT.jar" todir="${module.dir}"/>
+                                <copy file="target/deps/aerogear-simplepush-protocol-1.0.0-SNAPSHOT.jar" todir="${module.dir}"/>
+                                <copy file="target/deps/netty-all-4.0.0.CR10-SNAPSHOT.jar" todir="${module.dir}"/>
+                                <copy file="target/deps/jackson-core-asl-1.9.2.jar" todir="${module.dir}"/>
+                                <copy file="target/deps/jackson-mapper-asl-1.9.2.jar" todir="${module.dir}"/>
+                                <echo>Module ${module.name} has been created in the target/module directory. Copy to
+                                    your JBoss AS 7 installation.
+                                </echo>
                             </target>
                         </configuration>
                     </execution>
@@ -145,15 +146,15 @@
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>
-                                        <ignore />
+                                        <ignore/>
                                     </action>
                                 </pluginExecution>
                             </pluginExecutions>
                         </lifecycleMappingMetadata>
                     </configuration>
                 </plugin>
-           </plugins>
-       </pluginManagement>
+            </plugins>
+        </pluginManagement>
     </build>
 
 </project>
