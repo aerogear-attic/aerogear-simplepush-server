@@ -1,12 +1,12 @@
 /**
  * JBoss, Home of Professional Open Source
- * Copyright Red Hat, Inc., and individual contributors
+ * Copyright Red Hat, Inc., and individual contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * 	http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,16 +37,16 @@ import org.slf4j.LoggerFactory;
  */
 @Sharable
 public class UserAgentReaperHandler extends ChannelInboundHandlerAdapter {
-    
+
     private final Logger logger = LoggerFactory.getLogger(UserAgentReaperHandler.class);
     private final SimplePushServer simplePushServer;
     private static ScheduledFuture<?> scheduleFuture;
     private static final AtomicBoolean reaperStarted = new AtomicBoolean(false);
-    
+
     public UserAgentReaperHandler(final SimplePushServer simplePushServer) {
         this.simplePushServer = simplePushServer;
     }
-    
+
     @Override
     public void handlerAdded(final ChannelHandlerContext ctx) throws Exception {
         if (isReaperStarted()) {
@@ -55,16 +55,16 @@ public class UserAgentReaperHandler extends ChannelInboundHandlerAdapter {
         final SimplePushServerConfig config = simplePushServer.config();
         logger.info("Creating UserAgentReaper job : " + config.userAgentReaperTimeout());
         scheduleFuture = ctx.executor().scheduleAtFixedRate(new UserAgentReaper(simplePushServer),
-            config.userAgentReaperTimeout(), 
-            config.userAgentReaperTimeout(), 
-            TimeUnit.MILLISECONDS);
+                config.userAgentReaperTimeout(),
+                config.userAgentReaperTimeout(),
+                TimeUnit.MILLISECONDS);
         reaperStarted.set(true);
     }
-    
+
     public boolean started() {
         return reaperStarted.get();
     }
-    
+
     public void cancelReaper() {
         if (scheduleFuture != null) {
             if (scheduleFuture.cancel(true)) {
@@ -72,9 +72,9 @@ public class UserAgentReaperHandler extends ChannelInboundHandlerAdapter {
             }
         }
     }
-    
+
     private boolean isReaperStarted() {
         return reaperStarted.get();
     }
-    
+
 }

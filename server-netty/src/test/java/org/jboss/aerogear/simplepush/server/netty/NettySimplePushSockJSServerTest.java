@@ -1,3 +1,19 @@
+/**
+ * JBoss, Home of Professional Open Source
+ * Copyright Red Hat, Inc., and individual contributors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jboss.aerogear.simplepush.server.netty;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -43,25 +59,25 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class NettySimplePushSockJSServerTest {
-    
+
     private static final int port = 1111;
     private static Channel channel;
     private static final EventLoopGroup bossGroup = new NioEventLoopGroup();
     private static final EventLoopGroup workerGroup = new NioEventLoopGroup();
     private static final DefaultEventExecutorGroup eventExecutorGroup = new DefaultEventExecutorGroup(1);
-    
+
     @BeforeClass
     public static void startSimplePushServer() throws Exception {
         final Config sockJSConfig = Config.prefix("/simplepush").cookiesNeeded().build();
         final DataStore datastore = new InMemoryDataStore();
         final ServerBootstrap sb = new ServerBootstrap();
-        final DefaultSimplePushConfig simplePushConfig = DefaultSimplePushConfig.create().userAgentReaperTimeout(2000L) .build();
+        final DefaultSimplePushConfig simplePushConfig = DefaultSimplePushConfig.create().userAgentReaperTimeout(2000L).build();
         sb.group(bossGroup, workerGroup)
-            .channel(NioServerSocketChannel.class)
-            .childHandler(new SockJSChannelInitializer(simplePushConfig, datastore, sockJSConfig, eventExecutorGroup));
+                .channel(NioServerSocketChannel.class)
+                .childHandler(new SockJSChannelInitializer(simplePushConfig, datastore, sockJSConfig, eventExecutorGroup));
         channel = sb.bind(port).sync().channel();
     }
-    
+
     @AfterClass
     public static void stopSimplePushServer() throws InterruptedException {
         final ChannelFuture disconnect = channel.disconnect();
@@ -71,7 +87,7 @@ public class NettySimplePushSockJSServerTest {
         eventExecutorGroup.shutdownGracefully();
     }
 
-    @Test 
+    @Test
     public void withoutTLS() throws Exception {
         final URI uri = new URI("ws://localhost:" + port + "/simplepush/websocket");
         final EventLoopGroup group = new NioEventLoopGroup();
@@ -82,16 +98,16 @@ public class NettySimplePushSockJSServerTest {
                             WebSocketClientHandshakerFactory.newHandshaker(
                                     uri, WebSocketVersion.V13, null, false, customHeaders));
             b.group(group)
-             .channel(NioSocketChannel.class)
-             .handler(new ChannelInitializer<SocketChannel>() {
-                 @Override
-                 public void initChannel(SocketChannel ch) throws Exception {
-                     ChannelPipeline pipeline = ch.pipeline();
-                     pipeline.addLast("http-codec", new HttpClientCodec());
-                     pipeline.addLast("aggregator", new HttpObjectAggregator(8192));
-                     pipeline.addLast("ws-handler", handler);
-                 }
-             });
+                    .channel(NioSocketChannel.class)
+                    .handler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        public void initChannel(SocketChannel ch) throws Exception {
+                            ChannelPipeline pipeline = ch.pipeline();
+                            pipeline.addLast("http-codec", new HttpClientCodec());
+                            pipeline.addLast("aggregator", new HttpObjectAggregator(8192));
+                            pipeline.addLast("ws-handler", handler);
+                        }
+                    });
 
             final Channel ch = b.connect(uri.getHost(), uri.getPort()).sync().channel();
             handler.handshakeFuture().sync();
@@ -105,7 +121,7 @@ public class NettySimplePushSockJSServerTest {
             assertThat(fromJson.getMessageType(), equalTo(MessageType.Type.HELLO));
             assertThat(fromJson.getUAID(), equalTo(uaid));
             textFrame.release();
-            
+
             final String channelId = UUID.randomUUID().toString();
             final String register = JsonUtil.toJson(new RegisterMessageImpl(channelId));
             final ChannelFuture registerFuture = ch.writeAndFlush(new TextWebSocketFrame(register));
@@ -122,7 +138,7 @@ public class NettySimplePushSockJSServerTest {
             group.shutdownGracefully();
         }
     }
-    
+
     @Test
     public void userAgentReaper() throws Exception {
         final URI uri = new URI("ws://localhost:" + port + "/simplepush/websocket");
@@ -134,14 +150,14 @@ public class NettySimplePushSockJSServerTest {
                             WebSocketClientHandshakerFactory.newHandshaker(
                                     uri, WebSocketVersion.V13, null, false, customHeaders));
             b.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer<SocketChannel>() {
-                 @Override
-                 public void initChannel(SocketChannel ch) throws Exception {
-                     ChannelPipeline pipeline = ch.pipeline();
-                     pipeline.addLast("http-codec", new HttpClientCodec());
-                     pipeline.addLast("aggregator", new HttpObjectAggregator(8192));
-                     pipeline.addLast("ws-handler", handler);
-                 }
-             });
+                @Override
+                public void initChannel(SocketChannel ch) throws Exception {
+                    ChannelPipeline pipeline = ch.pipeline();
+                    pipeline.addLast("http-codec", new HttpClientCodec());
+                    pipeline.addLast("aggregator", new HttpObjectAggregator(8192));
+                    pipeline.addLast("ws-handler", handler);
+                }
+            });
 
             final Channel ch = b.connect(uri.getHost(), uri.getPort()).sync().channel();
             handler.handshakeFuture().sync();
@@ -155,7 +171,7 @@ public class NettySimplePushSockJSServerTest {
             assertThat(fromJson.getMessageType(), equalTo(MessageType.Type.HELLO));
             assertThat(fromJson.getUAID(), equalTo(uaid));
             textFrame.release();
-            
+
             Thread.sleep(3000);
             final String channelId = UUID.randomUUID().toString();
             final String register = JsonUtil.toJson(new RegisterMessageImpl(channelId));

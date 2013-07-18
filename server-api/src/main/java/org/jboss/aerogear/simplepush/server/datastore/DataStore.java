@@ -1,3 +1,19 @@
+/**
+ * JBoss, Home of Professional Open Source
+ * Copyright Red Hat, Inc., and individual contributors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jboss.aerogear.simplepush.server.datastore;
 
 import java.util.Set;
@@ -6,20 +22,19 @@ import java.util.UUID;
 import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.server.Channel;
 
-
 /**
  * Handles the storing of channels for a SimplePush Server implementation.
  */
 public interface DataStore {
-    
+
     /**
      * Saves the channel to the underlying storage system.
      * 
      * @param channel the channel to be stored.
      * @return {@code true} if storage was successful.
      */
-    boolean saveChannel(Channel channel); 
-    
+    boolean saveChannel(Channel channel);
+
     /**
      * Removes the channel with the matching channelId from the underlying storage system.
      * 
@@ -36,7 +51,7 @@ public interface DataStore {
      *         channelId was found.
      */
     Channel getChannel(String channelId);
-    
+
     /**
      * Removes all channels for a certain UserAgent Identifier (uaid).
      * 
@@ -44,7 +59,7 @@ public interface DataStore {
      *        that id should be removed.
      */
     void removeChannels(UUID uaid);
-    
+
     /**
      * Stores {@code updates/channelIds} so that the notification can be matched against
      * acknowledged channelId from the UserAgent.
@@ -53,7 +68,7 @@ public interface DataStore {
      * @param uaid the {@link UUID} identifiying the UserAgent.
      */
     void storeUpdates(Set<Update> updates, UUID uaid);
-    
+
     /**
      * Returns the {@code updates/channelIds} that have been sent to a UserAgent as notifications.
      * 
@@ -61,7 +76,7 @@ public interface DataStore {
      * @return {@code Set<Update>} the updates waiting for notification.
      */
     Set<Update> getUpdates(UUID uaid);
-    
+
     /**
      * Removes the {@code update/channelId} from storage which should be done when a UserAgent
      * has acknowledged a notification.

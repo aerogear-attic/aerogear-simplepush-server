@@ -1,13 +1,13 @@
 /**
  * JBoss, Home of Professional Open Source
- * Copyright Red Hat, Inc., and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+ * Copyright Red Hat, Inc., and individual contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -63,32 +63,32 @@ public class JsonUtil {
         om = new ObjectMapper();
         final SimpleModule module = new SimpleModule("MyModule", new Version(1, 0, 0, null));
         module.addDeserializer(MessageType.class, new MessageTypeDeserializer());
-        
+
         module.addDeserializer(RegisterMessageImpl.class, new RegisterDeserializer());
         module.addSerializer(RegisterMessageImpl.class, new RegisterSerializer());
         module.addDeserializer(RegisterResponseImpl.class, new RegisterResponseDeserializer());
         module.addSerializer(RegisterResponseImpl.class, new RegisterResponseSerializer());
-        
+
         module.addDeserializer(HandshakeMessageImpl.class, new HandshakeDeserializer());
         module.addSerializer(HandshakeMessageImpl.class, new HandshakeSerializer());
         module.addDeserializer(HandshakeResponseImpl.class, new HandshakeResponseDeserializer());
         module.addSerializer(HandshakeResponseImpl.class, new HandshakeResponseSerializer());
-        
+
         module.addDeserializer(AckMessageImpl.class, new AckDeserializer());
         module.addSerializer(AckMessageImpl.class, new AckSerializer());
-        
+
         module.addDeserializer(NotificationMessageImpl.class, new NotificationDeserializer());
         module.addSerializer(NotificationMessageImpl.class, new NotificationSerializer());
-        
+
         module.addDeserializer(UnregisterMessageImpl.class, new UnregisterDeserializer());
         module.addSerializer(UnregisterMessageImpl.class, new UnregisterMessageSerializer());
         module.addDeserializer(UnregisterResponseImpl.class, new UnregisterResponseDeserializer());
         module.addSerializer(UnregisterResponseImpl.class, new UnregisterResponseSerializer());
-        
+
         om.registerModule(module);
         return om;
     }
-    
+
     private JsonUtil() {
     }
 
@@ -109,7 +109,7 @@ public class JsonUtil {
             throw new RuntimeException("error trying to parse json [" + obj + "]", e);
         }
     }
-    
+
     public static MessageType parseFrame(final String json) {
         return fromJson(json, MessageType.class);
     }
@@ -138,20 +138,20 @@ public class JsonUtil {
             jgen.writeEndObject();
         }
     }
-    
-    private static class RegisterResponseDeserializer extends JsonDeserializer<RegisterResponseImpl> { 
-        
+
+    private static class RegisterResponseDeserializer extends JsonDeserializer<RegisterResponseImpl> {
+
         @Override
         public RegisterResponseImpl deserialize(final JsonParser jp, final DeserializationContext ctxt)
                 throws IOException, JsonProcessingException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
             return new RegisterResponseImpl(node.get(RegisterMessage.CHANNEL_ID_FIELD).asText(),
-                    new StatusImpl(node.get(RegisterResponseImpl.STATUS_FIELD).asInt(), "N/A"), 
+                    new StatusImpl(node.get(RegisterResponseImpl.STATUS_FIELD).asInt(), "N/A"),
                     node.get(RegisterResponseImpl.PUSH_ENDPOINT__FIELD).asText());
         }
     }
-    
+
     private static class RegisterResponseSerializer extends JsonSerializer<RegisterResponse> {
 
         @Override
@@ -185,7 +185,7 @@ public class JsonUtil {
                 }
             }
             final JsonNode uaid = node.get(HandshakeMessage.UAID_FIELD);
-            if (uaid !=null) {
+            if (uaid != null) {
                 return new HandshakeMessageImpl(node.get(HandshakeMessage.UAID_FIELD).asText(), channelIds);
             } else {
                 return new HandshakeMessageImpl();
@@ -211,7 +211,7 @@ public class JsonUtil {
             jgen.writeEndObject();
         }
     }
-    
+
     private static class HandshakeResponseDeserializer extends JsonDeserializer<HandshakeResponseImpl> {
 
         @Override
@@ -223,7 +223,7 @@ public class JsonUtil {
             return new HandshakeResponseImpl(UUID.fromString(uaid.asText()));
         }
     }
-    
+
     private static class HandshakeResponseSerializer extends JsonSerializer<HandshakeResponse> {
 
         @Override
@@ -277,7 +277,7 @@ public class JsonUtil {
             jgen.writeEndObject();
         }
     }
-    
+
     private static class NotificationDeserializer extends JsonDeserializer<NotificationMessageImpl> {
 
         @Override
@@ -297,7 +297,7 @@ public class JsonUtil {
             return new NotificationMessageImpl(updates);
         }
     }
-    
+
     private static class NotificationSerializer extends JsonSerializer<NotificationMessage> {
 
         @Override
@@ -319,7 +319,7 @@ public class JsonUtil {
             jgen.writeEndObject();
         }
     }
-    
+
     private static class UnregisterDeserializer extends JsonDeserializer<UnregisterMessageImpl> {
 
         @Override
@@ -331,7 +331,7 @@ public class JsonUtil {
             return new UnregisterMessageImpl(channelIdNode.asText());
         }
     }
-    
+
     private static class UnregisterMessageSerializer extends JsonSerializer<UnregisterMessage> {
 
         @Override
@@ -345,7 +345,7 @@ public class JsonUtil {
             jgen.writeEndObject();
         }
     }
-    
+
     private static class MessageTypeDeserializer extends JsonDeserializer<MessageType> {
 
         @Override
@@ -362,7 +362,7 @@ public class JsonUtil {
             };
         }
     }
-    
+
     private static class UnregisterResponseDeserializer extends JsonDeserializer<UnregisterResponseImpl> {
 
         @Override
@@ -374,7 +374,7 @@ public class JsonUtil {
             return new UnregisterResponseImpl(channelIdNode.asText(), new StatusImpl(node.get(UnregisterResponse.STATUS_FIELD).asInt(), "N/A"));
         }
     }
-    
+
     private static class UnregisterResponseSerializer extends JsonSerializer<UnregisterResponse> {
 
         @Override
@@ -390,5 +390,5 @@ public class JsonUtil {
             jgen.writeEndObject();
         }
     }
-    
+
 }

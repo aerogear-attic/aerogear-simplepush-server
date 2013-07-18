@@ -1,13 +1,13 @@
 /**
  * JBoss, Home of Professional Open Source
- * Copyright Red Hat, Inc., and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+ * Copyright Red Hat, Inc., and individual contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,16 +23,16 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DefaultChannel implements Channel {
-    
+
     private final UUID uaid;
     private final String channelId;
     private final String pushEndpoint;
     private final AtomicLong version;
-    
+
     public DefaultChannel(final UUID uaid, final String channelId, final String pushEndpoint) {
         this(uaid, channelId, 0, pushEndpoint);
     }
-    
+
     public DefaultChannel(final UUID uaid, final String channelId, final long version, final String pushEndpoint) {
         checkNotNull(uaid, "uaid");
         checkNotNull(channelId, "channelId");
@@ -43,12 +43,12 @@ public class DefaultChannel implements Channel {
         this.version = new AtomicLong(version);
         this.pushEndpoint = pushEndpoint;
     }
-    
+
     @Override
     public UUID getUAID() {
         return uaid;
     }
-    
+
     @Override
     public String getChannelId() {
         return channelId;
@@ -64,7 +64,7 @@ public class DefaultChannel implements Channel {
         for (;;) {
             final long currentVersion = version.get();
             if (newVersion <= currentVersion) {
-                throw new IllegalArgumentException("New version [" + newVersion + "] must be greater than current version [" + currentVersion +"]"); 
+                throw new IllegalArgumentException("New version [" + newVersion + "] must be greater than current version [" + currentVersion + "]");
             }
             if (version.compareAndSet(currentVersion, newVersion)) {
                 break;
@@ -76,7 +76,7 @@ public class DefaultChannel implements Channel {
     public String getPushEndpoint() {
         return pushEndpoint;
     }
-    
+
     @Override
     public String toString() {
         return "DefaultChannel[uaid=" + uaid + ", channelId=" + channelId + ", version=" + version + ", pushEndpoint=" + pushEndpoint + "]";
@@ -127,7 +127,5 @@ public class DefaultChannel implements Channel {
         }
         return true;
     }
-    
-    
 
 }

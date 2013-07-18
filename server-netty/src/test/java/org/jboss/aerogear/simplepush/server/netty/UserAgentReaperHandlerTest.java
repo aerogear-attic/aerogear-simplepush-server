@@ -1,12 +1,12 @@
 /**
  * JBoss, Home of Professional Open Source
- * Copyright Red Hat, Inc., and individual contributors
+ * Copyright Red Hat, Inc., and individual contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * 	http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,23 +39,23 @@ import org.junit.Test;
 
 public class UserAgentReaperHandlerTest {
 
-    @Test 
+    @Test
     public void reaperJob() throws Exception {
         final UserAgentReaperHandler enabled = reaper(10L);
         enabled.handlerAdded(channelHandlerContext());
         assertThat(enabled.started(), equalTo(true));
     }
-    
+
     private UserAgentReaperHandler reaper(final long timeout) {
         UserAgentReaperHandler reaper = new UserAgentReaperHandler(simplePushServer(DefaultSimplePushConfig.create().userAgentReaperTimeout(timeout).build()));
         return reaper;
     }
-    
+
     private SimplePushServer simplePushServer(final SimplePushServerConfig config) {
         return new DefaultSimplePushServer(new InMemoryDataStore(), config);
     }
-    
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+
+    @SuppressWarnings( { "rawtypes", "unchecked" })
     private ChannelHandlerContext channelHandlerContext() {
         final ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
         final EventExecutor eventExecutor = mock(EventExecutor.class);

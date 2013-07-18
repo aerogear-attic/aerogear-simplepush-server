@@ -1,13 +1,13 @@
 /**
  * JBoss, Home of Professional Open Source
- * Copyright Red Hat, Inc., and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+ * Copyright Red Hat, Inc., and individual contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -34,16 +34,16 @@ import org.junit.Test;
 
 public class NotificationImplTest {
 
-    @Test (expected = NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void constructWithNullUpdates() {
         new NotificationMessageImpl(null);
     }
-    
-    @Test (expected = IllegalArgumentException.class)
+
+    @Test(expected = IllegalArgumentException.class)
     public void constructWithEmptyUpdates() {
-        new NotificationMessageImpl(Collections.<Update>emptySet());
+        new NotificationMessageImpl(Collections.<Update> emptySet());
     }
-    
+
     @Test
     public void fromJson() {
         final String json = "{\"messageType\": \"notification\", \"updates\": [{\"channelID\": \"abc123\", \"version\": 1}]}";
@@ -51,7 +51,7 @@ public class NotificationImplTest {
         assertThat(notification.getMessageType(), is(equalTo(MessageType.Type.NOTIFICATION)));
         assertThat(notification.getUpdates(), hasItem(new UpdateImpl("abc123", 1L)));
     }
-    
+
     @Test
     public void toJson() {
         final Set<Update> updates = new HashSet<Update>(Arrays.asList(new UpdateImpl("abc123", 2L)));

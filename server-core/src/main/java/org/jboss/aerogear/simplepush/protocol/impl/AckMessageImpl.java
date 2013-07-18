@@ -1,13 +1,13 @@
 /**
  * JBoss, Home of Professional Open Source
- * Copyright Red Hat, Inc., and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+ * Copyright Red Hat, Inc., and individual contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,11 +23,11 @@ import org.jboss.aerogear.simplepush.protocol.AckMessage;
 import org.jboss.aerogear.simplepush.protocol.Update;
 
 public class AckMessageImpl implements AckMessage {
-    
+
     private final Set<Update> updates;
-    
+
     public AckMessageImpl(final Set<Update> updates) {
-        this.updates = updates == null ? Collections.<Update>emptySet() : updates;
+        this.updates = updates == null ? Collections.<Update> emptySet() : updates;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class AckMessageImpl implements AckMessage {
     public Set<Update> getUpdates() {
         return Collections.unmodifiableSet(updates);
     }
-    
+
     @Override
     public String toString() {
         return "AckImpl[messageType=" + getMessageType() + ",update=" + updates + "]";

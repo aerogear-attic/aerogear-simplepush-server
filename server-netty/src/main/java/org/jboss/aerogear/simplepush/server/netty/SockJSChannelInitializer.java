@@ -1,3 +1,19 @@
+/**
+ * JBoss, Home of Professional Open Source
+ * Copyright Red Hat, Inc., and individual contributors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jboss.aerogear.simplepush.server.netty;
 
 import io.netty.channel.ChannelInitializer;
@@ -19,13 +35,13 @@ import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 
 public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> {
-    
+
     private final DataStore datastore;
     private final SimplePushServerConfig simplePushConfig;
     private final EventExecutorGroup backgroundGroup;
     private final Config sockjsConfig;
-    
-    public SockJSChannelInitializer(final SimplePushServerConfig simplePushConfig, 
+
+    public SockJSChannelInitializer(final SimplePushServerConfig simplePushConfig,
             final DataStore datastore,
             final Config sockjsConfig,
             final EventExecutorGroup backgroundGroup) {
@@ -45,7 +61,7 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
         }
         pipeline.addLast(new HttpServerCodec());
         pipeline.addLast(new HttpObjectAggregator(65536));
-        
+
         final DefaultSimplePushServer simplePushServer = new DefaultSimplePushServer(datastore, simplePushConfig);
         pipeline.addLast(new NotificationHandler(simplePushServer));
         pipeline.addLast(new CorsInboundHandler());
@@ -53,5 +69,5 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
         pipeline.addLast(backgroundGroup, new UserAgentReaperHandler(simplePushServer));
         pipeline.addLast(new CorsOutboundHandler());
     }
-    
+
 }

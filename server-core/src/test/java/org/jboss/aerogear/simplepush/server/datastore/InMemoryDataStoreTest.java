@@ -1,3 +1,19 @@
+/**
+ * JBoss, Home of Professional Open Source
+ * Copyright Red Hat, Inc., and individual contributors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.jboss.aerogear.simplepush.server.datastore;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -30,7 +46,7 @@ public class InMemoryDataStoreTest {
         final boolean saved = store.saveChannel(new DefaultChannel(UUIDUtil.newUAID(), "channel-1", "endpoint/1"));
         assertThat(saved, is(true));
     }
-    
+
     @Test
     public void getChannel() {
         final InMemoryDataStore store = new InMemoryDataStore();
@@ -39,7 +55,7 @@ public class InMemoryDataStoreTest {
         assertThat(store.getChannel("channel-1").getChannelId(), equalTo("channel-1"));
         assertThat(store.getChannel("channel-1").getPushEndpoint(), equalTo("endpoint/1"));
     }
-    
+
     @Test
     public void removeChannel() {
         final InMemoryDataStore store = new InMemoryDataStore();
@@ -47,7 +63,7 @@ public class InMemoryDataStoreTest {
         assertThat(store.removeChannel("channel-1"), is(true));
         assertThat(store.removeChannel("channel-1"), is(false));
     }
-    
+
     @Test
     public void removeChannels() {
         final InMemoryDataStore store = new InMemoryDataStore();
@@ -63,7 +79,7 @@ public class InMemoryDataStoreTest {
         assertThat(store.getChannel("channel-3"), is(notNullValue()));
         assertThat(store.getChannel("channel-4"), is(nullValue()));
     }
-    
+
     @Test
     public void storeUpdates() {
         final InMemoryDataStore store = new InMemoryDataStore();
@@ -73,8 +89,8 @@ public class InMemoryDataStoreTest {
         final Set<Update> updates = store.getUpdates(uaid);
         assertThat(updates, hasItem(update(channelId1, 10L)));
     }
-    
-    @Test 
+
+    @Test
     public void storeUpdateWithGreatVersion() {
         final InMemoryDataStore store = new InMemoryDataStore();
         final UUID uaid = UUIDUtil.newUAID();
@@ -85,7 +101,7 @@ public class InMemoryDataStoreTest {
         assertThat(updates, hasItem(update(channelId1, 11L)));
         assertThat(updates.size(), is(1));
     }
-    
+
     @Test
     public void removeUpdate() {
         final InMemoryDataStore store = new InMemoryDataStore();
@@ -96,7 +112,7 @@ public class InMemoryDataStoreTest {
         assertThat(store.removeUpdate(update(channelId1, 10L), uaid), is(false));
         assertThat(store.removeUpdate(update(channelId1, 11L), uaid), is(false));
     }
-    
+
     @Test
     public void updatesThreadSafety() throws InterruptedException {
         final InMemoryDataStore store = new InMemoryDataStore();
@@ -126,7 +142,8 @@ public class InMemoryDataStoreTest {
                         } finally {
                             endLatch.countDown();
                         }
-                    } catch (InterruptedException ignored) {}
+                    } catch (InterruptedException ignored) {
+                    }
                 }
             }).start();
         }
@@ -136,11 +153,11 @@ public class InMemoryDataStoreTest {
             Assert.fail("updateThreadSafety test failed. Please check stacktrace(s)");
         }
     }
-    
+
     private Update update(final String channelId, final Long version) {
         return new UpdateImpl(channelId, version);
     }
-    
+
     private Set<Update> updates(final Update... updates) {
         return new HashSet<Update>(Arrays.asList(updates));
     }

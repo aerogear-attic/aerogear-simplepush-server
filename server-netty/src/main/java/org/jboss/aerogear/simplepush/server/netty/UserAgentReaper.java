@@ -1,12 +1,12 @@
 /**
  * JBoss, Home of Professional Open Source
- * Copyright Red Hat, Inc., and individual contributors
+ * Copyright Red Hat, Inc., and individual contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * 	http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,20 +45,20 @@ public class UserAgentReaper implements Runnable {
                 logger.info("Removing inactive UserAgent [" + userAgent.uaid().toString() + "]");
                 /* TODO: update this when persistence is in place so that the logic to remove is in one place
                          and not spread out among the UserAgents class and the SimplePushServer.
-                */
-                
+                 */
+
                 // remove from user agents map
                 it.remove();
-                
+
                 // remove from database
                 simplePushServer.removeAllChannels(userAgent.uaid());
-                
+
                 // close the user agent context
                 userAgent.context().close();
             }
         }
     }
-    
+
     private boolean isChannelInactive(final UserAgent<SessionContext> userAgent) {
         final Channel ch = userAgent.context().getContext().channel();
         return !ch.isActive() && !ch.isRegistered();

@@ -1,13 +1,13 @@
 /**
  * JBoss, Home of Professional Open Source
- * Copyright Red Hat, Inc., and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+ * Copyright Red Hat, Inc., and individual contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -52,18 +52,18 @@ import org.slf4j.LoggerFactory;
  * Handles HTTP PUT 'notification' request for the SimplePush server.
  */
 public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
-    
+
     private final UserAgents userAgents = UserAgents.getInstance();
     private final Logger logger = LoggerFactory.getLogger(NotificationHandler.class);
-    
+
     private final SimplePushServer simplePushServer;
-   
+
     public NotificationHandler(final SimplePushServer simplePushServer) {
         this.simplePushServer = simplePushServer;
     }
 
     @Override
-    public void channelRead0(final ChannelHandlerContext ctx , final Object msg) throws Exception {
+    public void channelRead0(final ChannelHandlerContext ctx, final Object msg) throws Exception {
         if (msg instanceof FullHttpRequest) {
             final FullHttpRequest request = (FullHttpRequest) msg;
             final String requestUri = request.getUri();
@@ -76,7 +76,7 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
             ctx.fireChannelRead(ReferenceCountUtil.retain(msg));
         }
     }
-    
+
     private void handleHttpRequest(final ChannelHandlerContext ctx, final FullHttpRequest req) throws Exception {
         if (!isHttpRequestValid(req, ctx.channel())) {
             return;
@@ -86,7 +86,7 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
         final Future<Void> future = ctx.channel().eventLoop().submit(new Notifier(channelId, req.content()));
         future.addListener(new NotificationFutureListener(ctx.channel(), req));
     }
-    
+
     private boolean isHttpRequestValid(final FullHttpRequest request, final Channel channel) {
         if (!request.getDecoderResult().isSuccess()) {
             sendHttpResponse(BAD_REQUEST, request, channel);
@@ -98,7 +98,7 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
         }
         return true;
     }
-    
+
     private void sendHttpResponse(final HttpResponseStatus status, final FullHttpRequest request, final Channel channel) {
         final FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status);
         Transports.writeContent(response, response.getStatus().toString(), Transports.CONTENT_TYPE_HTML);
@@ -106,16 +106,16 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
     }
 
     private class Notifier implements Callable<Void> {
-        
+
         private final String channelId;
         private final ByteBuf content;
-    
+
         private Notifier(final String channelId, final ByteBuf content) {
             this.channelId = channelId;
             this.content = content;
             this.content.retain();
         }
-    
+
         @Override
         public Void call() throws Exception {
             try {
@@ -132,23 +132,23 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
             }
         }
     }
-    
+
     private class NotificationFutureListener implements GenericFutureListener<Future<Void>> {
-        
+
         private Channel channel;
         private FullHttpRequest request;
-    
+
         private NotificationFutureListener(final Channel channel, final FullHttpRequest request) {
             this.channel = channel;
             this.request = request;
         }
-    
+
         @Override
         public void operationComplete(Future<Void> future) throws Exception {
             if (future.cause() != null) {
                 if (future.cause() instanceof ChannelNotFoundException) {
                     final ChannelNotFoundException cne = (ChannelNotFoundException) future.cause();
-                    logger.warn("Could not find channel [" + cne.channelId() + "]"); 
+                    logger.warn("Could not find channel [" + cne.channelId() + "]");
                 }
                 sendHttpResponse(BAD_REQUEST, request, channel);
             } else {
@@ -156,5 +156,5 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
             }
         }
     }
-    
+
 }

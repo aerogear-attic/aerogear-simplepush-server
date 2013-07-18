@@ -1,13 +1,13 @@
 /**
  * JBoss, Home of Professional Open Source
- * Copyright Red Hat, Inc., and individual contributors
- * by the @authors tag. See the copyright.txt in the distribution for a
- * full listing of individual contributors.
+ * Copyright Red Hat, Inc., and individual contributors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -44,9 +44,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class DefaultSimplePushServerTest {
-    
+
     private DefaultSimplePushServer server;
-    
+
     @Before
     public void setup() {
         server = new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.defaultConfig());
@@ -57,7 +57,7 @@ public class DefaultSimplePushServerTest {
         final HandshakeResponse response = server.handleHandshake(new HandshakeMessageImpl());
         assertThat(response.getUAID(), is(notNullValue()));
     }
-    
+
     @Test
     public void handleHandshakeWithChannels() throws ChannelNotFoundException {
         final HashSet<String> channelIds = new HashSet<String>(Arrays.asList("channel1", "channel2"));
@@ -66,8 +66,8 @@ public class DefaultSimplePushServerTest {
         assertThat(response.getUAID(), is(notNullValue()));
         assertThat(server.getChannel("channel1").getChannelId(), is(equalTo("channel1")));
     }
-    
-    @Test 
+
+    @Test
     public void handleHandshakeWithChannelsButNoUaid() {
         final HashSet<String> channelIds = new HashSet<String>(Arrays.asList("channel1", "channel2"));
         final HandshakeMessage handshakeImpl = new HandshakeMessageImpl(null, channelIds);
@@ -75,7 +75,7 @@ public class DefaultSimplePushServerTest {
         assertThat(response.getUAID(), is(notNullValue()));
         assertThat(server.hasChannel("channel1"), is(false));
     }
-    
+
     @Test
     public void handeRegister() {
         final RegisterResponse response = server.handleRegister(new RegisterMessageImpl("someChannelId"), UUIDUtil.newUAID());
@@ -85,7 +85,7 @@ public class DefaultSimplePushServerTest {
         assertThat(response.getStatus().getMessage(), equalTo("OK"));
         assertThat(response.getPushEndpoint(), equalTo("/endpoint/someChannelId"));
     }
-    
+
     @Test
     public void removeChannel() throws ChannelNotFoundException {
         final String channelId = "testChannelId";
@@ -96,7 +96,7 @@ public class DefaultSimplePushServerTest {
         assertThat(server.removeChannel(channelId, uaid), is(true));
         assertThat(server.removeChannel(channelId, uaid), is(false));
     }
-    
+
     @Test
     public void getUAID() throws ChannelNotFoundException {
         final String channelId = "testChannelId";
@@ -104,7 +104,7 @@ public class DefaultSimplePushServerTest {
         server.handleRegister(new RegisterMessageImpl(channelId), uaid);
         assertThat(server.getUAID(channelId), is(equalTo(uaid)));
     }
-    
+
     @Test
     public void handleNotification() throws ChannelNotFoundException {
         final String channelId = "testChannelId";
@@ -116,8 +116,8 @@ public class DefaultSimplePushServerTest {
         notification = server.handleNotification(channelId, uaid, "version=2");
         assertThat(server.getChannel(channelId).getVersion(), is(2L));
     }
-    
-    @Test (expected = IllegalArgumentException.class)
+
+    @Test(expected = IllegalArgumentException.class)
     public void handleNotificationWithVersionLessThanCurrentVersion() throws ChannelNotFoundException {
         final String channelId = "testChannelId";
         final UUID uaid = UUIDUtil.newUAID();
@@ -126,7 +126,7 @@ public class DefaultSimplePushServerTest {
         assertThat(server.getChannel(channelId).getVersion(), is(10L));
         server.handleNotification(channelId, uaid, "version=2");
     }
-    
+
     @Test
     public void handleAck() throws ChannelNotFoundException {
         final String channelId_1 = "testChannelId_1";
@@ -136,7 +136,7 @@ public class DefaultSimplePushServerTest {
         server.handleRegister(new RegisterMessageImpl(channelId_2), uaid);
         server.handleNotification(channelId_1, uaid, "version=10");
         server.handleNotification(channelId_2, uaid, "version=23");
-        
+
         final Update updateChannel_1 = new UpdateImpl(channelId_1, 10L);
         final Set<Update> unacked = server.handleAcknowledgement(new AckMessageImpl(new HashSet<Update>(Arrays.asList(updateChannel_1))), uaid);
         assertThat(unacked, hasItem(new UpdateImpl(channelId_2, 23L)));
