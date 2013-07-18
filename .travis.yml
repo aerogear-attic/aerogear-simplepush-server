@@ -14,12 +14,12 @@ before_install:
   - cd ../..
   - git clone git://github.com/danbev/netty-subsystem.git
   - cd netty-subsystem
-  - ../apache-maven-3.0.5/bin/mvn install -DskipTests -N
+  - ../apache-maven-3.0.5/bin/mvn install -DskipTests -N --quiet
   - cd subsystem-api
-  - ../../apache-maven-3.0.5/bin/mvn install -DskipTests -N
+  - ../../apache-maven-3.0.5/bin/mvn install -DskipTests -N --quiet
   - cd ..
   - cd subsystem
-  - ../../apache-maven-3.0.5/bin/mvn install -DskipTests -N
+  - ../../apache-maven-3.0.5/bin/mvn install -DskipTests -N --quiet
   - cd ../..
 
 notifications:
