@@ -19,13 +19,13 @@ import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 
 public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> {
-    
+
     private final DataStore datastore;
     private final SimplePushServerConfig simplePushConfig;
     private final EventExecutorGroup backgroundGroup;
     private final Config sockjsConfig;
-    
-    public SockJSChannelInitializer(final SimplePushServerConfig simplePushConfig, 
+
+    public SockJSChannelInitializer(final SimplePushServerConfig simplePushConfig,
             final DataStore datastore,
             final Config sockjsConfig,
             final EventExecutorGroup backgroundGroup) {
@@ -45,7 +45,7 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
         }
         pipeline.addLast(new HttpServerCodec());
         pipeline.addLast(new HttpObjectAggregator(65536));
-        
+
         final DefaultSimplePushServer simplePushServer = new DefaultSimplePushServer(datastore, simplePushConfig);
         pipeline.addLast(new NotificationHandler(simplePushServer));
         pipeline.addLast(new CorsInboundHandler());
@@ -53,5 +53,5 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
         pipeline.addLast(backgroundGroup, new UserAgentReaperHandler(simplePushServer));
         pipeline.addLast(new CorsOutboundHandler());
     }
-    
+
 }

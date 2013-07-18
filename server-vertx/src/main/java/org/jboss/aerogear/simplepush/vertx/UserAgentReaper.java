@@ -18,7 +18,7 @@ public class UserAgentReaper extends Verticle {
         logger.info("Started UserAgent Reaper with timeout of [" + reaperTimeout + "]");
         final ConcurrentMap<String, Long> lastAccessedMap = vertx.sharedData().getMap(VertxSimplePushServer.LAST_ACCESSED_MAP);
         final ConcurrentMap<String, String> writeHandlerMap = vertx.sharedData().getMap(VertxSimplePushServer.WRITE_HANDLER_MAP);
-        
+
         vertx.setPeriodic(reaperTimeout, new Handler<Long>() {
             @Override
             public void handle(final Long timerId) {
@@ -41,5 +41,5 @@ public class UserAgentReaper extends Verticle {
             }
         });
     }
-    
+
 }

@@ -42,27 +42,27 @@ public class HandshakeImplTest {
         assertThat(handshake.getUAID(), notNullValue());
         assertThat(handshake.getChannelIds().isEmpty(), is(true));
     }
-    
+
     @Test
     public void constructWithEmptyUAID() {
         final HandshakeMessageImpl handshake = new HandshakeMessageImpl("");
         assertThat(handshake.getUAID(), notNullValue());
         assertThat(handshake.getChannelIds().isEmpty(), is(true));
     }
-    
+
     @Test
     public void constructWithChannelIds() {
-        final HandshakeMessageImpl handshake= new HandshakeMessageImpl(newUAID().toString(), channelIds("123abc", "efg456"));
+        final HandshakeMessageImpl handshake = new HandshakeMessageImpl(newUAID().toString(), channelIds("123abc", "efg456"));
         assertThat(handshake.getUAID(), notNullValue());
         assertThat(handshake.getChannelIds(), hasItems("123abc", "efg456"));
     }
-    
-    @Test (expected = UnsupportedOperationException.class)
+
+    @Test(expected = UnsupportedOperationException.class)
     public void channelIdsUnmodifiable() {
         final HandshakeMessageImpl handshake = new HandshakeMessageImpl(newUAID().toString(), channelIds("123abc", "efg456"));
         handshake.getChannelIds().remove("123abc");
     }
-    
+
     @Test
     public void fromJson() {
         final UUID uaid = UUIDUtil.newUAID();
@@ -72,7 +72,7 @@ public class HandshakeImplTest {
         assertThat(handshake.getUAID(), is(equalTo(uaid)));
         assertThat(handshake.getChannelIds(), hasItems("123abc", "efg456"));
     }
-    
+
     @Test
     public void fromJsonWithoutUAID() {
         final String json = "{\"messageType\": \"hello\"}";
@@ -81,7 +81,7 @@ public class HandshakeImplTest {
         assertThat(handshake.getUAID(), is(notNullValue()));
         assertThat(handshake.getChannelIds().isEmpty(), is(true));
     }
-    
+
     @Test
     public void fromJsonWithNullChannelIds() {
         final UUID uaid = UUIDUtil.newUAID();
@@ -91,7 +91,7 @@ public class HandshakeImplTest {
         assertThat(handshake.getUAID(), is(equalTo(uaid)));
         assertThat(handshake.getChannelIds().isEmpty(), is(true));
     }
-    
+
     @Test
     public void toJson() {
         final UUID uaid = UUIDUtil.newUAID();
@@ -102,10 +102,9 @@ public class HandshakeImplTest {
         assertThat(parsed.getUAID(), is(equalTo(uaid)));
         assertThat(parsed.getChannelIds(), hasItems("123abc", "efg456"));
     }
-    
-    
+
     private Set<String> channelIds(final String... channelIds) {
         return new HashSet<String>(Arrays.asList(channelIds));
     }
-    
+
 }

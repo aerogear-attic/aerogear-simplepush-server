@@ -25,7 +25,7 @@ import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
 import org.jboss.aerogear.simplepush.protocol.Update;
 
 public class NotificationMessageImpl implements NotificationMessage {
-    
+
     private final Set<Update> updates;
 
     public NotificationMessageImpl(final Set<Update> updates) {
@@ -40,9 +40,9 @@ public class NotificationMessageImpl implements NotificationMessage {
 
     @Override
     public Set<Update> getUpdates() {
-        return Collections.<Update>unmodifiableSet(updates);
+        return Collections.<Update> unmodifiableSet(updates);
     }
-    
+
     @Override
     public String toString() {
         return "NotificationImpl[messageType=" + getMessageType() + ", updates=" + updates + "]";

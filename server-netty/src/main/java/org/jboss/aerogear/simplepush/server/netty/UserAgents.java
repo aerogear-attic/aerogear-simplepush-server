@@ -24,21 +24,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class UserAgents {
-    
+
     private UserAgents() {
     }
-    
+
     private static final ConcurrentMap<UUID, UserAgent<SessionContext>> userAgents = new ConcurrentHashMap<UUID, UserAgent<SessionContext>>();
     private static final UserAgents INSTANCE = new UserAgents();
-    
+
     public static UserAgents getInstance() {
         return INSTANCE;
     }
-    
+
     public void add(final UUID uaid, final SessionContext session) {
         userAgents.put(uaid, new UserAgent<SessionContext>(uaid, session, System.currentTimeMillis()));
     }
-    
+
     public UserAgent<SessionContext> get(final UUID uaid) {
         final UserAgent<SessionContext> userAgent = userAgents.get(uaid);
         if (userAgent == null) {
@@ -46,15 +46,15 @@ public class UserAgents {
         }
         return userAgent;
     }
-    
+
     public Collection<UserAgent<SessionContext>> all() {
         return userAgents.values();
     }
-    
+
     public boolean contains(final UUID uaid) {
         return userAgents.containsKey(uaid);
     }
-    
+
     public void updateAccessedTime(final UUID uaid) {
         if (uaid != null) {
             final UserAgent<SessionContext> userAgent = userAgents.get(uaid);

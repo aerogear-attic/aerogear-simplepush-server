@@ -23,11 +23,11 @@ import org.jboss.aerogear.simplepush.protocol.AckMessage;
 import org.jboss.aerogear.simplepush.protocol.Update;
 
 public class AckMessageImpl implements AckMessage {
-    
+
     private final Set<Update> updates;
-    
+
     public AckMessageImpl(final Set<Update> updates) {
-        this.updates = updates == null ? Collections.<Update>emptySet() : updates;
+        this.updates = updates == null ? Collections.<Update> emptySet() : updates;
     }
 
     @Override
@@ -39,7 +39,7 @@ public class AckMessageImpl implements AckMessage {
     public Set<Update> getUpdates() {
         return Collections.unmodifiableSet(updates);
     }
-    
+
     @Override
     public String toString() {
         return "AckImpl[messageType=" + getMessageType() + ",update=" + updates + "]";

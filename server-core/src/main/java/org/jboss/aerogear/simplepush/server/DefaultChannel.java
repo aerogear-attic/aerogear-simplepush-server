@@ -23,16 +23,16 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DefaultChannel implements Channel {
-    
+
     private final UUID uaid;
     private final String channelId;
     private final String pushEndpoint;
     private final AtomicLong version;
-    
+
     public DefaultChannel(final UUID uaid, final String channelId, final String pushEndpoint) {
         this(uaid, channelId, 0, pushEndpoint);
     }
-    
+
     public DefaultChannel(final UUID uaid, final String channelId, final long version, final String pushEndpoint) {
         checkNotNull(uaid, "uaid");
         checkNotNull(channelId, "channelId");
@@ -43,12 +43,12 @@ public class DefaultChannel implements Channel {
         this.version = new AtomicLong(version);
         this.pushEndpoint = pushEndpoint;
     }
-    
+
     @Override
     public UUID getUAID() {
         return uaid;
     }
-    
+
     @Override
     public String getChannelId() {
         return channelId;
@@ -64,7 +64,7 @@ public class DefaultChannel implements Channel {
         for (;;) {
             final long currentVersion = version.get();
             if (newVersion <= currentVersion) {
-                throw new IllegalArgumentException("New version [" + newVersion + "] must be greater than current version [" + currentVersion +"]"); 
+                throw new IllegalArgumentException("New version [" + newVersion + "] must be greater than current version [" + currentVersion + "]");
             }
             if (version.compareAndSet(currentVersion, newVersion)) {
                 break;
@@ -76,7 +76,7 @@ public class DefaultChannel implements Channel {
     public String getPushEndpoint() {
         return pushEndpoint;
     }
-    
+
     @Override
     public String toString() {
         return "DefaultChannel[uaid=" + uaid + ", channelId=" + channelId + ", version=" + version + ", pushEndpoint=" + pushEndpoint + "]";
@@ -127,7 +127,5 @@ public class DefaultChannel implements Channel {
         }
         return true;
     }
-    
-    
 
 }

@@ -28,7 +28,7 @@ public class SimplePushServiceFactory extends AbstractServiceFactory {
 
     private final DataStore datastore;
     private final SimplePushServerConfig simplePushConfig;
-    
+
     public SimplePushServiceFactory(final Config sockjsConfig, final DataStore datastore,
             final SimplePushServerConfig simplePushConfig) {
         super(sockjsConfig);

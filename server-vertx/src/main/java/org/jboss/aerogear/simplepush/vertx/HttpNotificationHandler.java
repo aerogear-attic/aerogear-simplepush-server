@@ -15,7 +15,7 @@ import org.vertx.java.core.logging.Logger;
 import org.vertx.java.platform.Container;
 
 public class HttpNotificationHandler implements Handler<HttpServerRequest> {
-    
+
     private final SimplePushServer simplePushServer;
     private final Vertx vertx;
     private final Logger logger;

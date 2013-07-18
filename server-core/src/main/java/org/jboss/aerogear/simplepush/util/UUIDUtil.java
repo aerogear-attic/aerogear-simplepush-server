@@ -19,14 +19,14 @@ package org.jboss.aerogear.simplepush.util;
 import java.util.UUID;
 
 public class UUIDUtil {
-    
+
     private UUIDUtil() {
     }
-    
+
     public static boolean nullOrEmpty(final String uuid) {
         return (uuid == null) || uuid.equals("");
     }
-    
+
     public static UUID newUAID() {
         return UUID.randomUUID();
     }

@@ -27,10 +27,10 @@ import java.util.Set;
  * 
  */
 public interface AckMessage extends MessageType {
-    
+
     String UPDATES_FIELD = "updates";
     String VERSION_FIELD = "version";
-    
+
     /**
      * Returns the channel ids that have been acknowledged by UserAgent
      * 

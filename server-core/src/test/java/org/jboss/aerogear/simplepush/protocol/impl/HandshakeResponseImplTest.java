@@ -27,11 +27,11 @@ import org.junit.Test;
 
 public class HandshakeResponseImplTest {
 
-    @Test (expected = NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void constructWithNullUAID() {
         new HandshakeResponseImpl(null);
     }
-    
+
     @Test
     public void toJson() {
         final UUID uaid = UUIDUtil.newUAID();

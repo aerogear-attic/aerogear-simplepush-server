@@ -16,9 +16,8 @@
  */
 package org.jboss.aerogear.simplepush.vertx;
 
-
 public class VertxSimplePushServerTest {//extends TestVerticle {
-    
+
     /*
      * TODO: Add tests
     public void testSomething() {
@@ -40,5 +39,5 @@ public class VertxSimplePushServerTest {//extends TestVerticle {
             }
         });
     }
-    */
+     */
 }

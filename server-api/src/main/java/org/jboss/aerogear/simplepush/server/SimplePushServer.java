@@ -1,6 +1,5 @@
 package org.jboss.aerogear.simplepush.server;
 
-
 import java.util.Set;
 import java.util.UUID;
 
@@ -20,7 +19,7 @@ import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
  *
  */
 public interface SimplePushServer {
-    
+
     /**
      * Handles the handshake ('hello') message in the SimplePush protocol.
      * 
@@ -28,7 +27,7 @@ public interface SimplePushServer {
      * @return {@link HandshakeResponse} the handshake response.
      */
     HandshakeResponse handleHandshake(HandshakeMessage handshakeMessage);
-    
+
     /**
      * Handles the 'register' message in the SimplePush protocol which is used to register a channel.
      * 
@@ -37,7 +36,7 @@ public interface SimplePushServer {
      * @return {@link RegisterResponse} the response for this register message.
      */
     RegisterResponse handleRegister(RegisterMessage register, UUID uaid);
-    
+
     /**
      * Handles the 'unregister' message in the SimplePush protocol which is used to register a channel.
      * 
@@ -46,7 +45,7 @@ public interface SimplePushServer {
      * @return {@link UnregisterResponse} the response for this register message.
      */
     UnregisterResponse handleUnregister(UnregisterMessage unregisterMessage, UUID uaid);
-    
+
     /**
      * Handles the 'ack' message in the SimplePush protocol which is acknowledge a notification.
      * 
@@ -55,7 +54,7 @@ public interface SimplePushServer {
      * @return {@code Set<Update>} a set of un-acknowledged channel ids.
      */
     Set<Update> handleAcknowledgement(AckMessage ackMessage, UUID uaid);
-    
+
     /**
      * Returns all the un-acknowledged notifications for a specific UserAgent.
      * 
@@ -63,7 +62,7 @@ public interface SimplePushServer {
      * @return {@code Set<Update>} a set of un-acknowledged channel ids.
      */
     Set<Update> getUnacknowledged(UUID uaid);
-    
+
     /**
      * Handles the notification for a single channel
      * 
@@ -74,14 +73,14 @@ public interface SimplePushServer {
      *         UserAgent. The actual communication is left to the underlying implementation.
      */
     NotificationMessage handleNotification(String channelId, UUID uaid, String payload) throws ChannelNotFoundException;
-    
+
     /**
      * Removes all the channels associated with the UserAgent.
      * 
      * @param uaid the UserAgent Identifier for which all associated channels should be removed.
      */
     void removeAllChannels(UUID uaid);
-    
+
     /**
      * Returns the UserAgent identifier that the passed-in channel belongs to.
      * 
@@ -90,7 +89,7 @@ public interface SimplePushServer {
      * @throws ChannelNotFoundException if the channel could not be found.
      */
     UUID fromChannel(final String channelId) throws ChannelNotFoundException;
-    
+
     /**
      * Returns the configuration for this SimplePush server.
      * 

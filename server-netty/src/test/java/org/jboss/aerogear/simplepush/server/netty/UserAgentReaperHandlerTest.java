@@ -39,23 +39,23 @@ import org.junit.Test;
 
 public class UserAgentReaperHandlerTest {
 
-    @Test 
+    @Test
     public void reaperJob() throws Exception {
         final UserAgentReaperHandler enabled = reaper(10L);
         enabled.handlerAdded(channelHandlerContext());
         assertThat(enabled.started(), equalTo(true));
     }
-    
+
     private UserAgentReaperHandler reaper(final long timeout) {
         UserAgentReaperHandler reaper = new UserAgentReaperHandler(simplePushServer(DefaultSimplePushConfig.create().userAgentReaperTimeout(timeout).build()));
         return reaper;
     }
-    
+
     private SimplePushServer simplePushServer(final SimplePushServerConfig config) {
         return new DefaultSimplePushServer(new InMemoryDataStore(), config);
     }
-    
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+
+    @SuppressWarnings( { "rawtypes", "unchecked" })
     private ChannelHandlerContext channelHandlerContext() {
         final ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
         final EventExecutor eventExecutor = mock(EventExecutor.class);

@@ -24,7 +24,7 @@ import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.junit.Test;
 
 public class DefaultSimplePushConfigTest {
-    
+
     @Test
     public void buildConfig() {
         final DefaultSimplePushConfig config = DefaultSimplePushConfig.create()
@@ -35,13 +35,13 @@ public class DefaultSimplePushConfigTest {
         assertThat(config.userAgentReaperTimeout(), is(1000L));
         assertThat(config.acknowledmentInterval(), is(60000L));
     }
-    
+
     @Test
     public void buildConfigWithNullUserAgentReaperTimeout() {
         final DefaultSimplePushConfig config = DefaultSimplePushConfig.create().userAgentReaperTimeout(null).build();
         assertThat(config.userAgentReaperTimeout(), is(604800000L));
     }
-    
+
     @Test
     public void buildConfigWithNullAckInterval() {
         final DefaultSimplePushConfig config = DefaultSimplePushConfig.create().ackInterval(null).build();

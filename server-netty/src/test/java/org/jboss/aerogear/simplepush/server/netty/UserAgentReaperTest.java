@@ -44,38 +44,38 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class UserAgentReaperTest {
-    
+
     @Before
     public void clearUserAgents() {
         UserAgents.getInstance().all().clear();
     }
-    
-    @Test 
+
+    @Test
     public void reapActiveUserAgent() throws InterruptedException {
         final UUID uaid = UUIDUtil.newUAID();
         final SimplePushServer simplePushServer = simplePushServer();
         final SessionContext sessionContext = newSessionContext(true);
         doRegister(uaid, simplePushServer);
         addUserAgent(uaid, sessionContext);
-        
+
         exceute(new UserAgentReaper(simplePushServer));
         verify(sessionContext, never()).close();
         assertThat(UserAgents.getInstance().get(uaid), is(notNullValue()));
     }
-    
-    @Test (expected = IllegalStateException.class)
+
+    @Test(expected = IllegalStateException.class)
     public void reapInactiveUserAgent() throws InterruptedException {
         final UUID uaid = UUIDUtil.newUAID();
         final SimplePushServer simplePushServer = simplePushServer();
         final SessionContext sessionContext = newSessionContext(false);
         doRegister(uaid, simplePushServer);
         addUserAgent(uaid, sessionContext);
-        
+
         exceute(new UserAgentReaper(simplePushServer));
         verify(sessionContext).close();
         UserAgents.getInstance().get(uaid);
     }
-    
+
     private SessionContext newSessionContext(final boolean active) {
         final Channel channel = mock(Channel.class);
         when(channel.isActive()).thenReturn(active);
@@ -90,7 +90,7 @@ public class UserAgentReaperTest {
     private void doRegister(final UUID uaid, final SimplePushServer server) {
         server.handleHandshake(new HandshakeMessageImpl(uaid.toString()));
         server.handleRegister(new RegisterMessageImpl(uaid.toString()), uaid);
-        
+
     }
 
     private void addUserAgent(final UUID uaid, final SessionContext sessionContext) throws InterruptedException {
@@ -105,7 +105,7 @@ public class UserAgentReaperTest {
         executorService.execute(reaper);
         executorService.awaitTermination(500, TimeUnit.MILLISECONDS);
     }
-    
+
     private SimplePushServer simplePushServer() {
         final SimplePushServerConfig config = DefaultSimplePushConfig.create().userAgentReaperTimeout(20L).build();
         return new DefaultSimplePushServer(new InMemoryDataStore(), config);

@@ -20,7 +20,7 @@ import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
 import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 
 public class UnregisterMessageImpl implements UnregisterMessage {
-    
+
     private String channelId;
 
     public UnregisterMessageImpl(final String channelId) {
@@ -37,7 +37,7 @@ public class UnregisterMessageImpl implements UnregisterMessage {
     public String getChannelId() {
         return channelId;
     }
-    
+
     @Override
     public String toString() {
         return "UnregisterImpl[messageType=" + getMessageType() + ", channelId=" + channelId + "]";

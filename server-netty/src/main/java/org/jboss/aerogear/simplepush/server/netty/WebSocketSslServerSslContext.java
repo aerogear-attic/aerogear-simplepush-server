@@ -82,9 +82,9 @@ public final class WebSocketSslServerSslContext {
             } catch (Exception e) {
                 throw new Error("Failed to initialize the server-side SSLContext", e);
             } finally {
-               if (fin != null) {
-                   fin.close();
-               }
+                if (fin != null) {
+                    fin.close();
+                }
             }
         } catch (Exception ex) {
             logger.log(Level.WARNING, "Error initializing SslContextManager.", ex);

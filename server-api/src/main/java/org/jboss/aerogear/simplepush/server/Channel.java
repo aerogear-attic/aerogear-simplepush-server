@@ -18,15 +18,13 @@ package org.jboss.aerogear.simplepush.server;
 
 import java.util.UUID;
 
-
 /**
  * A Channel instance represents the server side information of a channel in the 
  * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>
  * 
  */
 public interface Channel {
-    
-    
+
     /**
      * A globally unique identifier for a UserAgent created by the SimplePush Server.
      * 
@@ -34,7 +32,7 @@ public interface Channel {
      * been assigned a UAID yet or wants to reset it, which will create a new one.
      */
     UUID getUAID();
-    
+
     /**
      * Returns the channelId for this channel. This identifier will be create on by the UserAgent
      * and sent to the SimplePush Server.
@@ -42,7 +40,7 @@ public interface Channel {
      * @return {@code String} this channels identifier.
      */
     String getChannelId();
-    
+
     /**
      * Returns the version for this channel. The version is maintained and updated by the 
      * server side applications triggering push notifications. 
@@ -53,14 +51,14 @@ public interface Channel {
      * @return {@code long} the version for this channel.
      */
     long getVersion();
-    
+
     /**
      * Updates the {@code version} for this channel.
      * 
      * @param version the version to update this channel to.
      */
     void setVersion(final long version);
-    
+
     /**
      * Returns the push endpoint for this channel. 
      * 
@@ -71,6 +69,5 @@ public interface Channel {
      * @return {@code String} the endpoint which can be used to trigger notifications.
      */
     String getPushEndpoint();
-    
 
 }

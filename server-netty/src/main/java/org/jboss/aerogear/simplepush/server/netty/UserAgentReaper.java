@@ -45,20 +45,20 @@ public class UserAgentReaper implements Runnable {
                 logger.info("Removing inactive UserAgent [" + userAgent.uaid().toString() + "]");
                 /* TODO: update this when persistence is in place so that the logic to remove is in one place
                          and not spread out among the UserAgents class and the SimplePushServer.
-                */
-                
+                 */
+
                 // remove from user agents map
                 it.remove();
-                
+
                 // remove from database
                 simplePushServer.removeAllChannels(userAgent.uaid());
-                
+
                 // close the user agent context
                 userAgent.context().close();
             }
         }
     }
-    
+
     private boolean isChannelInactive(final UserAgent<SessionContext> userAgent) {
         final Channel ch = userAgent.context().getContext().channel();
         return !ch.isActive() && !ch.isRegistered();

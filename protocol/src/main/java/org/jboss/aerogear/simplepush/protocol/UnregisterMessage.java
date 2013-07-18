@@ -25,7 +25,7 @@ package org.jboss.aerogear.simplepush.protocol;
  *
  */
 public interface UnregisterMessage extends MessageType {
-    
+
     /**
      * Returns the channelId that was sent from the UserAgent.
      * 

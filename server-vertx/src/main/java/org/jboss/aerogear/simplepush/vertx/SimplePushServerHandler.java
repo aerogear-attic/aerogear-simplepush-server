@@ -30,8 +30,8 @@ import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.sockjs.SockJSSocket;
 import org.vertx.java.platform.Container;
 
-public class SimplePushServerHandler implements Handler<SockJSSocket>{
-    
+public class SimplePushServerHandler implements Handler<SockJSSocket> {
+
     private final SimplePushServer simplePushServer;
     private final Logger logger;
     private final ConcurrentMap<String, String> writeHandlerMap;
@@ -56,11 +56,11 @@ public class SimplePushServerHandler implements Handler<SockJSSocket>{
             public void handle(final Buffer buffer) {
                 final MessageType messageType = JsonUtil.parseFrame(buffer.toString());
                 switch (messageType.getMessageType()) {
-                    case HELLO: 
+                case HELLO:
                         HandshakeMessage handshakeMessage = fromJson(buffer.toString(), HandshakeMessageImpl.class);
                         if (!writeHandlerMap.containsKey(handshakeMessage.getUAID().toString())) {
                             handshakeMessage = new HandshakeMessageImpl(UUIDUtil.newUAID().toString());
-                        } 
+                        }
                         final HandshakeResponse helloResponse = simplePushServer.handleHandshake(handshakeMessage);
                         sock.write(new Buffer(toJson(helloResponse)));
                         uaid = helloResponse.getUAID();
@@ -90,14 +90,14 @@ public class SimplePushServerHandler implements Handler<SockJSSocket>{
                             processUnacked(uaid);
                         }
                         break;
-                default:
+                    default:
                     break;
                 }
                 updateAccessedTime(uaid);
             }
         });
     }
-    
+
     private boolean checkHandshakeCompleted(final UUID uaid) {
         if (uaid == null) {
             logger.debug("Hello frame has not been sent");
@@ -105,13 +105,13 @@ public class SimplePushServerHandler implements Handler<SockJSSocket>{
         }
         return true;
     }
-    
+
     private void updateAccessedTime(final UUID uaid) {
         if (uaid != null) {
             lastAccessedMap.put(uaid.toString(), System.currentTimeMillis());
         }
     }
-    
+
     private void processUnacked(final UUID uaid) {
         final Set<Update> unacked = simplePushServer.getUnacknowledged(uaid);
         if (!unacked.isEmpty()) {
@@ -129,7 +129,7 @@ public class SimplePushServerHandler implements Handler<SockJSSocket>{
                     }
                 }
             });
-        } 
+        }
     }
 
 }

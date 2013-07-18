@@ -21,7 +21,7 @@ import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
 import org.jboss.aerogear.simplepush.protocol.RegisterMessage;
 
 public class RegisterMessageImpl implements RegisterMessage {
-    
+
     private final String channelId;
 
     public RegisterMessageImpl(final String channelId) {
@@ -38,10 +38,10 @@ public class RegisterMessageImpl implements RegisterMessage {
     public String getChannelId() {
         return channelId;
     }
-    
-    @Override 
+
+    @Override
     public String toString() {
         return "RegisterImpl[messageType=" + getMessageType() + ", channelId=" + channelId + "]";
     }
-    
+
 }

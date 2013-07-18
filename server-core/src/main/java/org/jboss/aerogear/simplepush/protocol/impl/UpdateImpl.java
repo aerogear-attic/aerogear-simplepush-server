@@ -27,7 +27,7 @@ import org.jboss.aerogear.simplepush.protocol.Update;
  * to take the version into consideration an manual call of getVersion is required.  
  */
 public class UpdateImpl implements Update {
-    
+
     private final String channelId;
     private final Long version;
 
@@ -47,7 +47,7 @@ public class UpdateImpl implements Update {
     public Long getVersion() {
         return version;
     }
-    
+
     @Override
     public String toString() {
         return "UpdateImpl[channelId=" + channelId + ", version=" + version + "]";

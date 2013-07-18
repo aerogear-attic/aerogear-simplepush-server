@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class InMemoryDataStore implements DataStore {
-    
+
     private final ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<String, Channel>();
     private final ConcurrentMap<UUID, Set<Update>> notifiedChannels = new ConcurrentHashMap<UUID, Set<Update>>();
     private final Logger logger = LoggerFactory.getLogger(InMemoryDataStore.class);

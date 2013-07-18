@@ -20,9 +20,9 @@ package org.jboss.aerogear.simplepush.server;
  * Configuration settings for SimplePush server
  */
 public interface SimplePushServerConfig {
-    
+
     String DEFAULT_ENDPOINT_URL_PREFIX = "/endpoint";
-    
+
     /**
      * Returns the endpoint url prefix for this SimplePush server.
      * This have the channelId appended to it.
@@ -30,7 +30,7 @@ public interface SimplePushServerConfig {
      * @return {@code String} the endpoint url prefix.
      */
     String endpointUrlPrefix();
-    
+
     /**
      * Returns the UserAgent reaper time out.
      * This is the amount of time which a UserAgent can be inactive after
@@ -39,7 +39,7 @@ public interface SimplePushServerConfig {
      * @return {@code long} the timeout in milliseconds.
      */
     long userAgentReaperTimeout();
-    
+
     /**
      * Returns the acknowledgement interval.
      * This is the interval time for resending non acknowledged notifications.

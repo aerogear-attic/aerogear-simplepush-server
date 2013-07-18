@@ -20,12 +20,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class VersionExtractor {
-    
+
     private final static Pattern VERSION_PATTERN = Pattern.compile("\\s*version\\s*=\\s*(\\d+)");
-    
+
     private VersionExtractor() {
     }
-    
+
     public static String extractVersion(final String payload) {
         final Matcher matcher = VERSION_PATTERN.matcher(payload);
         if (matcher.find()) {

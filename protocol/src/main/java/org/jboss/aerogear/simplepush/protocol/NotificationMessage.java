@@ -27,10 +27,10 @@ import java.util.Set;
  * 
  */
 public interface NotificationMessage extends MessageType {
-    
+
     String UPDATES_FIELD = "updates";
     String VERSION_FIELD = "version";
-    
+
     /**
      * Returns the channels that have been updated for a UserAgent
      * 

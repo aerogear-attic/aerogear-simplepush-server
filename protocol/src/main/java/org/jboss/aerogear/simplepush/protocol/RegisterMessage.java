@@ -25,9 +25,9 @@ package org.jboss.aerogear.simplepush.protocol;
  *
  */
 public interface RegisterMessage extends MessageType {
-    
+
     String CHANNEL_ID_FIELD = "channelID";
-    
+
     /**
      * Returns the channelId that was sent from the UserAgent.
      * 

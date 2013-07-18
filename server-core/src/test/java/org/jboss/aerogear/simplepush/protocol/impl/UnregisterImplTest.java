@@ -27,11 +27,11 @@ import org.junit.Test;
 
 public class UnregisterImplTest {
 
-    @Test (expected = NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void construct() {
         new UnregisterMessageImpl(null);
     }
-    
+
     @Test
     public void fromJson() {
         final String json = "{\"messageType\": \"unregister\", \"channelID\": \"someChannelName\"}";
@@ -39,7 +39,7 @@ public class UnregisterImplTest {
         assertThat(unregister.getMessageType(), is(equalTo(MessageType.Type.UNREGISTER)));
         assertThat(unregister.getChannelId(), is(equalTo("someChannelName")));
     }
-    
+
     @Test
     public void toJson() {
         final String json = JsonUtil.toJson(new UnregisterMessageImpl("someChannelName"));

@@ -22,14 +22,14 @@ package org.jboss.aerogear.simplepush.protocol;
  *
  */
 public interface Update {
-    
+
     /**
      * Returns the channel id for this update.
      * 
      * @return {@code String} the channel id for this update.
      */
     String getChannelId();
-    
+
     /**
      * Returns the version for this update.
      * 

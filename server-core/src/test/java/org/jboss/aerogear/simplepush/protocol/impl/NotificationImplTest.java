@@ -34,16 +34,16 @@ import org.junit.Test;
 
 public class NotificationImplTest {
 
-    @Test (expected = NullPointerException.class)
+    @Test(expected = NullPointerException.class)
     public void constructWithNullUpdates() {
         new NotificationMessageImpl(null);
     }
-    
-    @Test (expected = IllegalArgumentException.class)
+
+    @Test(expected = IllegalArgumentException.class)
     public void constructWithEmptyUpdates() {
-        new NotificationMessageImpl(Collections.<Update>emptySet());
+        new NotificationMessageImpl(Collections.<Update> emptySet());
     }
-    
+
     @Test
     public void fromJson() {
         final String json = "{\"messageType\": \"notification\", \"updates\": [{\"channelID\": \"abc123\", \"version\": 1}]}";
@@ -51,7 +51,7 @@ public class NotificationImplTest {
         assertThat(notification.getMessageType(), is(equalTo(MessageType.Type.NOTIFICATION)));
         assertThat(notification.getUpdates(), hasItem(new UpdateImpl("abc123", 1L)));
     }
-    
+
     @Test
     public void toJson() {
         final Set<Update> updates = new HashSet<Update>(Arrays.asList(new UpdateImpl("abc123", 2L)));

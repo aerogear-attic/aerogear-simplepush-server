@@ -17,13 +17,13 @@ import org.vertx.java.core.sockjs.SockJSServer;
 import org.vertx.java.platform.Verticle;
 
 public class VertxSimplePushServer extends Verticle {
-    
+
     public static final String WRITE_HANDLER_MAP = "simplepush.writehandler.map";
     public static final String LAST_ACCESSED_MAP = "simplepush.lastaccessed.map";
     public static final String USER_AGENT_REMOVER = "simplepush.useragent.remover";
     public static final String DEFAULT_HOST = "localhost";
     public static final int DEFAULT_PORT = 7777;
-        
+
     @Override
     public void start() {
         final SimplePushServerConfig config = fromConfig(container.config());
@@ -37,9 +37,9 @@ public class VertxSimplePushServer extends Verticle {
 
     private SimplePushServerConfig fromConfig(JsonObject config) {
         return DefaultSimplePushConfig.create()
-            .ackInterval(config.getLong("ackInterval"))
-            .endpointUrl(config.getString("endpointUrlPrefix"))
-            .userAgentReaperTimeout(config.getLong("userAgentReaperTimeout")).build();
+                .ackInterval(config.getLong("ackInterval"))
+                .endpointUrl(config.getString("endpointUrlPrefix"))
+                .userAgentReaperTimeout(config.getLong("userAgentReaperTimeout")).build();
     }
 
     private void startHttpServer(final HttpServer httpServer) {
@@ -55,13 +55,13 @@ public class VertxSimplePushServer extends Verticle {
         rm.put(endpointUrlPrefix + "/:channelId", new HttpNotificationHandler(simplePushServer, vertx, container));
         httpServer.requestHandler(rm);
     }
-    
+
     private void setupSimplePushSockJSServer(final HttpServer httpServer, final SimplePushServer simplePushServer) {
         final JsonObject appConfig = new JsonObject().putString("prefix", "/simplepush");
         final SockJSServer sockJSServer = vertx.createSockJSServer(httpServer);
         sockJSServer.installApp(appConfig, new SimplePushServerHandler(simplePushServer, vertx, container));
     }
-    
+
     private void setupUserAgentReaperJob(final SimplePushServer simplePushServer) {
         final Logger logger = container.logger();
         vertx.eventBus().registerHandler(USER_AGENT_REMOVER, new Handler<Message<String>>() {

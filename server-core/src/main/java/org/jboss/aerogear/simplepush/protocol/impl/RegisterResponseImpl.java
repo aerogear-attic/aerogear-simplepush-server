@@ -21,7 +21,7 @@ import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Status;
 
 public class RegisterResponseImpl extends RegisterMessageImpl implements RegisterResponse {
-    
+
     private Status status;
     private String pushEndpoint;
 
@@ -42,15 +42,15 @@ public class RegisterResponseImpl extends RegisterMessageImpl implements Registe
     public String getPushEndpoint() {
         return pushEndpoint;
     }
-    
+
     @Override
     public String toString() {
         return new StringBuilder("RegisterResponseImpl[")
-        .append("messageType=").append(getMessageType())
-        .append(", channelId=").append(getChannelId())
-        .append(", status=").append(status)
-        .append(", pushEndpoint=").append(pushEndpoint)
-        .append("]").toString();
+                .append("messageType=").append(getMessageType())
+                .append(", channelId=").append(getChannelId())
+                .append(", status=").append(status)
+                .append(", pushEndpoint=").append(pushEndpoint)
+                .append("]").toString();
     }
 
 }

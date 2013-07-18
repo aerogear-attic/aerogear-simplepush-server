@@ -28,10 +28,10 @@ import java.util.UUID;
  *
  */
 public interface HandshakeMessage extends MessageType {
-    
+
     String CHANNEL_IDS_FIELD = "channelIDs";
     String UAID_FIELD = "uaid";
-    
+
     /**
      * A globally unique identifier for a UserAgent created by the SimplePush Server.
      * 
@@ -39,7 +39,7 @@ public interface HandshakeMessage extends MessageType {
      *         been assigned a UAID yet or wants to reset it, which will create a new one.
      */
     UUID getUAID();
-    
+
     /**
      * Channel identifiers are created on the UserAgent side and are stored by the SimplePush Server
      * and associated with the UserAgent. Every channelId has a version and an endpoint associated 

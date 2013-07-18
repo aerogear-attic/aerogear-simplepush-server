@@ -22,7 +22,7 @@ import org.jboss.aerogear.simplepush.protocol.Status;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 
 public class UnregisterResponseImpl extends UnregisterMessageImpl implements UnregisterResponse {
-    
+
     private Status status;
 
     public UnregisterResponseImpl(final String channelId, final Status status) {
@@ -39,10 +39,10 @@ public class UnregisterResponseImpl extends UnregisterMessageImpl implements Unr
     @Override
     public String toString() {
         return new StringBuilder("RegisterResponseImpl[")
-        .append("messageType=").append(getMessageType())
-        .append(", channelId=").append(getChannelId())
-        .append(", status=").append(status)
-        .append("]").toString();
+                .append("messageType=").append(getMessageType())
+                .append(", channelId=").append(getChannelId())
+                .append(", status=").append(status)
+                .append("]").toString();
     }
 
 }

@@ -39,14 +39,14 @@ public class AckImplTest {
         assertThat(ack.getMessageType(), is(equalTo(MessageType.Type.ACK)));
         assertThat(ack.getUpdates().isEmpty(), is(true));
     }
-    
+
     @Test
     public void constructWithUpdates() {
         final Set<Update> updates = updates(update("abc123", 1L), update("efg456", 20L));
         final AckMessage ack = new AckMessageImpl(updates);
         assertThat(ack.getUpdates(), hasItems(update("abc123", 1L), update("efg456", 20L)));
     }
-    
+
     @Test
     public void fromJson() {
         final String json = "{\"messageType\": \"ack\", \"updates\": [{\"channelID\": \"abc123\", \"version\": 20}, {\"channelID\": \"efg456\", \"version\": 10}]}";
@@ -54,8 +54,8 @@ public class AckImplTest {
         assertThat(ack.getMessageType(), is(equalTo(MessageType.Type.ACK)));
         assertThat(ack.getUpdates(), hasItems(update("abc123", 20L), update("efg456", 10L)));
     }
-    
-    @Test 
+
+    @Test
     public void toJson() {
         final Set<Update> updates = updates(update("abc123", 1L), update("efg456", 20L));
         final String json = JsonUtil.toJson(new AckMessageImpl(updates));
@@ -63,11 +63,11 @@ public class AckImplTest {
         assertThat(ack.getMessageType(), is(equalTo(MessageType.Type.ACK)));
         assertThat(ack.getUpdates(), hasItems(update("abc123", 1L), update("efg456", 20L)));
     }
-    
+
     private Update update(final String channelId, final Long version) {
         return new UpdateImpl(channelId, version);
     }
-    
+
     private Set<Update> updates(final Update... updates) {
         return new HashSet<Update>(Arrays.asList(updates));
     }

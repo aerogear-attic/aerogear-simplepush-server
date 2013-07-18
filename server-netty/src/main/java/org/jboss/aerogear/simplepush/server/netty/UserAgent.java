@@ -20,7 +20,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class UserAgent<T> {
-    
+
     private final UUID uaid;
     private final T transport;
     private AtomicLong timestamp;
@@ -30,23 +30,23 @@ public class UserAgent<T> {
         this.transport = transport;
         this.timestamp = new AtomicLong(timestamp);
     }
-    
+
     public UUID uaid() {
         return uaid;
     }
-    
+
     public T context() {
         return transport;
     }
-    
+
     public long timestamp() {
         return timestamp.get();
     }
-    
+
     public void timestamp(final long timestamp) {
         this.timestamp.set(timestamp);
     }
-    
+
     @Override
     public String toString() {
         return "UserAgent[uaid=" + uaid + ", transport=" + transport + ", timestamp=" + timestamp() + "]";

@@ -29,46 +29,46 @@ import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 
 public final class TestUtil {
-    
+
     private static final Pattern MESSAGE_PATTERN = Pattern.compile("^a\\[\\\"([{\\\"]\\S.*\\\"?})\\\"\\]");
-    
+
     private TestUtil() {
     }
-    
+
     public static String helloFrameAsJson(final String uaid, final String... channelIds) {
         return toJson(new HandshakeMessageImpl(uaid.toString(), new HashSet<String>(Arrays.asList(channelIds))));
     }
-        
+
     public static TextWebSocketFrame helloWebSocketFrame(final String uaid, final String... channelIds) {
         return new TextWebSocketFrame(helloFrameAsJson(uaid.toString(), channelIds));
     }
-    
+
     public static String helloSockJSFrame(final String uaid, final String... channelIds) {
         return asSockjsMessage(helloFrameAsJson(uaid, channelIds));
     }
-    
+
     public static String registerChannelIdMessageSockJSFrame(final String channelId) {
         return asSockjsMessage(toJson(new RegisterMessageImpl(channelId)));
     }
-    
+
     public static TextWebSocketFrame registerChannelIdWebSocketFrame(final String channelId) {
         final String json = toJson(new RegisterMessageImpl(channelId));
         return new TextWebSocketFrame(json);
     }
-    
+
     public static TextWebSocketFrame unregisterChannelIdWebSocketFrame(final String channelId) {
         final String json = toJson(new UnregisterMessageImpl(channelId));
         return new TextWebSocketFrame(json);
     }
-    
+
     public static String unregisterChannelIdMessageSockJSFrame(final String channelId) {
         return asSockjsMessage(toJson(new UnregisterMessageImpl(channelId)));
     }
-    
+
     private static String asSockjsMessage(final String content) {
         return "[" + content + "]";
     }
-    
+
     public static String extractJsonFromSockJSMessage(final String message) {
         final Matcher matcher = MESSAGE_PATTERN.matcher(message);
         if (matcher.find()) {

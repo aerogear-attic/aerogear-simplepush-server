@@ -24,17 +24,17 @@ package org.jboss.aerogear.simplepush.protocol;
  *
  */
 public interface RegisterResponse extends RegisterMessage {
-    
+
     String STATUS_FIELD = "status";
     String PUSH_ENDPOINT__FIELD = "pushEndpoint";
-    
+
     /**
      * Returns the result of the Register call
      * 
      * @return {@code String} the channelId.
      */
     Status getStatus();
-    
+
     /**
      * Returns the push endpoint for this channel. 
      * 

@@ -63,7 +63,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             ch.close();
         }
     }
-    
+
     public TextWebSocketFrame getTextFrame() throws InterruptedException {
         return textFrames.take();
     }

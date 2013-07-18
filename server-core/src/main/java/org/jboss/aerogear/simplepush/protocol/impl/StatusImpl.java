@@ -19,7 +19,7 @@ package org.jboss.aerogear.simplepush.protocol.impl;
 import org.jboss.aerogear.simplepush.protocol.Status;
 
 public class StatusImpl implements Status {
-    
+
     private final int code;
     private final String message;
 
@@ -27,12 +27,12 @@ public class StatusImpl implements Status {
         this.code = code;
         this.message = message;
     }
-    
+
     @Override
     public String toString() {
         return "StatusImp[code=" + code + ", message=" + message + "]";
     }
-    
+
     @Override
     public int getCode() {
         return code;
@@ -42,6 +42,5 @@ public class StatusImpl implements Status {
     public String getMessage() {
         return message;
     }
-    
-    
+
 }

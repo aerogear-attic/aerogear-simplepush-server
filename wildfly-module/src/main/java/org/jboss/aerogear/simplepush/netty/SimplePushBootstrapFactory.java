@@ -51,11 +51,11 @@ public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
         final SockJSChannelInitializer channelInitializer = new SockJSChannelInitializer(simplePushConfig, datastore, sockjsConfig, reaperExcutorGroup);
         final ServerBootstrap sb = new ServerBootstrap();
         sb.group(bossGroup, workerGroup)
-        .channel(NioServerSocketChannel.class)
-        .childHandler(channelInitializer);
+                .channel(NioServerSocketChannel.class)
+                .childHandler(channelInitializer);
         return sb;
     }
-    
+
     private DefaultEventExecutorGroup newEventExecutorGroup(int i, ThreadFactory threadFactory) {
         if (threadFactory != null) {
             return new DefaultEventExecutorGroup(1, threadFactory);
@@ -66,7 +66,7 @@ public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
     private EventLoopGroup newEventLoopGroup(final ThreadFactory threadFactory) {
         if (threadFactory != null) {
             return new NioEventLoopGroup(0, threadFactory);
-        } 
+        }
         return new NioEventLoopGroup();
     }
 

@@ -24,14 +24,14 @@ package org.jboss.aerogear.simplepush.protocol;
  *
  */
 public interface UnregisterResponse extends UnregisterMessage {
-    
+
     String STATUS_FIELD = "status";
-    
+
     /**
      * Returns the result of the Register call
      * 
      * @return {@code String} the channelId.
      */
     Status getStatus();
-    
+
 }

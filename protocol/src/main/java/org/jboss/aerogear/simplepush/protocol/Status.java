@@ -21,7 +21,7 @@ package org.jboss.aerogear.simplepush.protocol;
  * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>
  */
 public interface Status {
-    
+
     int getCode();
 
     String getMessage();

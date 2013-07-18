@@ -33,11 +33,11 @@ public class RegisterImplTest {
         assertThat(register.getMessageType(), is(equalTo(MessageType.Type.REGISTER)));
         assertThat(register.getChannelId(), is(equalTo("2233df8")));
     }
-    
+
     @Test
     public void toJson() {
         final String asJson = JsonUtil.toJson(new RegisterMessageImpl("2344dbc38"));
-        final RegisterMessageImpl register= JsonUtil.fromJson(asJson, RegisterMessageImpl.class);
+        final RegisterMessageImpl register = JsonUtil.fromJson(asJson, RegisterMessageImpl.class);
         assertThat(register.getMessageType(), is(equalTo(MessageType.Type.REGISTER)));
         assertThat(register.getChannelId(), is(equalTo("2344dbc38")));
     }

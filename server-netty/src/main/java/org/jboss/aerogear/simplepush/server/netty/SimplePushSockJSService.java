@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * SimplePush server implementation using SockJS.
  */
 public class SimplePushSockJSService implements SockJSService {
-    
+
     private final Logger logger = LoggerFactory.getLogger(SimplePushSockJSService.class);
 
     private final UserAgents userAgents = UserAgents.getInstance();
@@ -58,7 +58,8 @@ public class SimplePushSockJSService implements SockJSService {
         this.session = session;
     }
 
-    @Override @SuppressWarnings("incomplete-switch")
+    @Override
+    @SuppressWarnings("incomplete-switch")
     public void onMessage(final String message) throws Exception {
         final MessageType messageType = JsonUtil.parseFrame(message);
         logger.info("messageType: " + messageType.getMessageType());
@@ -98,7 +99,7 @@ public class SimplePushSockJSService implements SockJSService {
         }
         userAgents.updateAccessedTime(uaid);
     }
-    
+
     private void processUnacked(final UUID uaid, final SessionContext session, final long delay) {
         final Set<Update> unacked = simplePushServer.getUnacknowledged(uaid);
         if (unacked.isEmpty()) {
@@ -115,25 +116,25 @@ public class SimplePushSockJSService implements SockJSService {
                     session.send(toJson(new NotificationMessageImpl(unacked)));
                 }
             },
-            delay,
-            simplePushServer.config().acknowledmentInterval(), 
-            TimeUnit.MILLISECONDS);
+                    delay,
+                    simplePushServer.config().acknowledmentInterval(),
+                    TimeUnit.MILLISECONDS);
         }
     }
-    
+
     private boolean checkHandshakeCompleted(final UUID uaid) {
         if (uaid == null) {
             logger.debug("Hello frame has not been sent");
             return false;
         }
         if (!userAgents.contains(uaid)) {
-            logger.debug("UserAgent ["+ uaid + "] was cleaned up due to unactivity for " + simplePushServer.config().userAgentReaperTimeout() + "ms");
+            logger.debug("UserAgent [" + uaid + "] was cleaned up due to unactivity for " + simplePushServer.config().userAgentReaperTimeout() + "ms");
             this.uaid = null;
             return false;
         }
         return true;
     }
-        
+
     @Override
     public void onClose() {
         logger.info("SimplePushSockJSServer onClose");
@@ -141,5 +142,5 @@ public class SimplePushSockJSService implements SockJSService {
             ackJobFuture.cancel(true);
         }
     }
-    
+
 }
