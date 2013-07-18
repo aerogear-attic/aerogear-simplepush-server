@@ -1,0 +1,26 @@
+language: java
+
+jdk:
+  - oraclejdk7
+#  - openjdk7
+before_install:
+  - wget http://www.apache.org/dist/maven/maven-3/3.0.5/binaries/apache-maven-3.0.5-bin.tar.gz
+  - tar -zxvf apache-maven-3.0.5-bin.tar.gz
+  - git clone git://github.com/danbev/netty
+  - cd netty
+  - git checkout -t origin/sockjs
+  - cd sockjs
+  - ../../apache-maven-3.0.5/bin/mvn install -DskipTests -N --quiet
+  - cd ../..
+  - git clone git://github.com/danbev/netty-subsystem.git
+  - cd netty-subsystem
+  - ../apache-maven-3.0.5/bin/mvn install -DskipTests -N --quiet
+  - cd subsystem-api
+  - ../../apache-maven-3.0.5/bin/mvn install -DskipTests -N --quiet
+  - cd ..
+  - cd subsystem
+  - ../../apache-maven-3.0.5/bin/mvn install -DskipTests -N --quiet
+  - cd ../..
+
+notifications:
+  irc: "irc.freenode.org#aerogear"
