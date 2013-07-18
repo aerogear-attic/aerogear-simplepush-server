@@ -1,13 +1,12 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.jboss.aerogear</groupId>
-		<artifactId>simplepush-server-parent</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
+    <parent>
+        <groupId>org.jboss.aerogear</groupId>
+        <artifactId>simplepush-server-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
     <artifactId>aerogear-simplepush-server-netty</artifactId>
     <packaging>jar</packaging>
     <name>AeroGear SimplePush Server Netty</name>
@@ -26,12 +25,12 @@
     </properties>
 
     <dependencies>
-    
+
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-simplepush-protocol</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-simplepush-server-api</artifactId>
@@ -41,51 +40,51 @@
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-simplepush-server-core</artifactId>
         </dependency>
-    
+
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-sockjs</artifactId>
         </dependency>
-        
-         <dependency>
+
+        <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
             <version>1.9.2</version>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.5</version>
         </dependency>
-        
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>org.easytesting</groupId>
             <artifactId>fest-assert</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
     </dependencies>
 
     <build>
-      <finalName>${project.artifactId}</finalName>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -108,7 +107,7 @@
                     <strictCheck>true</strictCheck>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -129,12 +128,12 @@
                     </arguments>
                     <systemProperties>
                         <systemProperty>
-                          <key>keystore.file.path</key>
-                          <value>${basedir}/src/test/resources/simplePushServer.keystore</value>
+                            <key>keystore.file.path</key>
+                            <value>${basedir}/src/test/resources/simplePushServer.keystore</value>
                         </systemProperty>
                         <systemProperty>
-                          <key>keystore.file.password</key>
-                          <value>simplepush</value>
+                            <key>keystore.file.password</key>
+                            <value>simplepush</value>
                         </systemProperty>
                         <!--
                         <systemProperty>
@@ -145,7 +144,7 @@
                     </systemProperties>
                 </configuration>
             </plugin>
-            
+
         </plugins>
     </build>
 
