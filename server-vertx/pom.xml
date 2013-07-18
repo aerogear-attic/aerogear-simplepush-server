@@ -24,7 +24,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <module.name>aerogear~simplepush~0.0.8</module.name>
-        <vertx.version>2.0.0-beta4-SNAPSHOT</vertx.version>
+        <vertx.version>2.0.0-final</vertx.version>
     </properties>
 
     <dependencies>
@@ -142,8 +142,8 @@
                                <copy file="target/deps/aerogear-simplepush-protocol-1.0.0-SNAPSHOT.jar" todir="${module.dir}/lib" />
                                <copy file="target/deps/jackson-core-asl-1.9.2.jar" todir="${module.dir}/lib" />
                                <copy file="target/deps/jackson-mapper-asl-1.9.2.jar" todir="${module.dir}/lib" />
-                               <copy file="target/deps/netty-all-4.0.0.CR3.jar" todir="${module.dir}/lib" />
-                               <copy file="target/deps/hazelcast-2.5.1.jar" todir="${module.dir}/lib" />
+                               <copy file="target/deps/netty-all-4.0.2.Final.jar" todir="${module.dir}/lib" />
+                               <copy file="target/deps/hazelcast-2.6.jar" todir="${module.dir}/lib" />
                                <copy file="target/deps/slf4j-api-1.7.5.jar" todir="${module.dir}/lib" />
                                <copy file="target/deps/slf4j-simple-1.7.5.jar" todir="${module.dir}/lib" />
                               <echo>Module ${module.name} has been created in the target/mod.</echo>
