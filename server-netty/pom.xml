@@ -59,7 +59,7 @@
 
         <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty-sockjs</artifactId>
+            <artifactId>netty-codec-sockjs</artifactId>
         </dependency>
 
         <dependency>

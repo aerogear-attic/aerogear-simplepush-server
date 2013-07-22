@@ -24,7 +24,10 @@ import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.EventLoop;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -44,6 +47,7 @@ import io.netty.handler.codec.sockjs.handlers.CorsInboundHandler;
 import io.netty.handler.codec.sockjs.handlers.CorsOutboundHandler;
 import io.netty.handler.codec.sockjs.handlers.SockJSHandler;
 import io.netty.handler.codec.sockjs.transports.Transports;
+import io.netty.util.ReferenceCountUtil;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -65,8 +69,8 @@ import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
-import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
+import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
@@ -372,7 +376,7 @@ public class SimplePushSockJSServiceTest {
 
     private RegisterResponseImpl sendWebSocketRegisterFrame(final String channelId, final EmbeddedChannel ch) {
         ch.writeInbound(TestUtil.registerChannelIdWebSocketFrame(channelId));
-        return responseToType(ch.readOutbound(), RegisterResponseImpl.class);
+        return responseToType(readOutboundDiscardEmpty(ch), RegisterResponseImpl.class);
     }
 
     private PingMessageImpl sendWebSocketPingFrame(final EmbeddedChannel ch) {
@@ -394,7 +398,9 @@ public class SimplePushSockJSServiceTest {
         ch.writeInbound(websocketUpgradeRequest(sessionUrl + Transports.Types.WEBSOCKET.path()));
         // Discarding the Http upgrade response
         ch.readOutbound();
+        ch.readOutbound();
         // Discard open frame
+        ch.readOutbound();
         ch.readOutbound();
         ch.pipeline().remove("wsencoder");
     }
@@ -402,6 +408,18 @@ public class SimplePushSockJSServiceTest {
     private HelloResponse sendWebSocketHelloFrame(final String uaid, final EmbeddedChannel ch) {
         ch.writeInbound(TestUtil.helloWebSocketFrame(uaid.toString()));
         return responseToType(ch.readOutbound(), HelloResponseImpl.class);
+    }
+
+    private Object readOutboundDiscardEmpty(final EmbeddedChannel ch) {
+        final Object obj = ch.readOutbound();
+        if (obj instanceof ByteBuf) {
+            final ByteBuf buf = (ByteBuf) obj;
+            if (buf.capacity() == 0) {
+                ReferenceCountUtil.release(buf);
+                return ch.readOutbound();
+            }
+        }
+        return obj;
     }
 
     private <T> T responseToType(final Object response, Class<T> type) {
@@ -534,7 +552,7 @@ public class SimplePushSockJSServiceTest {
     }
 
     private EmbeddedChannel createChannel(final SockJSServiceFactory factory) {
-        final EmbeddedChannel ch = new EmbeddedChannel(
+        final EmbeddedChannel ch = new TestEmbeddedChannel(
                 new CorsInboundHandler(),
                 new SockJSHandler(factory),
                 new CorsOutboundHandler());
@@ -555,6 +573,18 @@ public class SimplePushSockJSServiceTest {
 
     private String randomSessionIdUrl(final SockJSServiceFactory factory) {
         return factory.config().prefix() + "/111/" + UUID.randomUUID().toString();
+    }
+
+    private class TestEmbeddedChannel extends EmbeddedChannel {
+
+        public TestEmbeddedChannel(final ChannelHandler... handlers) {
+            super(handlers);
+        }
+
+        @Override
+        public EventLoop eventLoop() {
+            return new StubEmbeddedEventLoop(super.eventLoop());
+        }
     }
 
 }

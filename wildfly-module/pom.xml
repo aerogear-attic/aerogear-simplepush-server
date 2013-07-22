@@ -137,7 +137,7 @@
                                 <copy file="target/deps/aerogear-simplepush-server-core-1.0.0-SNAPSHOT.jar" todir="${module.dir}"/>
                                 <copy file="target/deps/aerogear-simplepush-server-netty-1.0.0-SNAPSHOT.jar" todir="${module.dir}"/>
                                 <copy file="target/deps/aerogear-simplepush-protocol-1.0.0-SNAPSHOT.jar" todir="${module.dir}"/>
-                                <copy file="target/deps/netty-all-4.0.0.CR10-SNAPSHOT.jar" todir="${module.dir}"/>
+                                <copy file="target/deps/netty-all-4.0.5.Final-SNAPSHOT.jar" todir="${module.dir}"/>
                                 <copy file="target/deps/jackson-core-asl-1.9.2.jar" todir="${module.dir}"/>
                                 <copy file="target/deps/jackson-mapper-asl-1.9.2.jar" todir="${module.dir}"/>
                                 <echo>Module ${module.name} has been created in the target/module directory. Copy to
