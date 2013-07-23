@@ -42,6 +42,11 @@ public final class JpaDataStore implements DataStore {
     private final Logger logger = LoggerFactory.getLogger(JpaDataStore.class);
     private final JpaExecutor jpaExecutor;
 
+    /**
+     * Sole constructor.
+     *
+     * @param persistenceUnit the name of the persistence unit to be used.
+     */
     public JpaDataStore(final String persistenceUnit) {
         jpaExecutor = new JpaExecutor(Persistence.createEntityManagerFactory(persistenceUnit));
     }

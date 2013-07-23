@@ -24,6 +24,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+/**
+ * A simple data transfer object (DTO) for Update information.
+ */
 @Entity
 @Table (name = "updates")
 public final class UpdateDTO implements Serializable {

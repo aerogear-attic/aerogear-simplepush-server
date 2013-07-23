@@ -35,6 +35,12 @@ public final class JpaExecutor {
         this.entityManagerFactory = entityManagerFactory;
     }
 
+    /**
+     * Executes the passed in operation, wrapping it in a transaction.
+     *
+     * @param operation the {@link JpaOperation} to be performed.
+     * @return {@code T} the return type of the operation.
+     */
     public <T> T execute(final JpaOperation<T> operation) {
         final EntityManager em = entityManagerFactory.createEntityManager();
         em.getTransaction().begin();

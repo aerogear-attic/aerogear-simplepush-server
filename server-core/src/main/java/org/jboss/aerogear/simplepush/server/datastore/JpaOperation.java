@@ -29,6 +29,12 @@ import javax.persistence.EntityManager;
  */
 public interface JpaOperation<T> {
 
+    /**
+     * Performs the operation using the passed in EntityManager.
+     *
+     * @param entityManager the {@link EntityManager} to be used for the operation.
+     * @return {@code T} the return type for this operation.
+     */
     T perform(EntityManager entityManager);
 
 }
