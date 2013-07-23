@@ -19,21 +19,20 @@ package org.jboss.aerogear.simplepush.server;
 import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNegative;
 import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
 
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class DefaultChannel implements Channel {
 
-    private final UUID uaid;
+    private final String uaid;
     private final String channelId;
     private final String pushEndpoint;
     private final AtomicLong version;
 
-    public DefaultChannel(final UUID uaid, final String channelId, final String pushEndpoint) {
+    public DefaultChannel(final String uaid, final String channelId, final String pushEndpoint) {
         this(uaid, channelId, 0, pushEndpoint);
     }
 
-    public DefaultChannel(final UUID uaid, final String channelId, final long version, final String pushEndpoint) {
+    public DefaultChannel(final String uaid, final String channelId, final long version, final String pushEndpoint) {
         checkNotNull(uaid, "uaid");
         checkNotNull(channelId, "channelId");
         checkNotNegative(version, "version");
@@ -45,7 +44,7 @@ public class DefaultChannel implements Channel {
     }
 
     @Override
-    public UUID getUAID() {
+    public String getUAID() {
         return uaid;
     }
 

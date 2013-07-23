@@ -19,7 +19,6 @@ package org.jboss.aerogear.simplepush.server.netty;
 import io.netty.handler.codec.sockjs.SessionContext;
 
 import java.util.Collection;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -28,18 +27,18 @@ public class UserAgents {
     private UserAgents() {
     }
 
-    private static final ConcurrentMap<UUID, UserAgent<SessionContext>> userAgents = new ConcurrentHashMap<UUID, UserAgent<SessionContext>>();
+    private static final ConcurrentMap<String, UserAgent<SessionContext>> userAgents = new ConcurrentHashMap<String, UserAgent<SessionContext>>();
     private static final UserAgents INSTANCE = new UserAgents();
 
     public static UserAgents getInstance() {
         return INSTANCE;
     }
 
-    public void add(final UUID uaid, final SessionContext session) {
+    public void add(final String uaid, final SessionContext session) {
         userAgents.put(uaid, new UserAgent<SessionContext>(uaid, session, System.currentTimeMillis()));
     }
 
-    public UserAgent<SessionContext> get(final UUID uaid) {
+    public UserAgent<SessionContext> get(final String uaid) {
         final UserAgent<SessionContext> userAgent = userAgents.get(uaid);
         if (userAgent == null) {
             throw new IllegalStateException("Cound not find UserAgent [" + uaid.toString() + "]");
@@ -51,11 +50,11 @@ public class UserAgents {
         return userAgents.values();
     }
 
-    public boolean contains(final UUID uaid) {
+    public boolean contains(final String uaid) {
         return userAgents.containsKey(uaid);
     }
 
-    public void updateAccessedTime(final UUID uaid) {
+    public void updateAccessedTime(final String uaid) {
         if (uaid != null) {
             final UserAgent<SessionContext> userAgent = userAgents.get(uaid);
             userAgent.timestamp(System.currentTimeMillis());

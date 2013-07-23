@@ -27,8 +27,8 @@ public class UUIDUtil {
         return (uuid == null) || uuid.equals("");
     }
 
-    public static UUID newUAID() {
-        return UUID.randomUUID();
+    public static String newUAID() {
+        return UUID.randomUUID().toString();
     }
 
 }

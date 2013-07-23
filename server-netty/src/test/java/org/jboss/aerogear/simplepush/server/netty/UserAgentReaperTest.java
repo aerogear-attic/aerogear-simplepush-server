@@ -27,7 +27,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.sockjs.SessionContext;
 
-import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -52,7 +51,7 @@ public class UserAgentReaperTest {
 
     @Test
     public void reapActiveUserAgent() throws InterruptedException {
-        final UUID uaid = UUIDUtil.newUAID();
+        final String uaid = UUIDUtil.newUAID();
         final SimplePushServer simplePushServer = simplePushServer();
         final SessionContext sessionContext = newSessionContext(true);
         doRegister(uaid, simplePushServer);
@@ -65,7 +64,7 @@ public class UserAgentReaperTest {
 
     @Test(expected = IllegalStateException.class)
     public void reapInactiveUserAgent() throws InterruptedException {
-        final UUID uaid = UUIDUtil.newUAID();
+        final String uaid = UUIDUtil.newUAID();
         final SimplePushServer simplePushServer = simplePushServer();
         final SessionContext sessionContext = newSessionContext(false);
         doRegister(uaid, simplePushServer);
@@ -87,13 +86,13 @@ public class UserAgentReaperTest {
         return sessionContext;
     }
 
-    private void doRegister(final UUID uaid, final SimplePushServer server) {
+    private void doRegister(final String uaid, final SimplePushServer server) {
         server.handleHandshake(new HandshakeMessageImpl(uaid.toString()));
         server.handleRegister(new RegisterMessageImpl(uaid.toString()), uaid);
 
     }
 
-    private void addUserAgent(final UUID uaid, final SessionContext sessionContext) throws InterruptedException {
+    private void addUserAgent(final String uaid, final SessionContext sessionContext) throws InterruptedException {
         UserAgents.getInstance().add(uaid, sessionContext);
         // When a UserAgent is added a timestap will be added. We need to allow for some time to pass to simulate
         // an inactive client.

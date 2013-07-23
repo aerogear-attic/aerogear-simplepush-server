@@ -18,7 +18,6 @@ package org.jboss.aerogear.simplepush.vertx;
 
 import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.toJson;
 
-import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 
 import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
@@ -53,7 +52,7 @@ public class HttpNotificationHandler implements Handler<HttpServerRequest> {
                 try {
                     final String payload = buffer.toString();
                     logger.info("Notification channelId  [" + channelId + "] " + payload);
-                    final UUID uaid = simplePushServer.fromChannel(channelId);
+                    final String uaid = simplePushServer.fromChannel(channelId);
                     final NotificationMessage notification = simplePushServer.handleNotification(channelId, uaid, payload);
                     vertx.eventBus().send(writeHandlerMap.get(uaid.toString()), new Buffer(toJson(notification)));
                     request.response().setStatusCode(200);

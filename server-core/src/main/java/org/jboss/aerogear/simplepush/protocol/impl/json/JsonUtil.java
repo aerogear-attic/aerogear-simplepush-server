@@ -202,7 +202,7 @@ public class JsonUtil {
             jgen.writeFieldName(HandshakeMessage.MESSSAGE_TYPE_FIELD);
             jgen.writeString(handshake.getMessageType().toString().toLowerCase());
             jgen.writeFieldName(HandshakeMessage.UAID_FIELD);
-            jgen.writeString(handshake.getUAID().toString());
+            jgen.writeString(handshake.getUAID());
             jgen.writeArrayFieldStart(HandshakeMessage.CHANNEL_IDS_FIELD);
             for (String channelId : handshake.getChannelIds()) {
                 jgen.writeString(channelId);
@@ -220,7 +220,7 @@ public class JsonUtil {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
             final JsonNode uaid = node.get(HandshakeMessage.UAID_FIELD);
-            return new HandshakeResponseImpl(UUID.fromString(uaid.asText()));
+            return new HandshakeResponseImpl(UUID.fromString(uaid.asText()).toString());
         }
     }
 

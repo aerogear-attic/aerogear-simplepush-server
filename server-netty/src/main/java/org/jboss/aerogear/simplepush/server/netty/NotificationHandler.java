@@ -39,7 +39,6 @@ import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 
-import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
@@ -119,7 +118,7 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
         @Override
         public Void call() throws Exception {
             try {
-                final UUID uaid = simplePushServer.fromChannel(channelId);
+                final String uaid = simplePushServer.fromChannel(channelId);
                 final String payload = content.toString(CharsetUtil.UTF_8);
                 logger.info("UserAgent [" + uaid + "] Notification [" + channelId + ", " + payload + "]");
                 final NotificationMessage notification = simplePushServer.handleNotification(channelId, uaid, payload);

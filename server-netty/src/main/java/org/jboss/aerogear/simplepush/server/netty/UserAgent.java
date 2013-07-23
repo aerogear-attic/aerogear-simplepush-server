@@ -16,22 +16,21 @@
  */
 package org.jboss.aerogear.simplepush.server.netty;
 
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class UserAgent<T> {
 
-    private final UUID uaid;
+    private final String uaid;
     private final T transport;
     private AtomicLong timestamp;
 
-    public UserAgent(final UUID uaid, final T transport, final long timestamp) {
+    public UserAgent(final String uaid, final T transport, final long timestamp) {
         this.uaid = uaid;
         this.transport = transport;
         this.timestamp = new AtomicLong(timestamp);
     }
 
-    public UUID uaid() {
+    public String uaid() {
         return uaid;
     }
 

@@ -1,9 +1,10 @@
-# Aerogear SimplePush Server WildFly module
+# Aerogear Simple Push Server WildFly module
 This project is a module intended to be used with the [Netty Subsystem](https://github.com/danbev/netty-subsystem)
 
 ## Prerequisites 
-This project depends on _aerogear-simple-push_ which needs to be installed manually as it is currently not available in any
-maven repository. 
+This project depends on [aergoear-simple-push-server](https://github.com/aerogear/aerogear-simple-push-server) which needs 
+to be installed manually as it is currently not available in any public maven repository.  
+
 It also requires that [Netty Subsystem](https://github.com/danbev/netty-subsystem) be installed on the local system, as this
 dependency is currently not available in a maven repository.
 
@@ -18,36 +19,54 @@ Copy the module produced by ```mvn package``` to the _modules_ directory of the 
     cp -r wildfly-module/target/module/org $WILDFLY_HOME/modules
     
 Make sure you have installed the [Netty Subsystem](https://github.com/danbev/netty-subsystem), and then add this module as 
-a dependency to the Netty subsystem module (_modules/org/jboss/aerogear/netty/main/module.xml_):
+a dependency to the Netty subsystem module ```$WILDFLY_HOME/modules/org/jboss/aerogear/netty/main/module.xml```:
 
     <dependencies>
         ...
-        <module name="org.jboss.aerogear.simplepush"/>
+        <module name="org.jboss.aerogear.simplepush" services="import">
+            <imports>
+                <include path="META-INF"/>
+            </imports>
+        </module>
     </dependencies>
     
-## Configuring WildFly
-This involves adding a _server_ element to the Netty subsystem.  
-Open up your WildFly server's configuration xml file, for example standalone.xml, and add the following to the _netty_ subsystem:
-
-    <subsystem xmlns="urn:org.jboss.aerogear.netty:1.0">
-        <server name="simplepush-server" socket-binding="simplepush" factory-class="org.jboss.aerogear.simplepush.netty.SimplePushBootstrapFactory"/>
-    </subsystem>
+Here we are including ```META-INF``` as an directory path imported from the ```simplepush``` module. This is to allow access
+to ```META-INF/persistence.xml```.
     
-For details regarding the attirbutes of the _server_ element, please refer to [Netty Subsystem](https://github.com/danbev/netty-subsystem) .
+## Configuring WildFly
 
-### Add a socket-binding    
-You need to add a _socket-binding_ for the server configured in the previous step. This is done by adding a _socket-binding_ element
-to the _socket-binding-group_ element in _standalone.xml_:
+### Adding the Mysql module
+AeroGear Simple Push server uses MySql datasource for persistence when deployed in WildFly and the database needs
+to be configured as well as the application server.
 
-    <socket-binding-group name="standard-sockets" default-interface="public" port-offset="${jboss.socket.binding.port-offset:0}">
-        ...
-        <socket-binding name="simplepush" port="7777"/>
-    </socket-binding-group>  
+#### Create a database and database user
 
-## Start WildFly
+    $ mysql -u <user-name>
+    mysql> create database simplepush;
+    mysql> create user 'simplepush'@'localhost' identified by 'simplepush';
+    mysql> GRANT SELECT,INSERT,UPDATE,ALTER,DELETE,CREATE,DROP ON simplepush.* TO 'simplepush'@'localhost';
+    
+    
+#### Add a datasource for the SimplePush database
+The module for mysql can be found in ```src/main/resources/modules/com/mysql```. Copy this module to WildFlys modules directory:
+
+    cp -r src/main/resources/modules/com $WILDFLY_HOME/modules/
+    
+We also need the mysql driver copied to this module:
+
+    mvn dependency:copy -Dartifact=mysql:mysql-connector-java:5.1.18 -DoutputDirectory=/$WILDFLY_HOME/modules/com/mysql/jdbc/main/
+    
+Next, start your server :
 
     ./standalone.sh
 
+And run the follwing WildFly commane line interface script:
+
+    $WILDFLY_HOME/bin/jboss-cli.sh --file=src/main/resources/wildfly-config.cli
+    
+The above script will add the mysql driver, a datasource, the Netty extension/subsystem, and lastly add a server entry
+for the SimplePush server.
+ 
 If you inspect the server console output you'll see the following message:
 
     08:56:13,052 INFO  [org.jboss.aerogear.netty.extension.NettyService] (MSC service thread 1-3) NettyService [simplepush-server] binding to port [7777]    

@@ -49,7 +49,7 @@ public class NotificationHandlerTest {
 
     @Test
     public void notification() throws Exception {
-        final UUID uaid = UUIDUtil.newUAID();
+        final String uaid = UUIDUtil.newUAID();
         final String channelId = UUID.randomUUID().toString();
         final SimplePushServer simplePushServer = defaultPushServer();
         final EmbeddedChannel channel = createWebsocketChannel(simplePushServer);
@@ -61,7 +61,7 @@ public class NotificationHandlerTest {
 
     @Test
     public void notificationVersionEqualToCurrentVersion() throws Exception {
-        final UUID uaid = UUIDUtil.newUAID();
+        final String uaid = UUIDUtil.newUAID();
         final String channelId = UUID.randomUUID().toString();
         final SimplePushServer simplePushServer = defaultPushServer();
         final EmbeddedChannel channel = createWebsocketChannel(simplePushServer);
@@ -76,7 +76,7 @@ public class NotificationHandlerTest {
 
     @Test
     public void notificationVersionLessThanCurrent() throws Exception {
-        final UUID uaid = UUIDUtil.newUAID();
+        final String uaid = UUIDUtil.newUAID();
         final String channelId = UUID.randomUUID().toString();
         final SimplePushServer simplePushServer = defaultPushServer();
         final EmbeddedChannel channel = createWebsocketChannel(simplePushServer);
@@ -99,11 +99,11 @@ public class NotificationHandlerTest {
         return (HttpResponse) ch.readOutbound();
     }
 
-    private void registerUserAgent(final UUID uaid, final EmbeddedChannel ch) {
+    private void registerUserAgent(final String uaid, final EmbeddedChannel ch) {
         UserAgents.getInstance().add(uaid, channelSession(ch));
     }
 
-    private RegisterResponse doRegister(final String channelId, final UUID uaid, final SimplePushServer server) throws Exception {
+    private RegisterResponse doRegister(final String channelId, final String uaid, final SimplePushServer server) throws Exception {
         return server.handleRegister(new RegisterMessageImpl(channelId), uaid);
     }
 

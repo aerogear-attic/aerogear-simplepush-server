@@ -94,7 +94,7 @@ public class SimplePushSockJSServiceTest {
 
     @Test
     public void xhrPollingHelloWithChannelId() {
-        final UUID uaid = UUIDUtil.newUAID();
+        final String uaid = UUIDUtil.newUAID();
         final String channelId = UUID.randomUUID().toString();
         sendXhrOpenFrameRequest(factory, sessionUrl);
 
@@ -169,7 +169,7 @@ public class SimplePushSockJSServiceTest {
     @Test
     public void websocketHello() {
         final EmbeddedChannel channel = createWebSocketChannel(factory);
-        final UUID uaid = UUIDUtil.newUAID();
+        final String uaid = UUIDUtil.newUAID();
         sendWebSocketHttpUpgradeRequest(sessionUrl, channel);
 
         final HandshakeResponse response = sendWebSocketHelloFrame(uaid, channel);
@@ -234,7 +234,7 @@ public class SimplePushSockJSServiceTest {
         final SimplePushServer simplePushServer = defaultPushServer();
         final SockJSServiceFactory serviceFactory = defaultFactory(simplePushServer);
         final EmbeddedChannel channel = createWebSocketChannel(serviceFactory);
-        final UUID uaid = UUIDUtil.newUAID();
+        final String uaid = UUIDUtil.newUAID();
         final String channelId = UUID.randomUUID().toString();
         sendWebSocketHttpUpgradeRequest(sessionUrl, channel);
         sendWebSocketHelloFrame(uaid, channel);
@@ -251,7 +251,7 @@ public class SimplePushSockJSServiceTest {
         final SimplePushServer simplePushServer = defaultPushServer();
         final SockJSServiceFactory serviceFactory = defaultFactory(simplePushServer);
         final EmbeddedChannel channel = createWebSocketChannel(serviceFactory);
-        final UUID uaid = UUIDUtil.newUAID();
+        final String uaid = UUIDUtil.newUAID();
         final String channelId1 = UUID.randomUUID().toString();
         final String channelId2 = UUID.randomUUID().toString();
         sendWebSocketHttpUpgradeRequest(sessionUrl, channel);
@@ -273,7 +273,7 @@ public class SimplePushSockJSServiceTest {
         final SimplePushServer simplePushServer = defaultPushServer();
         final SockJSServiceFactory serviceFactory = defaultFactory(simplePushServer);
         final EmbeddedChannel channel = createWebSocketChannel(serviceFactory);
-        final UUID uaid = UUIDUtil.newUAID();
+        final String uaid = UUIDUtil.newUAID();
         final String channelId1 = UUID.randomUUID().toString();
         final String channelId2 = UUID.randomUUID().toString();
         sendWebSocketHttpUpgradeRequest(sessionUrl, channel);
@@ -296,7 +296,7 @@ public class SimplePushSockJSServiceTest {
         final SimplePushServer simplePushServer = defaultPushServer();
         final SockJSServiceFactory serviceFactory = defaultFactory(simplePushServer);
         final EmbeddedChannel channel = createWebSocketChannel(serviceFactory);
-        final UUID uaid = UUIDUtil.newUAID();
+        final String uaid = UUIDUtil.newUAID();
         final String channelId1 = UUID.randomUUID().toString();
         final String channelId2 = UUID.randomUUID().toString();
         sendWebSocketHttpUpgradeRequest(sessionUrl, channel);
@@ -316,7 +316,7 @@ public class SimplePushSockJSServiceTest {
         return new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.defaultConfig());
     }
 
-    private void sendNotification(final String channelId, final UUID uaid, final long version,
+    private void sendNotification(final String channelId, final String uaid, final long version,
             final SimplePushServer simplePushServer) throws ChannelNotFoundException {
         simplePushServer.handleNotification(channelId, uaid, "version=" + version);
     }
@@ -363,12 +363,12 @@ public class SimplePushSockJSServiceTest {
         ch.writeInbound(websocketUpgradeRequest(sessionUrl + Transports.Types.WEBSOCKET.path()));
         // Discarding the Http upgrade response
         ch.readOutbound();
-        // Discard open frame 
+        // Discard open frame
         ch.readOutbound();
         ch.pipeline().remove("wsencoder");
     }
 
-    private HandshakeResponse sendWebSocketHelloFrame(final UUID uaid, final EmbeddedChannel ch) {
+    private HandshakeResponse sendWebSocketHelloFrame(final String uaid, final EmbeddedChannel ch) {
         ch.writeInbound(TestUtil.helloWebSocketFrame(uaid.toString()));
         return responseToType(ch.readOutbound(), HandshakeResponseImpl.class);
     }
@@ -394,7 +394,7 @@ public class SimplePushSockJSServiceTest {
     }
 
     private FullHttpResponse sendXhrHelloMessageRequest(final SockJSServiceFactory factory, final String sessionUrl,
-            final UUID uaid, final String... channelIds) {
+            final String uaid, final String... channelIds) {
         return xhrSend(factory, sessionUrl, TestUtil.helloSockJSFrame(uaid.toString(), channelIds));
     }
 

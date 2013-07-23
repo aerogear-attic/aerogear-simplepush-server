@@ -24,7 +24,6 @@ import io.netty.handler.codec.sockjs.SockJSService;
 import io.netty.util.concurrent.ScheduledFuture;
 
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
@@ -54,7 +53,7 @@ public class SimplePushSockJSService implements SockJSService {
     private final UserAgents userAgents = UserAgents.getInstance();
     private final Config sockjsConfig;
     private final SimplePushServer simplePushServer;
-    private UUID uaid;
+    private String uaid;
     private SessionContext session;
     private ScheduledFuture<?> ackJobFuture;
 
@@ -116,7 +115,7 @@ public class SimplePushSockJSService implements SockJSService {
         userAgents.updateAccessedTime(uaid);
     }
 
-    private void processUnacked(final UUID uaid, final SessionContext session, final long delay) {
+    private void processUnacked(final String uaid, final SessionContext session, final long delay) {
         final Set<Update> unacked = simplePushServer.getUnacknowledged(uaid);
         if (unacked.isEmpty()) {
             if (ackJobFuture != null && !ackJobFuture.isCancelled()) {
@@ -138,7 +137,7 @@ public class SimplePushSockJSService implements SockJSService {
         }
     }
 
-    private boolean checkHandshakeCompleted(final UUID uaid) {
+    private boolean checkHandshakeCompleted(final String uaid) {
         if (uaid == null) {
             logger.debug("Hello frame has not been sent");
             return false;

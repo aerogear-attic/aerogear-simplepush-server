@@ -20,7 +20,6 @@ import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.fromJson
 import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.toJson;
 
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
@@ -54,7 +53,7 @@ public class SimplePushServerHandler implements Handler<SockJSSocket> {
     private final ConcurrentMap<String, Long> lastAccessedMap;
     private final Vertx vertx;
     private final Container container;
-    private UUID uaid;
+    private String uaid;
 
     public SimplePushServerHandler(final SimplePushServer simplePushServer, final Vertx vertx, final Container container) {
         this.simplePushServer = simplePushServer;
@@ -74,8 +73,8 @@ public class SimplePushServerHandler implements Handler<SockJSSocket> {
                 switch (messageType.getMessageType()) {
                 case HELLO:
                         HandshakeMessage handshakeMessage = fromJson(buffer.toString(), HandshakeMessageImpl.class);
-                        if (!writeHandlerMap.containsKey(handshakeMessage.getUAID().toString())) {
-                            handshakeMessage = new HandshakeMessageImpl(UUIDUtil.newUAID().toString());
+                        if (!writeHandlerMap.containsKey(handshakeMessage.getUAID())) {
+                            handshakeMessage = new HandshakeMessageImpl(UUIDUtil.newUAID());
                         }
                         final HandshakeResponse helloResponse = simplePushServer.handleHandshake(handshakeMessage);
                         sock.write(new Buffer(toJson(helloResponse)));
@@ -114,7 +113,7 @@ public class SimplePushServerHandler implements Handler<SockJSSocket> {
         });
     }
 
-    private boolean checkHandshakeCompleted(final UUID uaid) {
+    private boolean checkHandshakeCompleted(final String uaid) {
         if (uaid == null) {
             logger.debug("Hello frame has not been sent");
             return false;
@@ -122,13 +121,13 @@ public class SimplePushServerHandler implements Handler<SockJSSocket> {
         return true;
     }
 
-    private void updateAccessedTime(final UUID uaid) {
+    private void updateAccessedTime(final String uaid) {
         if (uaid != null) {
-            lastAccessedMap.put(uaid.toString(), System.currentTimeMillis());
+            lastAccessedMap.put(uaid, System.currentTimeMillis());
         }
     }
 
-    private void processUnacked(final UUID uaid) {
+    private void processUnacked(final String uaid) {
         final Set<Update> unacked = simplePushServer.getUnacknowledged(uaid);
         if (!unacked.isEmpty()) {
             final Long interval = container.config().getLong("ackInterval", 60000);

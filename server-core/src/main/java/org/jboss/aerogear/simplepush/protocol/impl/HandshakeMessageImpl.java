@@ -27,7 +27,7 @@ import org.jboss.aerogear.simplepush.protocol.HandshakeMessage;
 
 public class HandshakeMessageImpl implements HandshakeMessage {
 
-    private final UUID uaid;
+    private final String uaid;
     private final Set<String> channelIds;
 
     public HandshakeMessageImpl() {
@@ -43,13 +43,13 @@ public class HandshakeMessageImpl implements HandshakeMessage {
             this.uaid = newUAID();
             this.channelIds = Collections.emptySet();
         } else {
-            this.uaid = UUID.fromString(uaid);
+            this.uaid = UUID.fromString(uaid).toString();
             this.channelIds = channelIds;
         }
     }
 
     @Override
-    public UUID getUAID() {
+    public String getUAID() {
         return uaid;
     }
 
