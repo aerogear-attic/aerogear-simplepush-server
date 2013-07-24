@@ -1,0 +1,50 @@
+/**
+ * JBoss, Home of Professional Open Source
+ * Copyright Red Hat, Inc., and individual contributors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * 	http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.jboss.aerogear.simplepush.protocol.impl;
+
+import org.jboss.aerogear.simplepush.protocol.PingMessage;
+import org.jboss.aerogear.simplepush.util.ArgumentUtil;
+
+public class PingMessageImpl implements PingMessage {
+
+    final String body;
+
+    public PingMessageImpl() {
+        this(PingMessage.PING_MESSAGE);
+    }
+
+    public PingMessageImpl(final String body) {
+        ArgumentUtil.checkNotNullAndNotEmpty(body, "body");
+        this.body = body;
+    }
+
+    @Override
+    public Type getMessageType() {
+        return Type.PING;
+    }
+
+    @Override
+    public String toString() {
+        return "PingMessageImpl[messageType=" + getMessageType() + ", body=" + body + "]";
+    }
+
+    @Override
+    public String getPingMessage() {
+        return body;
+    }
+
+}
