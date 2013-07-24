@@ -362,6 +362,9 @@ public class JsonUtil {
             return new MessageType() {
                 @Override
                 public Type getMessageType() {
+                    if (messageTypeNode == null) {
+                        return MessageType.Type.PING;
+                    }
                     return MessageType.Type.valueOf(messageTypeNode.asText().toUpperCase());
                 }
             };

@@ -53,12 +53,14 @@ import java.util.UUID;
 
 import org.jboss.aerogear.simplepush.protocol.HelloResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
+import org.jboss.aerogear.simplepush.protocol.PingMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HelloResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.PingMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
@@ -135,6 +137,19 @@ public class SimplePushSockJSServiceTest {
         final UnregisterResponseImpl unregisterChannelIdResponse = unregisterChannelIdResponse(factory, sessionUrl);
         assertThat(unregisterChannelIdResponse.getStatus().getCode(), is(200));
         assertThat(unregisterChannelIdResponse.getChannelId(), equalTo(channelId));
+    }
+
+    @Test
+    public void xhrPollingPing() {
+        sendXhrOpenFrameRequest(factory, sessionUrl);
+        sendXhrHelloMessageRequest(factory, sessionUrl, UUIDUtil.newUAID());
+        pollXhrHelloMessageResponse(factory, sessionUrl);
+
+        final FullHttpResponse registerChannelIdRequest = sendXhrPingRequest(factory, sessionUrl);
+        assertThat(registerChannelIdRequest.getStatus(), is(HttpResponseStatus.NO_CONTENT));
+
+        final PingMessageImpl pingResponse = pollXhrPingMessageResponse(factory, sessionUrl);
+        assertThat(pingResponse.getPingMessage(), equalTo(PingMessage.PING_MESSAGE));
     }
 
     @Test
@@ -312,6 +327,17 @@ public class SimplePushSockJSServiceTest {
         channel.close();
     }
 
+    @Test
+    public void websocketPing() {
+        final EmbeddedChannel channel = createWebSocketChannel(factory);
+        sendWebSocketHttpUpgradeRequest(sessionUrl, channel);
+        sendWebSocketHelloFrame(UUIDUtil.newUAID(), channel);
+
+        final PingMessage pingResponse = sendWebSocketPingFrame(channel);
+        assertThat(pingResponse.getPingMessage(), equalTo(PingMessage.PING_MESSAGE));
+        channel.close();
+    }
+
     private SimplePushServer defaultPushServer() {
         return new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.defaultConfig());
     }
@@ -347,6 +373,11 @@ public class SimplePushSockJSServiceTest {
     private RegisterResponseImpl sendWebSocketRegisterFrame(final String channelId, final EmbeddedChannel ch) {
         ch.writeInbound(TestUtil.registerChannelIdWebSocketFrame(channelId));
         return responseToType(ch.readOutbound(), RegisterResponseImpl.class);
+    }
+
+    private PingMessageImpl sendWebSocketPingFrame(final EmbeddedChannel ch) {
+        ch.writeInbound(TestUtil.pingWebSocketFrame());
+        return responseToType(ch.readOutbound(), PingMessageImpl.class);
     }
 
     private UnregisterResponse websocketUnRegisterFrame(final String channelId, final EmbeddedChannel ch) {
@@ -430,6 +461,18 @@ public class SimplePushSockJSServiceTest {
 
         final String json = TestUtil.extractJsonFromSockJSMessage(pollResponse.content().toString(UTF_8));
         return JsonUtil.fromJson(json, UnregisterResponseImpl.class);
+    }
+
+    private FullHttpResponse sendXhrPingRequest(final SockJSServiceFactory factory, final String sessionUrl) {
+        return xhrSend(factory, sessionUrl, TestUtil.pingSockJSFrame());
+    }
+
+    private PingMessageImpl pollXhrPingMessageResponse(final SockJSServiceFactory factory, final String sessionUrl) {
+        final FullHttpResponse pollResponse = xhrPoll(factory, sessionUrl);
+        assertThat(pollResponse.getStatus(), is(HttpResponseStatus.OK));
+
+        final String helloJson = TestUtil.extractJsonFromSockJSMessage(pollResponse.content().toString(UTF_8));
+        return JsonUtil.fromJson(helloJson, PingMessageImpl.class);
     }
 
     private FullHttpResponse xhrSend(final SockJSServiceFactory factory, final String sessionUrl, final String content) {

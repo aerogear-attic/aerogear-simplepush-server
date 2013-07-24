@@ -17,9 +17,12 @@
 package org.jboss.aerogear.simplepush.protocol.impl;
 
 import org.jboss.aerogear.simplepush.protocol.PingMessage;
+import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.util.ArgumentUtil;
 
 public class PingMessageImpl implements PingMessage {
+
+    public static final String JSON = JsonUtil.toJson(new PingMessageImpl());
 
     final String body;
 
