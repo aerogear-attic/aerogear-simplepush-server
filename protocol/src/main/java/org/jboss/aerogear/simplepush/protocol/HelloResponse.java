@@ -18,16 +18,16 @@ package org.jboss.aerogear.simplepush.protocol;
 
 
 /**
- * Represents the Handshake response message, 'hello' message type, in the 
+ * Represents the handshake response message, 'hello' message type, in the
  * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>
  */
-public interface HandshakeResponse extends MessageType {
+public interface HelloResponse extends MessageType {
 
     String UAID_FIELD = "uaid";
 
     /**
      * A globally unique identifier for a UserAgent created by the SimplePush Server.
-     * 
+     *
      * @return {@code String} a globally unique id for a UserAgent, or an empty String if the UserAgent has not
      * been assigned a UAID yet or wants to reset it, which will create a new one.
      */

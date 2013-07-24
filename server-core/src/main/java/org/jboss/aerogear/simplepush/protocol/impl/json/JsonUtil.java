@@ -35,8 +35,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.SerializerProvider;
 import org.codehaus.jackson.map.module.SimpleModule;
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
-import org.jboss.aerogear.simplepush.protocol.HandshakeMessage;
-import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
+import org.jboss.aerogear.simplepush.protocol.HelloMessage;
+import org.jboss.aerogear.simplepush.protocol.HelloResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterMessage;
@@ -45,8 +45,8 @@ import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.HelloResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
@@ -69,10 +69,10 @@ public class JsonUtil {
         module.addDeserializer(RegisterResponseImpl.class, new RegisterResponseDeserializer());
         module.addSerializer(RegisterResponseImpl.class, new RegisterResponseSerializer());
 
-        module.addDeserializer(HandshakeMessageImpl.class, new HandshakeDeserializer());
-        module.addSerializer(HandshakeMessageImpl.class, new HandshakeSerializer());
-        module.addDeserializer(HandshakeResponseImpl.class, new HandshakeResponseDeserializer());
-        module.addSerializer(HandshakeResponseImpl.class, new HandshakeResponseSerializer());
+        module.addDeserializer(HelloMessageImpl.class, new HelloDeserializer());
+        module.addSerializer(HelloMessageImpl.class, new HelloSerializer());
+        module.addDeserializer(HelloResponseImpl.class, new HelloResponseDeserializer());
+        module.addSerializer(HelloResponseImpl.class, new HelloResponseSerializer());
 
         module.addDeserializer(AckMessageImpl.class, new AckDeserializer());
         module.addSerializer(AckMessageImpl.class, new AckSerializer());
@@ -170,41 +170,41 @@ public class JsonUtil {
         }
     }
 
-    private static class HandshakeDeserializer extends JsonDeserializer<HandshakeMessageImpl> {
+    private static class HelloDeserializer extends JsonDeserializer<HelloMessageImpl> {
 
         @Override
-        public HandshakeMessageImpl deserialize(final JsonParser jp, final DeserializationContext ctxt)
+        public HelloMessageImpl deserialize(final JsonParser jp, final DeserializationContext ctxt)
                 throws IOException, JsonProcessingException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
-            final JsonNode channelIdsNode = node.get(HandshakeMessage.CHANNEL_IDS_FIELD);
+            final JsonNode channelIdsNode = node.get(HelloMessage.CHANNEL_IDS_FIELD);
             final Set<String> channelIds = new HashSet<String>();
             if (channelIdsNode != null && channelIdsNode.isArray()) {
                 for (JsonNode channelIdNode : channelIdsNode) {
                     channelIds.add(channelIdNode.asText());
                 }
             }
-            final JsonNode uaid = node.get(HandshakeMessage.UAID_FIELD);
+            final JsonNode uaid = node.get(HelloMessage.UAID_FIELD);
             if (uaid != null) {
-                return new HandshakeMessageImpl(node.get(HandshakeMessage.UAID_FIELD).asText(), channelIds);
+                return new HelloMessageImpl(node.get(HelloMessage.UAID_FIELD).asText(), channelIds);
             } else {
-                return new HandshakeMessageImpl();
+                return new HelloMessageImpl();
             }
         }
     }
 
-    private static class HandshakeSerializer extends JsonSerializer<HandshakeMessage> {
+    private static class HelloSerializer extends JsonSerializer<HelloMessage> {
 
         @Override
-        public void serialize(final HandshakeMessage handshake, final JsonGenerator jgen,
+        public void serialize(final HelloMessage hello, final JsonGenerator jgen,
                 final SerializerProvider provider) throws IOException, JsonProcessingException {
             jgen.writeStartObject();
-            jgen.writeFieldName(HandshakeMessage.MESSSAGE_TYPE_FIELD);
-            jgen.writeString(handshake.getMessageType().toString().toLowerCase());
-            jgen.writeFieldName(HandshakeMessage.UAID_FIELD);
-            jgen.writeString(handshake.getUAID());
-            jgen.writeArrayFieldStart(HandshakeMessage.CHANNEL_IDS_FIELD);
-            for (String channelId : handshake.getChannelIds()) {
+            jgen.writeFieldName(HelloMessage.MESSSAGE_TYPE_FIELD);
+            jgen.writeString(hello.getMessageType().toString().toLowerCase());
+            jgen.writeFieldName(HelloMessage.UAID_FIELD);
+            jgen.writeString(hello.getUAID());
+            jgen.writeArrayFieldStart(HelloMessage.CHANNEL_IDS_FIELD);
+            for (String channelId : hello.getChannelIds()) {
                 jgen.writeString(channelId);
             }
             jgen.writeEndArray();
@@ -212,28 +212,28 @@ public class JsonUtil {
         }
     }
 
-    private static class HandshakeResponseDeserializer extends JsonDeserializer<HandshakeResponseImpl> {
+    private static class HelloResponseDeserializer extends JsonDeserializer<HelloResponseImpl> {
 
         @Override
-        public HandshakeResponseImpl deserialize(final JsonParser jp, final DeserializationContext ctxt)
+        public HelloResponseImpl deserialize(final JsonParser jp, final DeserializationContext ctxt)
                 throws IOException, JsonProcessingException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
-            final JsonNode uaid = node.get(HandshakeMessage.UAID_FIELD);
-            return new HandshakeResponseImpl(UUID.fromString(uaid.asText()).toString());
+            final JsonNode uaid = node.get(HelloMessage.UAID_FIELD);
+            return new HelloResponseImpl(UUID.fromString(uaid.asText()).toString());
         }
     }
 
-    private static class HandshakeResponseSerializer extends JsonSerializer<HandshakeResponse> {
+    private static class HelloResponseSerializer extends JsonSerializer<HelloResponse> {
 
         @Override
-        public void serialize(final HandshakeResponse handshakeResponse, final JsonGenerator jgen,
+        public void serialize(final HelloResponse helloResponse, final JsonGenerator jgen,
                 final SerializerProvider provider) throws IOException, JsonProcessingException {
             jgen.writeStartObject();
-            jgen.writeFieldName(HandshakeMessage.MESSSAGE_TYPE_FIELD);
-            jgen.writeString(handshakeResponse.getMessageType().toString().toLowerCase());
-            jgen.writeFieldName(HandshakeMessage.UAID_FIELD);
-            jgen.writeString(handshakeResponse.getUAID().toString());
+            jgen.writeFieldName(HelloMessage.MESSSAGE_TYPE_FIELD);
+            jgen.writeString(helloResponse.getMessageType().toString().toLowerCase());
+            jgen.writeFieldName(HelloMessage.UAID_FIELD);
+            jgen.writeString(helloResponse.getUAID().toString());
             jgen.writeEndObject();
         }
     }

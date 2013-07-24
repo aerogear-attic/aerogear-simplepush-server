@@ -43,10 +43,10 @@ import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import java.net.URI;
 import java.util.UUID;
 
-import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
+import org.jboss.aerogear.simplepush.protocol.HelloResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
-import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.HelloResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
@@ -113,11 +113,11 @@ public class NettySimplePushSockJSServerTest {
             handler.handshakeFuture().sync();
 
             final String uaid = UUIDUtil.newUAID();
-            final String json = JsonUtil.toJson(new HandshakeMessageImpl(uaid.toString()));
+            final String json = JsonUtil.toJson(new HelloMessageImpl(uaid.toString()));
             final ChannelFuture future = ch.writeAndFlush(new TextWebSocketFrame(json));
             future.sync();
             final TextWebSocketFrame textFrame = handler.getTextFrame();
-            final HandshakeResponse fromJson = JsonUtil.fromJson(textFrame.text(), HandshakeResponseImpl.class);
+            final HelloResponse fromJson = JsonUtil.fromJson(textFrame.text(), HelloResponseImpl.class);
             assertThat(fromJson.getMessageType(), equalTo(MessageType.Type.HELLO));
             assertThat(fromJson.getUAID(), equalTo(uaid));
             textFrame.release();
@@ -163,11 +163,11 @@ public class NettySimplePushSockJSServerTest {
             handler.handshakeFuture().sync();
 
             final String uaid = UUIDUtil.newUAID();
-            final String json = JsonUtil.toJson(new HandshakeMessageImpl(uaid.toString()));
+            final String json = JsonUtil.toJson(new HelloMessageImpl(uaid.toString()));
             final ChannelFuture future = ch.writeAndFlush(new TextWebSocketFrame(json));
             future.sync();
             final TextWebSocketFrame textFrame = handler.getTextFrame();
-            final HandshakeResponse fromJson = JsonUtil.fromJson(textFrame.text(), HandshakeResponseImpl.class);
+            final HelloResponse fromJson = JsonUtil.fromJson(textFrame.text(), HelloResponseImpl.class);
             assertThat(fromJson.getMessageType(), equalTo(MessageType.Type.HELLO));
             assertThat(fromJson.getUAID(), equalTo(uaid));
             textFrame.release();

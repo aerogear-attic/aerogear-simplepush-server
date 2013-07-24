@@ -23,15 +23,15 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
-import org.jboss.aerogear.simplepush.protocol.HandshakeMessage;
-import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
+import org.jboss.aerogear.simplepush.protocol.HelloMessage;
+import org.jboss.aerogear.simplepush.protocol.HelloResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
@@ -72,11 +72,11 @@ public class SimplePushServerHandler implements Handler<SockJSSocket> {
                 final MessageType messageType = JsonUtil.parseFrame(buffer.toString());
                 switch (messageType.getMessageType()) {
                 case HELLO:
-                        HandshakeMessage handshakeMessage = fromJson(buffer.toString(), HandshakeMessageImpl.class);
+                        HelloMessage handshakeMessage = fromJson(buffer.toString(), HelloMessageImpl.class);
                         if (!writeHandlerMap.containsKey(handshakeMessage.getUAID())) {
-                            handshakeMessage = new HandshakeMessageImpl(UUIDUtil.newUAID());
+                            handshakeMessage = new HelloMessageImpl(UUIDUtil.newUAID());
                         }
-                        final HandshakeResponse helloResponse = simplePushServer.handleHandshake(handshakeMessage);
+                        final HelloResponse helloResponse = simplePushServer.handleHandshake(handshakeMessage);
                         sock.write(new Buffer(toJson(helloResponse)));
                         uaid = helloResponse.getUAID();
                         writeHandlerMap.put(uaid.toString(), sock.writeHandlerID());

@@ -27,38 +27,38 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jboss.aerogear.simplepush.protocol.HandshakeMessage;
+import org.jboss.aerogear.simplepush.protocol.HelloMessage;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Test;
 
-public class HandshakeImplTest {
+public class HelloMessageImplTest {
 
     @Test
     public void constructWithNullUAID() {
-        final HandshakeMessageImpl handshake = new HandshakeMessageImpl(null);
+        final HelloMessageImpl handshake = new HelloMessageImpl(null);
         assertThat(handshake.getUAID(), notNullValue());
         assertThat(handshake.getChannelIds().isEmpty(), is(true));
     }
 
     @Test
     public void constructWithEmptyUAID() {
-        final HandshakeMessageImpl handshake = new HandshakeMessageImpl("");
+        final HelloMessageImpl handshake = new HelloMessageImpl("");
         assertThat(handshake.getUAID(), notNullValue());
         assertThat(handshake.getChannelIds().isEmpty(), is(true));
     }
 
     @Test
     public void constructWithChannelIds() {
-        final HandshakeMessageImpl handshake = new HandshakeMessageImpl(newUAID().toString(), channelIds("123abc", "efg456"));
+        final HelloMessageImpl handshake = new HelloMessageImpl(newUAID().toString(), channelIds("123abc", "efg456"));
         assertThat(handshake.getUAID(), notNullValue());
         assertThat(handshake.getChannelIds(), hasItems("123abc", "efg456"));
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void channelIdsUnmodifiable() {
-        final HandshakeMessageImpl handshake = new HandshakeMessageImpl(newUAID().toString(), channelIds("123abc", "efg456"));
+        final HelloMessageImpl handshake = new HelloMessageImpl(newUAID().toString(), channelIds("123abc", "efg456"));
         handshake.getChannelIds().remove("123abc");
     }
 
@@ -66,7 +66,7 @@ public class HandshakeImplTest {
     public void fromJson() {
         final String uaid = UUIDUtil.newUAID();
         final String json = "{\"messageType\": \"hello\", \"uaid\": \"" + uaid + "\", \"channelIDs\": [\"123abc\", \"efg456\"]}";
-        final HandshakeMessage handshake = JsonUtil.fromJson(json, HandshakeMessageImpl.class);
+        final HelloMessage handshake = JsonUtil.fromJson(json, HelloMessageImpl.class);
         assertThat(handshake.getMessageType(), is(equalTo(MessageType.Type.HELLO)));
         assertThat(handshake.getUAID(), is(equalTo(uaid)));
         assertThat(handshake.getChannelIds(), hasItems("123abc", "efg456"));
@@ -75,7 +75,16 @@ public class HandshakeImplTest {
     @Test
     public void fromJsonWithoutUAID() {
         final String json = "{\"messageType\": \"hello\"}";
-        final HandshakeMessage handshake = JsonUtil.fromJson(json, HandshakeMessageImpl.class);
+        final HelloMessage handshake = JsonUtil.fromJson(json, HelloMessageImpl.class);
+        assertThat(handshake.getMessageType(), is(equalTo(MessageType.Type.HELLO)));
+        assertThat(handshake.getUAID(), is(notNullValue()));
+        assertThat(handshake.getChannelIds().isEmpty(), is(true));
+    }
+
+    @Test
+    public void fromJsonWithEmptyUAID() {
+        final String json = "{\"messageType\": \"hello\", \"uaid\": \"\"}";
+        final HelloMessage handshake = JsonUtil.fromJson(json, HelloMessageImpl.class);
         assertThat(handshake.getMessageType(), is(equalTo(MessageType.Type.HELLO)));
         assertThat(handshake.getUAID(), is(notNullValue()));
         assertThat(handshake.getChannelIds().isEmpty(), is(true));
@@ -85,18 +94,39 @@ public class HandshakeImplTest {
     public void fromJsonWithNullChannelIds() {
         final String uaid = UUIDUtil.newUAID();
         final String json = "{\"messageType\": \"hello\", \"uaid\": \"" + uaid + "\"}";
-        final HandshakeMessage handshake = JsonUtil.fromJson(json, HandshakeMessageImpl.class);
+        final HelloMessage handshake = JsonUtil.fromJson(json, HelloMessageImpl.class);
         assertThat(handshake.getMessageType(), is(equalTo(MessageType.Type.HELLO)));
         assertThat(handshake.getUAID(), is(equalTo(uaid)));
         assertThat(handshake.getChannelIds().isEmpty(), is(true));
     }
 
     @Test
+    public void fromJsonWithEmptyChannelIds() {
+        final String uaid = UUIDUtil.newUAID();
+        final String json = "{\"messageType\": \"hello\", \"uaid\": \"" + uaid + "\", \"channelIDs\": [] }";
+        final HelloMessage handshake = JsonUtil.fromJson(json, HelloMessageImpl.class);
+        assertThat(handshake.getMessageType(), is(equalTo(MessageType.Type.HELLO)));
+        assertThat(handshake.getUAID(), is(equalTo(uaid)));
+        assertThat(handshake.getChannelIds().isEmpty(), is(true));
+    }
+
+    @Test
+    public void fromJsonWithChannelIds() {
+        final String uaid = UUIDUtil.newUAID();
+        final String json = "{\"messageType\": \"hello\", \"uaid\": \"" + uaid + "\", \"channelIDs\": [\"123\", \"456\"] }";
+        final HelloMessage handshake = JsonUtil.fromJson(json, HelloMessageImpl.class);
+        assertThat(handshake.getMessageType(), is(equalTo(MessageType.Type.HELLO)));
+        assertThat(handshake.getUAID(), is(equalTo(uaid)));
+        assertThat(handshake.getChannelIds().isEmpty(), is(false));
+        assertThat(handshake.getChannelIds(), hasItems("123", "456"));
+    }
+
+    @Test
     public void toJson() {
         final String uaid = UUIDUtil.newUAID();
-        final HandshakeMessageImpl handshake = new HandshakeMessageImpl(uaid.toString(), channelIds("123abc", "efg456"));
+        final HelloMessageImpl handshake = new HelloMessageImpl(uaid.toString(), channelIds("123abc", "efg456"));
         final String asJson = JsonUtil.toJson(handshake);
-        final HandshakeMessage parsed = JsonUtil.fromJson(asJson, HandshakeMessageImpl.class);
+        final HelloMessage parsed = JsonUtil.fromJson(asJson, HelloMessageImpl.class);
         assertThat(parsed.getMessageType(), is(equalTo(MessageType.Type.HELLO)));
         assertThat(parsed.getUAID().toString(), is(equalTo(uaid)));
         assertThat(parsed.getChannelIds(), hasItems("123abc", "efg456"));

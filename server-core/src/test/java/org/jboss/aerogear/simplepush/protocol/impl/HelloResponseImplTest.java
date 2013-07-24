@@ -16,32 +16,26 @@
  */
 package org.jboss.aerogear.simplepush.protocol.impl;
 
-import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
+import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
+import org.jboss.aerogear.simplepush.util.UUIDUtil;
+import org.junit.Test;
 
-public class HandshakeResponseImpl implements HandshakeResponse {
+public class HelloResponseImplTest {
 
-    private final String uaid;
-
-    public HandshakeResponseImpl(final String uaid) {
-        checkNotNull(uaid, "uaid");
-        this.uaid = uaid;
+    @Test(expected = NullPointerException.class)
+    public void constructWithNullUAID() {
+        new HelloResponseImpl(null);
     }
 
-    @Override
-    public String getUAID() {
-        return uaid;
-    }
-
-    @Override
-    public Type getMessageType() {
-        return Type.HELLO;
-    }
-
-    @Override
-    public String toString() {
-        return "HandshakeResponseImpl[messageType=" + getMessageType() + ", uaid=" + uaid + "]";
+    @Test
+    public void toJson() {
+        final String uaid = UUIDUtil.newUAID();
+        final HelloResponseImpl response = new HelloResponseImpl(uaid);
+        final String json = JsonUtil.toJson(response);
+        assertThat(json, equalTo("{\"messageType\":\"hello\",\"uaid\":\"" + uaid + "\"}"));
     }
 
 }

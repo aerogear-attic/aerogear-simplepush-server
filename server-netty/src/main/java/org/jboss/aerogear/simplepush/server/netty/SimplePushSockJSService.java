@@ -27,14 +27,14 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
-import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
+import org.jboss.aerogear.simplepush.protocol.HelloResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
@@ -81,7 +81,7 @@ public class SimplePushSockJSService implements SockJSService {
         switch (messageType.getMessageType()) {
         case HELLO:
             if (!checkHandshakeCompleted(uaid)) {
-                final HandshakeResponse response = simplePushServer.handleHandshake(fromJson(message, HandshakeMessageImpl.class));
+                final HelloResponse response = simplePushServer.handleHandshake(fromJson(message, HelloMessageImpl.class));
                 session.send(toJson(response));
                 uaid = response.getUAID();
                 userAgents.add(uaid, session);

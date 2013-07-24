@@ -51,13 +51,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
+import org.jboss.aerogear.simplepush.protocol.HelloResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.HelloResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
@@ -100,7 +100,7 @@ public class SimplePushSockJSServiceTest {
 
         final FullHttpResponse sendResponse = sendXhrHelloMessageRequest(factory, sessionUrl, uaid, channelId);
         assertThat(sendResponse.getStatus(), is(HttpResponseStatus.NO_CONTENT));
-        final HandshakeResponseImpl handshakeResponse = pollXhrHelloMessageResponse(factory, sessionUrl);
+        final HelloResponseImpl handshakeResponse = pollXhrHelloMessageResponse(factory, sessionUrl);
         assertThat(handshakeResponse.getUAID().toString(), equalTo(uaid.toString()));
     }
 
@@ -172,7 +172,7 @@ public class SimplePushSockJSServiceTest {
         final String uaid = UUIDUtil.newUAID();
         sendWebSocketHttpUpgradeRequest(sessionUrl, channel);
 
-        final HandshakeResponse response = sendWebSocketHelloFrame(uaid, channel);
+        final HelloResponse response = sendWebSocketHelloFrame(uaid, channel);
         assertThat(response.getMessageType(), equalTo(MessageType.Type.HELLO));
         assertThat(response.getUAID(), equalTo(uaid));
         channel.close();
@@ -368,9 +368,9 @@ public class SimplePushSockJSServiceTest {
         ch.pipeline().remove("wsencoder");
     }
 
-    private HandshakeResponse sendWebSocketHelloFrame(final String uaid, final EmbeddedChannel ch) {
+    private HelloResponse sendWebSocketHelloFrame(final String uaid, final EmbeddedChannel ch) {
         ch.writeInbound(TestUtil.helloWebSocketFrame(uaid.toString()));
-        return responseToType(ch.readOutbound(), HandshakeResponseImpl.class);
+        return responseToType(ch.readOutbound(), HelloResponseImpl.class);
     }
 
     private <T> T responseToType(final Object response, Class<T> type) {
@@ -398,12 +398,12 @@ public class SimplePushSockJSServiceTest {
         return xhrSend(factory, sessionUrl, TestUtil.helloSockJSFrame(uaid.toString(), channelIds));
     }
 
-    private HandshakeResponseImpl pollXhrHelloMessageResponse(final SockJSServiceFactory factory, final String sessionUrl) {
+    private HelloResponseImpl pollXhrHelloMessageResponse(final SockJSServiceFactory factory, final String sessionUrl) {
         final FullHttpResponse pollResponse = xhrPoll(factory, sessionUrl);
         assertThat(pollResponse.getStatus(), is(HttpResponseStatus.OK));
 
         final String helloJson = TestUtil.extractJsonFromSockJSMessage(pollResponse.content().toString(UTF_8));
-        return JsonUtil.fromJson(helloJson, HandshakeResponseImpl.class);
+        return JsonUtil.fromJson(helloJson, HelloResponseImpl.class);
     }
 
     private FullHttpResponse sendXhrRegisterChannelIdRequest(final SockJSServiceFactory factory, final String sessionUrl,
