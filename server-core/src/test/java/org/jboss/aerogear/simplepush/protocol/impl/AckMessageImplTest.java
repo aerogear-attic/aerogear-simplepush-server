@@ -31,7 +31,7 @@ import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.junit.Test;
 
-public class AckImplTest {
+public class AckMessageImplTest {
 
     @Test
     public void constructNullUpdates() {

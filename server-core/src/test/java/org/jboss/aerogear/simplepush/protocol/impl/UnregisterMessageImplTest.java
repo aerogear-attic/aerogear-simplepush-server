@@ -25,7 +25,7 @@ import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.junit.Test;
 
-public class UnregisterImplTest {
+public class UnregisterMessageImplTest {
 
     @Test(expected = NullPointerException.class)
     public void construct() {

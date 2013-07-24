@@ -32,7 +32,7 @@ import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.junit.Test;
 
-public class NotificationImplTest {
+public class NotificationMessageImplTest {
 
     @Test(expected = NullPointerException.class)
     public void constructWithNullUpdates() {
