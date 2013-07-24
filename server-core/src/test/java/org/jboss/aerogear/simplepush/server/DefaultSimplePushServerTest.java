@@ -126,7 +126,7 @@ public class DefaultSimplePushServerTest {
         assertThat(server.getChannel(channelId).getVersion(), is(2L));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test (expected = IllegalArgumentException.class)
     public void handleNotificationWithVersionLessThanCurrentVersion() throws ChannelNotFoundException {
         final String channelId = "testChannelId";
         final String uaid = UUIDUtil.newUAID();
@@ -134,6 +134,13 @@ public class DefaultSimplePushServerTest {
         server.handleNotification(channelId, uaid, "version=10");
         assertThat(server.getChannel(channelId).getVersion(), is(10L));
         server.handleNotification(channelId, uaid, "version=2");
+    }
+
+    @Test (expected = ChannelNotFoundException.class)
+    public void handleNotificationNonExistingChannelId() throws ChannelNotFoundException {
+        final String channelId = "testChannelId";
+        final String uaid = UUIDUtil.newUAID();
+        server.handleNotification(channelId, uaid, "version=1");
     }
 
     @Test

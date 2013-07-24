@@ -70,7 +70,7 @@ public class NotificationHandlerTest {
         doNotification(channelId, 1L, channel);
 
         final HttpResponse response = sendNotification(channelId, 1L, simplePushServer);
-        assertThat(response.getStatus(), is(HttpResponseStatus.BAD_REQUEST));
+        assertThat(response.getStatus(), is(HttpResponseStatus.OK));
         channel.close();
     }
 
@@ -85,7 +85,17 @@ public class NotificationHandlerTest {
         doNotification(channelId, 10L, channel);
 
         final HttpResponse response = sendNotification(channelId, 9L, simplePushServer);
-        assertThat(response.getStatus(), is(HttpResponseStatus.BAD_REQUEST));
+        assertThat(response.getStatus(), is(HttpResponseStatus.OK));
+        channel.close();
+    }
+
+    @Test
+    public void notificationWithNonExistingChannelId() throws Exception {
+        final SimplePushServer simplePushServer = defaultPushServer();
+        final EmbeddedChannel channel = createWebsocketChannel(simplePushServer);
+        channel.writeInbound(notificationRequest("non-existing-channelId", 10L));
+        final HttpResponse httpResponse = (HttpResponse) channel.readOutbound();
+        assertThat(httpResponse.getStatus().code(), equalTo(200));
         channel.close();
     }
 
