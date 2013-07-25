@@ -15,13 +15,14 @@
  */
 package org.jboss.aerogear.simplepush.server.netty;
 
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.Security;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 
 /**
  * Creates a {@link SSLContext} for just server certificates.
@@ -30,7 +31,7 @@ public final class WebSocketSslServerSslContext {
 
     private static final Logger logger = Logger.getLogger(WebSocketSslServerSslContext.class.getName());
     private static final String PROTOCOL = "TLS";
-    private final SSLContext _serverContext;
+    private final SSLContext serverContext;
 
     /**
      * Returns the singleton instance for this class
@@ -39,12 +40,6 @@ public final class WebSocketSslServerSslContext {
         return SingletonHolder.INSTANCE;
     }
 
-    /**
-     * SingletonHolder is loaded on the first execution of Singleton.getInstance() or the first access to
-     * SingletonHolder.INSTANCE, not before.
-     *
-     * See http://en.wikipedia.org/wiki/Singleton_pattern
-     */
     private interface SingletonHolder {
         WebSocketSslServerSslContext INSTANCE = new WebSocketSslServerSslContext();
     }
@@ -55,42 +50,36 @@ public final class WebSocketSslServerSslContext {
     private WebSocketSslServerSslContext() {
         SSLContext serverContext = null;
         try {
-            // Key store (Server side certificate)
             String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
             if (algorithm == null) {
                 algorithm = "SunX509";
             }
 
-            FileInputStream fin = null;
+            InputStream fin = null;
             try {
-                String keyStoreFilePath = System.getProperty("keystore.file.path");
-                String keyStoreFilePassword = System.getProperty("keystore.file.password");
+                String keyStorePassword = System.getProperty("simplepush.keystore.password");
 
-                KeyStore ks = KeyStore.getInstance("JKS");
-                fin = new FileInputStream(keyStoreFilePath);
-                ks.load(fin, keyStoreFilePassword.toCharArray());
+                final KeyStore ks = KeyStore.getInstance("JKS");
+                fin = this.getClass().getResourceAsStream("/simplepush.keystore");
+                ks.load(fin, keyStorePassword.toCharArray());
 
-                // Set up key manager factory to use our key store
-                // Assume key password is the same as the key store file
-                // password
-                KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-                kmf.init(ks, keyStoreFilePassword.toCharArray());
+                final KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
+                kmf.init(ks, keyStorePassword.toCharArray());
 
-                // Initialise the SSLContext to work with our key managers.
                 serverContext = SSLContext.getInstance(PROTOCOL);
                 serverContext.init(kmf.getKeyManagers(), null, null);
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 throw new Error("Failed to initialize the server-side SSLContext", e);
             } finally {
                 if (fin != null) {
                     fin.close();
                 }
             }
-        } catch (Exception ex) {
+        } catch (final Exception ex) {
             logger.log(Level.WARNING, "Error initializing SslContextManager.", ex);
-            System.exit(1);
+            throw new RuntimeException("Error initializing SslContextManager.", ex);
         } finally {
-            _serverContext = serverContext;
+            this.serverContext = serverContext;
         }
     }
 
@@ -98,7 +87,7 @@ public final class WebSocketSslServerSslContext {
      * Returns the server context with server side key store
      */
     public SSLContext serverContext() {
-        return _serverContext;
+        return serverContext;
     }
 
 }

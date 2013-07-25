@@ -13,8 +13,9 @@ data-source enable --name=SimplePushDS
 /extension=org.jboss.aerogear.netty:add
 
 ## Add SimplePush Netty Server
+/system-property=simplepush.keystore.password:add(value=simplepush)
 /socket-binding-group=standard-sockets/socket-binding=simplepush:add(port=7777)
-/:composite(steps=[{"operation" => "add", "address" => [("subsystem" => "netty")]}, {"operation" => "add", "address" => [("subsystem" => "netty"), ("server" => "simplepush")], "socket-binding" => "simplepush", "factoryClass" => "org.jboss.aerogear.simplepush.netty.SimplePushBootstrapFactory"}]
+/:composite(steps=[{"operation" => "add", "address" => [("subsystem" => "netty")]}, {"operation" => "add", "address" => [("subsystem" => "netty"), ("server" => "simplepush")], "socket-binding" => "simplepush", "factory-class" => "org.jboss.aerogear.simplepush.netty.SimplePushBootstrapFactory"}]
 
 run-batch
 #:reload

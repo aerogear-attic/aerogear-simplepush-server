@@ -121,11 +121,7 @@
                     </arguments>
                     <systemProperties>
                         <systemProperty>
-                            <key>keystore.file.path</key>
-                            <value>${basedir}/src/test/resources/simplepush.keystore</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <key>keystore.file.password</key>
+                            <key>simplepush.keystore.password</key>
                             <value>simplepush</value>
                         </systemProperty>
                         <!--
