@@ -33,6 +33,7 @@ import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.PingMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
@@ -105,8 +106,11 @@ public class SimplePushServerHandler implements Handler<SockJSSocket> {
                             processUnacked(uaid);
                         }
                         break;
+                    case PING:
+                        sock.write(new Buffer(PingMessageImpl.JSON));
+                        break;
                     default:
-                    break;
+                        break;
                 }
                 updateAccessedTime(uaid);
             }

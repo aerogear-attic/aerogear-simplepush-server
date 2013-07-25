@@ -36,6 +36,7 @@ import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.PingMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
@@ -110,6 +111,9 @@ public class SimplePushSockJSService implements SockJSService {
                 simplePushServer.handleAcknowledgement(ack, uaid);
                 processUnacked(uaid, session, simplePushServer.config().acknowledmentInterval());
             }
+            break;
+        case PING:
+            session.send(PingMessageImpl.JSON);
             break;
         }
         userAgents.updateAccessedTime(uaid);

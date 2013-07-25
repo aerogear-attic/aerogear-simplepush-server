@@ -16,25 +16,23 @@
  */
 package org.jboss.aerogear.simplepush.protocol;
 
+
 /**
- * Represents the 'messageType' of a messages in the
+ * Represents the Ping message in the
  * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>
+ *
+ * This message can be send by the UserAgent to verify that the connection to the server is working.
+ *
  */
-public interface MessageType {
+public interface PingMessage extends MessageType {
+
+    String PING_MESSAGE = "{}";
 
     /**
-     * The name of the JSON field that identifies a messageType according to the SimplePush protocol.
-     */
-    String MESSSAGE_TYPE_FIELD = "messageType";
-
-    enum Type {
-        HELLO, REGISTER, NOTIFICATION, UNREGISTER, ACK, PING
-    }
-
-    /**
-     * Returns the type of this message.
+     * Returns contents of the ping message, which should be '{}'.
      *
-     * @return {@code Type} the {@link Type} of this message.
+     * @return {@code String}  the contents of the ping message.
      */
-    Type getMessageType();
+    String getPingMessage();
+
 }

@@ -39,6 +39,7 @@ import org.jboss.aerogear.simplepush.protocol.HelloMessage;
 import org.jboss.aerogear.simplepush.protocol.HelloResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
+import org.jboss.aerogear.simplepush.protocol.PingMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
@@ -48,6 +49,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HelloResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.PingMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
@@ -76,6 +78,9 @@ public class JsonUtil {
 
         module.addDeserializer(AckMessageImpl.class, new AckDeserializer());
         module.addSerializer(AckMessageImpl.class, new AckSerializer());
+
+        module.addDeserializer(PingMessageImpl.class, new PingDeserializer());
+        module.addSerializer(PingMessageImpl.class, new PingSerializer());
 
         module.addDeserializer(NotificationMessageImpl.class, new NotificationDeserializer());
         module.addSerializer(NotificationMessageImpl.class, new NotificationSerializer());
@@ -357,6 +362,9 @@ public class JsonUtil {
             return new MessageType() {
                 @Override
                 public Type getMessageType() {
+                    if (messageTypeNode == null) {
+                        return MessageType.Type.PING;
+                    }
                     return MessageType.Type.valueOf(messageTypeNode.asText().toUpperCase());
                 }
             };
@@ -387,6 +395,30 @@ public class JsonUtil {
             jgen.writeString(unregisterResponse.getChannelId());
             jgen.writeFieldName(RegisterResponse.STATUS_FIELD);
             jgen.writeNumber(unregisterResponse.getStatus().getCode());
+            jgen.writeEndObject();
+        }
+    }
+
+    private static class PingDeserializer extends JsonDeserializer<PingMessageImpl> {
+
+        @Override
+        public PingMessageImpl deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException,
+                JsonProcessingException {
+            final ObjectCodec oc = jp.getCodec();
+            final JsonNode node = oc.readTree(jp);
+            if (node.isObject() && node.size() == 0) {
+                return new PingMessageImpl(node.toString());
+            }
+            throw new RuntimeException("Invalid Ping message format : [" + node.toString() + "]");
+        }
+    }
+
+    private static class PingSerializer extends JsonSerializer<PingMessage> {
+
+        @Override
+        public void serialize(final PingMessage ping, final JsonGenerator jgen,
+                final SerializerProvider provider) throws IOException, JsonProcessingException {
+            jgen.writeStartObject();
             jgen.writeEndObject();
         }
     }

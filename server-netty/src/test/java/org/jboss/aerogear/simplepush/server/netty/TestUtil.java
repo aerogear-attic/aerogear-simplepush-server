@@ -25,12 +25,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.PingMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 
 public final class TestUtil {
 
-    private static final Pattern MESSAGE_PATTERN = Pattern.compile("^a\\[\\\"([{\\\"]\\S.*\\\"?})\\\"\\]");
+    private static final Pattern MESSAGE_PATTERN = Pattern.compile("^a\\[\\\"([{\\\"]?\\S.*\\\"?})\\\"\\]");
 
     private TestUtil() {
     }
@@ -56,6 +57,10 @@ public final class TestUtil {
         return new TextWebSocketFrame(json);
     }
 
+    public static TextWebSocketFrame pingWebSocketFrame() {
+        return new TextWebSocketFrame(toJson(new PingMessageImpl()));
+    }
+
     public static TextWebSocketFrame unregisterChannelIdWebSocketFrame(final String channelId) {
         final String json = toJson(new UnregisterMessageImpl(channelId));
         return new TextWebSocketFrame(json);
@@ -63,6 +68,10 @@ public final class TestUtil {
 
     public static String unregisterChannelIdMessageSockJSFrame(final String channelId) {
         return asSockjsMessage(toJson(new UnregisterMessageImpl(channelId)));
+    }
+
+    public static String pingSockJSFrame() {
+        return asSockjsMessage(toJson(new PingMessageImpl()));
     }
 
     private static String asSockjsMessage(final String content) {
