@@ -6,14 +6,15 @@ jdk:
 before_install:
   - wget http://www.apache.org/dist/maven/maven-3/3.0.5/binaries/apache-maven-3.0.5-bin.tar.gz
   - tar -zxvf apache-maven-3.0.5-bin.tar.gz
-  - git clone git://github.com/qmx/netty
+  - git clone git://github.com/danbev/netty
   - cd netty
   - git checkout -b tmp ci
-  - cd sockjs
+  - cd codec-sockjs
   - ../../apache-maven-3.0.5/bin/mvn install -DskipTests -N --quiet
   - cd ../..
   - git clone git://github.com/danbev/netty-subsystem.git
   - cd netty-subsystem
+  - git checkout -b tmp ci
   - ../apache-maven-3.0.5/bin/mvn install -DskipTests -N --quiet
   - cd subsystem-api
   - ../../apache-maven-3.0.5/bin/mvn install -DskipTests -N --quiet
