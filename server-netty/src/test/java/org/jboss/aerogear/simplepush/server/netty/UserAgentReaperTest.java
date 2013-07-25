@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
@@ -87,7 +87,7 @@ public class UserAgentReaperTest {
     }
 
     private void doRegister(final String uaid, final SimplePushServer server) {
-        server.handleHandshake(new HandshakeMessageImpl(uaid.toString()));
+        server.handleHandshake(new HelloMessageImpl(uaid.toString()));
         server.handleRegister(new RegisterMessageImpl(uaid.toString()), uaid);
 
     }

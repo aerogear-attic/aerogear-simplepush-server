@@ -24,7 +24,7 @@ import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.junit.Test;
 
-public class RegisterImplTest {
+public class RegisterMessageImplTest {
 
     @Test
     public void fromJson() {

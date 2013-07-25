@@ -19,8 +19,8 @@ package org.jboss.aerogear.simplepush.server;
 import java.util.Set;
 
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
-import org.jboss.aerogear.simplepush.protocol.HandshakeMessage;
-import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
+import org.jboss.aerogear.simplepush.protocol.HelloMessage;
+import org.jboss.aerogear.simplepush.protocol.HelloResponse;
 import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
@@ -38,10 +38,10 @@ public interface SimplePushServer {
     /**
      * Handles the handshake ('hello') message in the SimplePush protocol.
      *
-     * @param handshakeMessage the {@link HandshakeMessage}.
-     * @return {@link HandshakeResponse} the handshake response.
+     * @param handshakeMessage the {@link HelloMessage}.
+     * @return {@link HelloResponse} the handshake response.
      */
-    HandshakeResponse handleHandshake(HandshakeMessage handshakeMessage);
+    HelloResponse handleHandshake(HelloMessage handshakeMessage);
 
     /**
      * Handles the 'register' message in the SimplePush protocol which is used to register a channel.

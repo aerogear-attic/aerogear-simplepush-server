@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 
@@ -36,7 +36,7 @@ public final class TestUtil {
     }
 
     public static String helloFrameAsJson(final String uaid, final String... channelIds) {
-        return toJson(new HandshakeMessageImpl(uaid.toString(), new HashSet<String>(Arrays.asList(channelIds))));
+        return toJson(new HelloMessageImpl(uaid.toString(), new HashSet<String>(Arrays.asList(channelIds))));
     }
 
     public static TextWebSocketFrame helloWebSocketFrame(final String uaid, final String... channelIds) {

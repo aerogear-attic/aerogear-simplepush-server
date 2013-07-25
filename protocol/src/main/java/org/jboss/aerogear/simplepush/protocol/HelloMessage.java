@@ -19,14 +19,14 @@ package org.jboss.aerogear.simplepush.protocol;
 import java.util.Set;
 
 /**
- * Represents the Handshake message, 'hello' message type, in the
+ * Represents the handshake message, 'hello' message type, in the
  * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>
  *
- * This message is sent after the initial WebSocket handshake has been completed and is the handshake for
+ * This message is sent after the initial WebSocket handshake has been completed and is the handshake
  * between the UserAgent and the SimplePush Server.
  *
  */
-public interface HandshakeMessage extends MessageType {
+public interface HelloMessage extends MessageType {
 
     String CHANNEL_IDS_FIELD = "channelIDs";
     String UAID_FIELD = "uaid";

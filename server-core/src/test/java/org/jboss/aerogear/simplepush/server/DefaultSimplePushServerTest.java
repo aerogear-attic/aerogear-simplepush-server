@@ -27,14 +27,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jboss.aerogear.simplepush.protocol.HandshakeMessage;
-import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
+import org.jboss.aerogear.simplepush.protocol.HelloMessage;
+import org.jboss.aerogear.simplepush.protocol.HelloResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.HandshakeMessageImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
@@ -54,15 +54,15 @@ public class DefaultSimplePushServerTest {
 
     @Test
     public void handleHandshake() {
-        final HandshakeResponse response = server.handleHandshake(new HandshakeMessageImpl());
+        final HelloResponse response = server.handleHandshake(new HelloMessageImpl());
         assertThat(response.getUAID(), is(notNullValue()));
     }
 
     @Test
     public void handleHandshakeWithChannels() throws ChannelNotFoundException {
         final Set<String> channelIds = new HashSet<String>(Arrays.asList("channel1", "channel2"));
-        final HandshakeMessage handshakeImpl = new HandshakeMessageImpl(UUIDUtil.newUAID().toString(), channelIds);
-        final HandshakeResponse response = server.handleHandshake(handshakeImpl);
+        final HelloMessage handshakeImpl = new HelloMessageImpl(UUIDUtil.newUAID().toString(), channelIds);
+        final HelloResponse response = server.handleHandshake(handshakeImpl);
         assertThat(response.getUAID(), is(notNullValue()));
         assertThat(server.getChannel("channel1").getChannelId(), is(equalTo("channel1")));
     }
@@ -70,8 +70,8 @@ public class DefaultSimplePushServerTest {
     @Test
     public void handleHandshakeWithEmptyChannels() throws ChannelNotFoundException {
         final Set<String> channelIds = Collections.emptySet();
-        final HandshakeMessage handshakeImpl = new HandshakeMessageImpl(UUIDUtil.newUAID().toString(), channelIds);
-        final HandshakeResponse response = server.handleHandshake(handshakeImpl);
+        final HelloMessage handshakeImpl = new HelloMessageImpl(UUIDUtil.newUAID().toString(), channelIds);
+        final HelloResponse response = server.handleHandshake(handshakeImpl);
         assertThat(response.getUAID(), is(notNullValue()));
         assertThat(server.hasChannel("channel1"), is(false));
     }
@@ -79,8 +79,8 @@ public class DefaultSimplePushServerTest {
     @Test
     public void handleHandshakeWithChannelsButNoUaid() {
         final Set<String> channelIds = new HashSet<String>(Arrays.asList("channel1", "channel2"));
-        final HandshakeMessage handshakeImpl = new HandshakeMessageImpl(null, channelIds);
-        final HandshakeResponse response = server.handleHandshake(handshakeImpl);
+        final HelloMessage handshakeImpl = new HelloMessageImpl(null, channelIds);
+        final HelloResponse response = server.handleHandshake(handshakeImpl);
         assertThat(response.getUAID(), is(notNullValue()));
         assertThat(server.hasChannel("channel1"), is(false));
     }

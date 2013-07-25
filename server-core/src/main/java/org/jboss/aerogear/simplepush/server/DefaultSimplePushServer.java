@@ -21,8 +21,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
-import org.jboss.aerogear.simplepush.protocol.HandshakeMessage;
-import org.jboss.aerogear.simplepush.protocol.HandshakeResponse;
+import org.jboss.aerogear.simplepush.protocol.HelloMessage;
+import org.jboss.aerogear.simplepush.protocol.HelloResponse;
 import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
@@ -30,7 +30,7 @@ import org.jboss.aerogear.simplepush.protocol.Status;
 import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Update;
-import org.jboss.aerogear.simplepush.protocol.impl.HandshakeResponseImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.HelloResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
@@ -50,11 +50,11 @@ public class DefaultSimplePushServer implements SimplePushServer {
         this.config = config;
     }
 
-    public HandshakeResponse handleHandshake(final HandshakeMessage handshake) {
+    public HelloResponse handleHandshake(final HelloMessage handshake) {
         for (String channelId : handshake.getChannelIds()) {
             store.saveChannel(new DefaultChannel(handshake.getUAID(), channelId, endpointUrl(channelId)));
         }
-        return new HandshakeResponseImpl(handshake.getUAID());
+        return new HelloResponseImpl(handshake.getUAID());
     }
 
     public RegisterResponse handleRegister(final RegisterMessage register, final String uaid) {
