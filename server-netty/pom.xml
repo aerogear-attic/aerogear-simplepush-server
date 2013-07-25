@@ -113,7 +113,7 @@
                         <!-- Port -->
                         <argument>-port=7777</argument>
                         <!-- Transport Layer Security option -->
-                        <argument>-tls=false</argument>
+                        <argument>-tls=true</argument>
                         <!-- UserAgent Reaper timeout in ms -->
                         <argument>-useragent_reaper_timeout=604800000</argument>
                         <!-- Acknowledgment interval -->
@@ -122,7 +122,7 @@
                     <systemProperties>
                         <systemProperty>
                             <key>keystore.file.path</key>
-                            <value>${basedir}/src/test/resources/simplePushServer.keystore</value>
+                            <value>${basedir}/src/test/resources/simplepush.keystore</value>
                         </systemProperty>
                         <systemProperty>
                             <key>keystore.file.password</key>
