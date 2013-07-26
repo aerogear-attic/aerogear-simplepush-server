@@ -9,13 +9,12 @@ before_install:
   - git clone git://github.com/danbev/netty
   - cd netty
   - git checkout -b tmp ci
-  - cd codec-sockjs
-  - ../../apache-maven-3.0.5/bin/mvn install -DskipTests -N --quiet
-  - cd ../..
+  - ../apache-maven-3.0.5/bin/mvn install -DskipTests --quiet
+  - cd ..
   - git clone git://github.com/danbev/netty-subsystem.git
   - cd netty-subsystem
   - git checkout -b tmp ci
-  - ../apache-maven-3.0.5/bin/mvn install -DskipTests -N --quiet
+  - ../apache-maven-3.0.5/bin/mvn install -DskipTests --quiet
   - cd ..
 
 notifications:
