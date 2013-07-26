@@ -41,6 +41,7 @@ public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
         final Config sockjsConfig = Config.prefix("/simplepush")
                 .websocketProtocols("push-notification")
                 .tls(false)
+                .websocketHeartbeatInterval(180000)
                 .cookiesNeeded()
                 .build();
         final DefaultEventExecutorGroup reaperExcutorGroup = newEventExecutorGroup(1, threadFactory);
