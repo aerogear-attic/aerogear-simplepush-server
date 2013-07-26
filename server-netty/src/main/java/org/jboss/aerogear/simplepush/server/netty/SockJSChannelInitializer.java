@@ -54,7 +54,7 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
     @Override
     protected void initChannel(final SocketChannel socketChannel) throws Exception {
         final ChannelPipeline pipeline = socketChannel.pipeline();
-        if (sockjsConfig.tls()) {
+        if (sockjsConfig.isTls()) {
             final SSLEngine engine = WebSocketSslServerSslContext.getInstance().serverContext().createSSLEngine();
             engine.setUseClientMode(false);
             pipeline.addLast(new SslHandler(engine));

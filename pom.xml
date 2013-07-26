@@ -18,7 +18,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.jboss.aerogear</groupId>
     <artifactId>simplepush-server-parent</artifactId>
     <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
@@ -36,7 +35,7 @@
     </parent>
 
     <properties>
-        <version.io.netty>4.0.0.CR10-SNAPSHOT</version.io.netty>
+        <version.io.netty>4.0.5.Final-SNAPSHOT</version.io.netty>
     </properties>
 
     <modules>
@@ -72,7 +71,7 @@
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
-                <artifactId>netty-sockjs</artifactId>
+                <artifactId>netty-codec-sockjs</artifactId>
                 <version>${version.io.netty}</version>
             </dependency>
             <dependency>
