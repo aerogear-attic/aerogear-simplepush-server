@@ -36,6 +36,7 @@
 
     <properties>
         <version.io.netty>4.0.5.Final-SNAPSHOT</version.io.netty>
+        <version.jackson>1.9.2</version.jackson>
     </properties>
 
     <modules>
@@ -73,6 +74,11 @@
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec-sockjs</artifactId>
                 <version>${version.io.netty}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.jackson</groupId>
+                <artifactId>jackson-mapper-asl</artifactId>
+                <version>${version.jackson}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -126,6 +132,7 @@
                     <version>false</version>
                     <author>false</author>
                     <keywords>true</keywords>
+                    <quiet>true</quiet>
                 </configuration>
             </plugin>
             <plugin>

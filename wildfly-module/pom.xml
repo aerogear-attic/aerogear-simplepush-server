@@ -39,6 +39,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <module.name>org.jboss.aerogear.simplepush</module.name>
+        <module.dir>${project.build.directory}/module/org/jboss/aerogear/simplepush/main</module.dir>
     </properties>
 
     <dependencies>
@@ -80,13 +81,20 @@
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}</finalName>
+        <finalName>${project.artifactId}-${project.version}</finalName>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <source>1.6</source>
                     <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <outputDirectory>${module.dir}</outputDirectory>
                 </configuration>
             </plugin>
             <plugin>
@@ -100,49 +108,40 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/deps</outputDirectory>
+                            <outputDirectory>${module.dir}</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteSnapshots>true</overWriteSnapshots>
                             <overWriteIfNewer>true</overWriteIfNewer>
+                            <silent>true</silent>
+                            <includeArtifactIds>aerogear-simplepush-protocol,
+                                                aerogear-simplepush-server-api, 
+                                                aerogear-simplepush-server-core, 
+                                                aerogear-simplepush-server-netty,
+                                                jackson-core-asl,
+                                                jackson-mapper-asl
+                            </includeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <inherited>false</inherited>
+                <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>build-dist</id>
+                        <id>copy-module-xml</id>
+                        <phase>process-resources</phase>
                         <goals>
-                            <goal>run</goal>
+                            <goal>copy-resources</goal>
                         </goals>
-                        <phase>package</phase>
                         <configuration>
-                            <target>
-                                <!-- Replace the '.' in ${module.name} with '/' to get its path  -->
-                                <tempfile property="temp.file"/>
-                                <echo message="${module.name}" file="${temp.file}"/>
-                                <replace file="${temp.file}" token="." value="/"/>
-                                <loadfile srcfile="${temp.file}" property="module.path"/>
-                                <delete file="${temp.file}"/>
-
-                                <delete dir="target/module"/>
-                                <property name="module.dir" value="target/module/${module.path}/main"/>
-
-                                <copy file="src/main/resources/module/main/module.xml" tofile="${module.dir}/module.xml"/>
-                                <copy file="target/${project.artifactId}.jar" tofile="${module.dir}/${project.artifactId}-${project.version}.jar"/>
-                                <copy file="target/deps/aerogear-simplepush-server-api-1.0.0-SNAPSHOT.jar" todir="${module.dir}"/>
-                                <copy file="target/deps/aerogear-simplepush-server-core-1.0.0-SNAPSHOT.jar" todir="${module.dir}"/>
-                                <copy file="target/deps/aerogear-simplepush-server-netty-1.0.0-SNAPSHOT.jar" todir="${module.dir}"/>
-                                <copy file="target/deps/aerogear-simplepush-protocol-1.0.0-SNAPSHOT.jar" todir="${module.dir}"/>
-                                <copy file="target/deps/jackson-core-asl-1.9.2.jar" todir="${module.dir}"/>
-                                <copy file="target/deps/jackson-mapper-asl-1.9.2.jar" todir="${module.dir}"/>
-                                <echo>Module ${module.name} has been created in the target/module directory. Copy to
-                                    your JBoss AS 7 installation.
-                                </echo>
-                            </target>
+                            <overwrite>true</overwrite>
+                            <outputDirectory>${module.dir}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources/module/main</directory>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
                         </configuration>
                     </execution>
                 </executions>

@@ -20,13 +20,13 @@
 <module xmlns="urn:jboss:module:1.1" name="org.jboss.aerogear.simplepush">
 
     <resources>
-        <resource-root path="aerogear-simplepush-server-api-1.0.0-SNAPSHOT.jar"/>
-        <resource-root path="aerogear-simplepush-server-core-1.0.0-SNAPSHOT.jar"/>
-        <resource-root path="aerogear-simplepush-server-netty-1.0.0-SNAPSHOT.jar"/>
-        <resource-root path="aerogear-simplepush-protocol-1.0.0-SNAPSHOT.jar"/>
-        <resource-root path="aerogear-simplepush-server-wildfly-1.0.0-SNAPSHOT.jar"/>
-        <resource-root path="jackson-core-asl-1.9.2.jar"/>
-        <resource-root path="jackson-mapper-asl-1.9.2.jar"/>
+        <resource-root path="aerogear-simplepush-server-api-${project.version}.jar"/>
+        <resource-root path="aerogear-simplepush-server-core-${project.version}.jar"/>
+        <resource-root path="aerogear-simplepush-server-netty-${project.version}.jar"/>
+        <resource-root path="aerogear-simplepush-protocol-${project.version}.jar"/>
+        <resource-root path="aerogear-simplepush-server-wildfly-${project.version}.jar"/>
+        <resource-root path="jackson-core-asl-${version.jackson}.jar"/>
+        <resource-root path="jackson-mapper-asl-${version.jackson}.jar"/>
     </resources>
 
     <dependencies>

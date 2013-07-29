@@ -39,6 +39,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <module.name>aerogear~simplepush~0.0.8</module.name>
+        <module.dir>${project.build.directory}/mods/aerogear~simplepush~0.0.8</module.dir>
         <vertx.version>2.0.0-final</vertx.version>
     </properties>
 
@@ -48,22 +49,17 @@
             <artifactId>aerogear-simplepush-server-core</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-protocol</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-platform</artifactId>
             <version>${vertx.version}</version>
         </dependency>
-        <!--
-              <dependency>
-                  <groupId>io.vertx</groupId>
-                  <artifactId>testtools</artifactId>
-                  <version>2.0.0-beta1</version>
-                  <scope>test</scope>
-              </dependency>
-        -->
         <dependency>
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
-            <version>1.9.2</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -103,6 +99,13 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <outputDirectory>${module.dir}/lib</outputDirectory>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
@@ -112,42 +115,46 @@
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.directory}/deps</outputDirectory>
+                            <outputDirectory>${module.dir}/lib</outputDirectory>
                             <overWriteReleases>false</overWriteReleases>
                             <overWriteSnapshots>false</overWriteSnapshots>
                             <overWriteIfNewer>true</overWriteIfNewer>
+                            <silent>true</silent>
+                            <includeArtifactIds>aerogear-simplepush-protocol,
+                                                aerogear-simplepush-server-api, 
+                                                aerogear-simplepush-server-core, 
+                                                jackson-core-asl,
+                                                jackson-mapper-asl,
+                                                netty-all,
+                                                hazelcast,
+                                                slf4j-api,
+                                                slf4j-simple
+                            </includeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <inherited>false</inherited>
+                <artifactId>maven-resources-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>build-dist</id>
+                        <id>copy-mod-json</id>
+                        <phase>process-resources</phase>
                         <goals>
-                            <goal>run</goal>
+                            <goal>copy-resources</goal>
                         </goals>
-                        <phase>package</phase>
                         <configuration>
-                            <target>
-                                <delete dir="target/mods"/>
-                                <property name="module.dir" value="target/mods/${module.name}"/>
-                                <copy file="src/main/resources/mod.json" tofile="${module.dir}/mod.json"/>
-                                <copy file="target/${project.artifactId}.jar" tofile="${module.dir}/lib/${project.artifactId}-${project.version}.jar"/>
-                                <copy file="target/deps/aerogear-simplepush-server-api-1.0.0-SNAPSHOT.jar" todir="${module.dir}/lib"/>
-                                <copy file="target/deps/aerogear-simplepush-server-core-1.0.0-SNAPSHOT.jar" todir="${module.dir}/lib"/>
-                                <copy file="target/deps/aerogear-simplepush-protocol-1.0.0-SNAPSHOT.jar" todir="${module.dir}/lib"/>
-                                <copy file="target/deps/jackson-core-asl-1.9.2.jar" todir="${module.dir}/lib"/>
-                                <copy file="target/deps/jackson-mapper-asl-1.9.2.jar" todir="${module.dir}/lib"/>
-                                <copy file="target/deps/netty-all-4.0.2.Final.jar" todir="${module.dir}/lib"/>
-                                <copy file="target/deps/hazelcast-2.6.jar" todir="${module.dir}/lib"/>
-                                <copy file="target/deps/slf4j-api-1.7.5.jar" todir="${module.dir}/lib"/>
-                                <copy file="target/deps/slf4j-simple-1.7.5.jar" todir="${module.dir}/lib"/>
-                                <echo>Module ${module.name} has been created in the target/mod.</echo>
-                            </target>
+                            <overwrite>true</overwrite>
+                            <outputDirectory>${module.dir}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/main/resources</directory>
+                                    <includes>
+                                        <include>mod.json</include>
+                                    </includes>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
                         </configuration>
                     </execution>
                 </executions>
