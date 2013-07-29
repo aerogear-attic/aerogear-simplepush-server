@@ -40,7 +40,7 @@ public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
         final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.defaultConfig();
         final Config sockjsConfig = Config.prefix("/simplepush")
                 .websocketProtocols("push-notification")
-                .tls(true)
+                .tls(false)
                 .websocketHeartbeatInterval(180000)
                 .cookiesNeeded()
                 .build();
