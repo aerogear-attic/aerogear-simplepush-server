@@ -58,9 +58,10 @@ public final class WebSocketSslServerSslContext {
             InputStream fin = null;
             try {
                 String keyStorePassword = System.getProperty("simplepush.keystore.password");
+                String keyStorePath = System.getProperty("simplepush.keystore.path");
 
                 final KeyStore ks = KeyStore.getInstance("JKS");
-                fin = this.getClass().getResourceAsStream("/simplepush.keystore");
+                fin = this.getClass().getResourceAsStream(keyStorePath);
                 ks.load(fin, keyStorePassword.toCharArray());
 
                 final KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);

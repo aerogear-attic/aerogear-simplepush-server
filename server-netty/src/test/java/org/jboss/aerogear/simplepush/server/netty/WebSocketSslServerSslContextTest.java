@@ -24,6 +24,7 @@ public class WebSocketSslServerSslContextTest {
     @BeforeClass
     public static void setup() {
         System.setProperty("simplepush.keystore.password", "simplepush");
+        System.setProperty("simplepush.keystore.path", "/simplepush-sample.keystore");
     }
 
     @Test

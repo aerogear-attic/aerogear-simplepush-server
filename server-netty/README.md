@@ -35,9 +35,12 @@ The port that the server will bind to.
 
 __tls__  
 Whether to use transport layer security or not.
-The server will read from a keystore named ```simplepush.keystore``` from the servers classpath. This keystore contains
-a self signed certificate for testing. This will be made more configurable in future versions. The keystore is password
-protected and a system property named ```simplepush.keystore.password``` is required to contain the password for the keystore.  
+The server will use a system property named ```simplepush.keystore.path``` which should point to 
+a keystore available on the servers classpath. If the keystore is password protected then the system property 
+```simplepush.keystore.password``` can be used to specify the password for the keystore.
+
+When running the ```mvn exec:java``` command a sample keystore is used that contains a self signed certificate for testing. 
+The above mentioned system variables are set in the pom.xml file.
 
 __ack_interval__ 
 How often the acknowledge job will run to re-send unacknowledged notifications.

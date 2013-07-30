@@ -107,6 +107,7 @@
                 <version>1.2</version>
                 <configuration>
                     <mainClass>org.jboss.aerogear.simplepush.server.netty.NettySockJSServer</mainClass>
+                    <classpathScope>test</classpathScope>
                     <arguments>
                         <!-- Host -->
                         <argument>-host=localhost</argument>
@@ -123,6 +124,10 @@
                         <systemProperty>
                             <key>simplepush.keystore.password</key>
                             <value>simplepush</value>
+                        </systemProperty>
+                        <systemProperty>
+                            <key>simplepush.keystore.path</key>
+                            <value>/simplepush-sample.keystore</value>
                         </systemProperty>
                         <!--
                         <systemProperty>

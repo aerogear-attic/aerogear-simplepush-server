@@ -35,6 +35,12 @@ to ```META-INF/persistence.xml```.
     
 ## Configuring WildFly
 
+### Enabling Transport Layer Security (TLS/SSL)
+If you want to enable TLS/SSL support for the server then you must provide a keystore for the server to use. This keystore
+must be accessible on the server classpath and a system variable named ```simplepush.keystore.path``` and ```simplepush.keystore.password```
+must be provided so that the server can find them. On WildFly you can add these properties using any of the administration
+interfaces. An example can be found in ```src/main/resources/wildfly-config.cli```.
+
 ### Adding the Mysql module
 AeroGear Simple Push server uses MySql datasource for persistence when deployed in WildFly and the database needs
 to be configured as well as the application server.
