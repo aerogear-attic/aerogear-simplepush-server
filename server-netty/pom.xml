@@ -107,13 +107,14 @@
                 <version>1.2</version>
                 <configuration>
                     <mainClass>org.jboss.aerogear.simplepush.server.netty.NettySockJSServer</mainClass>
+                    <classpathScope>test</classpathScope>
                     <arguments>
                         <!-- Host -->
                         <argument>-host=localhost</argument>
                         <!-- Port -->
                         <argument>-port=7777</argument>
                         <!-- Transport Layer Security option -->
-                        <argument>-tls=false</argument>
+                        <argument>-tls=true</argument>
                         <!-- UserAgent Reaper timeout in ms -->
                         <argument>-useragent_reaper_timeout=604800000</argument>
                         <!-- Acknowledgment interval -->
@@ -121,12 +122,12 @@
                     </arguments>
                     <systemProperties>
                         <systemProperty>
-                            <key>keystore.file.path</key>
-                            <value>${basedir}/src/test/resources/simplePushServer.keystore</value>
+                            <key>simplepush.keystore.password</key>
+                            <value>simplepush</value>
                         </systemProperty>
                         <systemProperty>
-                            <key>keystore.file.password</key>
-                            <value>simplepush</value>
+                            <key>simplepush.keystore.path</key>
+                            <value>/simplepush-sample.keystore</value>
                         </systemProperty>
                         <!--
                         <systemProperty>
