@@ -51,13 +51,13 @@ How often the UserAgent reaper job will run to clean up inactive user agents.
 ### Access the demo html page
 
 #### Setting up TLS/SSL
-This SimplePush Server uses SockJS with transport layer security and therefor requires a certifcate to be accepted by 
+This SimplePush Server uses SockJS with transport layer security and therefore requires a certificate to be accepted by 
 the client. The server can be enabled with TLS by changing the _tls_ setting in pom.xml, but the browser also needs to 
 import the certificate.  
 
 For some broswers is will be enough to access ```https://localhost:7777``` once, and then accept the certificate.  For other
-systems it migth be required to import the certificate through the browser preferens/settings page. For this case we
-have exported the cerfificate and it can be found in ```src/main/resources/simplepush.crt```.
+systems it might be required to import the certificate through the browser preferences/settings page. For this case we
+have exported the certificate and it can be found in ```src/main/resources/simplepush.crt```.
 
 #### Mac WebServer
 
