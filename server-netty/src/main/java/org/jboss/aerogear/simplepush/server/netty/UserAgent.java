@@ -18,12 +18,23 @@ package org.jboss.aerogear.simplepush.server.netty;
 
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Represents a UserAgent in the SimplePush Server.
+ * @param <T>
+ */
 public class UserAgent<T> {
 
     private final String uaid;
     private final T transport;
-    private AtomicLong timestamp;
+    private final AtomicLong timestamp;
 
+    /**
+     * Sole constructor.
+     *
+     * @param uaid the unique identifier for this UserAgent.
+     * @param transport the transport type that this UserAgent uses.
+     * @param timestamp the time this UserAgent was created.
+     */
     public UserAgent(final String uaid, final T transport, final long timestamp) {
         this.uaid = uaid;
         this.transport = transport;

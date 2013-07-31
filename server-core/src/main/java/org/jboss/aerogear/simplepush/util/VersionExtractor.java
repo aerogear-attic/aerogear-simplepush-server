@@ -19,6 +19,9 @@ package org.jboss.aerogear.simplepush.util;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Utility class for extracting the version from a notification request.
+ */
 public class VersionExtractor {
 
     private final static Pattern VERSION_PATTERN = Pattern.compile("\\s*version\\s*=\\s*(\\d+)");

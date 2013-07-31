@@ -25,6 +25,9 @@ import org.vertx.java.core.Handler;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.platform.Verticle;
 
+/**
+ * Performs the removal of inactive UserAgents.
+ */
 public class UserAgentReaper extends Verticle {
 
     @Override

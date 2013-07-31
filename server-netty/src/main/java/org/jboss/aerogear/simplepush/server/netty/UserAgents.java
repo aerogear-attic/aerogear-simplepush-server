@@ -22,6 +22,9 @@ import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+/**
+ * Represents a mapping of connected UserAgents in a SimplePush Server.
+ */
 public class UserAgents {
 
     private UserAgents() {
@@ -30,14 +33,31 @@ public class UserAgents {
     private static final ConcurrentMap<String, UserAgent<SessionContext>> userAgents = new ConcurrentHashMap<String, UserAgent<SessionContext>>();
     private static final UserAgents INSTANCE = new UserAgents();
 
+    /**
+     * Returns the singleton instance.
+     *
+     * @return {@link UserAgents} the singleton instance.
+     */
     public static UserAgents getInstance() {
         return INSTANCE;
     }
 
+    /**
+     * Adds the a new UserAgent "session".
+     *
+     * @param uaid the unique identifier for the UserAgent.
+     * @param session the {@link SessionContext} for the connected UserAgent.
+     */
     public void add(final String uaid, final SessionContext session) {
         userAgents.put(uaid, new UserAgent<SessionContext>(uaid, session, System.currentTimeMillis()));
     }
 
+    /**
+     * Returns the {@link UserAgent} for the specified user agent identifier.
+     *
+     * @param uaid the UserAgent id.
+     * @return {@link UserAgent} matching the passed in user agent identifier.
+     */
     public UserAgent<SessionContext> get(final String uaid) {
         final UserAgent<SessionContext> userAgent = userAgents.get(uaid);
         if (userAgent == null) {
@@ -46,14 +66,31 @@ public class UserAgents {
         return userAgent;
     }
 
+    /**
+     * Returns all the {@link UserAgent}s.
+     *
+     * @return {@code Collection<UserAgent>} all the {@link UserAgent}.
+     */
     public Collection<UserAgent<SessionContext>> all() {
         return userAgents.values();
     }
 
+    /**
+     * Determines if a {@link UserAgent} exists for the passed-in user agent identifier.
+     *
+     * @param uaid the user agent identifier.
+     * @return {@code true} if a {@link UserAgent} exists, or false otherwise.
+     */
     public boolean contains(final String uaid) {
         return userAgents.containsKey(uaid);
     }
 
+    /**
+     * Updates the timestamp for the UserAgent matching the passed-in user agent identifier.
+     * If the {@link UserAgent} does not exist nothing is performed.
+     *
+     * @param uaid the user agent identifier to update.
+     */
     public void updateAccessedTime(final String uaid) {
         if (uaid != null) {
             final UserAgent<SessionContext> userAgent = userAgents.get(uaid);

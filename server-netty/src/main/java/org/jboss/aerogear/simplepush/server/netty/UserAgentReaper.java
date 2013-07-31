@@ -25,12 +25,20 @@ import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Performs the removal of inactive UserAgents.
+ */
 public class UserAgentReaper implements Runnable {
 
     private final Logger logger = LoggerFactory.getLogger(UserAgentReaper.class);
     private final SimplePushServer simplePushServer;
     private final UserAgents userAgents = UserAgents.getInstance();
 
+    /**
+     * Sole constructor.
+     *
+     * @param simplePushServer the {@link SimplePushServer} that this reaper will operate on.
+     */
     public UserAgentReaper(final SimplePushServer simplePushServer) {
         this.simplePushServer = simplePushServer;
     }

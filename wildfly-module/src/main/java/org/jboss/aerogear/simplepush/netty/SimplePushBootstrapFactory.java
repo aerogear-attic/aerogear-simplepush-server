@@ -33,6 +33,10 @@ import org.jboss.aerogear.simplepush.server.datastore.JpaDataStore;
 import org.jboss.aerogear.simplepush.server.netty.SockJSChannelInitializer;
 import org.jboss.as.network.SocketBinding;
 
+/**
+ * A factory class for bootstraping a Netty SockJS SimplePush Server in
+ * WildFly.
+ */
 public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
 
     @Override

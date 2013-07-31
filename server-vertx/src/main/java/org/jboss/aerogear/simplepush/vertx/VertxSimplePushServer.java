@@ -30,6 +30,9 @@ import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.sockjs.SockJSServer;
 import org.vertx.java.platform.Verticle;
 
+/**
+ * Verticle for the SimplePush Server.
+ */
 public class VertxSimplePushServer extends Verticle {
 
     public static final String WRITE_HANDLER_MAP = "simplepush.writehandler.map";

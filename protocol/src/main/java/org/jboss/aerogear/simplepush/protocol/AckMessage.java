@@ -19,21 +19,28 @@ package org.jboss.aerogear.simplepush.protocol;
 import java.util.Set;
 
 /**
- * Represents the acknowledgement message, 'ack' message type, in the 
+ * Represents the acknowledgement message, 'ack' message type, in the
  * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>.
- * 
- * A ack message is sent from the UserAgent to the SimplePush contains the channels that the UserAgent has 
- * processed and is hence acknowledging. 
- * 
+ * </p>
+ * An ack message is sent from the UserAgent to the SimplePush Server. This will be done after the SimplePush Server
+ * has sent one or more notifications to the UserAgent. The 'ack' message contains the channel ids that the UserAgent
+ * has processed and is hence acknowledging.
  */
 public interface AckMessage extends MessageType {
 
+    /**
+     * The name of the updates JSON field.
+     */
     String UPDATES_FIELD = "updates";
+
+    /**
+     * The name of the version JSON field.
+     */
     String VERSION_FIELD = "version";
 
     /**
      * Returns the channel ids that have been acknowledged by UserAgent
-     * 
+     *
      * @return {@code Set<Channel>} the channels that have been acknowledged.
      */
     Set<Update> getUpdates();

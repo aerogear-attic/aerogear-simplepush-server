@@ -46,6 +46,9 @@ import org.vertx.java.core.logging.Logger;
 import org.vertx.java.core.sockjs.SockJSSocket;
 import org.vertx.java.platform.Container;
 
+/**
+ * Vert.x SimplePush Server implementation.
+ */
 public class SimplePushServerHandler implements Handler<SockJSSocket> {
 
     private final SimplePushServer simplePushServer;

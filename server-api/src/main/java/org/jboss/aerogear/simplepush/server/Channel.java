@@ -20,7 +20,6 @@ package org.jboss.aerogear.simplepush.server;
 /**
  * A Channel instance represents the server side information of a channel in the
  * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>
- *
  */
 public interface Channel {
 
@@ -28,7 +27,7 @@ public interface Channel {
      * A unique identifier for a UserAgent created by the SimplePush Server.
      *
      * @return {@code String} a unique id for a UserAgent, or an empty String if the UserAgent has not
-     * been assigned a UAID yet or wants to reset it, which will create a new one.
+     * been assigned a uaid yet, or wants to reset it, which will create a new one.
      */
     String getUAID();
 

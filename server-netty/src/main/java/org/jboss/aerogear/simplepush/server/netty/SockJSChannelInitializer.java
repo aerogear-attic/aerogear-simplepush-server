@@ -34,6 +34,9 @@ import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 
+/**
+ * The Netty {@link ChannelInitializer} for the SimplePush Server.
+ */
 public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> {
 
     private final DataStore datastore;
@@ -41,6 +44,14 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
     private final EventExecutorGroup backgroundGroup;
     private final Config sockjsConfig;
 
+    /**
+     * Sole constructor.
+     *
+     * @param simplePushConfig the {@link SimplePushServerConfig} configuration.
+     * @param datastore the {@link DataStore} to be passed to the {@link SimplePushServiceFactory}.
+     * @param sockjsConfig the SockJS {@link Config}.
+     * @param backgroundGroup an {@link EventExecutorGroup} to be used for the {@link UserAgentReaperHandler}.
+     */
     public SockJSChannelInitializer(final SimplePushServerConfig simplePushConfig,
             final DataStore datastore,
             final Config sockjsConfig,

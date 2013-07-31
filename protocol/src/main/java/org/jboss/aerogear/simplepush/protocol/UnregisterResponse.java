@@ -17,20 +17,23 @@
 package org.jboss.aerogear.simplepush.protocol;
 
 /**
- * Represents the Unregister response message, 'unregister' message type, in the 
+ * Represents the Unregister response message, 'unregister' message type, in the
  * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>
- * 
- * This message is sent from the PushServer to the UserAgent with the result of a unregistration attempt
+ * </p>
+ * This message is sent from the PushServer to the UserAgent with the result of a unregistration request.
  *
  */
 public interface UnregisterResponse extends UnregisterMessage {
 
+    /**
+     * The name of the status JSON field.
+     */
     String STATUS_FIELD = "status";
 
     /**
      * Returns the result of the Register call
-     * 
-     * @return {@code String} the channelId.
+     *
+     * @return {@code Status} the {@link Status} of the unregister request.
      */
     Status getStatus();
 

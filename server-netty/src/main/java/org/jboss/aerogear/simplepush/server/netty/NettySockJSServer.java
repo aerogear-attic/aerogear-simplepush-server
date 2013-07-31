@@ -35,6 +35,9 @@ import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 
+/**
+ * A standalone Netty SockJS SimplePush Server.
+ */
 public class NettySockJSServer {
 
     private final DefaultSimplePushConfig simplePushConfig;
@@ -67,6 +70,17 @@ public class NettySockJSServer {
         }
     }
 
+    /**
+     * Starts the server using the passed in configuration options.
+     * </p>
+     * Options:
+     * <pre>
+     * -host=localhost -port=8888 -tls=false -ack_interval=10000 -useragent_reaper_timeout=60000
+     * </pre>
+     *
+     * @param args the command line arguments passed.
+     * @throws Exception
+     */
     public static void main(final String[] args) throws Exception {
         final Map<Args, Option<?>> options = Options.options(args);
 

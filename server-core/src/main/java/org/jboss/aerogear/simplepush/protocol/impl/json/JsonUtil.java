@@ -57,6 +57,10 @@ import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 
+/**
+ * JSON utility class for transforming SimplePush messages to and from JSON.
+ *
+ */
 public class JsonUtil {
 
     private static ObjectMapper om = createObjectMapper();
@@ -97,6 +101,13 @@ public class JsonUtil {
     private JsonUtil() {
     }
 
+    /**
+     * Transforms from JSON to the type specified.
+     *
+     * @param json the json to be transformed.
+     * @param type the Java type that the JSON should be transformed to.
+     * @return T an instance of the type populated with data from the json message.
+     */
     public static <T> T fromJson(final String json, final Class<T> type) {
         try {
             return om.readValue(json, type);
@@ -105,6 +116,12 @@ public class JsonUtil {
         }
     }
 
+    /**
+     * Transforms from Java object notation to JSON.
+     *
+     * @param obj the Java object to transform into JSON.
+     * @return {@code String} the json representation for the object.
+     */
     public static String toJson(final Object obj) {
         final StringWriter stringWriter = new StringWriter();
         try {
@@ -115,6 +132,13 @@ public class JsonUtil {
         }
     }
 
+    /**
+     * A convenience method for transforming a SimplePush message frame into an instance
+     * of {@link MessageType}.
+     *
+     * @param json the JSON representing a message in the SimplePush protocol
+     * @return {@link MessageType} an instance of MessageType for the passed in json.
+     */
     public static MessageType parseFrame(final String json) {
         return fromJson(json, MessageType.class);
     }
