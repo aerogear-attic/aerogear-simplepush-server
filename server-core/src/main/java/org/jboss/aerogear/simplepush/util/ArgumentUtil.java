@@ -21,7 +21,7 @@ import java.util.Collection;
 /**
  * Utility methods for checking method arguments.
  */
-public class ArgumentUtil {
+public final class ArgumentUtil {
 
     private ArgumentUtil() {
     }

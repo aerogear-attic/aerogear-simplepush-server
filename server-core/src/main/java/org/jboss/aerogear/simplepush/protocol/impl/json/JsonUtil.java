@@ -61,7 +61,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
  * JSON utility class for transforming SimplePush messages to and from JSON.
  *
  */
-public class JsonUtil {
+public final class JsonUtil {
 
     private static ObjectMapper om = createObjectMapper();
 

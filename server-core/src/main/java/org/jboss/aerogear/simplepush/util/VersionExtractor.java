@@ -22,7 +22,7 @@ import java.util.regex.Pattern;
 /**
  * Utility class for extracting the version from a notification request.
  */
-public class VersionExtractor {
+public final class VersionExtractor {
 
     private final static Pattern VERSION_PATTERN = Pattern.compile("\\s*version\\s*=\\s*(\\d+)");
 

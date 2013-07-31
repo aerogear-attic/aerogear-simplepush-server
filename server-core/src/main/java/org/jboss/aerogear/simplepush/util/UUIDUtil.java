@@ -21,7 +21,7 @@ import java.util.UUID;
 /**
  * Utility class which method for helping with dealing with UUIDs.
  */
-public class UUIDUtil {
+public final class UUIDUtil {
 
     private UUIDUtil() {
     }
