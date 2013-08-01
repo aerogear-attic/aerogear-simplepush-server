@@ -18,7 +18,10 @@ package org.jboss.aerogear.simplepush.util;
 
 import java.util.Collection;
 
-public class ArgumentUtil {
+/**
+ * Utility methods for checking method arguments.
+ */
+public final class ArgumentUtil {
 
     private ArgumentUtil() {
     }

@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 /**
  * UserAgentReaperHandler is responsible for starting a single scheduled job
  * that will clean up inactive user agents.
- * 
+ *
  * @see UserAgentReaper
  */
 @Sharable
@@ -43,13 +43,18 @@ public class UserAgentReaperHandler extends ChannelInboundHandlerAdapter {
     private static ScheduledFuture<?> scheduleFuture;
     private static final AtomicBoolean reaperStarted = new AtomicBoolean(false);
 
+    /**
+     * Sole constructor.
+     *
+     * @param simplePushServer the {@link SimplePushServer} that this reaper will operate on.
+     */
     public UserAgentReaperHandler(final SimplePushServer simplePushServer) {
         this.simplePushServer = simplePushServer;
     }
 
     @Override
     public void handlerAdded(final ChannelHandlerContext ctx) throws Exception {
-        if (isReaperStarted()) {
+        if (started()) {
             return;
         }
         final SimplePushServerConfig config = simplePushServer.config();
@@ -61,20 +66,24 @@ public class UserAgentReaperHandler extends ChannelInboundHandlerAdapter {
         reaperStarted.set(true);
     }
 
+    /**
+     * Returns true if the reaper job has started.
+     *
+     * @return {@code true} if the reaper job has started, false otherwise.
+     */
     public boolean started() {
         return reaperStarted.get();
     }
 
+    /**
+     * Cancels the reaper job if it is active.
+     */
     public void cancelReaper() {
         if (scheduleFuture != null) {
             if (scheduleFuture.cancel(true)) {
                 reaperStarted.set(false);
             }
         }
-    }
-
-    private boolean isReaperStarted() {
-        return reaperStarted.get();
     }
 
 }

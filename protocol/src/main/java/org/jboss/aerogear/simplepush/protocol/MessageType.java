@@ -18,12 +18,25 @@ package org.jboss.aerogear.simplepush.protocol;
 
 /**
  * Represents the 'messageType' of a messages in the
- * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>
+ * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>.
+ * </p>
+ * All messages sent between the UserAgent and the SimplePush Server identified using a field named
+ * 'messageType'. Note that one exception to this is the {@code Ping} message which does not have a
+ * messageType.
+ *
+ * @see HelloMessage
+ * @see HelloResponse
+ * @see RegisterMessage
+ * @see RegisterResponse
+ * @see NotificationMessage
+ * @see AckMessage
+ * @see UnregisterMessage
+ * @see UnregisterResponse
  */
 public interface MessageType {
 
     /**
-     * The name of the JSON field that identifies a messageType according to the SimplePush protocol.
+     * The name of the messageType JSON field.
      */
     String MESSSAGE_TYPE_FIELD = "messageType";
 
@@ -32,7 +45,7 @@ public interface MessageType {
     }
 
     /**
-     * Returns the type of this message.
+     * Returns the Type of this message.
      *
      * @return {@code Type} the {@link Type} of this message.
      */

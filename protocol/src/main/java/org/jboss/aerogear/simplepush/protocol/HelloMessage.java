@@ -21,14 +21,21 @@ import java.util.Set;
 /**
  * Represents the handshake message, 'hello' message type, in the
  * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>
- *
- * This message is sent after the initial WebSocket handshake has been completed and is the handshake
+ * </p>
+ * This message is sent after the initial connection handshake has been completed and represents the handshake
  * between the UserAgent and the SimplePush Server.
  *
  */
 public interface HelloMessage extends MessageType {
 
+    /**
+     * The name of the channelIDs JSON field.
+     */
     String CHANNEL_IDS_FIELD = "channelIDs";
+
+    /**
+     * The name of the uaid JSON field.
+     */
     String UAID_FIELD = "uaid";
 
     /**

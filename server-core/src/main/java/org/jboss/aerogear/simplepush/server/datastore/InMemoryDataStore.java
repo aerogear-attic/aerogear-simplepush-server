@@ -29,6 +29,9 @@ import org.jboss.aerogear.simplepush.server.DefaultChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A {@link DataStore} implementation that stores all information in memory.
+ */
 public class InMemoryDataStore implements DataStore {
 
     private final ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<String, Channel>();

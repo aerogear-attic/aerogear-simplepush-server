@@ -17,12 +17,22 @@
 package org.jboss.aerogear.simplepush.protocol;
 
 /**
- * Represents a status that may be returned by a Register, Unregister messages in 
- * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>
+ * Represents a status that may be returned by a Register, Unregister messages in
+ * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>.
  */
 public interface Status {
 
+    /**
+     * Returns the error code for this Status.
+     *
+     * @return {@code int} the error code for this Status.
+     */
     int getCode();
 
+    /**
+     * Returns the message for this Status.
+     *
+     * @return {@code String} the message for this status.
+     */
     String getMessage();
 }

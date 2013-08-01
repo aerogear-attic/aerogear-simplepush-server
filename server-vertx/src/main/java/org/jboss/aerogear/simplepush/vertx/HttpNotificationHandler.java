@@ -29,6 +29,9 @@ import org.vertx.java.core.http.HttpServerRequest;
 import org.vertx.java.core.logging.Logger;
 import org.vertx.java.platform.Container;
 
+/**
+ * Handles HTTP PUT notification in the SimplePush Server.
+ */
 public class HttpNotificationHandler implements Handler<HttpServerRequest> {
 
     private final SimplePushServer simplePushServer;

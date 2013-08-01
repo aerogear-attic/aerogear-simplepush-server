@@ -24,11 +24,21 @@ import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 
+/**
+ * Factory class that creates instances of {@link SimplePushSockJSService}.
+ */
 public class SimplePushServiceFactory extends AbstractServiceFactory {
 
     private final DataStore datastore;
     private final SimplePushServerConfig simplePushConfig;
 
+    /**
+     * Sole constructor.
+     *
+     * @param sockjsConfig the Netty SockJS configuration.
+     * @param datastore the {@link DataStore} to be used by all instances created.
+     * @param simplePushConfig the {@link SimplePushServerConfig} configuration.
+     */
     public SimplePushServiceFactory(final Config sockjsConfig, final DataStore datastore,
             final SimplePushServerConfig simplePushConfig) {
         super(sockjsConfig);

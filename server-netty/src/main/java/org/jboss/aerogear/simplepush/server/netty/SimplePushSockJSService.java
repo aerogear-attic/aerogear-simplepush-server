@@ -58,6 +58,12 @@ public class SimplePushSockJSService implements SockJSService {
     private SessionContext session;
     private ScheduledFuture<?> ackJobFuture;
 
+    /**
+     * Sole constructor.
+     *
+     * @param sockjsConfig the SockJS {@link Config} for this service.
+     * @param simplePushServer the {@link SimplePushServer} that this instance will use.
+     */
     public SimplePushSockJSService(final Config sockjsConfig, final SimplePushServer simplePushServer) {
         this.sockjsConfig = sockjsConfig;
         this.simplePushServer = simplePushServer;

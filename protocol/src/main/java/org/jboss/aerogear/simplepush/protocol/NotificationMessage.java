@@ -19,21 +19,28 @@ package org.jboss.aerogear.simplepush.protocol;
 import java.util.Set;
 
 /**
- * Represents the Notification message, 'notification' message type, in the 
+ * Represents the Notification message, 'notification' messageType, in the
  * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>.
- * 
- * A notification message is sent from the SimplePush Server to the UserAgent and contains the channels that
+ * </p>
+ * A notification message is sent from the SimplePush Server to the UserAgent, and contains the channel ids that
  * have had their versions updated.
- * 
+ *
  */
 public interface NotificationMessage extends MessageType {
 
+    /**
+     * The name of the updates JSON field.
+     */
     String UPDATES_FIELD = "updates";
+
+    /**
+     * The name of the version JSON field.
+     */
     String VERSION_FIELD = "version";
 
     /**
-     * Returns the channels that have been updated for a UserAgent
-     * 
+     * Returns the set channel ids that have been updated for a UserAgent
+     *
      * @return {@code Set<Channel>} the channels that have been updated.
      */
     Set<Update> getUpdates();

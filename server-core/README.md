@@ -4,7 +4,7 @@ The project contains a base implementation of AeroGear SimplePush Server API and
 use this implementation to create a concrete server, for example using Netty or Vert.x as the framework that hosts the 
 server.
 
-Please refer to [server-netty](https://github.com/danbev/aerogear-simplepush-server/tree/master/server-netty) for an 
+Please refer to [server-netty](https://github.com/aerogear/aerogear-simple-push-server/tree/master/server-netty) for an 
 example of using this base implementation.
 
 
@@ -19,7 +19,7 @@ example of using this base implementation.
 ### Hello Handshake
 Is sent by the UserAgent to the SimplePush Server:
 
-![Hello Message](https://raw.github.com/danbev/aerogear-simplepush-server/master/server/src/etc/images/hello-message.png)  
+![Hello Message](https://raw.github.com/aerogear/aerogear-simple-push-server/master/server-core/src/etc/images/hello-message.png)  
 
 The SimplePush Server will ignore any additional Hello Messages after the first one on the web socket connection. 
 
@@ -55,7 +55,7 @@ of a Hello Message the _channelIDs_ represent channels that the UserAgent want t
 Register is used to register a ```channelId``` with the SimplePush server and enables the the client to be notified when the version 
 for this channel is updated.
 
-![Register Channel](https://raw.github.com/danbev/aerogear-simplepush-server/master/server/src/etc/images/register-channel.png)  
+![Register Channel](https://raw.github.com/aerogear/aerogear-simple-push-server/master/server-core/src/etc/images/register-channel.png)  
 Notice that the ```UAID``` is absent from this message. This is because we have already performed hello message handshake and the current 
 web socket connection is for the current UserAgent (identified by the UAID).
 
@@ -86,7 +86,7 @@ channelId.
 ### Notification
 A notification is triggered by sending a ```PUT``` request to the ```pushEndpoint```.
 
-![Notification](https://raw.github.com/danbev/aerogear-simplepush-server/master/server/src/etc/images/notification.png)  
+![Notification](https://raw.github.com/aerogear/aerogear-simple-push-server/master/server-core/src/etc/images/notification.png)  
 
 #### Request PUT format
 
@@ -117,7 +117,7 @@ The SimplePush server will try to will resend the the un-acknowledged notificati
 
 ### Unregister
 
-![Unregister](https://raw.github.com/danbev/aerogear-simplepush-server/master/server/src/etc/images/unregister-channel.png)  
+![Unregister](https://raw.github.com/aerogear/aerogear-simple-push-server/master/server-core/src/etc/images/unregister-channel.png)  
 
 #### Request format
 
@@ -133,3 +133,13 @@ The SimplePush server will try to will resend the the un-acknowledged notificati
       "channelID": "d9b74644-4f97-46aa-b8fa-9393985cd6cd"
       "status": 200
     }  
+
+### Ping
+![Ping](https://raw.github.com/aerogear/aerogear-simple-push-server/master/server-core/src/etc/images/ping-message.png)  
+
+The specification states that a ping should be sent from the UserAgent to the SimplePush Server approximately every 30 
+minutes and expect a reply from the server.   
+The ping message type does not follow the model of the other messages in the protocol which all have
+a 'messageType' field identifying the type of message. The Ping message is indended to be as small
+as possible. The actual payload is not specified but recommended to be a simple empty JavaScript object, '{}'. 
+

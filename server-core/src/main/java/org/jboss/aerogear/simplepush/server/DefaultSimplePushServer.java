@@ -40,16 +40,27 @@ import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.util.VersionExtractor;
 
+/**
+ * Concrete implementation of {@link SimplePushServer} that uses a {@link DataStore} to
+ * store information about UserAgents and channels.
+ */
 public class DefaultSimplePushServer implements SimplePushServer {
 
     private final DataStore store;
     private final SimplePushServerConfig config;
 
+    /**
+     * Sole constructor.
+     *
+     * @param store the {@link DataStore} that this server should use.
+     * @param config the {@link SimplePushServerConfig} for this server.
+     */
     public DefaultSimplePushServer(final DataStore store, final SimplePushServerConfig config) {
         this.store = store;
         this.config = config;
     }
 
+    @Override
     public HelloResponse handleHandshake(final HelloMessage handshake) {
         for (String channelId : handshake.getChannelIds()) {
             store.saveChannel(new DefaultChannel(handshake.getUAID(), channelId, endpointUrl(channelId)));
@@ -57,6 +68,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
         return new HelloResponseImpl(handshake.getUAID());
     }
 
+    @Override
     public RegisterResponse handleRegister(final RegisterMessage register, final String uaid) {
         final String channelId = register.getChannelId();
         final String pushEndpoint = endpointUrl(channelId);
@@ -65,6 +77,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
         return new RegisterResponseImpl(channelId, status, pushEndpoint);
     }
 
+    @Override
     public NotificationMessage handleNotification(final String channelId, final String uaid, final String body) throws ChannelNotFoundException {
         final Long version = Long.valueOf(VersionExtractor.extractVersion(body));
         final Channel channel = getChannel(channelId);
@@ -74,6 +87,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
         return notification;
     }
 
+    @Override
     public UnregisterResponse handleUnregister(UnregisterMessage unregister, final String uaid) {
         final String channelId = unregister.getChannelId();
         try {
@@ -84,6 +98,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
         }
     }
 
+    @Override
     public Set<Update> handleAcknowledgement(final AckMessage ack, final String uaid) {
         final Set<Update> acks = ack.getUpdates();
         final Set<Update> waitingForAcks = store.getUpdates(uaid);

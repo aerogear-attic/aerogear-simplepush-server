@@ -20,12 +20,19 @@ package org.jboss.aerogear.simplepush.protocol;
 /**
  * Represents the Ping message in the
  * <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush specification protocol</a>
- *
+ * </p>
  * This message can be send by the UserAgent to verify that the connection to the server is working.
+ * The Ping messge type does not follow the model of the other messages in the protocol which all have
+ * a 'messageType' field identifying the type of message. The Ping message is indended to be as small
+ * as possible. The actual payload is not specified but recommended to be a simple empty JavaScript
+ * object, '{}'
  *
  */
 public interface PingMessage extends MessageType {
 
+    /**
+     * The default value for a Ping message body.
+     */
     String PING_MESSAGE = "{}";
 
     /**

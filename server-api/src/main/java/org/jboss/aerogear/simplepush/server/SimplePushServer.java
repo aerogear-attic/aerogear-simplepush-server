@@ -31,7 +31,6 @@ import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
 
 /**
  * A Java implementation of a <a href="https://wiki.mozilla.org/WebAPI/SimplePush/Protocol">SimplePush</a> Server.
- *
  */
 public interface SimplePushServer {
 

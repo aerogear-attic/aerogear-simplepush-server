@@ -18,7 +18,10 @@ package org.jboss.aerogear.simplepush.util;
 
 import java.util.UUID;
 
-public class UUIDUtil {
+/**
+ * Utility class which method for helping with dealing with UUIDs.
+ */
+public final class UUIDUtil {
 
     private UUIDUtil() {
     }
