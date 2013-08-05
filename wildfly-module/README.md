@@ -2,10 +2,7 @@
 This project is a module intended to be used with the [Netty Subsystem](https://github.com/danbev/netty-subsystem)
 
 ## Prerequisites 
-This project depends on [aergoear-simple-push-server](https://github.com/aerogear/aerogear-simple-push-server) which needs 
-to be installed manually as it is currently not available in any public maven repository.  
-
-It also requires that [Netty Subsystem](https://github.com/danbev/netty-subsystem/tree/master/subsystem#installation) 
+This project requires that the [Netty Subsystem](https://github.com/danbev/netty-subsystem/tree/master/subsystem#installation) 
 be installed on the local system, as this dependency is currently not available in a maven repository. The module produced
 by that project needs to be copied to you WildFly installation, please see the instructions in the link above.   
 __You do not need to configure anything at this stage, this will be taken care of in the section ```Configuring WildFly``` in this document.__
@@ -13,15 +10,15 @@ __You do not need to configure anything at this stage, this will be taken care o
 ## Building
 From the root folder of this project run the following command:
 
-    mvn install
+    mvn package
 
 ## Installing
 Copy the module produced by ```mvn package``` to the _modules_ directory of the application server.
 
-    cp -r wildfly-module/target/module/org $WILDFLY_HOME/modules
+    cp -r wildfly-module/target/module/org $WILDFLY_HOME/modules/
     
-Make sure you have installed the [Netty Subsystem](https://github.com/danbev/netty-subsystem), and then add this module as 
-a dependency to the Netty subsystem module ```$WILDFLY_HOME/modules/org/jboss/aerogear/netty/main/module.xml```:
+Next, we need to add ```org.jboss.aerogear.simplepush``` as a dependency to the Netty module by editing 
+ the Netty subsystem module ```$WILDFLY_HOME/modules/org/jboss/aerogear/netty/main/module.xml```:
 
     <dependencies>
         ...
