@@ -7,7 +7,6 @@ server.
 Please refer to [server-netty](https://github.com/aerogear/aerogear-simple-push-server/tree/master/server-netty) for an 
 example of using this base implementation.
 
-
 ## Usage
 
 ### Build the SimplePush Server
