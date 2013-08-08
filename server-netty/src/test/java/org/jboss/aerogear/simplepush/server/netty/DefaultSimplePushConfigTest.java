@@ -31,7 +31,7 @@ public class DefaultSimplePushConfigTest {
                 .userAgentReaperTimeout(1000L)
                 .ackInterval(60000L)
                 .build();
-        assertThat(config.endpointUrlPrefix(), equalTo("/endpoint"));
+        assertThat(config.endpointUrlPrefix(), equalTo("http://localhost:7777/endpoint"));
         assertThat(config.userAgentReaperTimeout(), is(1000L));
         assertThat(config.acknowledmentInterval(), is(60000L));
     }

@@ -29,6 +29,27 @@ public interface SimplePushServerConfig {
     String DEFAULT_ENDPOINT_URL_PREFIX = "/endpoint";
 
     /**
+     * The externally available host that this server is reachable by.
+     *
+     * @return {@code String} the host.
+     */
+    String host();
+
+    /**
+     * The externally available port that this server is reachable by.
+     *
+     * @return {@code port} the port.
+     */
+    int port();
+
+    /**
+     * Determins whether transport layer security is in use.
+     *
+     * @return {@code true} if transport layer security is in use.
+     */
+    boolean isUseTls();
+
+    /**
      * Returns the endpoint url prefix for this SimplePush server.
      * This will get the channelId appended to it.
      *

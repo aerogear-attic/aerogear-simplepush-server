@@ -118,7 +118,7 @@ public class NotificationHandlerTest {
     }
 
     private FullHttpRequest notificationRequest(final String channelId, final Long version) {
-        final FullHttpRequest req = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.PUT, "/endpoint/" + channelId);
+        final FullHttpRequest req = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.PUT, "http://localhost:7777/endpoint/" + channelId);
         req.content().writeBytes(Unpooled.copiedBuffer("version=" + version.toString(), CharsetUtil.UTF_8));
         return req;
     }

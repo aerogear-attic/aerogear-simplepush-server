@@ -60,8 +60,7 @@ public class NettySockJSServer {
             sb.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new SockJSChannelInitializer(simplePushConfig, datastore, sockJSConfig, reaperExcutorGroup));
-            final Channel ch = sb.bind(value(Args.HOST, options, "localhost"), value(Args.PORT, options, 7777))
-                    .sync().channel();
+            final Channel ch = sb.bind(simplePushConfig.host(), simplePushConfig.port()).sync().channel();
             System.out.println("SockJS server with options " + options);
             ch.closeFuture().sync();
         } finally {
@@ -84,7 +83,9 @@ public class NettySockJSServer {
     public static void main(final String[] args) throws Exception {
         final Map<Args, Option<?>> options = Options.options(args);
 
-        final DefaultSimplePushConfig simplePushConfig = DefaultSimplePushConfig.create()
+        final String host = value(Args.HOST, options, "localhost");
+        final int port = value(Args.PORT, options, 7777);
+        final DefaultSimplePushConfig simplePushConfig = DefaultSimplePushConfig.create(host, port)
                 .userAgentReaperTimeout(Options.<Long> value(Args.USERAGENT_REAPER_TIMEOUT, options))
                 .ackInterval(Options.<Long> value(Args.ACK_INTERVAL, options))
                 .build();
