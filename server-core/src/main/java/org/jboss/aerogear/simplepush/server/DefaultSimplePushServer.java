@@ -38,6 +38,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
+import org.jboss.aerogear.simplepush.util.CryptoUtil;
 import org.jboss.aerogear.simplepush.util.VersionExtractor;
 
 /**
@@ -63,7 +64,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
     @Override
     public HelloResponse handleHandshake(final HelloMessage handshake) {
         for (String channelId : handshake.getChannelIds()) {
-            store.saveChannel(new DefaultChannel(handshake.getUAID(), channelId, endpointUrl(channelId)));
+            store.saveChannel(new DefaultChannel(handshake.getUAID(), channelId, makeEndpointUrl(handshake.getUAID(), channelId)));
         }
         return new HelloResponseImpl(handshake.getUAID());
     }
@@ -71,7 +72,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
     @Override
     public RegisterResponse handleRegister(final RegisterMessage register, final String uaid) {
         final String channelId = register.getChannelId();
-        final String pushEndpoint = endpointUrl(channelId);
+        final String pushEndpoint = makeEndpointUrl(uaid, channelId);
         final boolean saved = store.saveChannel(new DefaultChannel(uaid.toString(), channelId, pushEndpoint));
         final Status status = saved ? new StatusImpl(200, "OK") : new StatusImpl(409, "Conflict: channeld [" + channelId + " is already in use");
         return new RegisterResponseImpl(channelId, status, pushEndpoint);
@@ -152,8 +153,13 @@ public class DefaultSimplePushServer implements SimplePushServer {
         store.removeChannels(uaid);
     }
 
-    private String endpointUrl(final String channelId) {
-        return config.endpointUrlPrefix() + "/" + channelId;
+    private String makeEndpointUrl(final String uaid, final String channelId) {
+        try {
+            final String path = uaid + "." + channelId;
+            return config.notificationUrl() + "/" + CryptoUtil.encrypt(config.tokenKey(), path);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

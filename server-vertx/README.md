@@ -31,10 +31,11 @@ The SimplePush Server vert.x module can be configured using a json configuration
 The following configuration options are available:
 
     {
-      "host" : localhost,
+      "host" : "localhost",
       "port" : 7777,
       "reaperTimeout" : 300000,
       "ackInterval" : 60000
+      "tokenKey" : "yourRandomToken"
     }
     
 __host__    
@@ -48,5 +49,9 @@ This is a scheduled job that will clean up UserAgent that have been inactive for
 
 __ackInterval__  
 The time, in milliseconds, that a scheduled job will try to resend unacknowledged notifications.    
+
+__tokenKey__  
+This should be a random token which will be used by the server for encryption/decryption of the endpoint URLs that are
+returned to clients upon successful channel registration.
 
 

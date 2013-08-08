@@ -44,6 +44,8 @@ import java.util.concurrent.Callable;
 import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
+import org.jboss.aerogear.simplepush.util.CryptoUtil;
+import org.jboss.aerogear.simplepush.util.CryptoUtil.EndpointParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +68,8 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
         if (msg instanceof FullHttpRequest) {
             final FullHttpRequest request = (FullHttpRequest) msg;
             final String requestUri = request.getUri();
-            if (requestUri.startsWith(simplePushServer.config().endpointUrlPrefix())) {
+            logger.info(requestUri);
+            if (requestUri.startsWith(simplePushServer.config().endpointPrefix())) {
                 handleHttpRequest(ctx, request);
             } else {
                 ctx.fireChannelRead(ReferenceCountUtil.retain(msg));
@@ -81,8 +84,8 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
             return;
         }
         final String requestUri = req.getUri();
-        final String channelId = requestUri.substring(requestUri.lastIndexOf('/') + 1);
-        final Future<Void> future = ctx.channel().eventLoop().submit(new Notifier(channelId, req.content()));
+        final String endpoint = requestUri.substring(requestUri.lastIndexOf('/') + 1);
+        final Future<Void> future = ctx.channel().eventLoop().submit(new Notifier(endpoint, req.content()));
         future.addListener(new NotificationFutureListener(ctx.channel(), req));
     }
 
@@ -106,11 +109,11 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
 
     private class Notifier implements Callable<Void> {
 
-        private final String channelId;
+        private final String endpoint;
         private final ByteBuf content;
 
-        private Notifier(final String channelId, final ByteBuf content) {
-            this.channelId = channelId;
+        private Notifier(final String endpoint, final ByteBuf content) {
+            this.endpoint = endpoint;
             this.content = content;
             this.content.retain();
         }
@@ -118,13 +121,13 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
         @Override
         public Void call() throws Exception {
             try {
-                final String uaid = simplePushServer.fromChannel(channelId);
+                final EndpointParam endpointParam = CryptoUtil.decryptEndpoint(simplePushServer.config().tokenKey(), endpoint);
                 final String payload = content.toString(CharsetUtil.UTF_8);
-                logger.info("UserAgent [" + uaid + "] Notification [" + channelId + ", " + payload + "]");
-                final NotificationMessage notification = simplePushServer.handleNotification(channelId, uaid, payload);
-                final SessionContext session = userAgents.get(uaid).context();
+                logger.info("UserAgent [" + endpointParam.uaid() + "] Notification [" + endpointParam.channelId() + ", " + payload + "]");
+                final NotificationMessage notification = simplePushServer.handleNotification(endpointParam.channelId(), endpointParam.uaid(), payload);
+                final SessionContext session = userAgents.get(endpointParam.uaid()).context();
                 session.send(toJson(notification));
-                userAgents.updateAccessedTime(uaid);
+                userAgents.updateAccessedTime(endpointParam.uaid());
                 return null;
             } finally {
                 content.release();

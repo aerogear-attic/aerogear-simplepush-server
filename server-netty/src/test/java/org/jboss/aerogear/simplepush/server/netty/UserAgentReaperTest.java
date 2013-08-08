@@ -38,6 +38,7 @@ import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
+import org.jboss.aerogear.simplepush.util.CryptoUtil;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -106,7 +107,10 @@ public class UserAgentReaperTest {
     }
 
     private SimplePushServer simplePushServer() {
-        final SimplePushServerConfig config = DefaultSimplePushConfig.create().userAgentReaperTimeout(20L).build();
+        final SimplePushServerConfig config = DefaultSimplePushConfig.create()
+                .userAgentReaperTimeout(20L)
+                .tokenKey(new String(CryptoUtil.randomKey(128)))
+                .build();
         return new DefaultSimplePushServer(new InMemoryDataStore(), config);
     }
 

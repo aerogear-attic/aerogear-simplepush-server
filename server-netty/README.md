@@ -22,7 +22,7 @@ you have to build the following branch manually:
 This will start the server listening localhost using port 7777. To toggle these arguments you can
 specify overrides on the command line:  
 
-    mvn exec:java -Dexec.args="-host=localhost -port=8888 -tls=false -ack_interval=10000 -useragent_reaper_timeout=60000"
+    mvn exec:java -Dexec.args="-host=localhost -port=7777 -tls=false -ack_interval=10000 -useragent_reaper_timeout=60000 -token_key=yourRandomToken"
     
 __host__  
 The host that the server will bind to.
@@ -44,6 +44,10 @@ How often the acknowledge job will run to re-send unacknowledged notifications.
 
 __useragent_reaper_timeout__ 
 How often the UserAgent reaper job will run to clean up inactive user agents.
+
+__token_key__  
+This should be a random token which will be used by the server for encryption/decryption of the endpoint URLs that are
+returned to clients upon successful channel registration.
     
 ### Access the demo html page
 

@@ -26,13 +26,20 @@ public class ChannelNotFoundException extends Exception {
     private final String channelId;
 
     /**
-     * Sole constructor.
-     *
      * @param message a description of when the exception occurred.
      * @param channelId the channel id that could not be located.
      */
     public ChannelNotFoundException(final String message, final String channelId) {
         super(message);
+        this.channelId = channelId;
+    }
+
+    /**
+     * @param message a description of when the exception occurred.
+     * @param channelId the channel id that could not be located.
+     */
+    public ChannelNotFoundException(final String message, final String channelId, final Throwable cause) {
+        super(message, cause);
         this.channelId = channelId;
     }
 

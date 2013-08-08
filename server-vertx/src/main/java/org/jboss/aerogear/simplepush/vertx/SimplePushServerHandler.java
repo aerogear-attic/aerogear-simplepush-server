@@ -91,7 +91,7 @@ public class SimplePushServerHandler implements Handler<SockJSSocket> {
                         if (checkHandshakeCompleted(uaid)) {
                             final RegisterResponse response = simplePushServer.handleRegister(fromJson(buffer.toString(), RegisterMessageImpl.class), uaid);
                             sock.write(new Buffer(toJson(response)));
-                            logger.info("UserAgent [" + uaid + "] Registered[" + response.getChannelId() + "]");
+                            logger.info("UserAgent [" + uaid + "] Registered[" + response + "]");
                         }
                         break;
                     case UNREGISTER:

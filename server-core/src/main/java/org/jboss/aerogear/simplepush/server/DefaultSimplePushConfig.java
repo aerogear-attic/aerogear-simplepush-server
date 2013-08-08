@@ -16,15 +16,20 @@
  */
 package org.jboss.aerogear.simplepush.server;
 
+import org.jboss.aerogear.simplepush.util.CryptoUtil;
+
 /**
  * Configuration settings for SimplePush server
  */
 public final class DefaultSimplePushConfig implements SimplePushServerConfig {
 
+
     private final String host;
     private final int port;
     private final boolean tls;
-    private final String endpointUrl;
+    private final String tokenKey;
+    private final String endpointPrefix;
+    private final String notificationUrl;
     private final long reaperTimeout;
     private final long ackInterval;
 
@@ -32,7 +37,9 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         host = builder.host;
         port = builder.port;
         tls = builder.tls;
-        endpointUrl = makeNotifyURL(builder.endpointPrefix);
+        tokenKey = builder.tokenKey;
+        endpointPrefix = builder.endpointPrefix;
+        notificationUrl = makeNotifyURL(builder.endpointPrefix);
         reaperTimeout = builder.timeout;
         ackInterval = builder.ackInterval;
     }
@@ -50,12 +57,20 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         return port;
     }
 
+    public String tokenKey() {
+        return tokenKey;
+    }
+
     public boolean isUseTls() {
         return tls;
     }
 
-    public String endpointUrlPrefix() {
-        return endpointUrl;
+    public String notificationUrl() {
+        return notificationUrl;
+    }
+
+    public String endpointPrefix() {
+        return endpointPrefix;
     }
 
     public long userAgentReaperTimeout() {
@@ -74,7 +89,8 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         return new StringBuilder("SimplePushConfig[host=").append(host)
                 .append(", port=").append(port)
                 .append(", tls=").append(tls)
-                .append(", endpointUrlPrefix=").append(endpointUrl)
+                .append(", endpointUrlPrefix=").append(endpointPrefix)
+                .append(", notificationUrl=").append(notificationUrl)
                 .append(", reaperTimeout=").append(reaperTimeout)
                 .append(", ackInterval=").append(ackInterval)
                 .append("]").toString();
@@ -89,12 +105,16 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
     }
 
     public static SimplePushServerConfig defaultConfig() {
-        return new DefaultSimplePushConfig.Builder().host("localhost").port(7777).build();
+        return new DefaultSimplePushConfig.Builder().host("localhost")
+                .port(7777)
+                .tokenKey(new String(CryptoUtil.randomKey(16)))
+                .build();
     }
 
     public static class Builder {
         private String host;
         private int port;
+        private String tokenKey;
         private boolean tls;
         private String endpointPrefix = DEFAULT_ENDPOINT_URL_PREFIX;
         private long timeout = 604800000L;
@@ -109,6 +129,11 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
 
         public Builder port(final int port) {
             this.port = port;
+            return this;
+        }
+
+        public Builder tokenKey(final String tokenKey) {
+            this.tokenKey = tokenKey;
             return this;
         }
 
@@ -138,7 +163,10 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
             return this;
         }
 
-        public DefaultSimplePushConfig build() {
+        public SimplePushServerConfig build() {
+            if (tokenKey == null) {
+                throw new IllegalStateException("No 'tokenKey' must be configured!");
+            }
             return new DefaultSimplePushConfig(this);
         }
     }

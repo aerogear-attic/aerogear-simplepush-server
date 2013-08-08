@@ -51,8 +51,10 @@ import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
+import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
+import org.jboss.aerogear.simplepush.util.CryptoUtil;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -71,7 +73,10 @@ public class NettySimplePushSockJSServerTest {
         final Config sockJSConfig = Config.prefix("/simplepush").cookiesNeeded().build();
         final DataStore datastore = new InMemoryDataStore();
         final ServerBootstrap sb = new ServerBootstrap();
-        final DefaultSimplePushConfig simplePushConfig = DefaultSimplePushConfig.create().userAgentReaperTimeout(2000L).build();
+        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create()
+                .userAgentReaperTimeout(2000L)
+                .tokenKey(new String(CryptoUtil.randomKey(128)))
+                .build();
         sb.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
                 .childHandler(new SockJSChannelInitializer(simplePushConfig, datastore, sockJSConfig, eventExecutorGroup));

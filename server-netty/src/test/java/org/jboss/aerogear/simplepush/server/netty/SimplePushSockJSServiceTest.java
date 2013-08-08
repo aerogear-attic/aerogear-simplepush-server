@@ -123,7 +123,7 @@ public class SimplePushSockJSServiceTest {
         final RegisterResponseImpl registerChannelIdResponse = pollXhrRegisterChannelIdResponse(factory, sessionUrl);
         assertThat(registerChannelIdResponse.getChannelId(), equalTo(channelId));
         assertThat(registerChannelIdResponse.getStatus().getCode(), equalTo(200));
-        assertThat(registerChannelIdResponse.getPushEndpoint(), equalTo("http://localhost:7777/endpoint/" + channelId));
+        assertThat(registerChannelIdResponse.getPushEndpoint().startsWith("http://localhost:7777/update/"), is(true));
     }
 
     @Test

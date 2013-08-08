@@ -56,6 +56,7 @@ public class VertxSimplePushServer extends Verticle {
         return DefaultSimplePushConfig.create()
                 .ackInterval(config.getLong("ackInterval"))
                 .endpointUrlPrefix(config.getString("endpointUrlPrefix"))
+                .tokenKey(config.getString("tokenKey"))
                 .userAgentReaperTimeout(config.getLong("userAgentReaperTimeout")).build();
     }
 
@@ -68,8 +69,9 @@ public class VertxSimplePushServer extends Verticle {
 
     private void setupHttpNotificationHandler(final HttpServer httpServer, final SimplePushServer simplePushServer) {
         final RouteMatcher rm = new RouteMatcher();
-        final String endpointUrlPrefix = simplePushServer.config().endpointUrlPrefix();
-        rm.put(endpointUrlPrefix + "/:channelId", new HttpNotificationHandler(simplePushServer, vertx, container));
+        final String endpointUrlPrefix = simplePushServer.config().endpointPrefix();
+        System.out.println(endpointUrlPrefix);
+        rm.put(endpointUrlPrefix + "/:endpoint", new HttpNotificationHandler(simplePushServer, vertx, container));
         httpServer.requestHandler(rm);
     }
 
