@@ -60,7 +60,11 @@ public final class UserAgentDTO implements Serializable {
         if (channels == null) {
             channels = new HashSet<ChannelDTO>();
         }
-        channels.add(new ChannelDTO(this, channelId, version, endpointUrl));
+        final ChannelDTO newChannelDTO = new ChannelDTO(this, channelId, version, endpointUrl);
+        if (!channels.add(newChannelDTO)) {
+            channels.remove(newChannelDTO);
+            channels.add(newChannelDTO);
+        }
     }
 
     public void setChannels(final Set<ChannelDTO> channels) {

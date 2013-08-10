@@ -82,7 +82,6 @@ public final class ChannelDTO implements Serializable {
         int result = 1;
         result = prime * result + ((channelId == null) ? 0 : channelId.hashCode());
         result = prime * result + ((endpointUrl == null) ? 0 : endpointUrl.hashCode());
-        result = prime * result + (int) (version ^ (version >>> 32));
         return result;
     }
 
@@ -102,8 +101,7 @@ public final class ChannelDTO implements Serializable {
 
         final ChannelDTO other = (ChannelDTO) obj;
         return channelId == null ? other.channelId == null : channelId.equals(other.channelId) &&
-                endpointUrl == null ? other.endpointUrl == null : endpointUrl.equals(other.endpointUrl) &&
-                version == other.version;
+                endpointUrl == null ? other.endpointUrl == null : endpointUrl.equals(other.endpointUrl);
     }
 
 }

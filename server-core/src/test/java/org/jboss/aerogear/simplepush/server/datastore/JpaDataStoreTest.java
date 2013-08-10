@@ -53,8 +53,9 @@ public class JpaDataStoreTest {
     @Test
     public void saveChannels() {
         final String uaid = UUIDUtil.newUAID();
-        assertThat(jpaDataStore.saveChannel(newChannel(uaid, UUID.randomUUID().toString(), 0L)), is(true));
-        assertThat(jpaDataStore.saveChannel(newChannel(uaid, UUID.randomUUID().toString(), 0L)), is(true));
+        final String channelId = UUID.randomUUID().toString();
+        assertThat(jpaDataStore.saveChannel(newChannel(uaid, channelId, 1L)), is(true));
+        assertThat(jpaDataStore.saveChannel(newChannel(uaid, channelId, 10L)), is(true));
     }
 
     @Test

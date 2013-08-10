@@ -61,7 +61,7 @@ public final class JpaDataStore implements DataStore {
                     userAgent = new UserAgentDTO(channel.getUAID().toString());
                 }
                 userAgent.addChannel(channel.getChannelId(), channel.getVersion(), channel.getPushEndpoint());
-                em.persist(userAgent);
+                em.merge(userAgent);
                 return Boolean.TRUE;
             }
         };

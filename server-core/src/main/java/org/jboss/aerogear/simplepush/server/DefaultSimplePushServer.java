@@ -82,6 +82,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
         final Long version = Long.valueOf(VersionExtractor.extractVersion(body));
         final Channel channel = getChannel(channelId);
         channel.setVersion(version);
+        store.saveChannel(channel);
         final NotificationMessage notification = new NotificationMessageImpl(new HashSet<Update>(Arrays.asList(new UpdateImpl(channelId, version))));
         store.saveUpdates(notification.getUpdates(), uaid);
         return notification;
