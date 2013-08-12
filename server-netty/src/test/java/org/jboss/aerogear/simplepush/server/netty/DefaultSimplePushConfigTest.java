@@ -21,30 +21,38 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
+import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
+import org.jboss.aerogear.simplepush.util.CryptoUtil;
 import org.junit.Test;
 
 public class DefaultSimplePushConfigTest {
 
     @Test
     public void buildConfig() {
-        final DefaultSimplePushConfig config = DefaultSimplePushConfig.create()
+        final SimplePushServerConfig config = DefaultSimplePushConfig.create()
                 .userAgentReaperTimeout(1000L)
                 .ackInterval(60000L)
+                .tokenKey(new String(CryptoUtil.randomKey(16)))
                 .build();
-        assertThat(config.endpointUrlPrefix(), equalTo("/endpoint"));
+        assertThat(config.notificationUrl(), equalTo("http://localhost:7777/update"));
+        assertThat(config.endpointPrefix(), equalTo("/update"));
         assertThat(config.userAgentReaperTimeout(), is(1000L));
         assertThat(config.acknowledmentInterval(), is(60000L));
     }
 
     @Test
     public void buildConfigWithNullUserAgentReaperTimeout() {
-        final DefaultSimplePushConfig config = DefaultSimplePushConfig.create().userAgentReaperTimeout(null).build();
+        final SimplePushServerConfig config = DefaultSimplePushConfig.create().userAgentReaperTimeout(null)
+                .tokenKey(new String(CryptoUtil.randomKey(16)))
+                .build();
         assertThat(config.userAgentReaperTimeout(), is(604800000L));
     }
 
     @Test
     public void buildConfigWithNullAckInterval() {
-        final DefaultSimplePushConfig config = DefaultSimplePushConfig.create().ackInterval(null).build();
+        final SimplePushServerConfig config = DefaultSimplePushConfig.create().ackInterval(null)
+                .tokenKey(new String(CryptoUtil.randomKey(16)))
+                .build();
         assertThat(config.acknowledmentInterval(), is(60000L));
     }
 

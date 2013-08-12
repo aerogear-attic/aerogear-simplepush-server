@@ -128,7 +128,8 @@
                                                 netty-all,
                                                 hazelcast,
                                                 slf4j-api,
-                                                slf4j-simple
+                                                slf4j-simple,
+                                                commons-codec
                             </includeArtifactIds>
                         </configuration>
                     </execution>

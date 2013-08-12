@@ -92,7 +92,7 @@ public class DefaultSimplePushServerTest {
         assertThat(response.getMessageType(), equalTo(MessageType.Type.REGISTER));
         assertThat(response.getStatus().getCode(), equalTo(200));
         assertThat(response.getStatus().getMessage(), equalTo("OK"));
-        assertThat(response.getPushEndpoint(), equalTo("/endpoint/someChannelId"));
+        assertThat(response.getPushEndpoint().startsWith("http://localhost:7777/update"), is(true));
     }
 
     @Test

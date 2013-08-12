@@ -32,6 +32,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
+import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 
@@ -40,11 +41,11 @@ import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
  */
 public class NettySockJSServer {
 
-    private final DefaultSimplePushConfig simplePushConfig;
+    private final SimplePushServerConfig simplePushConfig;
     private final Config sockJSConfig;
     private Map<Options.Args, Option<?>> options;
 
-    public NettySockJSServer(final Map<Args, Option<?>> options, final DefaultSimplePushConfig simplePushConfig, final Config sockJSConfig) {
+    public NettySockJSServer(final Map<Args, Option<?>> options, final SimplePushServerConfig simplePushConfig, final Config sockJSConfig) {
         this.options = options;
         this.simplePushConfig = simplePushConfig;
         this.sockJSConfig = sockJSConfig;
@@ -60,8 +61,7 @@ public class NettySockJSServer {
             sb.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new SockJSChannelInitializer(simplePushConfig, datastore, sockJSConfig, reaperExcutorGroup));
-            final Channel ch = sb.bind(value(Args.HOST, options, "localhost"), value(Args.PORT, options, 7777))
-                    .sync().channel();
+            final Channel ch = sb.bind(simplePushConfig.host(), simplePushConfig.port()).sync().channel();
             System.out.println("SockJS server with options " + options);
             ch.closeFuture().sync();
         } finally {
@@ -75,7 +75,7 @@ public class NettySockJSServer {
      * </p>
      * Options:
      * <pre>
-     * -host=localhost -port=8888 -tls=false -ack_interval=10000 -useragent_reaper_timeout=60000
+     * -host=localhost -port=8888 -tls=false -ack_interval=10000 -useragent_reaper_timeout=60000 -token_key=testing
      * </pre>
      *
      * @param args the command line arguments passed.
@@ -84,9 +84,12 @@ public class NettySockJSServer {
     public static void main(final String[] args) throws Exception {
         final Map<Args, Option<?>> options = Options.options(args);
 
-        final DefaultSimplePushConfig simplePushConfig = DefaultSimplePushConfig.create()
+        final String host = value(Args.HOST, options, "localhost");
+        final int port = value(Args.PORT, options, 7777);
+        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create(host, port)
                 .userAgentReaperTimeout(Options.<Long> value(Args.USERAGENT_REAPER_TIMEOUT, options))
                 .ackInterval(Options.<Long> value(Args.ACK_INTERVAL, options))
+                .tokenKey(Options.<String> value(Args.TOKEN_KEY, options))
                 .build();
 
         final Config sockJSConfig = Config.prefix("/simplepush")
@@ -108,7 +111,8 @@ public class NettySockJSServer {
             PORT(Integer.class),
             USERAGENT_REAPER_TIMEOUT(Long.class),
             ACK_INTERVAL(Long.class),
-            TLS(Boolean.class);
+            TLS(Boolean.class),
+            TOKEN_KEY(String.class);
 
             private Class<?> type;
 
@@ -166,6 +170,9 @@ public class NettySockJSServer {
                     break;
                 case TLS:
                     options.put(option.name(), new Option<Boolean>(option.name(), Boolean.parseBoolean(option.value())));
+                    break;
+                case TOKEN_KEY:
+                    options.put(option.name(), new Option<String>(option.name(), (String) option.value()));
                     break;
                 }
                 options.put(option.name(), option);

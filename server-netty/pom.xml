@@ -115,6 +115,8 @@
                         <argument>-port=7777</argument>
                         <!-- Transport Layer Security option -->
                         <argument>-tls=true</argument>
+                        <!-- Token key used for encryption/decryption -->
+                        <argument>-token_key=dummyKey</argument>
                         <!-- UserAgent Reaper timeout in ms -->
                         <argument>-useragent_reaper_timeout=604800000</argument>
                         <!-- Acknowledgment interval -->

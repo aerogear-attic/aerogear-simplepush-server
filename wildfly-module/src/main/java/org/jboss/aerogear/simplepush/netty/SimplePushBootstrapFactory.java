@@ -40,8 +40,10 @@ import org.jboss.as.network.SocketBinding;
 public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
 
     @Override
-    public ServerBootstrap createServerBootstrap(final SocketBinding socketBinding, final ThreadFactory threadFactory) {
-        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.defaultConfig();
+    public ServerBootstrap createServerBootstrap(final SocketBinding socketBinding,
+            final ThreadFactory threadFactory,
+            final String tokenKey) {
+        final SimplePushServerConfig simplePushConfig = createConfig(socketBinding, tokenKey);
         final Config sockjsConfig = Config.prefix("/simplepush")
                 .websocketProtocols("push-notification")
                 .tls(false)
@@ -58,6 +60,16 @@ public class SimplePushBootstrapFactory implements ServerBootstrapFactory {
                 .channel(NioServerSocketChannel.class)
                 .childHandler(channelInitializer);
         return sb;
+    }
+
+    /*
+     * This OpenShift specific code will be removed when the SimplePush subsystem is in place
+     */
+    private SimplePushServerConfig createConfig(final SocketBinding socketBinding, final String tokenKey) {
+        final String openShiftAppDNS = System.getenv("OPENSHIFT_APP_DNS");
+        final String hostName = openShiftAppDNS == null ? socketBinding.getAddress().getHostName() : openShiftAppDNS;
+        final int port = openShiftAppDNS == null ? socketBinding.getPort() : 8000;
+        return DefaultSimplePushConfig.create(hostName, port).tokenKey(tokenKey).build();
     }
 
     private DefaultEventExecutorGroup newEventExecutorGroup(int i, ThreadFactory threadFactory) {

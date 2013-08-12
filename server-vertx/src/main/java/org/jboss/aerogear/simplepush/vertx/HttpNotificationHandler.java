@@ -22,6 +22,8 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
+import org.jboss.aerogear.simplepush.util.CryptoUtil;
+import org.jboss.aerogear.simplepush.util.CryptoUtil.EndpointParam;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.buffer.Buffer;
@@ -51,13 +53,12 @@ public class HttpNotificationHandler implements Handler<HttpServerRequest> {
         request.bodyHandler(new Handler<Buffer>() {
             @Override
             public void handle(final Buffer buffer) {
-                final String channelId = request.params().get("channelId");
                 try {
+                    final EndpointParam endpointParam = CryptoUtil.decryptEndpoint(simplePushServer.config().tokenKey(), request.params().get("endpoint"));
                     final String payload = buffer.toString();
-                    logger.info("Notification channelId  [" + channelId + "] " + payload);
-                    final String uaid = simplePushServer.fromChannel(channelId);
-                    final NotificationMessage notification = simplePushServer.handleNotification(channelId, uaid, payload);
-                    vertx.eventBus().send(writeHandlerMap.get(uaid.toString()), new Buffer(toJson(notification)));
+                    logger.info("Notification channelId  [" + endpointParam.channelId() + "] " + payload);
+                    final NotificationMessage notification = simplePushServer.handleNotification(endpointParam.channelId(), endpointParam.uaid(), payload);
+                    vertx.eventBus().send(writeHandlerMap.get(endpointParam.uaid()), new Buffer(toJson(notification)));
                     request.response().setStatusCode(200);
                     request.response().end();
                 } catch (final Exception e) {

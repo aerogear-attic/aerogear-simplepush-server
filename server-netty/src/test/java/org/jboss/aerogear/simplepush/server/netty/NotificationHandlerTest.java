@@ -42,6 +42,7 @@ import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
+import org.jboss.aerogear.simplepush.util.CryptoUtil;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Test;
 
@@ -55,7 +56,7 @@ public class NotificationHandlerTest {
         final EmbeddedChannel channel = createWebsocketChannel(simplePushServer);
         registerUserAgent(uaid, channel);
         doRegister(channelId, uaid, simplePushServer);
-        doNotification(channelId, 1L, channel);
+        doNotification(channelId, uaid, simplePushServer.config().tokenKey(), 1L, channel);
         channel.close();
     }
 
@@ -67,9 +68,9 @@ public class NotificationHandlerTest {
         final EmbeddedChannel channel = createWebsocketChannel(simplePushServer);
         registerUserAgent(uaid, channel);
         doRegister(channelId, uaid, simplePushServer);
-        doNotification(channelId, 1L, channel);
+        doNotification(channelId, uaid, simplePushServer.config().tokenKey(), 1L, channel);
 
-        final HttpResponse response = sendNotification(channelId, 1L, simplePushServer);
+        final HttpResponse response = sendNotification(channelId, uaid, 1L, simplePushServer);
         assertThat(response.getStatus(), is(HttpResponseStatus.OK));
         channel.close();
     }
@@ -82,18 +83,19 @@ public class NotificationHandlerTest {
         final EmbeddedChannel channel = createWebsocketChannel(simplePushServer);
         registerUserAgent(uaid, channel);
         doRegister(channelId, uaid, simplePushServer);
-        doNotification(channelId, 10L, channel);
+        doNotification(channelId, uaid, simplePushServer.config().tokenKey(), 10L, channel);
 
-        final HttpResponse response = sendNotification(channelId, 9L, simplePushServer);
+        final HttpResponse response = sendNotification(channelId, uaid, 9L, simplePushServer);
         assertThat(response.getStatus(), is(HttpResponseStatus.OK));
         channel.close();
     }
 
     @Test
     public void notificationWithNonExistingChannelId() throws Exception {
+        final String uaid = UUIDUtil.newUAID();
         final SimplePushServer simplePushServer = defaultPushServer();
         final EmbeddedChannel channel = createWebsocketChannel(simplePushServer);
-        channel.writeInbound(notificationRequest("non-existing-channelId", 10L));
+        channel.writeInbound(notificationRequest("non-existing-channelId", uaid, simplePushServer.config().tokenKey(), 10L));
         final HttpResponse httpResponse = (HttpResponse) channel.readOutbound();
         assertThat(httpResponse.getStatus().code(), equalTo(200));
         channel.close();
@@ -103,9 +105,9 @@ public class NotificationHandlerTest {
         return new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.defaultConfig());
     }
 
-    private HttpResponse sendNotification(final String channelId, final long version, final SimplePushServer simplePushServer) throws Exception {
+    private HttpResponse sendNotification(final String channelId, final String uaid, final long version, final SimplePushServer simplePushServer) throws Exception {
         final EmbeddedChannel ch = createWebsocketChannel(simplePushServer);
-        ch.writeInbound(notificationRequest(channelId, 9L));
+        ch.writeInbound(notificationRequest(channelId, uaid, simplePushServer.config().tokenKey(), 9L));
         return (HttpResponse) ch.readOutbound();
     }
 
@@ -117,14 +119,16 @@ public class NotificationHandlerTest {
         return server.handleRegister(new RegisterMessageImpl(channelId), uaid);
     }
 
-    private FullHttpRequest notificationRequest(final String channelId, final Long version) {
-        final FullHttpRequest req = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.PUT, "/endpoint/" + channelId);
+    private FullHttpRequest notificationRequest(final String channelId, final String uaid, final String tokenKey, final Long version) throws Exception {
+        final String encrypted = CryptoUtil.encrypt(tokenKey, uaid + "." + channelId);
+        final FullHttpRequest req = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.PUT, "/update/" + encrypted);
         req.content().writeBytes(Unpooled.copiedBuffer("version=" + version.toString(), CharsetUtil.UTF_8));
         return req;
     }
 
-    private HttpResponse doNotification(final String channelId, final Long version, final EmbeddedChannel channel) throws Exception {
-        channel.writeInbound(notificationRequest(channelId, version));
+    private HttpResponse doNotification(final String channelId, final String uaid, final String tokenKey,
+            final Long version, final EmbeddedChannel channel) throws Exception {
+        channel.writeInbound(notificationRequest(channelId, uaid, tokenKey, version));
 
         // The notification destined for the connected channel
         final NotificationMessageImpl notification = responseToType(channel.readOutbound(), NotificationMessageImpl.class);

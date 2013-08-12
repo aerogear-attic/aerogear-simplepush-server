@@ -26,7 +26,35 @@ public interface SimplePushServerConfig {
      * prefix will be used and returned to the client to enable the
      * client to PUT notifications.
      */
-    String DEFAULT_ENDPOINT_URL_PREFIX = "/endpoint";
+    String DEFAULT_ENDPOINT_URL_PREFIX = "/update";
+
+    /**
+     * The externally available host that this server is reachable by.
+     *
+     * @return {@code String} the host.
+     */
+    String host();
+
+    /**
+     * The externally available port that this server is reachable by.
+     *
+     * @return {@code port} the port.
+     */
+    int port();
+
+    /**
+     * Determins whether transport layer security is in use.
+     *
+     * @return {@code true} if transport layer security is in use.
+     */
+    boolean isUseTls();
+
+    /**
+     * Token key for encryption/decryption of endpoint urls.
+     *
+     * @return {@code byte[]} token used for encryption/decryption of endpoint urls
+     */
+    String tokenKey();
 
     /**
      * Returns the endpoint url prefix for this SimplePush server.
@@ -34,7 +62,15 @@ public interface SimplePushServerConfig {
      *
      * @return {@code String} the endpoint url prefix.
      */
-    String endpointUrlPrefix();
+    String endpointPrefix();
+
+    /**
+     * Returns the notification url prefix for this SimplePush server.
+     * This will be the protocol://host:port/endpointUrlPrefix
+     *
+     * @return {@code String} the notification url.
+     */
+    String notificationUrl();
 
     /**
      * Returns the UserAgent reaper time out.
