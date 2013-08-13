@@ -11,11 +11,6 @@ before_install:
   - git checkout -b tmp ci
   - ../apache-maven-3.0.5/bin/mvn install -DskipTests --quiet
   - cd ..
-  - git clone git://github.com/danbev/netty-subsystem.git
-  - cd netty-subsystem
-  - git checkout -b tmp 0.8.0_CI
-  - ../apache-maven-3.0.5/bin/mvn install -DskipTests --quiet
-  - cd ..
 
 notifications:
   irc: "irc.freenode.org#aerogear"

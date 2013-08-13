@@ -1,0 +1,31 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="urn:org.jboss.aerogear.simplepush:1.0"
+           xmlns="urn:org.jboss.aerogear.simplepush:1.0"
+           elementFormDefault="qualified"
+           attributeFormDefault="unqualified"
+           version="1.0">
+
+   <!-- The subsystem root element -->
+    <xs:element name="subsystem" type="subsystemType"/>
+
+    <xs:complexType name="subsystemType">
+        <xs:sequence>
+            <xs:element name="server" type="serverType" minOccurs="0">
+                <xs:annotation>
+                    <xs:documentation>
+                        A SimplePush Server configuration.
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="serverType">
+        <xs:attribute name="name" type="xs:string" use="required"/>
+        <xs:attribute name="socket-binding" type="xs:string" use="required"/>
+        <xs:attribute name="factory-class" type="xs:string" use="required"/>
+        <xs:attribute name="thread-factory" type="xs:string"/>
+        <xs:attribute name="datasource-jndi-name" type="xs:string"/>
+        <xs:attribute name="token-key" type="xs:string"/>
+    </xs:complexType>
+</xs:schema>

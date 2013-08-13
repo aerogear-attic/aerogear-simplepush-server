@@ -38,6 +38,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <version.jboss.as>7.1.1.Final</version.jboss.as>
         <module.name>org.jboss.aerogear.simplepush</module.name>
         <module.dir>${project.build.directory}/module/org/jboss/aerogear/simplepush/main</module.dir>
     </properties>
@@ -47,10 +48,32 @@
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-simplepush-server-netty</artifactId>
         </dependency>
+         <dependency>
+            <groupId>org.jboss.as</groupId>
+            <artifactId>jboss-as-controller</artifactId>
+            <version>${version.jboss.as}</version>
+        </dependency>
         <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>netty-subsystem-api</artifactId>
-            <version>0.8.0-SNAPSHOT</version>
+            <groupId>org.jboss.as</groupId>
+            <artifactId>jboss-as-server</artifactId>
+            <version>${version.jboss.as}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.as</groupId>
+            <artifactId>jboss-as-subsystem-test</artifactId>
+            <version>${version.jboss.as}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.as</groupId>
+            <artifactId>jboss-as-naming</artifactId>
+            <version>${version.jboss.as}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.modules</groupId>
+            <artifactId>jboss-modules</artifactId>
+            <version>1.1.1.GA</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
@@ -117,6 +140,7 @@
                                                 aerogear-simplepush-server-api, 
                                                 aerogear-simplepush-server-core, 
                                                 aerogear-simplepush-server-netty,
+                                                netty-all,
                                                 jackson-core-asl,
                                                 jackson-mapper-asl,
                                                 commons-codec

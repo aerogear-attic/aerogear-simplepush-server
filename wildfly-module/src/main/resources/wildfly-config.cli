@@ -10,13 +10,13 @@ data-source add --name=SimplePushDS --driver-name=mysqlsp --jndi-name=java:jboss
 data-source enable --name=SimplePushDS
 
 ## Add Netty subsystem
-/extension=org.jboss.aerogear.netty:add
+/extension=org.jboss.aerogear.simplepush:add
 
 ## Add SimplePush Netty Server
 /system-property=simplepush.keystore.password:add(value=simplepush)
 /system-property=simplepush.keystore.path:add(value=/simplepush-sample.keystore)
 /socket-binding-group=standard-sockets/socket-binding=simplepush:add(port=7777)
-/:composite(steps=[{"operation" => "add", "address" => [("subsystem" => "netty")]}, {"operation" => "add", "address" => [("subsystem" => "netty"), ("server" => "simplepush")], "socket-binding" => "simplepush", "factory-class" => "org.jboss.aerogear.simplepush.netty.SimplePushBootstrapFactory", "datasource-jndi-name" => "java:jboss/datasources/SimplePushDS", "token-key" => "changeMe!"}]
+/:composite(steps=[{"operation" => "add", "address" => [("subsystem" => "simplepush")]}, {"operation" => "add", "address" => [("subsystem" => "simplepush"), ("server" => "simplepush")], "socket-binding" => "simplepush", "factory-class" => "org.jboss.aerogear.simplepush.subsystem.SimplePushBootstrapFactory", "datasource-jndi-name" => "java:jboss/datasources/SimplePushDS", "token-key" => "changeMe!"}]
 
 run-batch
 #:reload

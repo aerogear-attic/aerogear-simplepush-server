@@ -1,11 +1,4 @@
 # Aerogear Simple Push Server WildFly module
-This project is a module intended to be used with the [Netty Subsystem](https://github.com/danbev/netty-subsystem)
-
-## Prerequisites 
-This project requires that the [Netty Subsystem](https://github.com/danbev/netty-subsystem/tree/master/subsystem#installation) 
-be installed on the local system, as this dependency is currently not available in a maven repository. The module produced
-by that project needs to be copied to you WildFly installation, please see the instructions in the link above.   
-__You do not need to configure anything at this stage, this will be taken care of in the section ```Configuring WildFly``` in this document.__
 
 ## Building
 From the root folder of this project run the following command:
@@ -16,21 +9,6 @@ From the root folder of this project run the following command:
 Copy the module produced by ```mvn package``` to the _modules_ directory of the application server.
 
     cp -r wildfly-module/target/module/org $WILDFLY_HOME/modules/
-    
-Next, we need to add ```org.jboss.aerogear.simplepush``` as a dependency to the Netty module by editing 
- the Netty subsystem module ```$WILDFLY_HOME/modules/org/jboss/aerogear/netty/main/module.xml```:
-
-    <dependencies>
-        ...
-        <module name="org.jboss.aerogear.simplepush" services="import">
-            <imports>
-                <include path="META-INF"/>
-            </imports>
-        </module>
-    </dependencies>
-    
-Here we are including ```META-INF``` as an directory path imported from the ```simplepush``` module. This is to allow access
-to ```META-INF/persistence.xml```.
     
 ## Configuring WildFly
 
@@ -74,7 +52,7 @@ for the SimplePush server.
  
 If you inspect the server console output you'll see the following message:
 
-    08:56:13,052 INFO  [org.jboss.aerogear.netty.extension.NettyService] (MSC service thread 1-3) NettyService [simplepush-server] binding to port [7777]    
+    08:56:13,052 INFO  [org.jboss.aerogear.simplepush.subsystem.NettyService] (MSC service thread 1-3) NettyService [simplepush] binding to port [7777]    
 
     
     

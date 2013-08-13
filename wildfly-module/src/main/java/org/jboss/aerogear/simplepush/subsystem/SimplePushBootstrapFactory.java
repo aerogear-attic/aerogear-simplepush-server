@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.simplepush.netty;
+package org.jboss.aerogear.simplepush.subsystem;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.EventLoopGroup;
@@ -25,7 +25,6 @@ import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import java.util.concurrent.ThreadFactory;
 
-import org.jboss.aerogear.netty.extension.api.ServerBootstrapFactory;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
