@@ -34,8 +34,11 @@ public interface ServerBootstrapFactory {
      * @param socketBinding the {@link SocketBinding} provided by WildFly.
      * @param threadFactory the {@link ThreadFactory} provided by WildFly, or null if no thread-factory was configured.
      * @param tokenKey a token key used for encryption/decryption.
+     * @param endpointTls if true the https will be used for notification endpoints.
      * @return {@code ServerBootstrap} the {@link ServerBootstrap}.
      */
-    ServerBootstrap createServerBootstrap(SocketBinding socketBinding, ThreadFactory threadFactory, final String tokenKey);
+    ServerBootstrap createServerBootstrap(SocketBinding socketBinding, ThreadFactory threadFactory,
+            final String tokenKey,
+            final boolean endpointTls);
 
 }

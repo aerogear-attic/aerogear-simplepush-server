@@ -54,9 +54,54 @@ If you inspect the server console output you'll see the following message:
 
     08:56:13,052 INFO  [org.jboss.aerogear.simplepush.subsystem.NettyService] (MSC service thread 1-3) NettyService [simplepush] binding to port [7777]    
 
-    
-    
 
+## Configuration options
+The wildfly-config.cli script will add the configuration elements to the running server. But you might want to configure
+things differently then what is provided by default. This section goes through the configuration options available.  
 
+__Note__ This section will change quite dramatically as it was simple moved from a generic Netty Subsystem. For the 1.0.0
+this configuration will be more specific to SimplePush and some configuration options will be removed and others added
+to make it more flexible.
+
+        <subsystem xmlns="urn:org.jboss.aerogear.simplepush:1.0">
+            <server name="my-server" socket-binding="my-socket-binding" factory-class="org.xyz.MyServerBootstrapFactory" 
+                thread-factory="my-thread-factory" datasource-jndi-name="MyServerDS"
+                token-key="c88da833ee33" endpointTls="false"/>
+            ...
+        </subsystem>
+    </profile>    
+    
+One or more _server_ elements can be added enabling different types of servers to be run.  
+
+__name__  
+This is a simple name to identify the server in logs etc.
+
+__socket-binding__  
+The socket-binding to be used for this Netty server instance. 
+
+__factory-class__  
+This is a class that implements _org.jboss.aerogear.simplepush.subssystem.ServerBootstrapFactory_ and is responsible for 
+creating a [ServerBootstrap](http://netty.io/4.0/api/io/netty/bootstrap/ServerBootstrap.html). This allows the end user to
+configure the Netty server application with the appropriate _Channel_, _ChannelPipeline_ etc. The sole method, 
+_createServerBootstrap_, takes a single parameter which is a [SocketBinding](https://github.com/wildfly/wildfly/blob/master/network/src/main/java/org/jboss/as/network/SocketBinding.java) instance:
+
+    public interface ServerBootstrapFactory {
+        ServerBootstrap createServerBootstrap(SocketBinding socketBinding, ThreadFactory threadFactory, String tokenKey, boolean endpointTls);
+    }
+    
+__thread-factory__  
+Thread factory that will be passed along to Netty when creating.
+
+__datasource-jndi-name__  
+An optional datasource JNDI name that this service depends on.
+    
+__token_key__  
+This should be a random token which will be used by the server for encryption/decryption of the endpoint URLs that are
+returned to clients upon successful channel registration.
+
+__endpointTls__  
+This optional determines whether the endpoint urls that are returned when a channel is registered should use
+http or https. If this setting is true https will be used and if false http will be used.
+    
 
     

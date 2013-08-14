@@ -27,5 +27,6 @@
         <xs:attribute name="thread-factory" type="xs:string"/>
         <xs:attribute name="datasource-jndi-name" type="xs:string"/>
         <xs:attribute name="token-key" type="xs:string"/>
+        <xs:attribute name="endpoint-tls" type="xs:boolean"/>
     </xs:complexType>
 </xs:schema>

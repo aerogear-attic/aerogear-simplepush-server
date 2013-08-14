@@ -57,7 +57,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         "<subsystem xmlns=\"" + NAMESPACE + "\">" +
             "<server name=\"simplepush\" socket-binding=\"simplepush\" thread-factory=\"netty-thread-factory\" " +
                 "factory-class=\"" + MockServerBootstrapFactory.class.getName() +
-                "\" datasource-jndi-name=\"java:jboss/datasources/TestDS\" token-key=\"testing\"/>" +
+                "\" datasource-jndi-name=\"java:jboss/datasources/TestDS\" token-key=\"testing\" endpoint-tls=\"false\"/>" +
         "</subsystem>";
 
     public SubsystemParsingTestCase() {
@@ -111,6 +111,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "thread-factory").asString(), is("netty-thread-factory"));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "datasource-jndi-name").asString(), is("java:jboss/datasources/TestDS"));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "token-key").asString(), is("testing"));
+        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "endpoint-tls").asBoolean(), is(false));
     }
 
     @Test
@@ -164,6 +165,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         addOp.get("factory-class").set(MockServerBootstrapFactory.class.getName());
         addOp.get("thread-factory").set("netty-thread-factory");
         addOp.get("datasource-jndi-name").set("java:jboss/datasources/NettyDS");
+        addOp.get("endpoint-tls").set("true");
         final ModelNode result = services.executeOperation(addOp);
         assertThat(result.get(OUTCOME).asString(), equalTo(SUCCESS));
 
@@ -174,12 +176,14 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush").hasDefined("socket-binding"), is(true));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "socket-binding").asString(), is("simplepush"));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "datasource-jndi-name").asString(), is("java:jboss/datasources/TestDS"));
+        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "endpoint-tls").asBoolean(), is(false));
 
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server").hasDefined("foo"), is(true));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo").hasDefined("socket-binding"), is(true));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo", "socket-binding").asString(), is("mysocket"));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo", "thread-factory").asString(), is("netty-thread-factory"));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo", "datasource-jndi-name").asString(), is("java:jboss/datasources/NettyDS"));
+        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo", "endpoint-tls").asBoolean(), is(true));
     }
 
     private static class AdditionalServices extends AdditionalInitialization {

@@ -137,8 +137,8 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
             return this;
         }
 
-        public Builder useTls() {
-            tls = true;
+        public Builder useTls(final boolean tls) {
+            this.tls = tls;
             return this;
         }
 

@@ -82,6 +82,9 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             case TOKEN_KEY:
                 ServerDefinition.TOKEN_KEY_ATTR.parseAndSetParameter(value, addServerOperation, reader);
                 break;
+            case ENDPOINT_TLS:
+                ServerDefinition.ENDPOINT_TLS_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                break;
             case NAME:
                 if (value == null) {
                     throw ParseUtils.missingRequiredElement(reader, Collections.singleton(ServerDefinition.Element.NAME.toString()));
@@ -114,6 +117,7 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             ServerDefinition.THREAD_FACTORY_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.DATASOURCE_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.TOKEN_KEY_ATTR.marshallAsAttribute(entry, true, writer);
+            ServerDefinition.ENDPOINT_TLS_ATTR.marshallAsAttribute(entry, true, writer);
             writer.writeEndElement();
         }
         writer.writeEndElement();

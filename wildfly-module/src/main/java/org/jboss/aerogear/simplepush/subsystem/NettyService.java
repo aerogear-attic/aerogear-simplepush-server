@@ -40,13 +40,16 @@ public class NettyService implements Service<NettyService> {
     private final String name;
     private final String factoryClass;
     private final String tokenKey;
+    private final boolean endpointTls;
     private Channel channel;
 
 
-    public NettyService(final String name, final String factoryClass, final String tokenKey) {
+
+    public NettyService(final String name, final String factoryClass, final String tokenKey, final boolean endpointTls) {
         this.name = name;
         this.factoryClass = factoryClass;
         this.tokenKey = tokenKey;
+        this.endpointTls = endpointTls;
     }
 
     @Override
@@ -68,7 +71,7 @@ public class NettyService implements Service<NettyService> {
         try {
             final Class<?> type = Class.forName(factoryClass);
             final ServerBootstrapFactory factory = (ServerBootstrapFactory) type.newInstance();
-            return factory.createServerBootstrap(socketBinding, threadFactory, tokenKey);
+            return factory.createServerBootstrap(socketBinding, threadFactory, tokenKey, endpointTls);
         } catch (final Exception e) {
             throw new StartException(e.getMessage(), e);
         }
