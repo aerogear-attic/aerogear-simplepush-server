@@ -5,8 +5,9 @@ This project is a Java implementation of the server side that follows the [Simpl
 This version uses SockJS which is provided by Netty 4. This support currently not availble in any release of Netty and 
 you have to build the following branch manually:
 
-    git clone https://github.com/danbev/netty/tree/sockjs
+    git clone https://github.com/danbev/netty
     cd netty
+    git checkout ci
     mvn install -DskipTests=true
 
 ## Usage
