@@ -70,9 +70,6 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             case SOCKET_BINDING:
                 ServerDefinition.SOCKET_BINDING_ATTR.parseAndSetParameter(value, addServerOperation, reader);
                 break;
-            case FACTORY_CLASS:
-                ServerDefinition.FACTORY_CLASS_ATTR.parseAndSetParameter(value, addServerOperation, reader);
-                break;
             case THREAD_FACTORY:
                 ServerDefinition.THREAD_FACTORY_ATTR.parseAndSetParameter(value, addServerOperation, reader);
                 break;
@@ -113,7 +110,6 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             writer.writeAttribute(ServerDefinition.Element.NAME.localName(), property.getName());
             final ModelNode entry = property.getValue();
             ServerDefinition.SOCKET_BINDING_ATTR.marshallAsAttribute(entry, true, writer);
-            ServerDefinition.FACTORY_CLASS_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.THREAD_FACTORY_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.DATASOURCE_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.TOKEN_KEY_ATTR.marshallAsAttribute(entry, true, writer);

@@ -34,7 +34,6 @@ public class ServerDefinition extends SimpleResourceDefinition {
         UNKNOWN(null),
         SOCKET_BINDING("socket-binding"),
         THREAD_FACTORY("thread-factory"),
-        FACTORY_CLASS("factory-class"),
         DATASOURCE("datasource-jndi-name"),
         TOKEN_KEY("token-key"),
         ENDPOINT_TLS("endpoint-tls"),
@@ -69,7 +68,6 @@ public class ServerDefinition extends SimpleResourceDefinition {
     }
 
     protected static final SimpleAttributeDefinition SOCKET_BINDING_ATTR = new SimpleAttributeDefinition(Element.SOCKET_BINDING.localName(), ModelType.STRING, false);
-    protected static final SimpleAttributeDefinition FACTORY_CLASS_ATTR = new SimpleAttributeDefinition(Element.FACTORY_CLASS.localName(), ModelType.STRING, false);
     protected static final SimpleAttributeDefinition THREAD_FACTORY_ATTR = new SimpleAttributeDefinition(Element.THREAD_FACTORY.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition DATASOURCE_ATTR = new SimpleAttributeDefinition(Element.DATASOURCE.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition TOKEN_KEY_ATTR = new SimpleAttributeDefinition(Element.TOKEN_KEY.localName(), ModelType.STRING, true);
@@ -87,7 +85,6 @@ public class ServerDefinition extends SimpleResourceDefinition {
     @Override
     public void registerAttributes(final ManagementResourceRegistration resourceRegistration) {
         resourceRegistration.registerReadWriteAttribute(SOCKET_BINDING_ATTR, null, NettySocketBindingHandler.INSTANCE);
-        resourceRegistration.registerReadWriteAttribute(FACTORY_CLASS_ATTR, null, NettySocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(THREAD_FACTORY_ATTR, null, NettySocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(DATASOURCE_ATTR, null, NettySocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(TOKEN_KEY_ATTR, null, NettySocketBindingHandler.INSTANCE);

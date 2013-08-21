@@ -21,7 +21,17 @@ import java.util.concurrent.ThreadFactory;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.sockjs.Config;
+import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
+import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
+import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
+import org.jboss.aerogear.simplepush.server.datastore.DataStore;
+import org.jboss.aerogear.simplepush.server.datastore.JpaDataStore;
+import org.jboss.aerogear.simplepush.server.netty.SockJSChannelInitializer;
 import org.jboss.as.network.SocketBinding;
 import org.jboss.logging.Logger;
 import org.jboss.msc.service.Service;
@@ -38,26 +48,39 @@ public class NettyService implements Service<NettyService> {
     private final InjectedValue<SocketBinding> injectedSocketBinding = new InjectedValue<SocketBinding>();
     private final InjectedValue<ThreadFactory> injectedThreadFactory = new InjectedValue<ThreadFactory>();
     private final String name;
-    private final String factoryClass;
     private final String tokenKey;
     private final boolean endpointTls;
     private Channel channel;
 
 
 
-    public NettyService(final String name, final String factoryClass, final String tokenKey, final boolean endpointTls) {
+    public NettyService(final String name, final String tokenKey, final boolean endpointTls) {
         this.name = name;
-        this.factoryClass = factoryClass;
         this.tokenKey = tokenKey;
         this.endpointTls = endpointTls;
     }
 
     @Override
-    public synchronized  void start(final StartContext context) throws StartException {
+    public synchronized void start(final StartContext context) throws StartException {
         try {
             final ThreadFactory threadFactory = injectedThreadFactory.getOptionalValue();
             final SocketBinding socketBinding = injectedSocketBinding.getValue();
-            final ServerBootstrap serverBootstrap = createServerBootstrap(factoryClass, socketBinding, threadFactory);
+            final SimplePushServerConfig simplePushConfig = createConfig(socketBinding, tokenKey, endpointTls);
+            final Config sockjsConfig = Config.prefix("/simplepush")
+                    .websocketProtocols("push-notification")
+                    .tls(false)
+                    .websocketHeartbeatInterval(180000)
+                    .cookiesNeeded()
+                    .build();
+            final DefaultEventExecutorGroup reaperExcutorGroup = newEventExecutorGroup(1, threadFactory);
+            final EventLoopGroup bossGroup = newEventLoopGroup(threadFactory);
+            final EventLoopGroup workerGroup = newEventLoopGroup(threadFactory);
+            final DataStore datastore = new JpaDataStore("SimplePushPU");
+            final SockJSChannelInitializer channelInitializer = new SockJSChannelInitializer(simplePushConfig, datastore, sockjsConfig, reaperExcutorGroup);
+            final ServerBootstrap serverBootstrap = new ServerBootstrap();
+            serverBootstrap.group(bossGroup, workerGroup)
+                    .channel(NioServerSocketChannel.class)
+                    .childHandler(channelInitializer);
             logger.info("NettyService [" + name + "] binding to port [" + socketBinding.getPort() + "]");
             channel = serverBootstrap.bind(socketBinding.getAddress(), socketBinding.getPort()).sync().channel();
         } catch (final InterruptedException e) {
@@ -65,16 +88,29 @@ public class NettyService implements Service<NettyService> {
         }
     }
 
-    private ServerBootstrap createServerBootstrap(final String factoryClass,
-            final SocketBinding socketBinding,
-            final ThreadFactory threadFactory) throws StartException {
-        try {
-            final Class<?> type = Class.forName(factoryClass);
-            final ServerBootstrapFactory factory = (ServerBootstrapFactory) type.newInstance();
-            return factory.createServerBootstrap(socketBinding, threadFactory, tokenKey, endpointTls);
-        } catch (final Exception e) {
-            throw new StartException(e.getMessage(), e);
+    /*
+     * This OpenShift specific code will be removed when the SimplePush subsystem supports configuration
+     * options.
+     */
+    private SimplePushServerConfig createConfig(final SocketBinding socketBinding, final String tokenKey, final boolean endpointTls) {
+        final String openShiftAppDNS = System.getenv("OPENSHIFT_APP_DNS");
+        final String hostName = openShiftAppDNS == null ? socketBinding.getAddress().getHostName() : openShiftAppDNS;
+        final int port = openShiftAppDNS == null ? socketBinding.getPort() : endpointTls ? 8443 : 8000;
+        return DefaultSimplePushConfig.create(hostName, port).tokenKey(tokenKey).useTls(endpointTls).build();
+    }
+
+    private DefaultEventExecutorGroup newEventExecutorGroup(int i, ThreadFactory threadFactory) {
+        if (threadFactory != null) {
+            return new DefaultEventExecutorGroup(1, threadFactory);
         }
+        return new DefaultEventExecutorGroup(1);
+    }
+
+    private EventLoopGroup newEventLoopGroup(final ThreadFactory threadFactory) {
+        if (threadFactory != null) {
+            return new NioEventLoopGroup(0, threadFactory);
+        }
+        return new NioEventLoopGroup();
     }
 
     @Override

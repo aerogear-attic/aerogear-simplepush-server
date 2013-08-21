@@ -48,7 +48,6 @@ class ServerAdd extends AbstractAddStepHandler {
     @Override
     protected void populateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
         ServerDefinition.SOCKET_BINDING_ATTR.validateAndSet(operation, model);
-        ServerDefinition.FACTORY_CLASS_ATTR.validateAndSet(operation, model);
         ServerDefinition.THREAD_FACTORY_ATTR.validateAndSet(operation, model);
         ServerDefinition.DATASOURCE_ATTR.validateAndSet(operation, model);
         ServerDefinition.TOKEN_KEY_ATTR.validateAndSet(operation, model);
@@ -61,7 +60,6 @@ class ServerAdd extends AbstractAddStepHandler {
             final ModelNode model,
             final ServiceVerificationHandler verificationHandler,
             final List<ServiceController<?>> newControllers) throws OperationFailedException {
-        final String factoryClass = ServerDefinition.FACTORY_CLASS_ATTR.resolveModelAttribute(context, model).asString();
         final String socketBinding = ServerDefinition.SOCKET_BINDING_ATTR.resolveModelAttribute(context, model).asString();
         final ModelNode endpointTlsNode = ServerDefinition.ENDPOINT_TLS_ATTR.resolveModelAttribute(context, model);
         final boolean endpointTls = endpointTlsNode.isDefined() ? endpointTlsNode.asBoolean() : false;
@@ -70,7 +68,7 @@ class ServerAdd extends AbstractAddStepHandler {
 
         final String serverName = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.ADDRESS)).getLastElement().getValue();
         final String tokenKey = ServerDefinition.TOKEN_KEY_ATTR.resolveModelAttribute(context, model).asString();
-        final NettyService nettyService = new NettyService(serverName, factoryClass, tokenKey, endpointTls);
+        final NettyService nettyService = new NettyService(serverName, tokenKey, endpointTls);
 
         final ServiceName name = NettyService.createServiceName(serverName);
         final ServiceBuilder<NettyService> sb = context.getServiceTarget().addService(name, nettyService);

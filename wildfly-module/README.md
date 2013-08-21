@@ -64,7 +64,7 @@ this configuration will be more specific to SimplePush and some configuration op
 to make it more flexible.
 
         <subsystem xmlns="urn:org.jboss.aerogear.simplepush:1.0">
-            <server name="my-server" socket-binding="my-socket-binding" factory-class="org.xyz.MyServerBootstrapFactory" 
+            <server name="my-server" socket-binding="my-socket-binding"
                 thread-factory="my-thread-factory" datasource-jndi-name="MyServerDS"
                 token-key="c88da833ee33" endpointTls="false"/>
             ...
@@ -79,16 +79,6 @@ This is a simple name to identify the server in logs etc.
 __socket-binding__  
 The socket-binding to be used for this Netty server instance. 
 
-__factory-class__  
-This is a class that implements _org.jboss.aerogear.simplepush.subssystem.ServerBootstrapFactory_ and is responsible for 
-creating a [ServerBootstrap](http://netty.io/4.0/api/io/netty/bootstrap/ServerBootstrap.html). This allows the end user to
-configure the Netty server application with the appropriate _Channel_, _ChannelPipeline_ etc. The sole method, 
-_createServerBootstrap_, takes a single parameter which is a [SocketBinding](https://github.com/wildfly/wildfly/blob/master/network/src/main/java/org/jboss/as/network/SocketBinding.java) instance:
-
-    public interface ServerBootstrapFactory {
-        ServerBootstrap createServerBootstrap(SocketBinding socketBinding, ThreadFactory threadFactory, String tokenKey, boolean endpointTls);
-    }
-    
 __thread-factory__  
 Thread factory that will be passed along to Netty when creating.
 
