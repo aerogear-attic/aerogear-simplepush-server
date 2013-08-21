@@ -82,7 +82,7 @@ public interface DataStore {
      *
      * @param update the {@link Update} to remove.
      * @param uaid the {@link String} of the UserAgent
-     * @return
+     * @return {@code true} if the {@code update} is removed, false otherwise
      */
     boolean removeUpdate(Update update, String uaid);
 }

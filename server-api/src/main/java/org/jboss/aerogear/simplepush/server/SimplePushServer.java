@@ -44,8 +44,8 @@ public interface SimplePushServer {
 
     /**
      * Handles the 'register' message in the SimplePush protocol which is used to register a channel.
-     *
-     * @param registerMessage the {@link RegisterMessage}.
+     * 
+     * @param register the {@link RegisterMessage}.
      * @param uaid the UserAgent identifier that this channel will be registered for.
      * @return {@link RegisterResponse} the response for this register message.
      */
