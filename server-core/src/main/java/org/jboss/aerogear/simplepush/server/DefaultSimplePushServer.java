@@ -163,11 +163,6 @@ public class DefaultSimplePushServer implements SimplePushServer {
     }
 
     @Override
-    public String fromChannel(final String channelId) throws ChannelNotFoundException {
-        return getChannel(channelId).getUAID();
-    }
-
-    @Override
     public void removeAllChannels(final String uaid) {
         store.removeChannels(uaid);
     }

@@ -96,15 +96,6 @@ public interface SimplePushServer {
     void removeAllChannels(String uaid);
 
     /**
-     * Returns the UserAgent identifier that the passed-in channel belongs to.
-     *
-     * @param channelId the channelId for which the UserAgent Identifier should be returned
-     * @return {@link String} the UserAgent identifier.
-     * @throws ChannelNotFoundException if the channel could not be found.
-     */
-    String fromChannel(final String channelId) throws ChannelNotFoundException;
-
-    /**
      * Returns the configuration for this SimplePush server.
      *
      * @return {@link SimplePushServerConfig} this servers configuration.
