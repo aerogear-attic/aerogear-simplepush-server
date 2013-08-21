@@ -59,30 +59,32 @@ import the certificate.
 
 For some broswers is will be enough to access ```https://localhost:7777``` once, and then accept the certificate.  For other
 systems it might be required to import the certificate through the browser preferences/settings page. For this case we
-have exported the certificate and it can be found in ```src/main/resources/simplepush.crt```.
+have exported the certificate and it can be found in ```src/test/resources/simplepush.crt```.
 
 #### Mac WebServer
 
-Serve _src/main/resources/netty/socket.html_ from a local webserver. One way to do this is to create a symbolic link
-to _src/main/resources/netty_, for example:
+Serve _src/test/resources/sockjs-client.html_ from a local webserver. One way to do this is to create a symbolic link
+to _src/main/resources_, for example:
 
     cd /Library/WebServer/Documents/
-    sudo ln -s /path/to/push/aerogear-simplepush-server/src/main/resources/netty/ netty
+    sudo ln -s /path/to/push/aerogear-simplepush-server/server-netty/src/test/resources/ netty
     
-Now you should be able to point your browser to ```http://localhost/netty/websocket.html```
+Now you should be able to point your browser to ```http://localhost/netty/sockjs-client.html```
 The path to your documents directory and the port that the web server is listening to might differ. For httpd the look
 in _/etc/apache2/httpd.conf_ for this information.
 
 #### Python WebServer
 
-In case you are not running a mac, there is a simple HTTP server, that comes with Python. Simple navigate to ```src/main/resources/netty``` and issue:
+In case you are not running a mac, there is a simple HTTP server, that comes with Python. Simple navigate to ```src/test/resources``` and execute:
 
     python -m SimpleHTTPServer 5555
 
-Now you should be able to point your browser to ```http://localhost:5555/websocket.html```
+Now you should be able to point your browser to ```http://localhost:5555/sockjs-client.html```
 
 ### Register a channel
-You will automatically be registered to receive push notifications for mail and foo. The endpoint channelID's will be displayed in the results textarea.
+You have to register yourself by executing two commands in the text areas in ```sockjs-client.html``` page. Try 
+to execute the first one of message type _hello_. When executing the second one, do not forget to add the channel you 
+want to get registered, as the _channelId_, enter e.g. _mail_.
 
 ### Send a notification
 
