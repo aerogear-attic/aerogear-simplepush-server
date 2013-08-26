@@ -33,7 +33,6 @@ public class ServerDefinition extends SimpleResourceDefinition {
     public enum Element {
         UNKNOWN(null),
         SOCKET_BINDING("socket-binding"),
-        THREAD_FACTORY("thread-factory"),
         DATASOURCE("datasource-jndi-name"),
         TOKEN_KEY("token-key"),
         ENDPOINT_TLS("endpoint-tls"),
@@ -68,7 +67,6 @@ public class ServerDefinition extends SimpleResourceDefinition {
     }
 
     protected static final SimpleAttributeDefinition SOCKET_BINDING_ATTR = new SimpleAttributeDefinition(Element.SOCKET_BINDING.localName(), ModelType.STRING, false);
-    protected static final SimpleAttributeDefinition THREAD_FACTORY_ATTR = new SimpleAttributeDefinition(Element.THREAD_FACTORY.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition DATASOURCE_ATTR = new SimpleAttributeDefinition(Element.DATASOURCE.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition TOKEN_KEY_ATTR = new SimpleAttributeDefinition(Element.TOKEN_KEY.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition ENDPOINT_TLS_ATTR = new SimpleAttributeDefinition(Element.ENDPOINT_TLS.localName(), ModelType.BOOLEAN, true);
@@ -85,7 +83,6 @@ public class ServerDefinition extends SimpleResourceDefinition {
     @Override
     public void registerAttributes(final ManagementResourceRegistration resourceRegistration) {
         resourceRegistration.registerReadWriteAttribute(SOCKET_BINDING_ATTR, null, NettySocketBindingHandler.INSTANCE);
-        resourceRegistration.registerReadWriteAttribute(THREAD_FACTORY_ATTR, null, NettySocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(DATASOURCE_ATTR, null, NettySocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(TOKEN_KEY_ATTR, null, NettySocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(ENDPOINT_TLS_ATTR, null, NettySocketBindingHandler.INSTANCE);

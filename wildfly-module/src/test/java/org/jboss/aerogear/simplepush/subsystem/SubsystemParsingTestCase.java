@@ -42,8 +42,6 @@ import org.jboss.as.subsystem.test.AbstractSubsystemTest;
 import org.jboss.as.subsystem.test.AdditionalInitialization;
 import org.jboss.as.subsystem.test.ControllerInitializer;
 import org.jboss.as.subsystem.test.KernelServices;
-import org.jboss.as.threads.ThreadFactoryService;
-import org.jboss.as.threads.ThreadsServices;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceBuilder;
@@ -55,7 +53,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
 
     private final String subsystemXml =
         "<subsystem xmlns=\"" + NAMESPACE + "\">" +
-            "<server name=\"simplepush\" socket-binding=\"simplepush\" thread-factory=\"netty-thread-factory\" " +
+            "<server name=\"simplepush\" socket-binding=\"simplepush\" " +
                 "datasource-jndi-name=\"java:jboss/datasources/TestDS\" token-key=\"testing\" endpoint-tls=\"false\"/>" +
         "</subsystem>";
 
@@ -104,7 +102,6 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server").hasDefined("simplepush"), is(true));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush").hasDefined("socket-binding"), is(true));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "socket-binding").asString(), is("simplepush"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "thread-factory").asString(), is("netty-thread-factory"));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "datasource-jndi-name").asString(), is("java:jboss/datasources/TestDS"));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "token-key").asString(), is("testing"));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "endpoint-tls").asBoolean(), is(false));
@@ -158,7 +155,6 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         addOp.get(OP).set(ADD);
         addOp.get(OP_ADDR).set(serverAddress.toModelNode());
         addOp.get("socket-binding").set("mysocket");
-        addOp.get("thread-factory").set("netty-thread-factory");
         addOp.get("datasource-jndi-name").set("java:jboss/datasources/NettyDS");
         addOp.get("endpoint-tls").set("true");
         final ModelNode result = services.executeOperation(addOp);
@@ -176,7 +172,6 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server").hasDefined("foo"), is(true));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo").hasDefined("socket-binding"), is(true));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo", "socket-binding").asString(), is("mysocket"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo", "thread-factory").asString(), is("netty-thread-factory"));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo", "datasource-jndi-name").asString(), is("java:jboss/datasources/NettyDS"));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo", "endpoint-tls").asBoolean(), is(true));
     }
@@ -192,13 +187,6 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
 
         @Override
         protected void addExtraServices(final ServiceTarget serviceTarget) {
-            final ThreadFactoryService threadFactoryService = new ThreadFactoryService();
-            threadFactoryService.setNamePattern("%i");
-            threadFactoryService.setPriority(Thread.NORM_PRIORITY);
-            threadFactoryService.setThreadGroupName("netty-thread-group");
-            final ServiceBuilder<?> serviceBuilder = serviceTarget.addService(ThreadsServices.threadFactoryName("netty-thread-factory"), threadFactoryService);
-            serviceBuilder.install();
-
             final Service<?> ds = mock(Service.class);
             final BindInfo testBindInfo = ContextNames.bindInfoFor("java:jboss/datasources/TestDS");
             final ServiceBuilder<?> testDS = serviceTarget.addService(testBindInfo.getBinderServiceName(), ds);

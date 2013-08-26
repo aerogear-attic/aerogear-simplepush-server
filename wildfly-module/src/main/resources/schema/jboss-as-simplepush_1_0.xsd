@@ -23,7 +23,6 @@
     <xs:complexType name="serverType">
         <xs:attribute name="name" type="xs:string" use="required"/>
         <xs:attribute name="socket-binding" type="xs:string" use="required"/>
-        <xs:attribute name="thread-factory" type="xs:string"/>
         <xs:attribute name="datasource-jndi-name" type="xs:string"/>
         <xs:attribute name="token-key" type="xs:string"/>
         <xs:attribute name="endpoint-tls" type="xs:boolean"/>
