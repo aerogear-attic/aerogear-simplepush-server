@@ -22,7 +22,6 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedAttribute;
 
-import java.util.Collections;
 import java.util.List;
 
 import javax.xml.stream.XMLStreamConstants;
@@ -79,18 +78,13 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             case ENDPOINT_TLS:
                 ServerDefinition.ENDPOINT_TLS_ATTR.parseAndSetParameter(value, addServerOperation, reader);
                 break;
-            case NAME:
-                if (value == null) {
-                    throw ParseUtils.missingRequiredElement(reader, Collections.singleton(ServerDefinition.Element.NAME.toString()));
-                }
-                final PathAddress addr = PathAddress.pathAddress(SimplePushExtension.SUBSYSTEM_PATH, PathElement.pathElement(SimplePushExtension.SERVER, value));
-                addServerOperation.get(OP_ADDR).set(addr.toModelNode());
-                break;
             default:
                 throw unexpectedAttribute(reader, i);
             }
         }
         ParseUtils.requireNoContent(reader);
+        final PathAddress addr = PathAddress.pathAddress(SimplePushExtension.SUBSYSTEM_PATH, PathElement.pathElement(SimplePushExtension.SERVER, "simplepush"));
+        addServerOperation.get(OP_ADDR).set(addr.toModelNode());
         list.add(addServerOperation);
     }
 
@@ -104,7 +98,6 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
         final ModelNode type = node.get(SimplePushExtension.SERVER);
         for (Property property : type.asPropertyList()) {
             writer.writeStartElement(SimplePushExtension.SERVER);
-            writer.writeAttribute(ServerDefinition.Element.NAME.localName(), property.getName());
             final ModelNode entry = property.getValue();
             ServerDefinition.SOCKET_BINDING_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.DATASOURCE_ATTR.marshallAsAttribute(entry, true, writer);

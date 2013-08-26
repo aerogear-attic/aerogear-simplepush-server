@@ -35,8 +35,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
         SOCKET_BINDING("socket-binding"),
         DATASOURCE("datasource-jndi-name"),
         TOKEN_KEY("token-key"),
-        ENDPOINT_TLS("endpoint-tls"),
-        NAME("name");
+        ENDPOINT_TLS("endpoint-tls");
 
         private final String name;
 

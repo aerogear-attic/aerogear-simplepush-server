@@ -53,7 +53,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
 
     private final String subsystemXml =
         "<subsystem xmlns=\"" + NAMESPACE + "\">" +
-            "<server name=\"simplepush\" socket-binding=\"simplepush\" " +
+            "<server socket-binding=\"simplepush\" " +
                 "datasource-jndi-name=\"java:jboss/datasources/TestDS\" token-key=\"testing\" endpoint-tls=\"false\"/>" +
         "</subsystem>";
 
