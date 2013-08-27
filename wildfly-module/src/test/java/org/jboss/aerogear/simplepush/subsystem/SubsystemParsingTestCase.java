@@ -23,6 +23,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.DATASOURCE;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.ENDPOINT_TLS;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.REAPER_TIMEOUT;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKET_BINDING;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.TOKEN_KEY;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.NAMESPACE;
@@ -59,7 +60,10 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
     private final String subsystemXml =
         "<subsystem xmlns=\"" + NAMESPACE + "\">" +
             "<server socket-binding=\"simplepush\" " +
-                "datasource-jndi-name=\"java:jboss/datasources/TestDS\" token-key=\"testing\" endpoint-tls=\"false\"/>" +
+                "datasource-jndi-name=\"java:jboss/datasources/TestDS\" " +
+                "token-key=\"testing\" " +
+                "endpoint-tls=\"false\" " +
+                "useragent-reaper-timeout=\"16000\"/>" +
         "</subsystem>";
 
     public SubsystemParsingTestCase() {
@@ -140,6 +144,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         serverTwo.get(DATASOURCE.localName()).set("java:jboss/datasources/NettyDS");
         serverTwo.get(TOKEN_KEY.localName()).set("123456");
         serverTwo.get(ENDPOINT_TLS.localName()).set("true");
+        serverTwo.get(REAPER_TIMEOUT.localName()).set(20000);
         assertThat(services.executeOperation(serverTwo).get(OUTCOME).asString(), equalTo(SUCCESS));
 
         final ModelNode model = services.readWholeModel();
@@ -149,6 +154,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(fooOptions.get(DATASOURCE.localName()).asString(), equalTo("java:jboss/datasources/NettyDS"));
         assertThat(fooOptions.get(TOKEN_KEY.localName()).asString(), equalTo("123456"));
         assertThat(fooOptions.get(ENDPOINT_TLS.localName()).asBoolean(), is(true));
+        assertThat(fooOptions.get(REAPER_TIMEOUT.localName()).asLong(), is(20000L));
     }
 
     private void assertOptions(final ModelNode options) {
@@ -156,6 +162,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(options.get(DATASOURCE.localName()).asString(), equalTo("java:jboss/datasources/TestDS"));
         assertThat(options.get(TOKEN_KEY.localName()).asString(), equalTo("testing"));
         assertThat(options.get(ENDPOINT_TLS.localName()).asBoolean(), is(false));
+        assertThat(options.get(REAPER_TIMEOUT.localName()).asLong(), is(16000L));
     }
 
     private static class AdditionalServices extends AdditionalInitialization {

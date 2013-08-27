@@ -26,5 +26,6 @@
         <xs:attribute name="datasource-jndi-name" type="xs:string"/>
         <xs:attribute name="token-key" type="xs:string"/>
         <xs:attribute name="endpoint-tls" type="xs:boolean"/>
+        <xs:attribute name="useragent-reaper-timeout" type="xs:long"/>
     </xs:complexType>
 </xs:schema>

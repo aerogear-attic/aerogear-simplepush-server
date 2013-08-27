@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
+import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig.Builder;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
@@ -53,6 +54,7 @@ class ServerAdd extends AbstractAddStepHandler {
         ServerDefinition.DATASOURCE_ATTR.validateAndSet(operation, model);
         ServerDefinition.TOKEN_KEY_ATTR.validateAndSet(operation, model);
         ServerDefinition.ENDPOINT_TLS_ATTR.validateAndSet(operation, model);
+        ServerDefinition.REAPER_TIMEOUT_ATTR.validateAndSet(operation, model);
     }
 
     @Override
@@ -61,15 +63,18 @@ class ServerAdd extends AbstractAddStepHandler {
             final ModelNode model,
             final ServiceVerificationHandler verificationHandler,
             final List<ServiceController<?>> newControllers) throws OperationFailedException {
-        final String socketBinding = ServerDefinition.SOCKET_BINDING_ATTR.resolveModelAttribute(context, model).asString();
-        final ModelNode endpointTlsNode = ServerDefinition.ENDPOINT_TLS_ATTR.resolveModelAttribute(context, model);
-        final boolean endpointTls = endpointTlsNode.isDefined() ? endpointTlsNode.asBoolean() : false;
-        final String tokenKey = ServerDefinition.TOKEN_KEY_ATTR.resolveModelAttribute(context, model).asString();
+        final ModelNode endpointTls = ServerDefinition.ENDPOINT_TLS_ATTR.resolveModelAttribute(context, model);
+        final ModelNode reaperTimeout = ServerDefinition.REAPER_TIMEOUT_ATTR.resolveModelAttribute(context, model);
 
-        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create()
-                .tokenKey(tokenKey)
-                .useTls(endpointTls)
-                .build();
+        final Builder spBuilder = DefaultSimplePushConfig.create();
+        spBuilder.tokenKey(ServerDefinition.TOKEN_KEY_ATTR.resolveModelAttribute(context, model).asString());
+        if (endpointTls.isDefined()) {
+            spBuilder.useTls(endpointTls.asBoolean());
+        }
+        if (reaperTimeout.isDefined()) {
+            spBuilder.userAgentReaperTimeout(reaperTimeout.asLong());
+        }
+        final SimplePushServerConfig simplePushConfig = spBuilder.build();
 
         final SockJsConfig sockJsConfig = SockJsConfig.withPrefix("/simplepush")
                 .webSocketProtocols("push-notification")
@@ -82,6 +87,7 @@ class ServerAdd extends AbstractAddStepHandler {
         final String serverName = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.ADDRESS)).getLastElement().getValue();
         final ServiceName name = SimplePushService.createServiceName(serverName);
         final ServiceBuilder<SimplePushService> sb = context.getServiceTarget().addService(name, nettyService);
+        final String socketBinding = ServerDefinition.SOCKET_BINDING_ATTR.resolveModelAttribute(context, model).asString();
         sb.addDependency(SocketBinding.JBOSS_BINDING_NAME.append(socketBinding), SocketBinding.class, nettyService.getInjectedSocketBinding());
 
         final ModelNode datasourceNode = ServerDefinition.DATASOURCE_ATTR.resolveModelAttribute(context, model);

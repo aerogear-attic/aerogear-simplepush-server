@@ -78,6 +78,9 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             case ENDPOINT_TLS:
                 ServerDefinition.ENDPOINT_TLS_ATTR.parseAndSetParameter(value, addServerOperation, reader);
                 break;
+            case REAPER_TIMEOUT:
+                ServerDefinition.REAPER_TIMEOUT_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                break;
             default:
                 throw unexpectedAttribute(reader, i);
             }
@@ -103,6 +106,7 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             ServerDefinition.DATASOURCE_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.TOKEN_KEY_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.ENDPOINT_TLS_ATTR.marshallAsAttribute(entry, true, writer);
+            ServerDefinition.REAPER_TIMEOUT_ATTR.marshallAsAttribute(entry, true, writer);
             writer.writeEndElement();
         }
         writer.writeEndElement();
