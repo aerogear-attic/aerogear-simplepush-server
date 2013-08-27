@@ -17,8 +17,12 @@
 
 package org.jboss.aerogear.simplepush.subsystem;
 
+
 import java.util.List;
 
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
+import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
+import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -60,19 +64,30 @@ class ServerAdd extends AbstractAddStepHandler {
         final String socketBinding = ServerDefinition.SOCKET_BINDING_ATTR.resolveModelAttribute(context, model).asString();
         final ModelNode endpointTlsNode = ServerDefinition.ENDPOINT_TLS_ATTR.resolveModelAttribute(context, model);
         final boolean endpointTls = endpointTlsNode.isDefined() ? endpointTlsNode.asBoolean() : false;
-        final ModelNode datasourceNode = ServerDefinition.DATASOURCE_ATTR.resolveModelAttribute(context, model);
+        final String tokenKey = ServerDefinition.TOKEN_KEY_ATTR.resolveModelAttribute(context, model).asString();
+
+        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create()
+                .tokenKey(tokenKey)
+                .useTls(endpointTls)
+                .build();
+
+        final SockJsConfig sockJsConfig = SockJsConfig.withPrefix("/simplepush")
+                .webSocketProtocols("push-notification")
+                .tls(false)
+                .webSocketHeartbeatInterval(180000)
+                .cookiesNeeded()
+                .build();
+        final SimplePushService nettyService = new SimplePushService(simplePushConfig, sockJsConfig);
 
         final String serverName = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.ADDRESS)).getLastElement().getValue();
-        final String tokenKey = ServerDefinition.TOKEN_KEY_ATTR.resolveModelAttribute(context, model).asString();
-        final SimplePushService nettyService = new SimplePushService(serverName, tokenKey, endpointTls);
-
         final ServiceName name = SimplePushService.createServiceName(serverName);
         final ServiceBuilder<SimplePushService> sb = context.getServiceTarget().addService(name, nettyService);
         sb.addDependency(SocketBinding.JBOSS_BINDING_NAME.append(socketBinding), SocketBinding.class, nettyService.getInjectedSocketBinding());
 
-       if (datasourceNode.isDefined()) {
+        final ModelNode datasourceNode = ServerDefinition.DATASOURCE_ATTR.resolveModelAttribute(context, model);
+        if (datasourceNode.isDefined()) {
             final BindInfo bindinfo = ContextNames.bindInfoFor(datasourceNode.asString());
-            logger.info("Adding dependency to [" + bindinfo.getAbsoluteJndiName() + "]");
+            logger.debug("Adding dependency to [" + bindinfo.getAbsoluteJndiName() + "]");
             sb.addDependencies(bindinfo.getBinderServiceName());
         }
 

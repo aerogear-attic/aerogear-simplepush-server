@@ -19,13 +19,11 @@ package org.jboss.aerogear.simplepush.subsystem;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
-import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.JpaDataStore;
@@ -44,58 +42,36 @@ public class SimplePushService implements Service<SimplePushService> {
     private final Logger logger = Logger.getLogger(SimplePushService.class);
 
     private final InjectedValue<SocketBinding> injectedSocketBinding = new InjectedValue<SocketBinding>();
-    private final String name;
-    private final String tokenKey;
-    private final boolean endpointTls;
+    private final SimplePushServerConfig simplePushConfig;
+    private final SockJsConfig sockJsConfig;
     private Channel channel;
 
-    public SimplePushService(final String name, final String tokenKey, final boolean endpointTls) {
-        this.name = name;
-        this.tokenKey = tokenKey;
-        this.endpointTls = endpointTls;
+    public SimplePushService(final SimplePushServerConfig simplePushConfig, final SockJsConfig sockJsConfig) {
+        this.simplePushConfig = simplePushConfig;
+        this.sockJsConfig = sockJsConfig;
     }
 
     @Override
     public synchronized void start(final StartContext context) throws StartException {
         try {
             final SocketBinding socketBinding = injectedSocketBinding.getValue();
-            final SimplePushServerConfig simplePushConfig = createConfig(socketBinding, tokenKey, endpointTls);
-            final SockJsConfig sockjsConfig = SockJsConfig.withPrefix("/simplepush")
-                    .webSocketProtocols("push-notification")
-                    .tls(false)
-                    .webSocketHeartbeatInterval(180000)
-                    .cookiesNeeded()
-                    .build();
             final DefaultEventExecutorGroup reaperExcutorGroup = new DefaultEventExecutorGroup(1);
-            final EventLoopGroup bossGroup = new NioEventLoopGroup();
-            final EventLoopGroup workerGroup = new NioEventLoopGroup();
             final DataStore datastore = new JpaDataStore("SimplePushPU");
-            final SockJSChannelInitializer channelInitializer = new SockJSChannelInitializer(simplePushConfig, datastore, sockjsConfig, reaperExcutorGroup);
+            final SockJSChannelInitializer channelInitializer = new SockJSChannelInitializer(simplePushConfig, datastore, sockJsConfig, reaperExcutorGroup);
             final ServerBootstrap serverBootstrap = new ServerBootstrap();
-            serverBootstrap.group(bossGroup, workerGroup)
-                    .channel(NioServerSocketChannel.class)
-                    .childHandler(channelInitializer);
-            logger.info("NettyService [" + name + "] binding to port [" + socketBinding.getPort() + "]");
+            serverBootstrap.group(new NioEventLoopGroup(), new NioEventLoopGroup())
+                .channel(NioServerSocketChannel.class)
+                .childHandler(channelInitializer);
+            logger.info("SimplePush Server binding to port [" + socketBinding.getPort() + "]");
             channel = serverBootstrap.bind(socketBinding.getAddress(), socketBinding.getPort()).sync().channel();
         } catch (final InterruptedException e) {
             throw new StartException(e);
         }
     }
 
-    /*
-     * This OpenShift specific code will be removed when the SimplePush subsystem supports configuration
-     * options.
-     */
-    private SimplePushServerConfig createConfig(final SocketBinding socketBinding, final String tokenKey, final boolean endpointTls) {
-        final String openShiftAppDNS = System.getenv("OPENSHIFT_APP_DNS");
-        final String hostName = openShiftAppDNS == null ? socketBinding.getAddress().getHostName() : openShiftAppDNS;
-        final int port = openShiftAppDNS == null ? socketBinding.getPort() : endpointTls ? 8443 : 8000;
-        return DefaultSimplePushConfig.create(hostName, port).tokenKey(tokenKey).useTls(endpointTls).build();
-    }
-
     @Override
     public synchronized void stop(StopContext context) {
-        logger.info("NettyService [" + name + "] shutting down.");
+        logger.info("SimplePush Server shutting down.");
         channel.eventLoop().shutdownGracefully();
     }
 
@@ -109,7 +85,7 @@ public class SimplePushService implements Service<SimplePushService> {
     }
 
     public static ServiceName createServiceName(final String name) {
-        return ServiceName.JBOSS.append("netty", name);
+        return ServiceName.JBOSS.append("aerogear", name);
     }
 
 }
