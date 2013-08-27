@@ -17,7 +17,7 @@
 package org.jboss.aerogear.simplepush.server.netty;
 
 import io.netty.channel.Channel;
-import io.netty.handler.codec.sockjs.SessionContext;
+import io.netty.handler.codec.sockjs.SockJsSessionContext;
 
 import java.util.Iterator;
 
@@ -46,8 +46,8 @@ public class UserAgentReaper implements Runnable {
     @Override
     public void run() {
         logger.info("Running reaper at interval of " + simplePushServer.config().userAgentReaperTimeout());
-        for (Iterator<UserAgent<SessionContext>> it = userAgents.all().iterator(); it.hasNext();) {
-            final UserAgent<SessionContext> userAgent = it.next();
+        for (Iterator<UserAgent<SockJsSessionContext>> it = userAgents.all().iterator(); it.hasNext();) {
+            final UserAgent<SockJsSessionContext> userAgent = it.next();
             final long now = System.currentTimeMillis();
             if (isChannelInactive(userAgent) && userAgent.timestamp() + simplePushServer.config().userAgentReaperTimeout() < now) {
                 logger.info("Removing inactive UserAgent [" + userAgent.uaid().toString() + "]");
@@ -67,7 +67,7 @@ public class UserAgentReaper implements Runnable {
         }
     }
 
-    private boolean isChannelInactive(final UserAgent<SessionContext> userAgent) {
+    private boolean isChannelInactive(final UserAgent<SockJsSessionContext> userAgent) {
         final Channel ch = userAgent.context().getContext().channel();
         return !ch.isActive() && !ch.isRegistered();
     }

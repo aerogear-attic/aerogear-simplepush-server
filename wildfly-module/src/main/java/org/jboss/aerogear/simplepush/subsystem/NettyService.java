@@ -24,7 +24,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.sockjs.Config;
+import io.netty.handler.codec.sockjs.SockJsConfig;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
@@ -66,10 +66,10 @@ public class NettyService implements Service<NettyService> {
             final ThreadFactory threadFactory = injectedThreadFactory.getOptionalValue();
             final SocketBinding socketBinding = injectedSocketBinding.getValue();
             final SimplePushServerConfig simplePushConfig = createConfig(socketBinding, tokenKey, endpointTls);
-            final Config sockjsConfig = Config.prefix("/simplepush")
-                    .websocketProtocols("push-notification")
+            final SockJsConfig sockjsConfig = SockJsConfig.withPrefix("/simplepush")
+                    .webSocketProtocols("push-notification")
                     .tls(false)
-                    .websocketHeartbeatInterval(180000)
+                    .webSocketHeartbeatInterval(180000)
                     .cookiesNeeded()
                     .build();
             final DefaultEventExecutorGroup reaperExcutorGroup = newEventExecutorGroup(1, threadFactory);

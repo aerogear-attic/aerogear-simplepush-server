@@ -40,12 +40,12 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.codec.sockjs.Config;
-import io.netty.handler.codec.sockjs.SockJSService;
-import io.netty.handler.codec.sockjs.SockJSServiceFactory;
+import io.netty.handler.codec.sockjs.SockJsConfig;
+import io.netty.handler.codec.sockjs.SockJsService;
+import io.netty.handler.codec.sockjs.SockJsServiceFactory;
 import io.netty.handler.codec.sockjs.handlers.CorsInboundHandler;
 import io.netty.handler.codec.sockjs.handlers.CorsOutboundHandler;
-import io.netty.handler.codec.sockjs.handlers.SockJSHandler;
+import io.netty.handler.codec.sockjs.handlers.SockJsHandler;
 import io.netty.handler.codec.sockjs.transports.Transports;
 import io.netty.util.ReferenceCountUtil;
 
@@ -82,7 +82,7 @@ import org.junit.Test;
 
 public class SimplePushSockJSServiceTest {
 
-    private SockJSServiceFactory factory;
+    private SockJsServiceFactory factory;
     private String sessionUrl;
 
     @Before
@@ -170,7 +170,7 @@ public class SimplePushSockJSServiceTest {
     @Test
     public void rawWebSocketUpgradeRequest() throws Exception {
         final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.defaultConfig();
-        final Config sockjsConf = Config.prefix("/simplepush").websocketProtocols("push-notification").build();
+        final SockJsConfig sockjsConf = SockJsConfig.withPrefix("/simplepush").webSocketProtocols("push-notification").build();
         final SimplePushServiceFactory factory = new SimplePushServiceFactory(sockjsConf, new InMemoryDataStore(), simplePushConfig);
         final EmbeddedChannel channel = createChannel(factory);
         final FullHttpRequest request = websocketUpgradeRequest(factory.config().prefix() + Transports.Types.WEBSOCKET.path());
@@ -251,7 +251,7 @@ public class SimplePushSockJSServiceTest {
     @Test
     public void websocketHandleAcknowledgement() throws Exception {
         final SimplePushServer simplePushServer = defaultPushServer();
-        final SockJSServiceFactory serviceFactory = defaultFactory(simplePushServer);
+        final SockJsServiceFactory serviceFactory = defaultFactory(simplePushServer);
         final EmbeddedChannel channel = createWebSocketChannel(serviceFactory);
         final String uaid = UUIDUtil.newUAID();
         final String channelId = UUID.randomUUID().toString();
@@ -268,7 +268,7 @@ public class SimplePushSockJSServiceTest {
     @Test
     public void websocketHandleAcknowledgements() throws Exception {
         final SimplePushServer simplePushServer = defaultPushServer();
-        final SockJSServiceFactory serviceFactory = defaultFactory(simplePushServer);
+        final SockJsServiceFactory serviceFactory = defaultFactory(simplePushServer);
         final EmbeddedChannel channel = createWebSocketChannel(serviceFactory);
         final String uaid = UUIDUtil.newUAID();
         final String channelId1 = UUID.randomUUID().toString();
@@ -290,7 +290,7 @@ public class SimplePushSockJSServiceTest {
     // https://groups.google.com/forum/#!topic/netty/Q-_wat_9Odo
     public void websocketHandleOneUnacknowledgement() throws Exception {
         final SimplePushServer simplePushServer = defaultPushServer();
-        final SockJSServiceFactory serviceFactory = defaultFactory(simplePushServer);
+        final SockJsServiceFactory serviceFactory = defaultFactory(simplePushServer);
         final EmbeddedChannel channel = createWebSocketChannel(serviceFactory);
         final String uaid = UUIDUtil.newUAID();
         final String channelId1 = UUID.randomUUID().toString();
@@ -313,7 +313,7 @@ public class SimplePushSockJSServiceTest {
     // https://groups.google.com/forum/#!topic/netty/Q-_wat_9Odo
     public void websocketHandleUnacknowledgement() throws Exception {
         final SimplePushServer simplePushServer = defaultPushServer();
-        final SockJSServiceFactory serviceFactory = defaultFactory(simplePushServer);
+        final SockJsServiceFactory serviceFactory = defaultFactory(simplePushServer);
         final EmbeddedChannel channel = createWebSocketChannel(serviceFactory);
         final String uaid = UUIDUtil.newUAID();
         final String channelId1 = UUID.randomUUID().toString();
@@ -434,7 +434,7 @@ public class SimplePushSockJSServiceTest {
         throw new IllegalArgumentException("Response is expected to be of type TextWebSocketFrame was: " + response);
     }
 
-    private FullHttpResponse sendXhrOpenFrameRequest(final SockJSServiceFactory factory, final String sessionUrl) {
+    private FullHttpResponse sendXhrOpenFrameRequest(final SockJsServiceFactory factory, final String sessionUrl) {
         final EmbeddedChannel openChannel = createChannel(factory);
         openChannel.writeInbound(httpGetRequest(sessionUrl + Transports.Types.XHR.path()));
         final FullHttpResponse openFrameResponse = (FullHttpResponse) openChannel.readOutbound();
@@ -442,12 +442,12 @@ public class SimplePushSockJSServiceTest {
         return openFrameResponse;
     }
 
-    private FullHttpResponse sendXhrHelloMessageRequest(final SockJSServiceFactory factory, final String sessionUrl,
+    private FullHttpResponse sendXhrHelloMessageRequest(final SockJsServiceFactory factory, final String sessionUrl,
             final String uaid, final String... channelIds) {
         return xhrSend(factory, sessionUrl, TestUtil.helloSockJSFrame(uaid.toString(), channelIds));
     }
 
-    private HelloResponseImpl pollXhrHelloMessageResponse(final SockJSServiceFactory factory, final String sessionUrl) {
+    private HelloResponseImpl pollXhrHelloMessageResponse(final SockJsServiceFactory factory, final String sessionUrl) {
         final FullHttpResponse pollResponse = xhrPoll(factory, sessionUrl);
         assertThat(pollResponse.getStatus(), is(HttpResponseStatus.OK));
 
@@ -455,12 +455,12 @@ public class SimplePushSockJSServiceTest {
         return JsonUtil.fromJson(helloJson, HelloResponseImpl.class);
     }
 
-    private FullHttpResponse sendXhrRegisterChannelIdRequest(final SockJSServiceFactory factory, final String sessionUrl,
+    private FullHttpResponse sendXhrRegisterChannelIdRequest(final SockJsServiceFactory factory, final String sessionUrl,
             final String channelId) {
         return xhrSend(factory, sessionUrl, TestUtil.registerChannelIdMessageSockJSFrame(channelId));
     }
 
-    private RegisterResponseImpl pollXhrRegisterChannelIdResponse(final SockJSServiceFactory factory, final String sessionUrl) {
+    private RegisterResponseImpl pollXhrRegisterChannelIdResponse(final SockJsServiceFactory factory, final String sessionUrl) {
         final FullHttpResponse pollResponse = xhrPoll(factory, sessionUrl);
         assertThat(pollResponse.getStatus(), is(HttpResponseStatus.OK));
 
@@ -468,12 +468,12 @@ public class SimplePushSockJSServiceTest {
         return JsonUtil.fromJson(json, RegisterResponseImpl.class);
     }
 
-    private FullHttpResponse unregisterChannelIdRequest(final SockJSServiceFactory factory, final String sessionUrl,
+    private FullHttpResponse unregisterChannelIdRequest(final SockJsServiceFactory factory, final String sessionUrl,
             final String channelId) {
         return xhrSend(factory, sessionUrl, TestUtil.unregisterChannelIdMessageSockJSFrame(channelId));
     }
 
-    private UnregisterResponseImpl unregisterChannelIdResponse(final SockJSServiceFactory factory, final String sessionUrl) {
+    private UnregisterResponseImpl unregisterChannelIdResponse(final SockJsServiceFactory factory, final String sessionUrl) {
         final FullHttpResponse pollResponse = xhrPoll(factory, sessionUrl);
         assertThat(pollResponse.getStatus(), is(HttpResponseStatus.OK));
 
@@ -481,11 +481,11 @@ public class SimplePushSockJSServiceTest {
         return JsonUtil.fromJson(json, UnregisterResponseImpl.class);
     }
 
-    private FullHttpResponse sendXhrPingRequest(final SockJSServiceFactory factory, final String sessionUrl) {
+    private FullHttpResponse sendXhrPingRequest(final SockJsServiceFactory factory, final String sessionUrl) {
         return xhrSend(factory, sessionUrl, TestUtil.pingSockJSFrame());
     }
 
-    private PingMessageImpl pollXhrPingMessageResponse(final SockJSServiceFactory factory, final String sessionUrl) {
+    private PingMessageImpl pollXhrPingMessageResponse(final SockJsServiceFactory factory, final String sessionUrl) {
         final FullHttpResponse pollResponse = xhrPoll(factory, sessionUrl);
         assertThat(pollResponse.getStatus(), is(HttpResponseStatus.OK));
 
@@ -493,7 +493,7 @@ public class SimplePushSockJSServiceTest {
         return JsonUtil.fromJson(helloJson, PingMessageImpl.class);
     }
 
-    private FullHttpResponse xhrSend(final SockJSServiceFactory factory, final String sessionUrl, final String content) {
+    private FullHttpResponse xhrSend(final SockJsServiceFactory factory, final String sessionUrl, final String content) {
         final EmbeddedChannel sendChannel = createChannel(factory);
         final FullHttpRequest sendRequest = httpPostRequest(sessionUrl + Transports.Types.XHR_SEND.path());
         sendRequest.content().writeBytes(Unpooled.copiedBuffer(content, UTF_8));
@@ -504,7 +504,7 @@ public class SimplePushSockJSServiceTest {
 
     }
 
-    private FullHttpResponse xhrPoll(final SockJSServiceFactory factory, final String sessionUrl) {
+    private FullHttpResponse xhrPoll(final SockJsServiceFactory factory, final String sessionUrl) {
         final EmbeddedChannel pollChannel = createChannel(factory);
         pollChannel.writeInbound(httpGetRequest(sessionUrl + Transports.Types.XHR.path()));
         return (FullHttpResponse) pollChannel.readOutbound();
@@ -530,48 +530,48 @@ public class SimplePushSockJSServiceTest {
         return new DefaultFullHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, path);
     }
 
-    private SockJSServiceFactory defaultFactory() {
+    private SockJsServiceFactory defaultFactory() {
         final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.defaultConfig();
-        final Config sockjsConf = Config.prefix("/simplepush").build();
+        final SockJsConfig sockjsConf = SockJsConfig.withPrefix("/simplepush").build();
         return new SimplePushServiceFactory(sockjsConf, new InMemoryDataStore(), simplePushConfig);
     }
 
-    private SockJSServiceFactory defaultFactory(final SimplePushServer simplePushServer) {
-        final Config sockJSConfig = Config.prefix("/simplepush").build();
-        return new SockJSServiceFactory() {
+    private SockJsServiceFactory defaultFactory(final SimplePushServer simplePushServer) {
+        final SockJsConfig sockJSConfig = SockJsConfig.withPrefix("/simplepush").build();
+        return new SockJsServiceFactory() {
             @Override
-            public SockJSService create() {
+            public SockJsService create() {
                 return new SimplePushSockJSService(config(), simplePushServer);
             }
 
             @Override
-            public Config config() {
+            public SockJsConfig config() {
                 return sockJSConfig;
             }
         };
     }
 
-    private EmbeddedChannel createChannel(final SockJSServiceFactory factory) {
+    private EmbeddedChannel createChannel(final SockJsServiceFactory factory) {
         final EmbeddedChannel ch = new TestEmbeddedChannel(
                 new CorsInboundHandler(),
-                new SockJSHandler(factory),
+                new SockJsHandler(factory),
                 new CorsOutboundHandler());
         ch.pipeline().remove("EmbeddedChannel$LastInboundHandler#0");
         return ch;
     }
 
-    private EmbeddedChannel createWebSocketChannel(final SockJSServiceFactory factory) {
+    private EmbeddedChannel createWebSocketChannel(final SockJsServiceFactory factory) {
         final EmbeddedChannel ch = new EmbeddedChannel(
                 new HttpRequestDecoder(),
                 new HttpResponseEncoder(),
                 new CorsInboundHandler(),
-                new SockJSHandler(factory),
+                new SockJsHandler(factory),
                 new CorsOutboundHandler());
         ch.pipeline().remove("EmbeddedChannel$LastInboundHandler#0");
         return ch;
     }
 
-    private String randomSessionIdUrl(final SockJSServiceFactory factory) {
+    private String randomSessionIdUrl(final SockJsServiceFactory factory) {
         return factory.config().prefix() + "/111/" + UUID.randomUUID().toString();
     }
 

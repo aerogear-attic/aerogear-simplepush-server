@@ -18,9 +18,9 @@ package org.jboss.aerogear.simplepush.server.netty;
 
 import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.fromJson;
 import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.toJson;
-import io.netty.handler.codec.sockjs.Config;
-import io.netty.handler.codec.sockjs.SessionContext;
-import io.netty.handler.codec.sockjs.SockJSService;
+import io.netty.handler.codec.sockjs.SockJsConfig;
+import io.netty.handler.codec.sockjs.SockJsSessionContext;
+import io.netty.handler.codec.sockjs.SockJsService;
 import io.netty.util.concurrent.ScheduledFuture;
 
 import java.util.Set;
@@ -47,15 +47,15 @@ import org.slf4j.LoggerFactory;
 /**
  * SimplePush server implementation using SockJS.
  */
-public class SimplePushSockJSService implements SockJSService {
+public class SimplePushSockJSService implements SockJsService {
 
     private final Logger logger = LoggerFactory.getLogger(SimplePushSockJSService.class);
 
     private final UserAgents userAgents = UserAgents.getInstance();
-    private final Config sockjsConfig;
+    private final SockJsConfig sockjsConfig;
     private final SimplePushServer simplePushServer;
     private String uaid;
-    private SessionContext session;
+    private SockJsSessionContext session;
     private ScheduledFuture<?> ackJobFuture;
 
     /**
@@ -64,18 +64,18 @@ public class SimplePushSockJSService implements SockJSService {
      * @param sockjsConfig the SockJS {@link Config} for this service.
      * @param simplePushServer the {@link SimplePushServer} that this instance will use.
      */
-    public SimplePushSockJSService(final Config sockjsConfig, final SimplePushServer simplePushServer) {
+    public SimplePushSockJSService(final SockJsConfig sockjsConfig, final SimplePushServer simplePushServer) {
         this.sockjsConfig = sockjsConfig;
         this.simplePushServer = simplePushServer;
     }
 
     @Override
-    public Config config() {
+    public SockJsConfig config() {
         return sockjsConfig;
     }
 
     @Override
-    public void onOpen(final SessionContext session) {
+    public void onOpen(final SockJsSessionContext session) {
         logger.info("SimplePushSockJSServer onOpen");
         this.session = session;
     }
@@ -125,7 +125,7 @@ public class SimplePushSockJSService implements SockJSService {
         userAgents.updateAccessedTime(uaid);
     }
 
-    private void processUnacked(final String uaid, final SessionContext session, final long delay) {
+    private void processUnacked(final String uaid, final SockJsSessionContext session, final long delay) {
         final Set<Update> unacked = simplePushServer.getUnacknowledged(uaid);
         if (unacked.isEmpty()) {
             if (ackJobFuture != null && !ackJobFuture.isCancelled()) {
