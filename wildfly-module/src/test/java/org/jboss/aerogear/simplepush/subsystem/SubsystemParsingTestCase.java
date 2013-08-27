@@ -99,6 +99,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
     public void parseAndMarshalModel() throws Exception {
         final KernelServices servicesA = installInController(new AdditionalServices(), subsystemXml);
         final ModelNode modelA = servicesA.readWholeModel();
+        servicesA.shutdown();
         final String marshalled = servicesA.getPersistedSubsystemXml();
         final KernelServices servicesB = installInController(new AdditionalServices(), marshalled);
         final ModelNode modelB = servicesB.readWholeModel();
@@ -162,8 +163,8 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         @Override
         protected void setupController(final ControllerInitializer controllerInitializer) {
             controllerInitializer.setBindAddress("127.0.0.1");
-            controllerInitializer.addSocketBinding("mysocket", 8888);
-            controllerInitializer.addSocketBinding("simplepush", 7777);
+            controllerInitializer.addSocketBinding("mysocket", 18888);
+            controllerInitializer.addSocketBinding("simplepush", 17777);
         }
 
         @Override
