@@ -16,7 +16,7 @@
  */
 package org.jboss.aerogear.simplepush.server.netty;
 
-import io.netty.handler.codec.sockjs.SockJsSessionContext;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;

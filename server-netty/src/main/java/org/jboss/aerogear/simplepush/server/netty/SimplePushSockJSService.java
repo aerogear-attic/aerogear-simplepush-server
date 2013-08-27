@@ -18,9 +18,9 @@ package org.jboss.aerogear.simplepush.server.netty;
 
 import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.fromJson;
 import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.toJson;
-import io.netty.handler.codec.sockjs.SockJsConfig;
-import io.netty.handler.codec.sockjs.SockJsSessionContext;
-import io.netty.handler.codec.sockjs.SockJsService;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsService;
 import io.netty.util.concurrent.ScheduledFuture;
 
 import java.util.Set;

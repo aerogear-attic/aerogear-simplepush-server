@@ -16,9 +16,9 @@
  */
 package org.jboss.aerogear.simplepush.server.netty;
 
-import io.netty.handler.codec.sockjs.AbstractSockJsServiceFactory;
-import io.netty.handler.codec.sockjs.SockJsConfig;
-import io.netty.handler.codec.sockjs.SockJsService;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.AbstractSockJsServiceFactory;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsService;
 
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
