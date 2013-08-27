@@ -35,7 +35,7 @@
     </parent>
 
     <properties>
-        <version.io.netty>4.0.5.Final-SNAPSHOT</version.io.netty>
+        <version.io.netty>4.0.8.Final</version.io.netty>
         <version.jackson>1.9.2</version.jackson>
         <version.commons.codec>1.8</version.commons.codec>
     </properties>
@@ -44,6 +44,7 @@
         <module>protocol</module>
         <module>server-api</module>
         <module>server-core</module>
+        <module>netty-codec-sockjs</module>
         <module>server-netty</module>
         <module>server-vertx</module>
         <module>wildfly-module</module>
