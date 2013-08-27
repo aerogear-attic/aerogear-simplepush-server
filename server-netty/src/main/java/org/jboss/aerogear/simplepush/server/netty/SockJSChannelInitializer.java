@@ -21,10 +21,10 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
-import io.netty.handler.codec.sockjs.Config;
-import io.netty.handler.codec.sockjs.handlers.CorsInboundHandler;
-import io.netty.handler.codec.sockjs.handlers.CorsOutboundHandler;
-import io.netty.handler.codec.sockjs.handlers.SockJSHandler;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.CorsInboundHandler;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.CorsOutboundHandler;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.SockJsHandler;
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.EventExecutorGroup;
 
@@ -42,7 +42,7 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
     private final DataStore datastore;
     private final SimplePushServerConfig simplePushConfig;
     private final EventExecutorGroup backgroundGroup;
-    private final Config sockjsConfig;
+    private final SockJsConfig sockjsConfig;
 
     /**
      * Sole constructor.
@@ -54,7 +54,7 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
      */
     public SockJSChannelInitializer(final SimplePushServerConfig simplePushConfig,
             final DataStore datastore,
-            final Config sockjsConfig,
+            final SockJsConfig sockjsConfig,
             final EventExecutorGroup backgroundGroup) {
         this.simplePushConfig = simplePushConfig;
         this.datastore = datastore;
@@ -76,7 +76,7 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
         final DefaultSimplePushServer simplePushServer = new DefaultSimplePushServer(datastore, simplePushConfig);
         pipeline.addLast(new NotificationHandler(simplePushServer));
         pipeline.addLast(new CorsInboundHandler());
-        pipeline.addLast(new SockJSHandler(new SimplePushServiceFactory(sockjsConfig, datastore, simplePushConfig)));
+        pipeline.addLast(new SockJsHandler(new SimplePushServiceFactory(sockjsConfig, datastore, simplePushConfig)));
         pipeline.addLast(backgroundGroup, new UserAgentReaperHandler(simplePushServer));
         pipeline.addLast(new CorsOutboundHandler());
     }

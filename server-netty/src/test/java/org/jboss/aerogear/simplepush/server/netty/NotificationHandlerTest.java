@@ -28,7 +28,7 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.sockjs.SessionContext;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
 import io.netty.util.CharsetUtil;
 
 import java.util.UUID;
@@ -154,8 +154,8 @@ public class NotificationHandlerTest {
         return new EmbeddedChannel(new NotificationHandler(simplePushServer));
     }
 
-    private SessionContext channelSession(final EmbeddedChannel ch) {
-        return new SessionContext() {
+    private SockJsSessionContext channelSession(final EmbeddedChannel ch) {
+        return new SockJsSessionContext() {
             @Override
             public void send(String message) {
                 ch.writeOutbound(message);

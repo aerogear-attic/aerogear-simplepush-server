@@ -58,8 +58,9 @@
         </dependency>
 
         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec-sockjs</artifactId>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-netty-codec-sockjs</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>

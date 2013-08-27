@@ -29,6 +29,10 @@
         <resource-root path="jackson-mapper-asl-${version.jackson}.jar"/>
         <resource-root path="commons-codec-${version.commons.codec}.jar"/>
         <resource-root path="netty-all-${version.io.netty}.jar"/>
+        
+        <!-- The following resource should be replaced by netty-codec-sockjs once it is released -->
+        <resource-root path="aerogear-netty-codec-sockjs-${project.version}.jar"/>
+        
     </resources>
 
     <dependencies>

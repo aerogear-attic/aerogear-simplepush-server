@@ -16,9 +16,9 @@
  */
 package org.jboss.aerogear.simplepush.server.netty;
 
-import io.netty.handler.codec.sockjs.AbstractServiceFactory;
-import io.netty.handler.codec.sockjs.Config;
-import io.netty.handler.codec.sockjs.SockJSService;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.AbstractSockJsServiceFactory;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsService;
 
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
@@ -27,7 +27,7 @@ import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 /**
  * Factory class that creates instances of {@link SimplePushSockJSService}.
  */
-public class SimplePushServiceFactory extends AbstractServiceFactory {
+public class SimplePushServiceFactory extends AbstractSockJsServiceFactory {
 
     private final DataStore datastore;
     private final SimplePushServerConfig simplePushConfig;
@@ -39,7 +39,7 @@ public class SimplePushServiceFactory extends AbstractServiceFactory {
      * @param datastore the {@link DataStore} to be used by all instances created.
      * @param simplePushConfig the {@link SimplePushServerConfig} configuration.
      */
-    public SimplePushServiceFactory(final Config sockjsConfig, final DataStore datastore,
+    public SimplePushServiceFactory(final SockJsConfig sockjsConfig, final DataStore datastore,
             final SimplePushServerConfig simplePushConfig) {
         super(sockjsConfig);
         this.datastore = datastore;
@@ -47,7 +47,7 @@ public class SimplePushServiceFactory extends AbstractServiceFactory {
     }
 
     @Override
-    public SockJSService create() {
+    public SockJsService create() {
         return new SimplePushSockJSService(config(), new DefaultSimplePushServer(datastore, simplePushConfig));
     }
 

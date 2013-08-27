@@ -25,7 +25,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.sockjs.SessionContext;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,7 +54,7 @@ public class UserAgentReaperTest {
     public void reapActiveUserAgent() throws InterruptedException {
         final String uaid = UUIDUtil.newUAID();
         final SimplePushServer simplePushServer = simplePushServer();
-        final SessionContext sessionContext = newSessionContext(true);
+        final SockJsSessionContext sessionContext = newSessionContext(true);
         doRegister(uaid, simplePushServer);
         addUserAgent(uaid, sessionContext);
 
@@ -67,7 +67,7 @@ public class UserAgentReaperTest {
     public void reapInactiveUserAgent() throws InterruptedException {
         final String uaid = UUIDUtil.newUAID();
         final SimplePushServer simplePushServer = simplePushServer();
-        final SessionContext sessionContext = newSessionContext(false);
+        final SockJsSessionContext sessionContext = newSessionContext(false);
         doRegister(uaid, simplePushServer);
         addUserAgent(uaid, sessionContext);
 
@@ -76,13 +76,13 @@ public class UserAgentReaperTest {
         UserAgents.getInstance().get(uaid);
     }
 
-    private SessionContext newSessionContext(final boolean active) {
+    private SockJsSessionContext newSessionContext(final boolean active) {
         final Channel channel = mock(Channel.class);
         when(channel.isActive()).thenReturn(active);
         when(channel.isRegistered()).thenReturn(active);
         final ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
         when(ctx.channel()).thenReturn(channel);
-        final SessionContext sessionContext = mock(SessionContext.class);
+        final SockJsSessionContext sessionContext = mock(SockJsSessionContext.class);
         when(sessionContext.getContext()).thenReturn(ctx);
         return sessionContext;
     }
@@ -93,7 +93,7 @@ public class UserAgentReaperTest {
 
     }
 
-    private void addUserAgent(final String uaid, final SessionContext sessionContext) throws InterruptedException {
+    private void addUserAgent(final String uaid, final SockJsSessionContext sessionContext) throws InterruptedException {
         UserAgents.getInstance().add(uaid, sessionContext);
         // When a UserAgent is added a timestap will be added. We need to allow for some time to pass to simulate
         // an inactive client.

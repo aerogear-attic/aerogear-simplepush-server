@@ -16,7 +16,7 @@
  */
 package org.jboss.aerogear.simplepush.server.netty;
 
-import io.netty.handler.codec.sockjs.SessionContext;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
 
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +30,7 @@ public class UserAgents {
     private UserAgents() {
     }
 
-    private static final ConcurrentMap<String, UserAgent<SessionContext>> userAgents = new ConcurrentHashMap<String, UserAgent<SessionContext>>();
+    private static final ConcurrentMap<String, UserAgent<SockJsSessionContext>> userAgents = new ConcurrentHashMap<String, UserAgent<SockJsSessionContext>>();
     private static final UserAgents INSTANCE = new UserAgents();
 
     /**
@@ -48,8 +48,8 @@ public class UserAgents {
      * @param uaid the unique identifier for the UserAgent.
      * @param session the {@link SessionContext} for the connected UserAgent.
      */
-    public void add(final String uaid, final SessionContext session) {
-        userAgents.put(uaid, new UserAgent<SessionContext>(uaid, session, System.currentTimeMillis()));
+    public void add(final String uaid, final SockJsSessionContext session) {
+        userAgents.put(uaid, new UserAgent<SockJsSessionContext>(uaid, session, System.currentTimeMillis()));
     }
 
     /**
@@ -58,8 +58,8 @@ public class UserAgents {
      * @param uaid the UserAgent id.
      * @return {@link UserAgent} matching the passed in user agent identifier.
      */
-    public UserAgent<SessionContext> get(final String uaid) {
-        final UserAgent<SessionContext> userAgent = userAgents.get(uaid);
+    public UserAgent<SockJsSessionContext> get(final String uaid) {
+        final UserAgent<SockJsSessionContext> userAgent = userAgents.get(uaid);
         if (userAgent == null) {
             throw new IllegalStateException("Cound not find UserAgent [" + uaid.toString() + "]");
         }
@@ -71,7 +71,7 @@ public class UserAgents {
      *
      * @return {@code Collection<UserAgent>} all the {@link UserAgent}.
      */
-    public Collection<UserAgent<SessionContext>> all() {
+    public Collection<UserAgent<SockJsSessionContext>> all() {
         return userAgents.values();
     }
 
@@ -93,7 +93,7 @@ public class UserAgents {
      */
     public void updateAccessedTime(final String uaid) {
         if (uaid != null) {
-            final UserAgent<SessionContext> userAgent = userAgents.get(uaid);
+            final UserAgent<SockJsSessionContext> userAgent = userAgents.get(uaid);
             userAgent.timestamp(System.currentTimeMillis());
         }
     }

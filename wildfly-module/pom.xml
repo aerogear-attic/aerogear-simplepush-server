@@ -81,6 +81,11 @@
             <version>${version.io.netty}</version>
         </dependency>
         <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-netty-codec-sockjs</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>5.1.18</version>
@@ -152,6 +157,7 @@
                                                 aerogear-simplepush-server-api, 
                                                 aerogear-simplepush-server-core, 
                                                 aerogear-simplepush-server-netty,
+                                                aerogear-netty-codec-sockjs,
                                                 netty-all,
                                                 jackson-core-asl,
                                                 jackson-mapper-asl,

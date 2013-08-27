@@ -1,15 +1,6 @@
 # AeroGear SimplePush Server
 This project is a Java implementation of the server side that follows the [SimplePush Protocol](https://wiki.mozilla.org/WebAPI/SimplePush/Protocol).  
 
-### Prerequisites
-This version uses SockJS which is provided by Netty 4. This support currently not availble in any release of Netty and 
-you have to build the following branch manually:
-
-    git clone https://github.com/danbev/netty
-    cd netty
-    git checkout ci
-    mvn install -DskipTests=true
-
 ## Usage
 
 ### Build the SimplePush Server
@@ -90,7 +81,7 @@ want to get registered, as the _channelId_, enter e.g. _mail_.
 
 Use one of the above mentioned IDs in the following ```curl``` command:
 
-    curl -i --header "Accept: application/x-www-form-urlencoded" -X PUT -d "version=1" "https://localhost:7777/endpoint/{ChannelID}"
+    curl -i --header "Accept: application/x-www-form-urlencoded" -X PUT -d "version=1" "https://localhost:7777/update/{ChannelID}"
 
 A push notification stating the version will be displayed in the textarea of the _websocket.html_ page that has registerd for that channel.
 

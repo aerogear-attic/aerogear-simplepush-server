@@ -37,7 +37,7 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
-import io.netty.handler.codec.sockjs.Config;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import java.net.URI;
@@ -70,7 +70,7 @@ public class NettySimplePushSockJSServerTest {
 
     @BeforeClass
     public static void startSimplePushServer() throws Exception {
-        final Config sockJSConfig = Config.prefix("/simplepush").cookiesNeeded().build();
+        final SockJsConfig sockJSConfig = SockJsConfig.withPrefix("/simplepush").cookiesNeeded().build();
         final DataStore datastore = new InMemoryDataStore();
         final ServerBootstrap sb = new ServerBootstrap();
         final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create()

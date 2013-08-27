@@ -23,7 +23,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.sockjs.Config;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
 import java.util.HashMap;
@@ -42,10 +42,10 @@ import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 public class NettySockJSServer {
 
     private final SimplePushServerConfig simplePushConfig;
-    private final Config sockJSConfig;
+    private final SockJsConfig sockJSConfig;
     private Map<Options.Args, Option<?>> options;
 
-    public NettySockJSServer(final Map<Args, Option<?>> options, final SimplePushServerConfig simplePushConfig, final Config sockJSConfig) {
+    public NettySockJSServer(final Map<Args, Option<?>> options, final SimplePushServerConfig simplePushConfig, final SockJsConfig sockJSConfig) {
         this.options = options;
         this.simplePushConfig = simplePushConfig;
         this.sockJSConfig = sockJSConfig;
@@ -92,9 +92,9 @@ public class NettySockJSServer {
                 .tokenKey(Options.<String> value(Args.TOKEN_KEY, options))
                 .build();
 
-        final Config sockJSConfig = Config.prefix("/simplepush")
+        final SockJsConfig sockJSConfig = SockJsConfig.withPrefix("/simplepush")
                 .tls(Options.value(Args.TLS, options, false))
-                .websocketProtocols("push-notification")
+                .webSocketProtocols("push-notification")
                 .cookiesNeeded()
                 .sessionTimeout(60000)
                 .build();
