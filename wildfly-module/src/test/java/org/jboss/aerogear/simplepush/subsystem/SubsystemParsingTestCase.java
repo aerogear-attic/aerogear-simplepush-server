@@ -124,9 +124,9 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
     @Test (expected = ServiceNotFoundException.class)
     public void subsystemRemoval() throws Exception {
         final KernelServices services = installInController(new AdditionalServices(), subsystemXml);
-        services.getContainer().getRequiredService(NettyService.createServiceName("simplepush"));
+        services.getContainer().getRequiredService(SimplePushService.createServiceName("simplepush"));
         super.assertRemoveSubsystemResources(services);
-        services.getContainer().getRequiredService(NettyService.createServiceName("simplepush"));
+        services.getContainer().getRequiredService(SimplePushService.createServiceName("simplepush"));
     }
 
     @Test

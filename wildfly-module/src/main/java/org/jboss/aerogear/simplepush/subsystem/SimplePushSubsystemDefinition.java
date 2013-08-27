@@ -24,11 +24,11 @@ import org.jboss.as.controller.registry.OperationEntry;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DESCRIBE;
 
-public class NettySubsystemDefinition extends SimpleResourceDefinition {
+public class SimplePushSubsystemDefinition extends SimpleResourceDefinition {
 
-    public static final NettySubsystemDefinition INSTANCE = new NettySubsystemDefinition();
+    public static final SimplePushSubsystemDefinition INSTANCE = new SimplePushSubsystemDefinition();
 
-    private NettySubsystemDefinition() {
+    private SimplePushSubsystemDefinition() {
         super(SimplePushExtension.SUBSYSTEM_PATH,
                 SimplePushExtension.getResourceDescriptionResolver(null),
                 SubsystemAdd.INSTANCE,

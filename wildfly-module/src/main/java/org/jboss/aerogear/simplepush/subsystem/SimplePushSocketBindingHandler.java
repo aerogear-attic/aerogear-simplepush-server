@@ -24,11 +24,11 @@ import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.dmr.ModelNode;
 
-class NettySocketBindingHandler extends AbstractWriteAttributeHandler<Void> {
+class SimplePushSocketBindingHandler extends AbstractWriteAttributeHandler<Void> {
 
-    public static final NettySocketBindingHandler INSTANCE = new NettySocketBindingHandler();
+    public static final SimplePushSocketBindingHandler INSTANCE = new SimplePushSocketBindingHandler();
 
-    private NettySocketBindingHandler() {
+    private SimplePushSocketBindingHandler() {
         super(ServerDefinition.SOCKET_BINDING_ATTR);
     }
 
@@ -41,7 +41,7 @@ class NettySocketBindingHandler extends AbstractWriteAttributeHandler<Void> {
         
         if (attributeName.equals(ServerDefinition.Element.SOCKET_BINDING.localName())) {
             final String serverName = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.ADDRESS)).getLastElement().getValue();
-            final NettyService service = (NettyService) context.getServiceRegistry(true).getRequiredService(NettyService.createServiceName(serverName)).getValue();
+            final SimplePushService service = (SimplePushService) context.getServiceRegistry(true).getRequiredService(SimplePushService.createServiceName(serverName)).getValue();
             //TODO: support changing the socket-binding?
             context.completeStep();
         }

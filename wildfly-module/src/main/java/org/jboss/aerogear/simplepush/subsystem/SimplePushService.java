@@ -39,9 +39,9 @@ import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 import org.jboss.msc.value.InjectedValue;
 
-public class NettyService implements Service<NettyService> {
+public class SimplePushService implements Service<SimplePushService> {
 
-    private final Logger logger = Logger.getLogger(NettyService.class);
+    private final Logger logger = Logger.getLogger(SimplePushService.class);
 
     private final InjectedValue<SocketBinding> injectedSocketBinding = new InjectedValue<SocketBinding>();
     private final String name;
@@ -49,7 +49,7 @@ public class NettyService implements Service<NettyService> {
     private final boolean endpointTls;
     private Channel channel;
 
-    public NettyService(final String name, final String tokenKey, final boolean endpointTls) {
+    public SimplePushService(final String name, final String tokenKey, final boolean endpointTls) {
         this.name = name;
         this.tokenKey = tokenKey;
         this.endpointTls = endpointTls;
@@ -104,7 +104,7 @@ public class NettyService implements Service<NettyService> {
     }
 
     @Override
-    public NettyService getValue() throws IllegalStateException, IllegalArgumentException {
+    public SimplePushService getValue() throws IllegalStateException, IllegalArgumentException {
         return this;
     }
 

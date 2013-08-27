@@ -64,10 +64,10 @@ class ServerAdd extends AbstractAddStepHandler {
 
         final String serverName = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.ADDRESS)).getLastElement().getValue();
         final String tokenKey = ServerDefinition.TOKEN_KEY_ATTR.resolveModelAttribute(context, model).asString();
-        final NettyService nettyService = new NettyService(serverName, tokenKey, endpointTls);
+        final SimplePushService nettyService = new SimplePushService(serverName, tokenKey, endpointTls);
 
-        final ServiceName name = NettyService.createServiceName(serverName);
-        final ServiceBuilder<NettyService> sb = context.getServiceTarget().addService(name, nettyService);
+        final ServiceName name = SimplePushService.createServiceName(serverName);
+        final ServiceBuilder<SimplePushService> sb = context.getServiceTarget().addService(name, nettyService);
         sb.addDependency(SocketBinding.JBOSS_BINDING_NAME.append(socketBinding), SocketBinding.class, nettyService.getInjectedSocketBinding());
 
        if (datasourceNode.isDefined()) {

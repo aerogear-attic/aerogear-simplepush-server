@@ -81,9 +81,9 @@ public class ServerDefinition extends SimpleResourceDefinition {
 
     @Override
     public void registerAttributes(final ManagementResourceRegistration resourceRegistration) {
-        resourceRegistration.registerReadWriteAttribute(SOCKET_BINDING_ATTR, null, NettySocketBindingHandler.INSTANCE);
-        resourceRegistration.registerReadWriteAttribute(DATASOURCE_ATTR, null, NettySocketBindingHandler.INSTANCE);
-        resourceRegistration.registerReadWriteAttribute(TOKEN_KEY_ATTR, null, NettySocketBindingHandler.INSTANCE);
-        resourceRegistration.registerReadWriteAttribute(ENDPOINT_TLS_ATTR, null, NettySocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKET_BINDING_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(DATASOURCE_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(TOKEN_KEY_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(ENDPOINT_TLS_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
     }
 }
