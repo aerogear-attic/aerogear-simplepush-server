@@ -21,8 +21,14 @@ package org.jboss.aerogear.simplepush.subsystem;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.DATASOURCE;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.ENDPOINT_TLS;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKET_BINDING;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.TOKEN_KEY;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.NAMESPACE;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.SUBSYSTEM_NAME;
+import static org.jboss.as.controller.PathAddress.pathAddress;
+import static org.jboss.as.controller.PathElement.pathElement;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DESCRIBE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
@@ -35,7 +41,6 @@ import static org.mockito.Mockito.mock;
 import java.util.List;
 
 import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.as.naming.deployment.ContextNames.BindInfo;
 import org.jboss.as.subsystem.test.AbstractSubsystemTest;
@@ -62,77 +67,54 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
     }
 
     @Test
-    public void parseAddSubsystem() throws Exception {
-        final List<ModelNode> operations = super.parse(subsystemXml);
+    public void parseSubsystem() throws Exception {
+        final List<ModelNode> operations = parse(subsystemXml);
         assertThat(operations.size(), is(2));
-        final ModelNode addSubsystem = operations.get(0);
-        assertThat(addSubsystem.get(OP).asString(), equalTo(ADD));
-        final PathAddress addr = PathAddress.pathAddress(addSubsystem.get(OP_ADDR));
-        assertThat(addr.size(), is(1));
-        final PathElement element = addr.getElement(0);
-        assertThat(element.getKey(), equalTo(SUBSYSTEM));
-        assertThat(element.getValue(), equalTo(SUBSYSTEM_NAME));
+        final ModelNode subsystem = operations.get(0);
+        assertThat(subsystem.get(OP).asString(), equalTo(ADD));
+        final PathAddress address = pathAddress(subsystem.get(OP_ADDR));
+        assertThat(address.size(), is(1));
+        assertThat(address.getElement(0).getKey(), equalTo(SUBSYSTEM));
+        assertThat(address.getElement(0).getValue(), equalTo(SUBSYSTEM_NAME));
     }
 
     @Test
-    public void parseAddType() throws Exception {
-        final List<ModelNode> operations = super.parse(subsystemXml);
-        assertThat(operations.size(), is(2));
-        final ModelNode addType = operations.get(1);
-        assertThat(addType.get(OP).asString(), equalTo(ADD));
-        assertThat(addType.get(ServerDefinition.Element.SOCKET_BINDING.localName()).asString(), is("simplepush"));
-
-        final PathAddress addr = PathAddress.pathAddress(addType.get(OP_ADDR));
-        assertThat(addr.size(), is(2));
-        final PathElement firstPathElement = addr.getElement(0);
-        assertThat(firstPathElement.getKey(), equalTo(SUBSYSTEM));
-        assertThat(firstPathElement.getValue(), equalTo(SUBSYSTEM_NAME));
-        final PathElement secondPathElement = addr.getElement(1);
-        assertThat(secondPathElement.getKey(), equalTo("server"));
-        assertThat(secondPathElement.getValue(), equalTo("simplepush"));
+    public void parseOptions() throws Exception {
+        final List<ModelNode> operations = parse(subsystemXml);
+        final ModelNode options = operations.get(1);
+        assertThat(options.get(OP).asString(), equalTo(ADD));
+        assertOptions(options);
     }
 
     @Test
     public void installIntoController() throws Exception {
-        final KernelServices services = super.installInController(new AdditionalServices(), subsystemXml);
-
+        final KernelServices services = installInController(new AdditionalServices(), subsystemXml);
         final ModelNode model = services.readWholeModel();
-        assertThat(model.get(SUBSYSTEM).hasDefined(SimplePushExtension.SUBSYSTEM_NAME), is(true));
+        assertThat(model.get(SUBSYSTEM).hasDefined(SUBSYSTEM_NAME), is(true));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME).hasDefined("server"), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server").hasDefined("simplepush"), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush").hasDefined("socket-binding"), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "socket-binding").asString(), is("simplepush"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "datasource-jndi-name").asString(), is("java:jboss/datasources/TestDS"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "token-key").asString(), is("testing"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "endpoint-tls").asBoolean(), is(false));
+        assertOptions(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush"));
     }
 
     @Test
     public void parseAndMarshalModel() throws Exception {
-        final KernelServices servicesA = super.installInController(new AdditionalServices(), subsystemXml);
+        final KernelServices servicesA = installInController(new AdditionalServices(), subsystemXml);
         final ModelNode modelA = servicesA.readWholeModel();
         final String marshalled = servicesA.getPersistedSubsystemXml();
-
-        final KernelServices servicesB = super.installInController(new AdditionalServices(), marshalled);
+        final KernelServices servicesB = installInController(new AdditionalServices(), marshalled);
         final ModelNode modelB = servicesB.readWholeModel();
-
         super.compare(modelA, modelB);
     }
 
     @Test
     public void describeHandler() throws Exception {
-        final String subsystemXml =
-                "<subsystem xmlns=\"" + NAMESPACE + "\">" +
-                        "</subsystem>";
-        final KernelServices servicesA = super.installInController(new AdditionalServices(), subsystemXml);
-
+        final String subsystemXml = "<subsystem xmlns=\"" + NAMESPACE + "\">" + "</subsystem>";
+        final KernelServices servicesA = installInController(new AdditionalServices(), subsystemXml);
         final ModelNode modelA = servicesA.readWholeModel();
         final ModelNode describeOp = new ModelNode();
         describeOp.get(OP).set(DESCRIBE);
-        describeOp.get(OP_ADDR).set(PathAddress.pathAddress(PathElement.pathElement(SUBSYSTEM, SUBSYSTEM_NAME)).toModelNode());
-        final List<ModelNode> operations = super.checkResultAndGetContents(servicesA.executeOperation(describeOp)).asList();
-
-        final KernelServices servicesB = super.installInController(new AdditionalServices(), operations);
+        describeOp.get(OP_ADDR).set(pathAddress(pathElement(SUBSYSTEM, SUBSYSTEM_NAME)).toModelNode());
+        final List<ModelNode> operations = checkResultAndGetContents(servicesA.executeOperation(describeOp)).asList();
+        final KernelServices servicesB = installInController(new AdditionalServices(), operations);
         final ModelNode modelB = servicesB.readWholeModel();
         super.compare(modelA, modelB);
 
@@ -140,40 +122,39 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
 
     @Test (expected = ServiceNotFoundException.class)
     public void subsystemRemoval() throws Exception {
-        final KernelServices services = super.installInController(new AdditionalServices(), subsystemXml);
+        final KernelServices services = installInController(new AdditionalServices(), subsystemXml);
         services.getContainer().getRequiredService(NettyService.createServiceName("simplepush"));
         super.assertRemoveSubsystemResources(services);
         services.getContainer().getRequiredService(NettyService.createServiceName("simplepush"));
     }
 
     @Test
-    public void executeOperations() throws Exception {
-        final KernelServices services = super.installInController(new AdditionalServices(), subsystemXml);
-        final PathAddress serverAddress = PathAddress.pathAddress(PathElement.pathElement(SUBSYSTEM, SUBSYSTEM_NAME),
-                PathElement.pathElement("server", "foo"));
-        final ModelNode addOp = new ModelNode();
-        addOp.get(OP).set(ADD);
-        addOp.get(OP_ADDR).set(serverAddress.toModelNode());
-        addOp.get("socket-binding").set("mysocket");
-        addOp.get("datasource-jndi-name").set("java:jboss/datasources/NettyDS");
-        addOp.get("endpoint-tls").set("true");
-        final ModelNode result = services.executeOperation(addOp);
-        assertThat(result.get(OUTCOME).asString(), equalTo(SUCCESS));
+    public void addSecondServer() throws Exception {
+        final KernelServices services = installInController(new AdditionalServices(), subsystemXml);
+        final PathAddress serverAddress = pathAddress(pathElement(SUBSYSTEM, SUBSYSTEM_NAME), pathElement("server", "foo"));
+        final ModelNode serverTwo = new ModelNode();
+        serverTwo.get(OP).set(ADD);
+        serverTwo.get(OP_ADDR).set(serverAddress.toModelNode());
+        serverTwo.get(SOCKET_BINDING.localName()).set("mysocket");
+        serverTwo.get(DATASOURCE.localName()).set("java:jboss/datasources/NettyDS");
+        serverTwo.get(TOKEN_KEY.localName()).set("123456");
+        serverTwo.get(ENDPOINT_TLS.localName()).set("true");
+        assertThat(services.executeOperation(serverTwo).get(OUTCOME).asString(), equalTo(SUCCESS));
 
         final ModelNode model = services.readWholeModel();
-        assertThat(model.get(SUBSYSTEM).hasDefined(SUBSYSTEM_NAME), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME).hasDefined("server"), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server").hasDefined("simplepush"), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush").hasDefined("socket-binding"), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "socket-binding").asString(), is("simplepush"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "datasource-jndi-name").asString(), is("java:jboss/datasources/TestDS"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "endpoint-tls").asBoolean(), is(false));
-
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server").hasDefined("foo"), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo").hasDefined("socket-binding"), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo", "socket-binding").asString(), is("mysocket"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo", "datasource-jndi-name").asString(), is("java:jboss/datasources/NettyDS"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo", "endpoint-tls").asBoolean(), is(true));
+        final ModelNode fooOptions = model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo");
+        assertThat(fooOptions.get(SOCKET_BINDING.localName()).asString(), equalTo("mysocket"));
+        assertThat(fooOptions.get(DATASOURCE.localName()).asString(), equalTo("java:jboss/datasources/NettyDS"));
+        assertThat(fooOptions.get(TOKEN_KEY.localName()).asString(), equalTo("123456"));
+        assertThat(fooOptions.get(ENDPOINT_TLS.localName()).asBoolean(), is(true));
+    }
+
+    private void assertOptions(final ModelNode options) {
+        assertThat(options.get(SOCKET_BINDING.localName()).asString(), equalTo("simplepush"));
+        assertThat(options.get(DATASOURCE.localName()).asString(), equalTo("java:jboss/datasources/TestDS"));
+        assertThat(options.get(TOKEN_KEY.localName()).asString(), equalTo("testing"));
+        assertThat(options.get(ENDPOINT_TLS.localName()).asBoolean(), is(false));
     }
 
     private static class AdditionalServices extends AdditionalInitialization {
