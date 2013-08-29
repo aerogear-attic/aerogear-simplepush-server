@@ -5,7 +5,6 @@
            attributeFormDefault="unqualified"
            version="1.0">
 
-   <!-- The subsystem root element -->
     <xs:element name="subsystem" type="subsystemType"/>
 
     <xs:complexType name="subsystemType">
@@ -27,5 +26,7 @@
         <xs:attribute name="token-key" type="xs:string"/>
         <xs:attribute name="endpoint-tls" type="xs:boolean"/>
         <xs:attribute name="useragent-reaper-timeout" type="xs:long"/>
+        <xs:attribute name="notification-prefix" type="xs:string"/>
     </xs:complexType>
+    
 </xs:schema>

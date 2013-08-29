@@ -1,3 +1,3 @@
 <subsystem xmlns="urn:org.jboss.aerogear.simplepush:1.0">
-    <server socket-binding="simplepush" datasource-jndi-name="TestDS" token-key="testing" endpoint-tls="false" useragent-reaper-timeout="16000" />
+    <server socket-binding="simplepush" datasource-jndi-name="TestDS" token-key="testing" endpoint-tls="false" useragent-reaper-timeout="16000" notification-prefix="/update"/>
 </subsystem>

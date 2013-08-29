@@ -32,11 +32,13 @@ public class ServerDefinition extends SimpleResourceDefinition {
 
     public enum Element {
         UNKNOWN(null),
+        SERVER_NAME("name"),
         SOCKET_BINDING("socket-binding"),
         DATASOURCE("datasource-jndi-name"),
         TOKEN_KEY("token-key"),
         ENDPOINT_TLS("endpoint-tls"),
-        REAPER_TIMEOUT("useragent-reaper-timeout");
+        REAPER_TIMEOUT("useragent-reaper-timeout"),
+        NOTIFICATION_PREFIX("notification-prefix");
 
         private final String name;
 
@@ -66,11 +68,13 @@ public class ServerDefinition extends SimpleResourceDefinition {
 
     }
 
+    protected static final SimpleAttributeDefinition SERVER_NAME_ATTR = new SimpleAttributeDefinition(Element.SERVER_NAME.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition SOCKET_BINDING_ATTR = new SimpleAttributeDefinition(Element.SOCKET_BINDING.localName(), ModelType.STRING, false);
     protected static final SimpleAttributeDefinition DATASOURCE_ATTR = new SimpleAttributeDefinition(Element.DATASOURCE.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition TOKEN_KEY_ATTR = new SimpleAttributeDefinition(Element.TOKEN_KEY.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition ENDPOINT_TLS_ATTR = new SimpleAttributeDefinition(Element.ENDPOINT_TLS.localName(), ModelType.BOOLEAN, true);
     protected static final SimpleAttributeDefinition REAPER_TIMEOUT_ATTR = new SimpleAttributeDefinition(Element.REAPER_TIMEOUT.localName(), ModelType.LONG, true);
+    protected static final SimpleAttributeDefinition NOTIFICATION_PREFIX_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_PREFIX.localName(), ModelType.STRING, true);
 
     public static final ServerDefinition INSTANCE = new ServerDefinition();
 
@@ -83,10 +87,13 @@ public class ServerDefinition extends SimpleResourceDefinition {
 
     @Override
     public void registerAttributes(final ManagementResourceRegistration resourceRegistration) {
+        resourceRegistration.registerReadWriteAttribute(SERVER_NAME_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(SOCKET_BINDING_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(DATASOURCE_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(TOKEN_KEY_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(ENDPOINT_TLS_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(REAPER_TIMEOUT_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(NOTIFICATION_PREFIX_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
     }
+
 }

@@ -26,6 +26,7 @@ import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.E
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.REAPER_TIMEOUT;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKET_BINDING;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.TOKEN_KEY;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_PREFIX;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.NAMESPACE;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.SUBSYSTEM_NAME;
 import static org.jboss.as.controller.PathAddress.pathAddress;
@@ -63,7 +64,8 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
                 "datasource-jndi-name=\"java:jboss/datasources/TestDS\" " +
                 "token-key=\"testing\" " +
                 "endpoint-tls=\"false\" " +
-                "useragent-reaper-timeout=\"16000\"/>" +
+                "useragent-reaper-timeout=\"16000\" " +
+                "notification-prefix=\"/update\"/>" +
         "</subsystem>";
 
     public SubsystemParsingTestCase() {
@@ -83,7 +85,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
     }
 
     @Test
-    public void parseOptions() throws Exception {
+    public void parseServerAttributes() throws Exception {
         final List<ModelNode> operations = parse(subsystemXml);
         final ModelNode options = operations.get(1);
         assertThat(options.get(OP).asString(), equalTo(ADD));
@@ -163,6 +165,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(options.get(TOKEN_KEY.localName()).asString(), equalTo("testing"));
         assertThat(options.get(ENDPOINT_TLS.localName()).asBoolean(), is(false));
         assertThat(options.get(REAPER_TIMEOUT.localName()).asLong(), is(16000L));
+        assertThat(options.get(NOTIFICATION_PREFIX.localName()).asString(), equalTo("/update"));
     }
 
     private static class AdditionalServices extends AdditionalInitialization {

@@ -50,11 +50,13 @@ class ServerAdd extends AbstractAddStepHandler {
 
     @Override
     protected void populateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
+        ServerDefinition.SERVER_NAME_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKET_BINDING_ATTR.validateAndSet(operation, model);
         ServerDefinition.DATASOURCE_ATTR.validateAndSet(operation, model);
         ServerDefinition.TOKEN_KEY_ATTR.validateAndSet(operation, model);
         ServerDefinition.ENDPOINT_TLS_ATTR.validateAndSet(operation, model);
         ServerDefinition.REAPER_TIMEOUT_ATTR.validateAndSet(operation, model);
+        ServerDefinition.NOTIFICATION_PREFIX_ATTR.validateAndSet(operation, model);
     }
 
     @Override
@@ -65,16 +67,20 @@ class ServerAdd extends AbstractAddStepHandler {
             final List<ServiceController<?>> newControllers) throws OperationFailedException {
         final ModelNode endpointTls = ServerDefinition.ENDPOINT_TLS_ATTR.resolveModelAttribute(context, model);
         final ModelNode reaperTimeout = ServerDefinition.REAPER_TIMEOUT_ATTR.resolveModelAttribute(context, model);
+        final ModelNode notificationPrefix = ServerDefinition.NOTIFICATION_PREFIX_ATTR.resolveModelAttribute(context, model);
 
-        final Builder spBuilder = DefaultSimplePushConfig.create();
-        spBuilder.tokenKey(ServerDefinition.TOKEN_KEY_ATTR.resolveModelAttribute(context, model).asString());
+        final Builder simplePushConfig = DefaultSimplePushConfig.create();
+        simplePushConfig.tokenKey(ServerDefinition.TOKEN_KEY_ATTR.resolveModelAttribute(context, model).asString());
         if (endpointTls.isDefined()) {
-            spBuilder.useTls(endpointTls.asBoolean());
+            simplePushConfig.useTls(endpointTls.asBoolean());
         }
         if (reaperTimeout.isDefined()) {
-            spBuilder.userAgentReaperTimeout(reaperTimeout.asLong());
+            simplePushConfig.userAgentReaperTimeout(reaperTimeout.asLong());
         }
-        final SimplePushServerConfig simplePushConfig = spBuilder.build();
+        if (notificationPrefix.isDefined()) {
+            simplePushConfig.endpointUrlPrefix(notificationPrefix.asString());
+
+        }
 
         final SockJsConfig sockJsConfig = SockJsConfig.withPrefix("/simplepush")
                 .webSocketProtocols("push-notification")
@@ -82,7 +88,7 @@ class ServerAdd extends AbstractAddStepHandler {
                 .webSocketHeartbeatInterval(180000)
                 .cookiesNeeded()
                 .build();
-        final SimplePushService nettyService = new SimplePushService(simplePushConfig, sockJsConfig);
+        final SimplePushService nettyService = new SimplePushService(simplePushConfig.build(), sockJsConfig);
 
         final String serverName = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.ADDRESS)).getLastElement().getValue();
         final ServiceName name = SimplePushService.createServiceName(serverName);
