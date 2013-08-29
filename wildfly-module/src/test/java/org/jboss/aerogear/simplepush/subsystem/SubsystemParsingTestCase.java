@@ -31,6 +31,7 @@ import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.N
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_HOST;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_PORT;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_PREFIX;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_COOKIES_NEEDED;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.NAMESPACE;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.SUBSYSTEM_NAME;
 import static org.jboss.as.controller.PathAddress.pathAddress;
@@ -74,6 +75,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
                 "notification-host=\"awesomehost\" " +
                 "notification-port=\"19998\" " +
                 "sockjs-prefix=\"/someServiceName\" " +
+                "sockjs-cookies-needed=\"false\" " +
                 "/>" +
         "</subsystem>";
 
@@ -162,6 +164,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         serverTwo.get(NOTIFICATION_HOST.localName()).set("foohost");
         serverTwo.get(NOTIFICATION_PORT.localName()).set(22222);
         serverTwo.get(SOCKJS_PREFIX.localName()).set("/foo");
+        serverTwo.get(SOCKJS_COOKIES_NEEDED.localName()).set("false");
         assertThat(services.executeOperation(serverTwo).get(OUTCOME).asString(), equalTo(SUCCESS));
 
         final ModelNode model = services.readWholeModel();
@@ -177,6 +180,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(fooOptions.get(NOTIFICATION_HOST.localName()).asString(), equalTo("foohost"));
         assertThat(fooOptions.get(NOTIFICATION_PORT.localName()).asInt(), is(22222));
         assertThat(fooOptions.get(SOCKJS_PREFIX.localName()).asString(), equalTo("/foo"));
+        assertThat(fooOptions.get(SOCKJS_COOKIES_NEEDED.localName()).asBoolean(), is(false));
     }
 
     private void assertOptions(final ModelNode options) {
@@ -190,6 +194,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(options.get(NOTIFICATION_HOST.localName()).asString(), equalTo("awesomehost"));
         assertThat(options.get(NOTIFICATION_PORT.localName()).asInt(), is(19998));
         assertThat(options.get(SOCKJS_PREFIX.localName()).asString(), equalTo("/someServiceName"));
+        assertThat(options.get(SOCKJS_COOKIES_NEEDED.localName()).asBoolean(), is(false));
     }
 
     private static class AdditionalServices extends AdditionalInitialization {

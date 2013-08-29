@@ -10,5 +10,6 @@
         notification-host="somehost"
         notification-port="18889"
         sockjs-prefix="/mysimplepush"
+        sockjs-cookies-needed="false"
         />
 </subsystem>
