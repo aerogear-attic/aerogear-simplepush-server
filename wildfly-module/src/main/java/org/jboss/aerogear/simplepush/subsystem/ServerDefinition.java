@@ -26,6 +26,7 @@ import java.util.Map;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
+import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 
 public class ServerDefinition extends SimpleResourceDefinition {
@@ -41,7 +42,8 @@ public class ServerDefinition extends SimpleResourceDefinition {
         NOTIFICATION_TLS("notification-tls"),
         NOTIFICATION_ACK_INTERVAL("notification-ack-interval"),
         NOTIFICATION_HOST("notification-host"),
-        NOTIFICATION_PORT("notification-port");
+        NOTIFICATION_PORT("notification-port"),
+        SOCKJS_PREFIX("sockjs-prefix");
 
         private final String name;
 
@@ -81,6 +83,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
     protected static final SimpleAttributeDefinition NOTIFICATION_ACK_INTERVAL_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_ACK_INTERVAL.localName(), ModelType.LONG, true);
     protected static final SimpleAttributeDefinition NOTIFICATION_HOST_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_HOST.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition NOTIFICATION_PORT_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_PORT.localName(), ModelType.INT, true);
+    protected static final SimpleAttributeDefinition SOCKJS_PREFIX_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_PREFIX.localName(), new ModelNode("/simplepush"), ModelType.STRING, false);
 
     public static final ServerDefinition INSTANCE = new ServerDefinition();
 
@@ -103,6 +106,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
         resourceRegistration.registerReadWriteAttribute(NOTIFICATION_ACK_INTERVAL_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(NOTIFICATION_HOST_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(NOTIFICATION_PORT_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_PREFIX_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
     }
 
 }

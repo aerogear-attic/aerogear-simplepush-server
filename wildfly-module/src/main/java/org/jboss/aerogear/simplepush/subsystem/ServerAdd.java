@@ -59,6 +59,7 @@ class ServerAdd extends AbstractAddStepHandler {
         ServerDefinition.NOTIFICATION_ACK_INTERVAL_ATTR.validateAndSet(operation, model);
         ServerDefinition.NOTIFICATION_HOST_ATTR.validateAndSet(operation, model);
         ServerDefinition.NOTIFICATION_PORT_ATTR.validateAndSet(operation, model);
+        ServerDefinition.SOCKJS_PREFIX_ATTR.validateAndSet(operation, model);
     }
 
     @Override
@@ -95,13 +96,11 @@ class ServerAdd extends AbstractAddStepHandler {
             simplePushConfig.port(notificationPort.asInt());
         }
 
-        final SockJsConfig sockJsConfig = SockJsConfig.withPrefix("/simplepush")
-                .webSocketProtocols("push-notification")
-                .tls(false)
-                .webSocketHeartbeatInterval(180000)
-                .cookiesNeeded()
-                .build();
-        final SimplePushService nettyService = new SimplePushService(simplePushConfig.build(), sockJsConfig);
+        final ModelNode sockJsPrefix = ServerDefinition.SOCKJS_PREFIX_ATTR.resolveModelAttribute(context, model);
+        org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig.Builder sockJsConfig = new SockJsConfig.Builder(sockJsPrefix.asString());
+        sockJsConfig.webSocketProtocols("push-notification") .tls(false) .webSocketHeartbeatInterval(180000) .cookiesNeeded();
+
+        final SimplePushService nettyService = new SimplePushService(simplePushConfig.build(), sockJsConfig.build());
 
         final String serverName = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.ADDRESS)).getLastElement().getValue();
         final ServiceName name = SimplePushService.createServiceName(serverName);
