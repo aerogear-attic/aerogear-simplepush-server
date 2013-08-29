@@ -23,7 +23,6 @@ import java.util.List;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig.Builder;
-import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -54,7 +53,7 @@ class ServerAdd extends AbstractAddStepHandler {
         ServerDefinition.SOCKET_BINDING_ATTR.validateAndSet(operation, model);
         ServerDefinition.DATASOURCE_ATTR.validateAndSet(operation, model);
         ServerDefinition.TOKEN_KEY_ATTR.validateAndSet(operation, model);
-        ServerDefinition.ENDPOINT_TLS_ATTR.validateAndSet(operation, model);
+        ServerDefinition.NOTIFICATION_TLS_ATTR.validateAndSet(operation, model);
         ServerDefinition.REAPER_TIMEOUT_ATTR.validateAndSet(operation, model);
         ServerDefinition.NOTIFICATION_PREFIX_ATTR.validateAndSet(operation, model);
     }
@@ -65,7 +64,7 @@ class ServerAdd extends AbstractAddStepHandler {
             final ModelNode model,
             final ServiceVerificationHandler verificationHandler,
             final List<ServiceController<?>> newControllers) throws OperationFailedException {
-        final ModelNode endpointTls = ServerDefinition.ENDPOINT_TLS_ATTR.resolveModelAttribute(context, model);
+        final ModelNode endpointTls = ServerDefinition.NOTIFICATION_TLS_ATTR.resolveModelAttribute(context, model);
         final ModelNode reaperTimeout = ServerDefinition.REAPER_TIMEOUT_ATTR.resolveModelAttribute(context, model);
         final ModelNode notificationPrefix = ServerDefinition.NOTIFICATION_PREFIX_ATTR.resolveModelAttribute(context, model);
 

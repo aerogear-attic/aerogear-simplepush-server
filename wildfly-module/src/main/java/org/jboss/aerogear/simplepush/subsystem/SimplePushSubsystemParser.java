@@ -63,6 +63,9 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             final String name = reader.getAttributeLocalName(i);
             final String value = reader.getAttributeValue(i);
             switch (ServerDefinition.Element.of(name)) {
+                case SERVER_NAME:
+                    serverName = value;
+                    break;
                 case SOCKET_BINDING:
                     ServerDefinition.SOCKET_BINDING_ATTR.parseAndSetParameter(value, addServerOperation, reader);
                     break;
@@ -72,17 +75,14 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                 case TOKEN_KEY:
                     ServerDefinition.TOKEN_KEY_ATTR.parseAndSetParameter(value, addServerOperation, reader);
                     break;
-                case ENDPOINT_TLS:
-                    ServerDefinition.ENDPOINT_TLS_ATTR.parseAndSetParameter(value, addServerOperation, reader);
-                    break;
                 case REAPER_TIMEOUT:
                     ServerDefinition.REAPER_TIMEOUT_ATTR.parseAndSetParameter(value, addServerOperation, reader);
                     break;
                 case NOTIFICATION_PREFIX:
                     ServerDefinition.NOTIFICATION_PREFIX_ATTR.parseAndSetParameter(value, addServerOperation, reader);
                     break;
-                case SERVER_NAME:
-                    serverName = value;
+                case NOTIFICATION_TLS:
+                    ServerDefinition.NOTIFICATION_TLS_ATTR.parseAndSetParameter(value, addServerOperation, reader);
                     break;
                 default:
                     throw unexpectedAttribute(reader, i);
@@ -109,7 +109,7 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             ServerDefinition.SOCKET_BINDING_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.DATASOURCE_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.TOKEN_KEY_ATTR.marshallAsAttribute(entry, true, writer);
-            ServerDefinition.ENDPOINT_TLS_ATTR.marshallAsAttribute(entry, true, writer);
+            ServerDefinition.NOTIFICATION_TLS_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.REAPER_TIMEOUT_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.NOTIFICATION_PREFIX_ATTR.marshallAsAttribute(entry, true, writer);
             writer.writeEndElement();
