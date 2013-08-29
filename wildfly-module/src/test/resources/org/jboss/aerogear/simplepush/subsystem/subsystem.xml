@@ -6,5 +6,7 @@
         useragent-reaper-timeout="16000" 
         notification-prefix="/update" 
         notification-tls="false"
-        notification-ack-interval="80000"/>
+        notification-ack-interval="80000"
+        notification-host="somehost"
+        notification-port="18889"/>
 </subsystem>

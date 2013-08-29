@@ -90,6 +90,9 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                 case NOTIFICATION_HOST:
                     ServerDefinition.NOTIFICATION_HOST_ATTR.parseAndSetParameter(value, addServerOperation, reader);
                     break;
+                case NOTIFICATION_PORT:
+                    ServerDefinition.NOTIFICATION_PORT_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    break;
                 default:
                     throw unexpectedAttribute(reader, i);
                 }
@@ -120,6 +123,7 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             ServerDefinition.NOTIFICATION_PREFIX_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.NOTIFICATION_ACK_INTERVAL_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.NOTIFICATION_HOST_ATTR.marshallAsAttribute(entry, true, writer);
+            ServerDefinition.NOTIFICATION_PORT_ATTR.marshallAsAttribute(entry, true, writer);
             writer.writeEndElement();
         }
 
