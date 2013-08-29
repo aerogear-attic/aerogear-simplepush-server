@@ -57,6 +57,7 @@ class ServerAdd extends AbstractAddStepHandler {
         ServerDefinition.NOTIFICATION_TLS_ATTR.validateAndSet(operation, model);
         ServerDefinition.NOTIFICATION_PREFIX_ATTR.validateAndSet(operation, model);
         ServerDefinition.NOTIFICATION_ACK_INTERVAL_ATTR.validateAndSet(operation, model);
+        ServerDefinition.NOTIFICATION_HOST_ATTR.validateAndSet(operation, model);
     }
 
     @Override
@@ -69,6 +70,7 @@ class ServerAdd extends AbstractAddStepHandler {
         final ModelNode notificationPrefix = ServerDefinition.NOTIFICATION_PREFIX_ATTR.resolveModelAttribute(context, model);
         final ModelNode notificationtTls = ServerDefinition.NOTIFICATION_TLS_ATTR.resolveModelAttribute(context, model);
         final ModelNode notificationAckInterval = ServerDefinition.NOTIFICATION_ACK_INTERVAL_ATTR.resolveModelAttribute(context, model);
+        final ModelNode notificationHost = ServerDefinition.NOTIFICATION_HOST_ATTR.resolveModelAttribute(context, model);
 
         final Builder simplePushConfig = DefaultSimplePushConfig.create();
         simplePushConfig.tokenKey(ServerDefinition.TOKEN_KEY_ATTR.resolveModelAttribute(context, model).asString());
@@ -83,6 +85,9 @@ class ServerAdd extends AbstractAddStepHandler {
         }
         if (notificationAckInterval.isDefined()) {
             simplePushConfig.ackInterval(notificationAckInterval.asLong());
+        }
+        if (notificationHost.isDefined()) {
+            simplePushConfig.host(notificationHost.asString());
         }
 
         final SockJsConfig sockJsConfig = SockJsConfig.withPrefix("/simplepush")

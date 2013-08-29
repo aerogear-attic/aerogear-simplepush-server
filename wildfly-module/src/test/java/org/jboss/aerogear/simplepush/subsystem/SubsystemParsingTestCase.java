@@ -28,6 +28,7 @@ import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.S
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.TOKEN_KEY;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_PREFIX;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_ACK_INTERVAL;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_HOST;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.NAMESPACE;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.SUBSYSTEM_NAME;
 import static org.jboss.as.controller.PathAddress.pathAddress;
@@ -68,6 +69,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
                 "notification-prefix=\"/update\" " +
                 "notification-tls=\"false\" " +
                 "notification-ack-interval=\"120000\" " +
+                "notification-host=\"awesomehost\" " +
                 "/>" +
         "</subsystem>";
 
@@ -153,6 +155,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         serverTwo.get(NOTIFICATION_PREFIX.localName()).set("/endpoints");
         serverTwo.get(NOTIFICATION_TLS.localName()).set(false);
         serverTwo.get(NOTIFICATION_ACK_INTERVAL.localName()).set(10000);
+        serverTwo.get(NOTIFICATION_HOST.localName()).set("foohost");
         assertThat(services.executeOperation(serverTwo).get(OUTCOME).asString(), equalTo(SUCCESS));
 
         final ModelNode model = services.readWholeModel();
@@ -165,6 +168,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(fooOptions.get(NOTIFICATION_TLS.localName()).asBoolean(), is(false));
         assertThat(fooOptions.get(NOTIFICATION_PREFIX.localName()).asString(), equalTo("/endpoints"));
         assertThat(fooOptions.get(NOTIFICATION_ACK_INTERVAL.localName()).asLong(), is(10000L));
+        assertThat(fooOptions.get(NOTIFICATION_HOST.localName()).asString(), equalTo("foohost"));
     }
 
     private void assertOptions(final ModelNode options) {
@@ -175,6 +179,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(options.get(NOTIFICATION_PREFIX.localName()).asString(), equalTo("/update"));
         assertThat(options.get(NOTIFICATION_TLS.localName()).asBoolean(), is(false));
         assertThat(options.get(NOTIFICATION_ACK_INTERVAL.localName()).asLong(), equalTo(120000L));
+        assertThat(options.get(NOTIFICATION_HOST.localName()).asString(), equalTo("awesomehost"));
     }
 
     private static class AdditionalServices extends AdditionalInitialization {

@@ -39,7 +39,8 @@ public class ServerDefinition extends SimpleResourceDefinition {
         REAPER_TIMEOUT("useragent-reaper-timeout"),
         NOTIFICATION_PREFIX("notification-prefix"),
         NOTIFICATION_TLS("notification-tls"),
-        NOTIFICATION_ACK_INTERVAL("notification-ack-interval");
+        NOTIFICATION_ACK_INTERVAL("notification-ack-interval"),
+        NOTIFICATION_HOST("notification-host");
 
         private final String name;
 
@@ -77,6 +78,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
     protected static final SimpleAttributeDefinition REAPER_TIMEOUT_ATTR = new SimpleAttributeDefinition(Element.REAPER_TIMEOUT.localName(), ModelType.LONG, true);
     protected static final SimpleAttributeDefinition NOTIFICATION_PREFIX_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_PREFIX.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition NOTIFICATION_ACK_INTERVAL_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_ACK_INTERVAL.localName(), ModelType.LONG, true);
+    protected static final SimpleAttributeDefinition NOTIFICATION_HOST_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_HOST.localName(), ModelType.STRING, true);
 
     public static final ServerDefinition INSTANCE = new ServerDefinition();
 
@@ -97,6 +99,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
         resourceRegistration.registerReadWriteAttribute(NOTIFICATION_PREFIX_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(NOTIFICATION_TLS_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(NOTIFICATION_ACK_INTERVAL_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(NOTIFICATION_HOST_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
     }
 
 }
