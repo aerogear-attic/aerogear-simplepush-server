@@ -62,7 +62,9 @@ public class SimplePushService implements Service<SimplePushService> {
             serverBootstrap.group(new NioEventLoopGroup(), new NioEventLoopGroup())
                 .channel(NioServerSocketChannel.class)
                 .childHandler(channelInitializer);
-            logger.info("SimplePush Server binding to port [" + socketBinding.getPort() + "]");
+            logger.info("SimplePush Server binding to [" + socketBinding.getAddress() + ":" + socketBinding.getPort() + "]");
+            logger.info(simplePushConfig);
+            logger.info(sockJsConfig);
             channel = serverBootstrap.bind(socketBinding.getAddress(), socketBinding.getPort()).sync().channel();
         } catch (final InterruptedException e) {
             throw new StartException(e);

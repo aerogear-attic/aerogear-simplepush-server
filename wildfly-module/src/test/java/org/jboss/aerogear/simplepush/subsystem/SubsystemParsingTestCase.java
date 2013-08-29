@@ -27,6 +27,7 @@ import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.R
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKET_BINDING;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.TOKEN_KEY;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_PREFIX;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_ACK_INTERVAL;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.NAMESPACE;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.SUBSYSTEM_NAME;
 import static org.jboss.as.controller.PathAddress.pathAddress;
@@ -66,6 +67,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
                 "useragent-reaper-timeout=\"16000\" " +
                 "notification-prefix=\"/update\" " +
                 "notification-tls=\"false\" " +
+                "notification-ack-interval=\"120000\" " +
                 "/>" +
         "</subsystem>";
 
@@ -148,6 +150,9 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         serverTwo.get(TOKEN_KEY.localName()).set("123456");
         serverTwo.get(NOTIFICATION_TLS.localName()).set("true");
         serverTwo.get(REAPER_TIMEOUT.localName()).set(20000);
+        serverTwo.get(NOTIFICATION_PREFIX.localName()).set("/endpoints");
+        serverTwo.get(NOTIFICATION_TLS.localName()).set(false);
+        serverTwo.get(NOTIFICATION_ACK_INTERVAL.localName()).set(10000);
         assertThat(services.executeOperation(serverTwo).get(OUTCOME).asString(), equalTo(SUCCESS));
 
         final ModelNode model = services.readWholeModel();
@@ -156,17 +161,20 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(fooOptions.get(SOCKET_BINDING.localName()).asString(), equalTo("mysocket"));
         assertThat(fooOptions.get(DATASOURCE.localName()).asString(), equalTo("java:jboss/datasources/NettyDS"));
         assertThat(fooOptions.get(TOKEN_KEY.localName()).asString(), equalTo("123456"));
-        assertThat(fooOptions.get(NOTIFICATION_TLS.localName()).asBoolean(), is(true));
         assertThat(fooOptions.get(REAPER_TIMEOUT.localName()).asLong(), is(20000L));
+        assertThat(fooOptions.get(NOTIFICATION_TLS.localName()).asBoolean(), is(false));
+        assertThat(fooOptions.get(NOTIFICATION_PREFIX.localName()).asString(), equalTo("/endpoints"));
+        assertThat(fooOptions.get(NOTIFICATION_ACK_INTERVAL.localName()).asLong(), is(10000L));
     }
 
     private void assertOptions(final ModelNode options) {
         assertThat(options.get(SOCKET_BINDING.localName()).asString(), equalTo("simplepush"));
         assertThat(options.get(DATASOURCE.localName()).asString(), equalTo("java:jboss/datasources/TestDS"));
         assertThat(options.get(TOKEN_KEY.localName()).asString(), equalTo("testing"));
-        assertThat(options.get(NOTIFICATION_TLS.localName()).asBoolean(), is(false));
         assertThat(options.get(REAPER_TIMEOUT.localName()).asLong(), is(16000L));
         assertThat(options.get(NOTIFICATION_PREFIX.localName()).asString(), equalTo("/update"));
+        assertThat(options.get(NOTIFICATION_TLS.localName()).asBoolean(), is(false));
+        assertThat(options.get(NOTIFICATION_ACK_INTERVAL.localName()).asLong(), equalTo(120000L));
     }
 
     private static class AdditionalServices extends AdditionalInitialization {

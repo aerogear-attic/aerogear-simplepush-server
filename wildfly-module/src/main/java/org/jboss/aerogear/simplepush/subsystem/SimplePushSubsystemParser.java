@@ -84,6 +84,9 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                 case NOTIFICATION_TLS:
                     ServerDefinition.NOTIFICATION_TLS_ATTR.parseAndSetParameter(value, addServerOperation, reader);
                     break;
+                case NOTIFICATION_ACK_INTERVAL:
+                    ServerDefinition.NOTIFICATION_ACK_INTERVAL_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    break;
                 default:
                     throw unexpectedAttribute(reader, i);
                 }
@@ -109,9 +112,10 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             ServerDefinition.SOCKET_BINDING_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.DATASOURCE_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.TOKEN_KEY_ATTR.marshallAsAttribute(entry, true, writer);
-            ServerDefinition.NOTIFICATION_TLS_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.REAPER_TIMEOUT_ATTR.marshallAsAttribute(entry, true, writer);
+            ServerDefinition.NOTIFICATION_TLS_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.NOTIFICATION_PREFIX_ATTR.marshallAsAttribute(entry, true, writer);
+            ServerDefinition.NOTIFICATION_ACK_INTERVAL_ATTR.marshallAsAttribute(entry, true, writer);
             writer.writeEndElement();
         }
 
