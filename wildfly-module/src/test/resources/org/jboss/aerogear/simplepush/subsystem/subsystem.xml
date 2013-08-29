@@ -12,5 +12,6 @@
         sockjs-prefix="/mysimplepush"
         sockjs-cookies-needed="false"
         sockjs-url="http://someurl/sockjs.js"
+        sockjs-session-timeout="25000"
         />
 </subsystem>

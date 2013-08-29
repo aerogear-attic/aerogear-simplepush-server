@@ -33,6 +33,7 @@ import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.N
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_PREFIX;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_COOKIES_NEEDED;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_URL;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_SESSION_TIMEOUT;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.NAMESPACE;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.SUBSYSTEM_NAME;
 import static org.jboss.as.controller.PathAddress.pathAddress;
@@ -78,6 +79,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
                 "sockjs-prefix=\"/someServiceName\" " +
                 "sockjs-cookies-needed=\"false\" " +
                 "sockjs-url=\"http://somehost.com/sockjs.js\" " +
+                "sockjs-session-timeout=\"2000\" " +
                 "/>" +
         "</subsystem>";
 
@@ -168,6 +170,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         serverTwo.get(SOCKJS_PREFIX.localName()).set("/foo");
         serverTwo.get(SOCKJS_COOKIES_NEEDED.localName()).set("false");
         serverTwo.get(SOCKJS_URL.localName()).set("http://foo.com/sockjs.js");
+        serverTwo.get(SOCKJS_SESSION_TIMEOUT.localName()).set(3000);
         assertThat(services.executeOperation(serverTwo).get(OUTCOME).asString(), equalTo(SUCCESS));
 
         final ModelNode model = services.readWholeModel();
@@ -185,6 +188,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(fooOptions.get(SOCKJS_PREFIX.localName()).asString(), equalTo("/foo"));
         assertThat(fooOptions.get(SOCKJS_COOKIES_NEEDED.localName()).asBoolean(), is(false));
         assertThat(fooOptions.get(SOCKJS_URL.localName()).asString(), equalTo("http://foo.com/sockjs.js"));
+        assertThat(fooOptions.get(SOCKJS_SESSION_TIMEOUT.localName()).asLong(), is(3000L));
     }
 
     private void assertOptions(final ModelNode options) {
@@ -200,6 +204,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(options.get(SOCKJS_PREFIX.localName()).asString(), equalTo("/someServiceName"));
         assertThat(options.get(SOCKJS_COOKIES_NEEDED.localName()).asBoolean(), is(false));
         assertThat(options.get(SOCKJS_URL.localName()).asString(), equalTo("http://somehost.com/sockjs.js"));
+        assertThat(options.get(SOCKJS_SESSION_TIMEOUT.localName()).asLong(), is(2000L));
     }
 
     private static class AdditionalServices extends AdditionalInitialization {

@@ -45,7 +45,8 @@ public class ServerDefinition extends SimpleResourceDefinition {
         NOTIFICATION_PORT("notification-port"),
         SOCKJS_PREFIX("sockjs-prefix"),
         SOCKJS_COOKIES_NEEDED("sockjs-cookies-needed"),
-        SOCKJS_URL("sockjs-url");
+        SOCKJS_URL("sockjs-url"),
+        SOCKJS_SESSION_TIMEOUT("sockjs-session-timeout");
 
         private final String name;
 
@@ -86,8 +87,9 @@ public class ServerDefinition extends SimpleResourceDefinition {
     protected static final SimpleAttributeDefinition NOTIFICATION_HOST_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_HOST.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition NOTIFICATION_PORT_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_PORT.localName(), ModelType.INT, true);
     protected static final SimpleAttributeDefinition SOCKJS_PREFIX_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_PREFIX.localName(), new ModelNode("/simplepush"), ModelType.STRING, false);
-    protected static final SimpleAttributeDefinition SOCKJS_COOKIES_NEEDED = new SimpleAttributeDefinition(Element.SOCKJS_COOKIES_NEEDED.localName(), ModelType.BOOLEAN, true);
-    protected static final SimpleAttributeDefinition SOCKJS_URL = new SimpleAttributeDefinition(Element.SOCKJS_URL.localName(), ModelType.STRING, true);
+    protected static final SimpleAttributeDefinition SOCKJS_COOKIES_NEEDED_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_COOKIES_NEEDED.localName(), ModelType.BOOLEAN, true);
+    protected static final SimpleAttributeDefinition SOCKJS_URL_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_URL.localName(), ModelType.STRING, true);
+    protected static final SimpleAttributeDefinition SOCKJS_SESSION_TIMEOUT_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_SESSION_TIMEOUT.localName(), ModelType.LONG, true);
 
     public static final ServerDefinition INSTANCE = new ServerDefinition();
 
@@ -111,8 +113,9 @@ public class ServerDefinition extends SimpleResourceDefinition {
         resourceRegistration.registerReadWriteAttribute(NOTIFICATION_HOST_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(NOTIFICATION_PORT_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(SOCKJS_PREFIX_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
-        resourceRegistration.registerReadWriteAttribute(SOCKJS_COOKIES_NEEDED, null, SimplePushSocketBindingHandler.INSTANCE);
-        resourceRegistration.registerReadWriteAttribute(SOCKJS_URL, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_COOKIES_NEEDED_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_URL_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_SESSION_TIMEOUT_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
     }
 
 }
