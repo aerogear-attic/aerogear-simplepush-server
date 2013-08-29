@@ -99,6 +99,9 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                 case SOCKJS_COOKIES_NEEDED:
                     ServerDefinition.SOCKJS_COOKIES_NEEDED.parseAndSetParameter(value, addServerOperation, reader);
                     break;
+                case SOCKJS_URL:
+                    ServerDefinition.SOCKJS_URL.parseAndSetParameter(value, addServerOperation, reader);
+                    break;
                 default:
                     throw unexpectedAttribute(reader, i);
                 }
@@ -132,6 +135,7 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             ServerDefinition.NOTIFICATION_PORT_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_PREFIX_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_COOKIES_NEEDED.marshallAsAttribute(entry, true, writer);
+            ServerDefinition.SOCKJS_URL.marshallAsAttribute(entry, true, writer);
             writer.writeEndElement();
         }
 

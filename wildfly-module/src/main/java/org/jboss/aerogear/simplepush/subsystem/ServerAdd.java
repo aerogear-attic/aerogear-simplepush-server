@@ -61,6 +61,7 @@ class ServerAdd extends AbstractAddStepHandler {
         ServerDefinition.NOTIFICATION_PORT_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_PREFIX_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_COOKIES_NEEDED.validateAndSet(operation, model);
+        ServerDefinition.SOCKJS_URL.validateAndSet(operation, model);
     }
 
     @Override
@@ -99,11 +100,15 @@ class ServerAdd extends AbstractAddStepHandler {
 
         final ModelNode sockJsPrefix = ServerDefinition.SOCKJS_PREFIX_ATTR.resolveModelAttribute(context, model);
         final ModelNode sockJsCookiesNeeded = ServerDefinition.SOCKJS_COOKIES_NEEDED.resolveModelAttribute(context, model);
+        final ModelNode sockJsUrl = ServerDefinition.SOCKJS_URL.resolveModelAttribute(context, model);
         org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig.Builder sockJsConfig = new SockJsConfig.Builder(sockJsPrefix.asString());
         if (sockJsCookiesNeeded.isDefined()) {
             if (sockJsCookiesNeeded.asBoolean()) {
                 sockJsConfig.cookiesNeeded();
             }
+        }
+        if (sockJsUrl.isDefined()) {
+            sockJsConfig.sockJsUrl(sockJsUrl.asString());
         }
         sockJsConfig.webSocketProtocols("push-notification") .tls(false) .webSocketHeartbeatInterval(180000) .cookiesNeeded();
 
