@@ -15,5 +15,6 @@
         sockjs-session-timeout="25000"
         sockjs-heartbeat-interval="40000"
         sockjs-max-streaming-bytes-size="65356"
+        sockjs-tls="true"
         />
 </subsystem>

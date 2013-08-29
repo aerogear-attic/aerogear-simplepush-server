@@ -16,7 +16,7 @@ data-source enable --name=SimplePushDS
 /system-property=simplepush.keystore.password:add(value=simplepush)
 /system-property=simplepush.keystore.path:add(value=/simplepush-sample.keystore)
 /socket-binding-group=standard-sockets/socket-binding=simplepush:add(port=7777)
-/:composite(steps=[{"operation" => "add", "address" => [("subsystem" => "simplepush")]}, {"operation" => "add", "address" => [("subsystem" => "simplepush"), ("server" => "simplepush")], "socket-binding" => "simplepush", "datasource-jndi-name" => "java:jboss/datasources/SimplePushDS", "token-key" => "changeMe!", "notification-tls" => false}]
+/:composite(steps=[{"operation" => "add", "address" => [("subsystem" => "simplepush")]}, {"operation" => "add", "address" => [("subsystem" => "simplepush"), ("server" => "simplepush")], "socket-binding" => "simplepush", "datasource-jndi-name" => "java:jboss/datasources/SimplePushDS", "token-key" => "changeMe!", "notification-tls" => false, "sockjs-tls" => false}]
 
 run-batch
 #:reload

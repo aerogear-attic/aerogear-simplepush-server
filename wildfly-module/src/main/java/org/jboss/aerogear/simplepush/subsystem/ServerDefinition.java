@@ -48,7 +48,8 @@ public class ServerDefinition extends SimpleResourceDefinition {
         SOCKJS_URL("sockjs-url"),
         SOCKJS_SESSION_TIMEOUT("sockjs-session-timeout"),
         SOCKJS_HEARTBEAT_INTERVAL("sockjs-heartbeat-interval"),
-        SOCKJS_MAX_STREAMING_BYTES_SIZE("sockjs-max-streaming-bytes-size");
+        SOCKJS_MAX_STREAMING_BYTES_SIZE("sockjs-max-streaming-bytes-size"),
+        SOCKJS_TLS("sockjs-tls");
 
         private final String name;
 
@@ -94,6 +95,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
     protected static final SimpleAttributeDefinition SOCKJS_SESSION_TIMEOUT_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_SESSION_TIMEOUT.localName(), ModelType.LONG, true);
     protected static final SimpleAttributeDefinition SOCKJS_HEARTBEAT_INTERVAL_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_HEARTBEAT_INTERVAL.localName(), ModelType.LONG, true);
     protected static final SimpleAttributeDefinition SOCKJS_MAX_STREAMING_BYTES_SIZE_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_MAX_STREAMING_BYTES_SIZE.localName(), ModelType.LONG, true);
+    protected static final SimpleAttributeDefinition SOCKJS_TLS_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_TLS.localName(), ModelType.BOOLEAN, true);
 
     public static final ServerDefinition INSTANCE = new ServerDefinition();
 
@@ -122,6 +124,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
         resourceRegistration.registerReadWriteAttribute(SOCKJS_SESSION_TIMEOUT_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(SOCKJS_HEARTBEAT_INTERVAL_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(SOCKJS_MAX_STREAMING_BYTES_SIZE_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_TLS_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
     }
 
 }
