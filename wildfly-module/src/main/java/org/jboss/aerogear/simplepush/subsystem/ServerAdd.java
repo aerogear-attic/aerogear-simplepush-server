@@ -63,6 +63,7 @@ class ServerAdd extends AbstractAddStepHandler {
         ServerDefinition.SOCKJS_COOKIES_NEEDED_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_URL_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_SESSION_TIMEOUT_ATTR.validateAndSet(operation, model);
+        ServerDefinition.SOCKJS_HEARTBEAT_INTERVAL_ATTR.validateAndSet(operation, model);
     }
 
     @Override
@@ -102,6 +103,8 @@ class ServerAdd extends AbstractAddStepHandler {
         final ModelNode sockJsPrefix = ServerDefinition.SOCKJS_PREFIX_ATTR.resolveModelAttribute(context, model);
         final ModelNode sockJsCookiesNeeded = ServerDefinition.SOCKJS_COOKIES_NEEDED_ATTR.resolveModelAttribute(context, model);
         final ModelNode sockJsUrl = ServerDefinition.SOCKJS_URL_ATTR.resolveModelAttribute(context, model);
+        final ModelNode sockJsSessionTimeout = ServerDefinition.SOCKJS_SESSION_TIMEOUT_ATTR.resolveModelAttribute(context, model);
+        final ModelNode sockJsHeartbeatInterval = ServerDefinition.SOCKJS_HEARTBEAT_INTERVAL_ATTR.resolveModelAttribute(context, model);
         org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig.Builder sockJsConfig = new SockJsConfig.Builder(sockJsPrefix.asString());
         if (sockJsCookiesNeeded.isDefined()) {
             if (sockJsCookiesNeeded.asBoolean()) {
@@ -111,7 +114,13 @@ class ServerAdd extends AbstractAddStepHandler {
         if (sockJsUrl.isDefined()) {
             sockJsConfig.sockJsUrl(sockJsUrl.asString());
         }
-        sockJsConfig.webSocketProtocols("push-notification") .tls(false) .webSocketHeartbeatInterval(180000) .cookiesNeeded();
+        if (sockJsSessionTimeout.isDefined()) {
+            sockJsConfig.sessionTimeout(sockJsSessionTimeout.asLong());
+        }
+        if (sockJsHeartbeatInterval.isDefined()) {
+            sockJsConfig.heartbeatInterval(sockJsHeartbeatInterval.asLong());
+        }
+        sockJsConfig.webSocketProtocols("push-notification").tls(false) .webSocketHeartbeatInterval(180000);
 
         final SimplePushService nettyService = new SimplePushService(simplePushConfig.build(), sockJsConfig.build());
 

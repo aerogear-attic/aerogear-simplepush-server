@@ -105,6 +105,9 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                 case SOCKJS_SESSION_TIMEOUT:
                     ServerDefinition.SOCKJS_SESSION_TIMEOUT_ATTR.parseAndSetParameter(value, addServerOperation, reader);
                     break;
+                case SOCKJS_HEARTBEAT_INTERVAL:
+                    ServerDefinition.SOCKJS_HEARTBEAT_INTERVAL_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    break;
                 default:
                     throw unexpectedAttribute(reader, i);
                 }
@@ -140,6 +143,7 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             ServerDefinition.SOCKJS_COOKIES_NEEDED_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_URL_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_SESSION_TIMEOUT_ATTR.marshallAsAttribute(entry, true, writer);
+            ServerDefinition.SOCKJS_HEARTBEAT_INTERVAL_ATTR.marshallAsAttribute(entry, true, writer);
             writer.writeEndElement();
         }
 
