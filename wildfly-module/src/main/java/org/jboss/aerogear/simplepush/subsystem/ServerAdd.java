@@ -64,6 +64,7 @@ class ServerAdd extends AbstractAddStepHandler {
         ServerDefinition.SOCKJS_URL_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_SESSION_TIMEOUT_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_HEARTBEAT_INTERVAL_ATTR.validateAndSet(operation, model);
+        ServerDefinition.SOCKJS_MAX_STREAMING_BYTES_SIZE_ATTR.validateAndSet(operation, model);
     }
 
     @Override
@@ -105,6 +106,7 @@ class ServerAdd extends AbstractAddStepHandler {
         final ModelNode sockJsUrl = ServerDefinition.SOCKJS_URL_ATTR.resolveModelAttribute(context, model);
         final ModelNode sockJsSessionTimeout = ServerDefinition.SOCKJS_SESSION_TIMEOUT_ATTR.resolveModelAttribute(context, model);
         final ModelNode sockJsHeartbeatInterval = ServerDefinition.SOCKJS_HEARTBEAT_INTERVAL_ATTR.resolveModelAttribute(context, model);
+        final ModelNode sockJsMaxStreamingBytesSize = ServerDefinition.SOCKJS_MAX_STREAMING_BYTES_SIZE_ATTR.resolveModelAttribute(context, model);
         org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig.Builder sockJsConfig = new SockJsConfig.Builder(sockJsPrefix.asString());
         if (sockJsCookiesNeeded.isDefined()) {
             if (sockJsCookiesNeeded.asBoolean()) {
@@ -120,6 +122,10 @@ class ServerAdd extends AbstractAddStepHandler {
         if (sockJsHeartbeatInterval.isDefined()) {
             sockJsConfig.heartbeatInterval(sockJsHeartbeatInterval.asLong());
         }
+        if (sockJsMaxStreamingBytesSize.isDefined()) {
+            sockJsConfig.maxStreamingBytesSize(sockJsMaxStreamingBytesSize.asInt());
+        }
+
         sockJsConfig.webSocketProtocols("push-notification").tls(false) .webSocketHeartbeatInterval(180000);
 
         final SimplePushService nettyService = new SimplePushService(simplePushConfig.build(), sockJsConfig.build());

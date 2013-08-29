@@ -14,5 +14,6 @@
         sockjs-url="http://someurl/sockjs.js"
         sockjs-session-timeout="25000"
         sockjs-heartbeat-interval="40000"
+        sockjs-max-streaming-bytes-size="65356"
         />
 </subsystem>

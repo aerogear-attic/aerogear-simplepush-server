@@ -108,6 +108,9 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                 case SOCKJS_HEARTBEAT_INTERVAL:
                     ServerDefinition.SOCKJS_HEARTBEAT_INTERVAL_ATTR.parseAndSetParameter(value, addServerOperation, reader);
                     break;
+                case SOCKJS_MAX_STREAMING_BYTES_SIZE:
+                    ServerDefinition.SOCKJS_MAX_STREAMING_BYTES_SIZE_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    break;
                 default:
                     throw unexpectedAttribute(reader, i);
                 }
@@ -144,6 +147,7 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             ServerDefinition.SOCKJS_URL_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_SESSION_TIMEOUT_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_HEARTBEAT_INTERVAL_ATTR.marshallAsAttribute(entry, true, writer);
+            ServerDefinition.SOCKJS_MAX_STREAMING_BYTES_SIZE_ATTR.marshallAsAttribute(entry, true, writer);
             writer.writeEndElement();
         }
 
