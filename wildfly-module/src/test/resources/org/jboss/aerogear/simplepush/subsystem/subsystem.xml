@@ -16,5 +16,6 @@
         sockjs-heartbeat-interval="40000"
         sockjs-max-streaming-bytes-size="65356"
         sockjs-tls="true"
+        sockjs-enable-websocket="false"
         />
 </subsystem>

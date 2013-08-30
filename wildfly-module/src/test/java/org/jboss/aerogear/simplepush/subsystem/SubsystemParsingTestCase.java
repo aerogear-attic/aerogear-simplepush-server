@@ -37,6 +37,7 @@ import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.S
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_HEARTBEAT_INTERVAL;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_MAX_STREAMING_BYTES_SIZE;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_TLS;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_ENABLE_WEBSOCKET;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.NAMESPACE;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.SUBSYSTEM_NAME;
 import static org.jboss.as.controller.PathAddress.pathAddress;
@@ -86,6 +87,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
                 "sockjs-heartbeat-interval=\"8000\" " +
                 "sockjs-max-streaming-bytes-size=\"65356\" " +
                 "sockjs-tls=\"true\" " +
+                "sockjs-enable-websocket=\"false\" " +
                 "/>" +
         "</subsystem>";
 
@@ -180,6 +182,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         serverTwo.get(SOCKJS_HEARTBEAT_INTERVAL.localName()).set(9000);
         serverTwo.get(SOCKJS_MAX_STREAMING_BYTES_SIZE.localName()).set(23333);
         serverTwo.get(SOCKJS_TLS.localName()).set(false);
+        serverTwo.get(SOCKJS_ENABLE_WEBSOCKET.localName()).set(true);
         assertThat(services.executeOperation(serverTwo).get(OUTCOME).asString(), equalTo(SUCCESS));
 
         final ModelNode model = services.readWholeModel();
@@ -201,6 +204,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(fooOptions.get(SOCKJS_HEARTBEAT_INTERVAL.localName()).asLong(), is(9000L));
         assertThat(fooOptions.get(SOCKJS_MAX_STREAMING_BYTES_SIZE.localName()).asLong(), is(23333L));
         assertThat(fooOptions.get(SOCKJS_TLS.localName()).asBoolean(), is(false));
+        assertThat(fooOptions.get(SOCKJS_ENABLE_WEBSOCKET.localName()).asBoolean(), is(true));
     }
 
     private void assertOptions(final ModelNode options) {
@@ -220,6 +224,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(options.get(SOCKJS_HEARTBEAT_INTERVAL.localName()).asLong(), is(8000L));
         assertThat(options.get(SOCKJS_MAX_STREAMING_BYTES_SIZE.localName()).asLong(), is(65356L));
         assertThat(options.get(SOCKJS_TLS.localName()).asBoolean(), is(true));
+        assertThat(options.get(SOCKJS_ENABLE_WEBSOCKET.localName()).asBoolean(), is(false));
     }
 
     private static class AdditionalServices extends AdditionalInitialization {
