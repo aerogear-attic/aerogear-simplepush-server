@@ -30,8 +30,29 @@ public final class UUIDUtil {
         return (uuid == null) || uuid.equals("");
     }
 
+    /**
+     * Generates a new random UUID and returns the string representation of it.
+     *
+     * @return {@code String} the String representation of a new random UUID.
+     */
     public static String newUAID() {
         return UUID.randomUUID().toString();
+    }
+
+    /**
+     * Tries to parse the passed-in uaid into a valid UUID. If the string cannot
+     * be parsed into a valid UUID a new UUID will be generated.
+     *
+     * @param uaid the UserAgentID string representation to be parsed.
+     * @return {@code String} the UserAgentID in UUID format representing the passed in uaid, or
+     *         a new UUID if the uaid was not in a valid UUID format.
+     */
+    public static String fromString(final String uaid) {
+        try {
+            return UUID.fromString(uaid).toString();
+        } catch (final Exception e) {
+            return newUAID();
+        }
     }
 
 }

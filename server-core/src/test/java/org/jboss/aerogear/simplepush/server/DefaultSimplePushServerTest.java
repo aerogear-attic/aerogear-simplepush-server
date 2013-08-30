@@ -59,6 +59,26 @@ public class DefaultSimplePushServerTest {
     }
 
     @Test
+    public void handleHandshakeWithNullUaid() {
+        final HelloResponse response = server.handleHandshake(new HelloMessageImpl(null));
+        assertThat(response.getUAID(), is(notNullValue()));
+    }
+
+    @Test
+    public void handleHandshakeWithExistingUaid() {
+        final String uaid = UUIDUtil.newUAID();
+        final HelloResponse response = server.handleHandshake(new HelloMessageImpl(uaid));
+        assertThat(response.getUAID(), equalTo(uaid));
+    }
+
+    @Test
+    public void handleHandshakeWithInvalidUaid() {
+        final String uaid = "bajja11122";
+        final HelloResponse response = server.handleHandshake(new HelloMessageImpl(uaid));
+        assertThat(response.getUAID(), is(notNullValue()));
+    }
+
+    @Test
     public void handleHandshakeWithChannels() throws ChannelNotFoundException {
         final Set<String> channelIds = new HashSet<String>(Arrays.asList("channel1", "channel2"));
         final HelloMessage handshakeImpl = new HelloMessageImpl(UUIDUtil.newUAID().toString(), channelIds);

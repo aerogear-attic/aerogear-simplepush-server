@@ -16,12 +16,12 @@
  */
 package org.jboss.aerogear.simplepush.protocol.impl;
 
+import static org.jboss.aerogear.simplepush.util.UUIDUtil.fromString;
 import static org.jboss.aerogear.simplepush.util.UUIDUtil.newUAID;
 import static org.jboss.aerogear.simplepush.util.UUIDUtil.nullOrEmpty;
 
 import java.util.Collections;
 import java.util.Set;
-import java.util.UUID;
 
 import org.jboss.aerogear.simplepush.protocol.HelloMessage;
 
@@ -43,8 +43,8 @@ public class HelloMessageImpl implements HelloMessage {
             this.uaid = newUAID();
             this.channelIds = Collections.emptySet();
         } else {
-            this.uaid = UUID.fromString(uaid).toString();
             this.channelIds = channelIds;
+            this.uaid = fromString(uaid);
         }
     }
 

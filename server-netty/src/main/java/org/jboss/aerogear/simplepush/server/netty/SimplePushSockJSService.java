@@ -153,8 +153,7 @@ public class SimplePushSockJSService implements SockJsService {
             return false;
         }
         if (!userAgents.contains(uaid)) {
-            logger.debug("UserAgent [" + uaid + "] was cleaned up due to unactivity for " + simplePushServer.config().userAgentReaperTimeout() + "ms");
-            this.uaid = null;
+            this.uaid = uaid;
             return false;
         }
         return true;

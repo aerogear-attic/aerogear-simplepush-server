@@ -23,6 +23,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -40,6 +41,7 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsService;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsServiceFactory;
@@ -47,6 +49,7 @@ import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.CorsInboundHand
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.CorsOutboundHandler;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.SockJsHandler;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.transports.Transports;
+
 import io.netty.util.ReferenceCountUtil;
 
 import java.util.Arrays;
@@ -107,7 +110,20 @@ public class SimplePushSockJSServiceTest {
         final FullHttpResponse sendResponse = sendXhrHelloMessageRequest(factory, sessionUrl, uaid, channelId);
         assertThat(sendResponse.getStatus(), is(HttpResponseStatus.NO_CONTENT));
         final HelloResponseImpl handshakeResponse = pollXhrHelloMessageResponse(factory, sessionUrl);
-        assertThat(handshakeResponse.getUAID().toString(), equalTo(uaid.toString()));
+        assertThat(handshakeResponse.getUAID(), equalTo(uaid));
+    }
+
+    @Test
+    public void xhrPollingHelloWithInvalidUaid() {
+        final String uaid = "non-valie2233??";
+        final String channelId = UUID.randomUUID().toString();
+        sendXhrOpenFrameRequest(factory, sessionUrl);
+
+        final FullHttpResponse sendResponse = sendXhrHelloMessageRequest(factory, sessionUrl, uaid, channelId);
+        assertThat(sendResponse.getStatus(), is(HttpResponseStatus.NO_CONTENT));
+        final HelloResponseImpl handshakeResponse = pollXhrHelloMessageResponse(factory, sessionUrl);
+        assertThat(handshakeResponse.getMessageType(), is(MessageType.Type.HELLO));
+        assertThat(handshakeResponse.getUAID(), not(equalTo(uaid)));
     }
 
     @Test
@@ -194,6 +210,18 @@ public class SimplePushSockJSServiceTest {
         final HelloResponse response = sendWebSocketHelloFrame(uaid, channel);
         assertThat(response.getMessageType(), equalTo(MessageType.Type.HELLO));
         assertThat(response.getUAID(), equalTo(uaid));
+        channel.close();
+    }
+
+    @Test
+    public void websocketHelloWithInvalidUaid() {
+        final String uaid = "non-valie2233??";
+        final EmbeddedChannel channel = createWebSocketChannel(factory);
+        sendWebSocketHttpUpgradeRequest(sessionUrl, channel);
+
+        final HelloResponse response = sendWebSocketHelloFrame(uaid, channel);
+        assertThat(response.getMessageType(), equalTo(MessageType.Type.HELLO));
+        assertThat(response.getUAID(), not(equalTo(uaid)));
         channel.close();
     }
 
