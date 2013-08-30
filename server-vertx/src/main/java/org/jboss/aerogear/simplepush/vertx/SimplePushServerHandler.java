@@ -75,7 +75,7 @@ public class SimplePushServerHandler implements Handler<SockJSSocket> {
             public void handle(final Buffer buffer) {
                 final MessageType messageType = JsonUtil.parseFrame(buffer.toString());
                 switch (messageType.getMessageType()) {
-                case HELLO:
+                    case HELLO:
                         HelloMessage handshakeMessage = fromJson(buffer.toString(), HelloMessageImpl.class);
                         if (!writeHandlerMap.containsKey(handshakeMessage.getUAID())) {
                             handshakeMessage = new HelloMessageImpl(UUIDUtil.newUAID());
