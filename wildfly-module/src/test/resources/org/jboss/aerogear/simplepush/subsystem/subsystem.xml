@@ -18,5 +18,6 @@
         sockjs-tls="true"
         sockjs-enable-websocket="false"
         sockjs-websocket-heartbeat-interval="180000"
+        sockjs-websocket-protocols="push-notification, myproto"
         />
 </subsystem>

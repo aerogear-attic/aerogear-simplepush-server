@@ -68,6 +68,7 @@ class ServerAdd extends AbstractAddStepHandler {
         ServerDefinition.SOCKJS_TLS_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_ENABLE_WEBSOCKET_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL_ATTR.validateAndSet(operation, model);
+        ServerDefinition.SOCKJS_WEBSOCKET_PROTOCOLS.validateAndSet(operation, model);
     }
 
     @Override
@@ -113,6 +114,7 @@ class ServerAdd extends AbstractAddStepHandler {
         final ModelNode sockJsTls = ServerDefinition.SOCKJS_TLS_ATTR.resolveModelAttribute(context, model);
         final ModelNode sockJsEnableWebSocket = ServerDefinition.SOCKJS_ENABLE_WEBSOCKET_ATTR.resolveModelAttribute(context, model);
         final ModelNode sockJsWebSocketHeartbeatInterval = ServerDefinition.SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL_ATTR.resolveModelAttribute(context, model);
+        final ModelNode sockJsWebSocketProtocols = ServerDefinition.SOCKJS_WEBSOCKET_PROTOCOLS.resolveModelAttribute(context, model);
         org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig.Builder sockJsConfig = new SockJsConfig.Builder(sockJsPrefix.asString());
         if (sockJsCookiesNeeded.isDefined() && sockJsCookiesNeeded.asBoolean()) {
             sockJsConfig.cookiesNeeded();
@@ -138,8 +140,9 @@ class ServerAdd extends AbstractAddStepHandler {
         if (sockJsWebSocketHeartbeatInterval.isDefined()) {
             sockJsConfig.webSocketHeartbeatInterval(sockJsWebSocketHeartbeatInterval.asLong());
         }
-
-        sockJsConfig.webSocketProtocols("push-notification");
+        if (sockJsWebSocketProtocols.isDefined()) {
+            sockJsConfig.webSocketProtocols(sockJsWebSocketProtocols.asString().split(","));
+        }
 
         final SimplePushService nettyService = new SimplePushService(simplePushConfig.build(), sockJsConfig.build());
 

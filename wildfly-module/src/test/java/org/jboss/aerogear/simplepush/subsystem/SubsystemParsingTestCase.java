@@ -39,6 +39,7 @@ import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.S
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_TLS;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_ENABLE_WEBSOCKET;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_WEBSOCKET_PROTOCOLS;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.NAMESPACE;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.SUBSYSTEM_NAME;
 import static org.jboss.as.controller.PathAddress.pathAddress;
@@ -90,6 +91,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
                 "sockjs-tls=\"true\" " +
                 "sockjs-enable-websocket=\"false\" " +
                 "sockjs-websocket-heartbeat-interval=\"600000\" " +
+                "sockjs-websocket-protocols=\"push-notification, myproto\" " +
                 "/>" +
         "</subsystem>";
 
@@ -209,6 +211,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(fooOptions.get(SOCKJS_TLS.localName()).asBoolean(), is(false));
         assertThat(fooOptions.get(SOCKJS_ENABLE_WEBSOCKET.localName()).asBoolean(), is(true));
         assertThat(fooOptions.get(SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL.localName()).asLong(), is(300000L));
+        assertThat(fooOptions.get(SOCKJS_WEBSOCKET_PROTOCOLS.localName()).asString(), equalTo("push-notification"));
     }
 
     private void assertOptions(final ModelNode options) {
@@ -230,6 +233,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(options.get(SOCKJS_TLS.localName()).asBoolean(), is(true));
         assertThat(options.get(SOCKJS_ENABLE_WEBSOCKET.localName()).asBoolean(), is(false));
         assertThat(options.get(SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL.localName()).asLong(), is(600000L));
+        assertThat(options.get(SOCKJS_WEBSOCKET_PROTOCOLS.localName()).asString(), equalTo("push-notification, myproto"));
     }
 
     private static class AdditionalServices extends AdditionalInitialization {
