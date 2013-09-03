@@ -151,6 +151,8 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
                 if (future.cause() instanceof ChannelNotFoundException) {
                     final ChannelNotFoundException cne = (ChannelNotFoundException) future.cause();
                     logger.warn("Could not find channel [" + cne.channelId() + "]");
+                } else {
+                    logger.error("Error while processing notifiation:", future.cause());
                 }
             }
             sendHttpResponse(OK, request, channel);

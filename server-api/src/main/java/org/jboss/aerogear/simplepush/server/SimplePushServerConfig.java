@@ -54,7 +54,7 @@ public interface SimplePushServerConfig {
      *
      * @return {@code byte[]} token used for encryption/decryption of endpoint urls
      */
-    String tokenKey();
+    byte[] tokenKey();
 
     /**
      * Returns the endpoint url prefix for this SimplePush server.
