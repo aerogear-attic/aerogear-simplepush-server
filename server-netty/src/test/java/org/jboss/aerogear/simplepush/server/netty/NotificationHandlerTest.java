@@ -119,14 +119,14 @@ public class NotificationHandlerTest {
         return server.handleRegister(new RegisterMessageImpl(channelId), uaid);
     }
 
-    private FullHttpRequest notificationRequest(final String channelId, final String uaid, final String tokenKey, final Long version) throws Exception {
+    private FullHttpRequest notificationRequest(final String channelId, final String uaid, final byte[] tokenKey, final Long version) throws Exception {
         final String encrypted = CryptoUtil.encrypt(tokenKey, uaid + "." + channelId);
         final FullHttpRequest req = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.PUT, "/update/" + encrypted);
         req.content().writeBytes(Unpooled.copiedBuffer("version=" + version.toString(), CharsetUtil.UTF_8));
         return req;
     }
 
-    private HttpResponse doNotification(final String channelId, final String uaid, final String tokenKey,
+    private HttpResponse doNotification(final String channelId, final String uaid, final byte[] tokenKey,
             final Long version, final EmbeddedChannel channel) throws Exception {
         channel.writeInbound(notificationRequest(channelId, uaid, tokenKey, version));
 
