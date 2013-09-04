@@ -15,6 +15,7 @@ package org.jboss.aerogear.simplepush.util;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
@@ -36,10 +37,6 @@ public final class CryptoUtil {
     private static final String ALGORITHM = "AES";
     private static final String TRANSOFRMATION = ALGORITHM + "/CBC/PKCS5Padding";
     private static final int IV_SIZE = 16;
-    private static final byte[] SALT = {
-        (byte) 0xA9, (byte) 0x9B, (byte) 0xC8, (byte) 0x32,
-        (byte) 0x56, (byte) 0x35, (byte) 0xE3, (byte) 0x03
-    };
 
     private CryptoUtil() {
     }
@@ -111,7 +108,7 @@ public final class CryptoUtil {
     public static byte[] secretKey(final String seed) {
         try {
             final SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            final PBEKeySpec keySpec = new PBEKeySpec(seed.toCharArray(), SALT, 65536, 128);
+            final PBEKeySpec keySpec = new PBEKeySpec(seed.toCharArray(), salt(8), 65536, 128);
             final SecretKey key = factory.generateSecret(keySpec);
             return key.getEncoded();
         } catch (final Exception e) {
@@ -119,10 +116,29 @@ public final class CryptoUtil {
         }
     }
 
+    public static byte[] salt(final int size) throws NoSuchAlgorithmException {
+        final SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
+        byte[] buffer = new byte[size];
+        secureRandom.nextBytes(buffer);
+        return buffer;
+    }
+
     public static EndpointParam decryptEndpoint(final byte[] key, final String encrypted) throws Exception {
         final String decrypt = CryptoUtil.decrypt(key, encrypted);
         final String[] uaidChannelIdPair = decrypt.split("\\.");
         return new EndpointParam(uaidChannelIdPair[0], uaidChannelIdPair[1]);
+    }
+
+    public static byte[] randomKey(final int size) {
+        try {
+            final KeyGenerator gen = KeyGenerator.getInstance(ALGORITHM);
+            final SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+            sr.generateSeed(128);
+            gen.init(128, sr);
+            return gen.generateKey().getEncoded();
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static class EndpointParam {
