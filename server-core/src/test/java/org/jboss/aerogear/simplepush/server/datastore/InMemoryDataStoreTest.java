@@ -57,6 +57,19 @@ public class InMemoryDataStoreTest {
     }
 
     @Test
+    public void getChannels() throws ChannelNotFoundException {
+        final InMemoryDataStore store = new InMemoryDataStore();
+        final String uaid = UUIDUtil.newUAID();
+        final String channelId1 = UUID.randomUUID().toString();
+        final String channelId2 = UUID.randomUUID().toString();
+        store.saveChannel(new DefaultChannel(uaid, channelId1, "endpoint/" + channelId1));
+        store.saveChannel(new DefaultChannel(uaid, channelId2, "endpoint/" + channelId2));
+        final Set<String> channels = store.getChannelIds(uaid);
+        assertThat(channels.size(), is(2));
+        assertThat(channels, hasItems(channelId1, channelId2));
+    }
+
+    @Test
     public void removeChannel() {
         final InMemoryDataStore store = new InMemoryDataStore();
         store.saveChannel(new DefaultChannel(UUIDUtil.newUAID(), "channel-1", "endpoint/1"));

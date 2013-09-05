@@ -19,6 +19,7 @@ package org.jboss.aerogear.simplepush.server.datastore;
 import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -72,6 +73,30 @@ public class InMemoryDataStore implements DataStore {
             }
         }
         notifiedChannels.remove(uaid);
+    }
+
+    @Override
+    public Integer removeChannels(final Set<String> channelIds) {
+        checkNotNull(channelIds, "channelIds");
+        int removed = 0;
+        for (String channelId : channelIds) {
+            channels.remove(channelId);
+            removed++;
+            logger.debug("Removing [" + channelId + "]");
+        }
+        return removed;
+    }
+
+    @Override
+    public Set<String> getChannelIds(final String uaid) {
+        checkNotNull(uaid, "uaid");
+        final Set<String> channelIds = new HashSet<String>();
+        for (Channel channel : channels.values()) {
+            if (channel.getUAID().equals(uaid)) {
+                channelIds.add(channel.getChannelId());
+            }
+        }
+        return channelIds;
     }
 
     @Override

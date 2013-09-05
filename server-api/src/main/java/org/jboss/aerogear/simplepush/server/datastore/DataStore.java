@@ -60,6 +60,23 @@ public interface DataStore {
     void removeChannels(String uaid);
 
     /**
+     * Removes all channels matching the set passed in.
+     *
+     * @param channelIds the ids of the channels to be removed.
+     * @param {@code Integer} the number of entries removed.
+     */
+    Integer removeChannels(Set<String> channelIds);
+
+    /**
+     * Returns registered channel ids for a certain UserAgent Identifier (uaid)
+     *
+     * @param uaid the UserAgent Identifier for which all channels that belongs to
+     *        that id should be removed.
+     * @return {@code Set<String>} the registered channels.
+     */
+    Set<String> getChannelIds(String uaid);
+
+    /**
      * Stores {@code updates/channelIds} so that the notification can be matched against
      * acknowledged channelId from the UserAgent.
      *

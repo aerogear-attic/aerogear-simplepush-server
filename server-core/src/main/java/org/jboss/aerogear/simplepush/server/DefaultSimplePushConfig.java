@@ -16,7 +16,6 @@
  */
 package org.jboss.aerogear.simplepush.server;
 
-import org.jboss.aerogear.simplepush.util.CryptoUtil;
 
 /**
  * Configuration settings for SimplePush server
