@@ -101,7 +101,8 @@ public class NettySockJSServer {
         new NettySockJSServer(options, simplePushConfig, sockJSConfig).run();
     }
 
-    public static class Options {
+    static class Options {
+        private static final Pattern OPTION_PATTERN = Pattern.compile("^-(\\w+)=([\\d\\w.-]+)");
 
         private Options() {
         }
@@ -180,8 +181,6 @@ public class NettySockJSServer {
             return options;
         }
 
-        private static final Pattern OPTION_PATTERN = Pattern.compile("^-(\\w+)=([\\d\\w]+)");
-
         private static Option<String> parseOptionName(final String cmdArg) {
             final Matcher matcher = OPTION_PATTERN.matcher(cmdArg);
             if (matcher.find()) {
@@ -191,7 +190,7 @@ public class NettySockJSServer {
         }
     }
 
-    private static class Option<T> {
+    static class Option<T> {
         private Options.Args name;
         private T value;
 
