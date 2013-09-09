@@ -26,13 +26,13 @@ public class PathUtilTest {
 
     @Test
     public void forService() {
-        final String url = "http://localhost:8000/echo";
+        final String url = "http://127.0.0.1:8000/echo";
         assertThat(PathUtil.forService(url, "echo"), is(true));
     }
 
     @Test
     public void forServiceWithSubpaths() {
-        final String url = "http://localhost:8000/a/b/c/d/echo";
+        final String url = "http://127.0.0.1:8000/a/b/c/d/echo";
         assertThat(PathUtil.forService(url, "echo"), is(true));
     }
 
@@ -43,14 +43,14 @@ public class PathUtilTest {
 
     @Test
     public void forServiceWithQueryParam() {
-        final String url = "http://localhost:8000/a/b/c/d/echo?name=Fletch";
+        final String url = "http://127.0.0.1:8000/a/b/c/d/echo?name=Fletch";
         assertThat(PathUtil.forService(url, "echo"), is(true));
     }
 
     @Test
     public void prefix() {
-        assertThat(PathUtil.prefix("http://localhost:8000/a/b/c/d/echo?name=Fletch"), equalTo("echo"));
-        assertThat(PathUtil.prefix("http://localhost:8000/a/b/c/d/echo/info"), equalTo("info"));
+        assertThat(PathUtil.prefix("http://127.0.0.1:8000/a/b/c/d/echo?name=Fletch"), equalTo("echo"));
+        assertThat(PathUtil.prefix("http://127.0.0.1:8000/a/b/c/d/echo/info"), equalTo("info"));
     }
 
 }

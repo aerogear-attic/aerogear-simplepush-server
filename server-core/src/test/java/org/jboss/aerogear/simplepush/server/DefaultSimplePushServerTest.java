@@ -49,7 +49,7 @@ public class DefaultSimplePushServerTest {
 
     @Before
     public void setup() {
-        server = new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.defaultConfig());
+        server = new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.create().tokenKey("test").build());
     }
 
     @Test
@@ -92,7 +92,7 @@ public class DefaultSimplePushServerTest {
         assertThat(response.getMessageType(), equalTo(MessageType.Type.REGISTER));
         assertThat(response.getStatus().getCode(), equalTo(200));
         assertThat(response.getStatus().getMessage(), equalTo("OK"));
-        assertThat(response.getPushEndpoint().startsWith("http://localhost:7777/update"), is(true));
+        assertThat(response.getPushEndpoint().startsWith("http://127.0.0.1:7777/update"), is(true));
     }
 
     @Test

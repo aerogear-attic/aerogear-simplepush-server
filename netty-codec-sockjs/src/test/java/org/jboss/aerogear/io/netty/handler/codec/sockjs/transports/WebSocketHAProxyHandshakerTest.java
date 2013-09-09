@@ -47,14 +47,14 @@ public class WebSocketHAProxyHandshakerTest {
 
     @Test
     public void haProxyUpgradeRequest() throws Exception {
-        final WebSocketHAProxyHandshaker handshaker =  new WebSocketHAProxyHandshaker("ws://localhost/websocket",
+        final WebSocketHAProxyHandshaker handshaker =  new WebSocketHAProxyHandshaker("ws://127.0.0.1/websocket",
                 null,
                 65536);
         final FullHttpResponse response = handshaker.newHandshakeResponse(wsUpgradeRequest(), null);
         assertThat(response.getStatus(), is(HttpResponseStatus.SWITCHING_PROTOCOLS));
         assertThat(response.headers().get(CONNECTION), equalTo("Upgrade"));
         assertThat(response.headers().get(UPGRADE), equalTo("WebSocket"));
-        assertThat(response.headers().get("Sec-WebSocket-Location"), equalTo("ws://localhost/websocket"));
+        assertThat(response.headers().get("Sec-WebSocket-Location"), equalTo("ws://127.0.0.1/websocket"));
         assertThat(response.headers().get("Sec-WebSocket-Origin"), equalTo("http://example.com"));
         assertThat(response.headers().get(CONTENT_LENGTH), is(nullValue()));
 

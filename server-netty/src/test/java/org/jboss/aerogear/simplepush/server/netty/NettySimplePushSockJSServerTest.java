@@ -75,7 +75,7 @@ public class NettySimplePushSockJSServerTest {
         final ServerBootstrap sb = new ServerBootstrap();
         final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create()
                 .userAgentReaperTimeout(2000L)
-                .tokenKey(new String(CryptoUtil.randomKey(128)))
+                .tokenKey("test")
                 .build();
         sb.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)
@@ -94,7 +94,7 @@ public class NettySimplePushSockJSServerTest {
 
     @Test
     public void withoutTLS() throws Exception {
-        final URI uri = new URI("ws://localhost:" + port + "/simplepush/websocket");
+        final URI uri = new URI("ws://127.0.0.1:" + port + "/simplepush/websocket");
         final EventLoopGroup group = new NioEventLoopGroup();
         try {
             final Bootstrap b = new Bootstrap();
@@ -146,7 +146,7 @@ public class NettySimplePushSockJSServerTest {
 
     @Test
     public void userAgentReaper() throws Exception {
-        final URI uri = new URI("ws://localhost:" + port + "/simplepush/websocket");
+        final URI uri = new URI("ws://127.0.0.1:" + port + "/simplepush/websocket");
         final EventLoopGroup group = new NioEventLoopGroup();
         try {
             final Bootstrap b = new Bootstrap();

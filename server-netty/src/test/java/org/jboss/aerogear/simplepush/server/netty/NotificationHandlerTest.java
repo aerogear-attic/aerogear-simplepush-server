@@ -102,7 +102,7 @@ public class NotificationHandlerTest {
     }
 
     private SimplePushServer defaultPushServer() {
-        return new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.defaultConfig());
+        return new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.create().tokenKey("test").build());
     }
 
     private HttpResponse sendNotification(final String channelId, final String uaid, final long version, final SimplePushServer simplePushServer) throws Exception {
