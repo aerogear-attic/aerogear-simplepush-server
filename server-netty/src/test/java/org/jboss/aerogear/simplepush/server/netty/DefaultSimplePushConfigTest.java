@@ -34,7 +34,7 @@ public class DefaultSimplePushConfigTest {
                 .ackInterval(60000L)
                 .tokenKey(new String(CryptoUtil.randomKey(16)))
                 .build();
-        assertThat(config.notificationUrl(), equalTo("http://localhost:7777/update"));
+        assertThat(config.notificationUrl(), equalTo("http://127.0.0.1:7777/update"));
         assertThat(config.endpointPrefix(), equalTo("/update"));
         assertThat(config.userAgentReaperTimeout(), is(1000L));
         assertThat(config.acknowledmentInterval(), is(60000L));
