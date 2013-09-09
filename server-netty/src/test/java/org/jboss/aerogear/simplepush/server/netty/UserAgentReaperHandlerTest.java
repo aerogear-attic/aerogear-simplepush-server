@@ -50,7 +50,7 @@ public class UserAgentReaperHandlerTest {
     private UserAgentReaperHandler reaper(final long timeout) {
         final SimplePushServerConfig config = DefaultSimplePushConfig.create()
                 .userAgentReaperTimeout(timeout)
-                .tokenKey(new String(CryptoUtil.randomKey(128)))
+                .tokenKey("test")
                 .build();
         UserAgentReaperHandler reaper = new UserAgentReaperHandler(simplePushServer(config));
         return reaper;

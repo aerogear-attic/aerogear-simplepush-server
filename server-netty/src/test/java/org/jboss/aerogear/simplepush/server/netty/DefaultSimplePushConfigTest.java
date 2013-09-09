@@ -22,7 +22,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
-import org.jboss.aerogear.simplepush.util.CryptoUtil;
 import org.junit.Test;
 
 public class DefaultSimplePushConfigTest {
@@ -32,7 +31,7 @@ public class DefaultSimplePushConfigTest {
         final SimplePushServerConfig config = DefaultSimplePushConfig.create()
                 .userAgentReaperTimeout(1000L)
                 .ackInterval(60000L)
-                .tokenKey(new String(CryptoUtil.randomKey(16)))
+                .tokenKey("test")
                 .build();
         assertThat(config.notificationUrl(), equalTo("http://127.0.0.1:7777/update"));
         assertThat(config.endpointPrefix(), equalTo("/update"));
@@ -43,7 +42,7 @@ public class DefaultSimplePushConfigTest {
     @Test
     public void buildConfigWithNullUserAgentReaperTimeout() {
         final SimplePushServerConfig config = DefaultSimplePushConfig.create().userAgentReaperTimeout(null)
-                .tokenKey(new String(CryptoUtil.randomKey(16)))
+                .tokenKey("test")
                 .build();
         assertThat(config.userAgentReaperTimeout(), is(604800000L));
     }
@@ -51,7 +50,7 @@ public class DefaultSimplePushConfigTest {
     @Test
     public void buildConfigWithNullAckInterval() {
         final SimplePushServerConfig config = DefaultSimplePushConfig.create().ackInterval(null)
-                .tokenKey(new String(CryptoUtil.randomKey(16)))
+                .tokenKey("test")
                 .build();
         assertThat(config.acknowledmentInterval(), is(60000L));
     }

@@ -169,7 +169,7 @@ public class SimplePushSockJSServiceTest {
 
     @Test
     public void rawWebSocketUpgradeRequest() throws Exception {
-        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.defaultConfig();
+        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create().tokenKey("test").build();
         final SockJsConfig sockjsConf = SockJsConfig.withPrefix("/simplepush").webSocketProtocols("push-notification").build();
         final SimplePushServiceFactory factory = new SimplePushServiceFactory(sockjsConf, new InMemoryDataStore(), simplePushConfig);
         final EmbeddedChannel channel = createChannel(factory);
@@ -343,7 +343,7 @@ public class SimplePushSockJSServiceTest {
     }
 
     private SimplePushServer defaultPushServer() {
-        return new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.defaultConfig());
+        return new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.create().tokenKey("test").build());
     }
 
     private void sendNotification(final String channelId, final String uaid, final long version,
@@ -531,7 +531,7 @@ public class SimplePushSockJSServiceTest {
     }
 
     private SockJsServiceFactory defaultFactory() {
-        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.defaultConfig();
+        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create().tokenKey("test").build();
         final SockJsConfig sockjsConf = SockJsConfig.withPrefix("/simplepush").build();
         return new SimplePushServiceFactory(sockjsConf, new InMemoryDataStore(), simplePushConfig);
     }

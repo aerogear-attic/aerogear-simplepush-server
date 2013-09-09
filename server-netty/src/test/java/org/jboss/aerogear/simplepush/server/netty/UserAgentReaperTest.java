@@ -109,7 +109,7 @@ public class UserAgentReaperTest {
     private SimplePushServer simplePushServer() {
         final SimplePushServerConfig config = DefaultSimplePushConfig.create()
                 .userAgentReaperTimeout(20L)
-                .tokenKey(new String(CryptoUtil.randomKey(128)))
+                .tokenKey("test")
                 .build();
         return new DefaultSimplePushServer(new InMemoryDataStore(), config);
     }

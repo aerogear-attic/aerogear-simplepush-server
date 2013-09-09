@@ -104,13 +104,6 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         return new DefaultSimplePushConfig.Builder().host(host).port(port);
     }
 
-    public static SimplePushServerConfig defaultConfig() {
-        return new DefaultSimplePushConfig.Builder().host("127.0.0.1")
-                .port(7777)
-                .tokenKey(new String(CryptoUtil.randomKey(16)))
-                .build();
-    }
-
     public static class Builder {
         private String host;
         private int port;
