@@ -78,18 +78,6 @@ public final class CryptoUtil {
         return gen.generateKey().getEncoded();
     }
 
-    public static byte[] randomKey(final int size) {
-        try {
-            final KeyGenerator gen = KeyGenerator.getInstance(ALGORITHM);
-            final SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
-            sr.generateSeed(128);
-            gen.init(128, sr);
-            return gen.generateKey().getEncoded();
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     /**
      * Decrypts the content passed-in.
      *
