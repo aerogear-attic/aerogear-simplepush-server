@@ -35,6 +35,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
 import org.jboss.aerogear.simplepush.server.DefaultChannel;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class InMemoryDataStoreTest {
@@ -78,7 +79,7 @@ public class InMemoryDataStoreTest {
         assertThat(hasChannel("channel-3", store), is(true));
         assertThat(hasChannel("channel-4", store), is(false));
     }
-    
+
     private boolean hasChannel(final String channelId, final DataStore store) {
         try {
             store.getChannel(channelId);
@@ -86,7 +87,7 @@ public class InMemoryDataStoreTest {
         } catch (final ChannelNotFoundException e) {
             return false;
         }
-        
+
     }
 
     @Test
@@ -122,7 +123,7 @@ public class InMemoryDataStoreTest {
         assertThat(store.removeUpdate(update(channelId1, 11L), uaid), is(false));
     }
 
-    @Test
+    @Test @Ignore("Intended to be run manually")
     public void updatesThreadSafety() throws InterruptedException {
         final InMemoryDataStore store = new InMemoryDataStore();
         final String uaid = UUIDUtil.newUAID();
