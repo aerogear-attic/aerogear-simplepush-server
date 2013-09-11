@@ -21,9 +21,10 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
+import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig.Builder;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.JpaDataStore;
@@ -42,11 +43,12 @@ public class SimplePushService implements Service<SimplePushService> {
     private final Logger logger = Logger.getLogger(SimplePushService.class);
 
     private final InjectedValue<SocketBinding> injectedSocketBinding = new InjectedValue<SocketBinding>();
-    private final SimplePushServerConfig simplePushConfig;
+    private final InjectedValue<SocketBinding> injectedNotificationSocketBinding = new InjectedValue<SocketBinding>();
+    private final Builder simplePushConfig;
     private final SockJsConfig sockJsConfig;
     private Channel channel;
 
-    public SimplePushService(final SimplePushServerConfig simplePushConfig, final SockJsConfig sockJsConfig) {
+    public SimplePushService(final Builder simplePushConfig, final SockJsConfig sockJsConfig) {
         this.simplePushConfig = simplePushConfig;
         this.sockJsConfig = sockJsConfig;
     }
@@ -54,19 +56,26 @@ public class SimplePushService implements Service<SimplePushService> {
     @Override
     public synchronized void start(final StartContext context) throws StartException {
         try {
-            final SocketBinding socketBinding = injectedSocketBinding.getValue();
+            final SocketBinding notificationSocketBinding = injectedNotificationSocketBinding.getOptionalValue();
+            if (notificationSocketBinding != null) {
+                simplePushConfig.host(notificationSocketBinding.getSocketAddress().getHostName());
+                simplePushConfig.port(notificationSocketBinding.getPort());
+            }
+
             final DefaultEventExecutorGroup reaperExcutorGroup = new DefaultEventExecutorGroup(1);
             final DataStore datastore = new JpaDataStore("SimplePushPU");
-            final SockJSChannelInitializer channelInitializer = new SockJSChannelInitializer(simplePushConfig, datastore, sockJsConfig, reaperExcutorGroup);
-            final ServerBootstrap serverBootstrap = new ServerBootstrap();
-            serverBootstrap.group(new NioEventLoopGroup(), new NioEventLoopGroup())
+            final SimplePushServerConfig simplePushServerConfig = simplePushConfig.build();
+            final ServerBootstrap serverBootstrap = new ServerBootstrap()
+                .group(new NioEventLoopGroup(), new NioEventLoopGroup())
                 .channel(NioServerSocketChannel.class)
-                .childHandler(channelInitializer);
+                .childHandler(new SockJSChannelInitializer(simplePushServerConfig, datastore, sockJsConfig, reaperExcutorGroup));
+
+            final SocketBinding socketBinding = injectedSocketBinding.getValue();
             logger.info("SimplePush Server binding to [" + socketBinding.getAddress() + ":" + socketBinding.getPort() + "]");
-            logger.info(simplePushConfig);
+            logger.info(simplePushServerConfig);
             logger.info(sockJsConfig);
             channel = serverBootstrap.bind(socketBinding.getAddress(), socketBinding.getPort()).sync().channel();
-        } catch (final InterruptedException e) {
+        } catch (final Exception e) {
             throw new StartException(e);
         }
     }
@@ -79,6 +88,10 @@ public class SimplePushService implements Service<SimplePushService> {
 
     public InjectedValue<SocketBinding> getInjectedSocketBinding() {
         return injectedSocketBinding;
+    }
+
+    public InjectedValue<SocketBinding> getInjectedNotificationSocketBinding() {
+        return injectedNotificationSocketBinding;
     }
 
     @Override

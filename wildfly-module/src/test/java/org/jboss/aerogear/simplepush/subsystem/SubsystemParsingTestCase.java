@@ -28,8 +28,7 @@ import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.S
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.TOKEN_KEY;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_PREFIX;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_ACK_INTERVAL;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_HOST;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_PORT;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_SOCKET_BINDING;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_PREFIX;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_COOKIES_NEEDED;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_URL;
@@ -55,6 +54,7 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
+import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.as.naming.deployment.ContextNames.BindInfo;
@@ -80,8 +80,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
                 "notification-prefix=\"/update\" " +
                 "notification-tls=\"false\" " +
                 "notification-ack-interval=\"120000\" " +
-                "notification-host=\"awesomehost\" " +
-                "notification-port=\"19998\" " +
+                "notification-socket-binding=\"simplepush-notify\" " +
                 "sockjs-prefix=\"/someServiceName\" " +
                 "sockjs-cookies-needed=\"false\" " +
                 "sockjs-url=\"http://somehost.com/sockjs.js\" " +
@@ -177,8 +176,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         serverTwo.get(NOTIFICATION_PREFIX.localName()).set("/endpoints");
         serverTwo.get(NOTIFICATION_TLS.localName()).set(false);
         serverTwo.get(NOTIFICATION_ACK_INTERVAL.localName()).set(10000);
-        serverTwo.get(NOTIFICATION_HOST.localName()).set("foohost");
-        serverTwo.get(NOTIFICATION_PORT.localName()).set(22222);
+        serverTwo.get(NOTIFICATION_SOCKET_BINDING.localName()).set("simplepush-notify");
         serverTwo.get(SOCKJS_PREFIX.localName()).set("/foo");
         serverTwo.get(SOCKJS_COOKIES_NEEDED.localName()).set("false");
         serverTwo.get(SOCKJS_URL.localName()).set("http://foo.com/sockjs.js");
@@ -200,8 +198,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(fooOptions.get(NOTIFICATION_TLS.localName()).asBoolean(), is(false));
         assertThat(fooOptions.get(NOTIFICATION_PREFIX.localName()).asString(), equalTo("/endpoints"));
         assertThat(fooOptions.get(NOTIFICATION_ACK_INTERVAL.localName()).asLong(), is(10000L));
-        assertThat(fooOptions.get(NOTIFICATION_HOST.localName()).asString(), equalTo("foohost"));
-        assertThat(fooOptions.get(NOTIFICATION_PORT.localName()).asInt(), is(22222));
+        assertThat(fooOptions.get(NOTIFICATION_SOCKET_BINDING.localName()).asString(), equalTo("simplepush-notify"));
         assertThat(fooOptions.get(SOCKJS_PREFIX.localName()).asString(), equalTo("/foo"));
         assertThat(fooOptions.get(SOCKJS_COOKIES_NEEDED.localName()).asBoolean(), is(false));
         assertThat(fooOptions.get(SOCKJS_URL.localName()).asString(), equalTo("http://foo.com/sockjs.js"));
@@ -222,8 +219,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(options.get(NOTIFICATION_PREFIX.localName()).asString(), equalTo("/update"));
         assertThat(options.get(NOTIFICATION_TLS.localName()).asBoolean(), is(false));
         assertThat(options.get(NOTIFICATION_ACK_INTERVAL.localName()).asLong(), equalTo(120000L));
-        assertThat(options.get(NOTIFICATION_HOST.localName()).asString(), equalTo("awesomehost"));
-        assertThat(options.get(NOTIFICATION_PORT.localName()).asInt(), is(19998));
+        assertThat(options.get(NOTIFICATION_SOCKET_BINDING.localName()).asString(), equalTo("simplepush-notify"));
         assertThat(options.get(SOCKJS_PREFIX.localName()).asString(), equalTo("/someServiceName"));
         assertThat(options.get(SOCKJS_COOKIES_NEEDED.localName()).asBoolean(), is(false));
         assertThat(options.get(SOCKJS_URL.localName()).asString(), equalTo("http://somehost.com/sockjs.js"));
@@ -243,6 +239,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
             controllerInitializer.setBindAddress("127.0.0.1");
             controllerInitializer.addSocketBinding("mysocket", 18888);
             controllerInitializer.addSocketBinding("simplepush", 17777);
+            controllerInitializer.addSocketBinding("simplepush-notify", 8000);
         }
 
         @Override
@@ -254,6 +251,10 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
             final BindInfo nettyBindInfo = ContextNames.bindInfoFor("java:jboss/datasources/NettyDS");
             final ServiceBuilder<?> nettyDS = serviceTarget.addService(nettyBindInfo.getBinderServiceName(), ds);
             nettyDS.install();
+
+            final DataStoreService datastoreService = mock(DataStoreService.class);
+            final ServiceBuilder<DataStore> dssBuilder = serviceTarget.addService(DataStoreService.SERVICE_NAME, datastoreService);
+            dssBuilder.install();
         }
     }
 }

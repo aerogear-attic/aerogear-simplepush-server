@@ -41,8 +41,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
         NOTIFICATION_PREFIX("notification-prefix"),
         NOTIFICATION_TLS("notification-tls"),
         NOTIFICATION_ACK_INTERVAL("notification-ack-interval"),
-        NOTIFICATION_HOST("notification-host"),
-        NOTIFICATION_PORT("notification-port"),
+        NOTIFICATION_SOCKET_BINDING("notification-socket-binding"),
         SOCKJS_PREFIX("sockjs-prefix"),
         SOCKJS_COOKIES_NEEDED("sockjs-cookies-needed"),
         SOCKJS_URL("sockjs-url"),
@@ -90,8 +89,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
     protected static final SimpleAttributeDefinition REAPER_TIMEOUT_ATTR = new SimpleAttributeDefinition(Element.REAPER_TIMEOUT.localName(), ModelType.LONG, true);
     protected static final SimpleAttributeDefinition NOTIFICATION_PREFIX_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_PREFIX.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition NOTIFICATION_ACK_INTERVAL_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_ACK_INTERVAL.localName(), ModelType.LONG, true);
-    protected static final SimpleAttributeDefinition NOTIFICATION_HOST_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_HOST.localName(), ModelType.STRING, true);
-    protected static final SimpleAttributeDefinition NOTIFICATION_PORT_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_PORT.localName(), ModelType.INT, true);
+    protected static final SimpleAttributeDefinition NOTIFICATION_SOCKET_BINDING_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_SOCKET_BINDING.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition SOCKJS_PREFIX_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_PREFIX.localName(), new ModelNode("/simplepush"), ModelType.STRING, false);
     protected static final SimpleAttributeDefinition SOCKJS_COOKIES_NEEDED_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_COOKIES_NEEDED.localName(), ModelType.BOOLEAN, true);
     protected static final SimpleAttributeDefinition SOCKJS_URL_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_URL.localName(), ModelType.STRING, true);
@@ -122,8 +120,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
         resourceRegistration.registerReadWriteAttribute(NOTIFICATION_PREFIX_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(NOTIFICATION_TLS_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(NOTIFICATION_ACK_INTERVAL_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
-        resourceRegistration.registerReadWriteAttribute(NOTIFICATION_HOST_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
-        resourceRegistration.registerReadWriteAttribute(NOTIFICATION_PORT_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(NOTIFICATION_SOCKET_BINDING_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(SOCKJS_PREFIX_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(SOCKJS_COOKIES_NEEDED_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(SOCKJS_URL_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);

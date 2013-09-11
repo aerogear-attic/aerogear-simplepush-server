@@ -23,7 +23,6 @@ import java.util.List;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig.Builder;
-import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -58,8 +57,7 @@ class ServerAdd extends AbstractAddStepHandler {
         ServerDefinition.NOTIFICATION_TLS_ATTR.validateAndSet(operation, model);
         ServerDefinition.NOTIFICATION_PREFIX_ATTR.validateAndSet(operation, model);
         ServerDefinition.NOTIFICATION_ACK_INTERVAL_ATTR.validateAndSet(operation, model);
-        ServerDefinition.NOTIFICATION_HOST_ATTR.validateAndSet(operation, model);
-        ServerDefinition.NOTIFICATION_PORT_ATTR.validateAndSet(operation, model);
+        ServerDefinition.NOTIFICATION_SOCKET_BINDING_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_PREFIX_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_COOKIES_NEEDED_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_URL_ATTR.validateAndSet(operation, model);
@@ -78,16 +76,21 @@ class ServerAdd extends AbstractAddStepHandler {
             final ModelNode model,
             final ServiceVerificationHandler verificationHandler,
             final List<ServiceController<?>> newControllers) throws OperationFailedException {
-        final SimplePushServerConfig simplePushConfig = parseSimplePushOptions(context, model);
+        final Builder simplePushConfig = parseSimplePushOptions(context, model);
         final SockJsConfig sockJsConfig = parseSockJsOptions(context, model);
-        final SimplePushService nettyService = new SimplePushService(simplePushConfig, sockJsConfig);
+        final SimplePushService simplePushService = new SimplePushService(simplePushConfig, sockJsConfig);
 
         final String serverName = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.ADDRESS)).getLastElement().getValue();
         final ServiceName serviceName = SimplePushService.createServiceName(serverName);
-        final ServiceBuilder<SimplePushService> sb = context.getServiceTarget().addService(serviceName, nettyService);
+        final ServiceBuilder<SimplePushService> sb = context.getServiceTarget().addService(serviceName, simplePushService);
 
         final String socketBinding = ServerDefinition.SOCKET_BINDING_ATTR.resolveModelAttribute(context, model).asString();
-        sb.addDependency(SocketBinding.JBOSS_BINDING_NAME.append(socketBinding), SocketBinding.class, nettyService.getInjectedSocketBinding());
+        sb.addDependency(SocketBinding.JBOSS_BINDING_NAME.append(socketBinding), SocketBinding.class, simplePushService.getInjectedSocketBinding());
+
+        final ModelNode notificationSocketBinding = ServerDefinition.NOTIFICATION_SOCKET_BINDING_ATTR.resolveModelAttribute(context, model);
+        if (notificationSocketBinding.isDefined()) {
+            sb.addDependency(SocketBinding.JBOSS_BINDING_NAME.append(notificationSocketBinding.asString()),SocketBinding.class, simplePushService.getInjectedNotificationSocketBinding());
+        }
 
         final ModelNode datasourceNode = ServerDefinition.DATASOURCE_ATTR.resolveModelAttribute(context, model);
         if (datasourceNode.isDefined()) {
@@ -144,14 +147,12 @@ class ServerAdd extends AbstractAddStepHandler {
         return sockJsConfig.build();
     }
 
-    private SimplePushServerConfig parseSimplePushOptions(final OperationContext context, final ModelNode model)
+    private Builder parseSimplePushOptions(final OperationContext context, final ModelNode model)
             throws OperationFailedException {
         final ModelNode reaperTimeout = ServerDefinition.REAPER_TIMEOUT_ATTR.resolveModelAttribute(context, model);
         final ModelNode notificationPrefix = ServerDefinition.NOTIFICATION_PREFIX_ATTR.resolveModelAttribute(context, model);
         final ModelNode notificationtTls = ServerDefinition.NOTIFICATION_TLS_ATTR.resolveModelAttribute(context, model);
         final ModelNode notificationAckInterval = ServerDefinition.NOTIFICATION_ACK_INTERVAL_ATTR.resolveModelAttribute(context, model);
-        final ModelNode notificationHost = ServerDefinition.NOTIFICATION_HOST_ATTR.resolveModelAttribute(context, model);
-        final ModelNode notificationPort = ServerDefinition.NOTIFICATION_PORT_ATTR.resolveModelAttribute(context, model);
 
         final Builder simplePushConfig = DefaultSimplePushConfig.create();
         simplePushConfig.tokenKey(ServerDefinition.TOKEN_KEY_ATTR.resolveModelAttribute(context, model).asString());
@@ -167,13 +168,7 @@ class ServerAdd extends AbstractAddStepHandler {
         if (notificationAckInterval.isDefined()) {
             simplePushConfig.ackInterval(notificationAckInterval.asLong());
         }
-        if (notificationHost.isDefined()) {
-            simplePushConfig.host(notificationHost.asString());
-        }
-        if (notificationPort.isDefined()) {
-            simplePushConfig.port(notificationPort.asInt());
-        }
-        return simplePushConfig.build();
+        return simplePushConfig;
     }
 
 }
