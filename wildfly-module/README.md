@@ -1,4 +1,5 @@
 # Aerogear Simple Push Server WildFly module
+This project contains a WildFly subsystem for AeroGear's SimplePush Server.
 
 ## Building
 From the root folder of this project run the following command:
@@ -12,14 +13,8 @@ Copy the module produced by ```mvn package``` to the _modules_ directory of the 
     
 ## Configuring WildFly
 
-### Enabling Transport Layer Security (TLS/SSL)
-If you want to enable TLS/SSL support for the server then you must provide a keystore for the server to use. This keystore
-must be accessible on the server classpath and a system variable named ```simplepush.keystore.path``` and ```simplepush.keystore.password```
-must be provided so that the server can find them. On WildFly you can add these properties using any of the administration
-interfaces. An example can be found in ```src/main/resources/wildfly-config.cli```.
-
 ### Adding the Mysql module
-AeroGear Simple Push server uses MySql datasource for persistence when deployed in WildFly and the database needs
+AeroGear Simple Push server uses a MySql datasource for persistence when deployed in WildFly and the database needs
 to be configured as well as the application server.
 
 #### Create a database and database user
@@ -43,55 +38,131 @@ Next, start your server :
 
     ./standalone.sh
 
-And run the follwing WildFly commane line interface script:
+Finally, run the follwing WildFly command line interface script:
 
     $WILDFLY_HOME/bin/jboss-cli.sh --file=src/main/resources/wildfly-config.cli
     
-The above script will add the mysql driver, a datasource, the Netty extension/subsystem, and lastly add a server entry
-for the SimplePush server.
+The above script will add the mysql driver, a datasource, the SimplePush extension/subsystem.
  
-If you inspect the server console output you'll see the following message:
+If you inspect the server console output you should see the following message:
 
-    08:56:13,052 INFO  [org.jboss.aerogear.simplepush.subsystem.NettyService] (MSC service thread 1-3) NettyService [simplepush] binding to port [7777]    
-
+    08:56:13,052 INFO  [org.jboss.aerogear.simplepush.subsystem.SimplePushService] (MSC service thread 1-3) SimplePush Server binding to [/127.0.0.1:7777]    
 
 ## Configuration options
-The wildfly-config.cli script will add the configuration elements to the running server. But you might want to configure
-things differently then what is provided by default. This section goes through the configuration options available.  
+The wildfly-config.cli script will add the configuration elements to the running server. But not all configuration options
+will be present and you might want to add or update existing ones.   
+This section goes through all of the configuration options available.  
 
-__Note__ This section will change quite dramatically as it was simple moved from a generic Netty Subsystem. For the 1.0.0
-this configuration will be more specific to SimplePush and some configuration options will be removed and others added
-to make it more flexible.
+    <subsystem xmlns="urn:org.jboss.aerogear.simplepush:1.0">
+        <server 
+            socket-binding="simplepush-socket-binding" 
+            datasource-jndi-name="java:jboss/datasources/SimplePushDS" 
+            token-key="936agbbhh6ee99=999333" 
+            useragent-reaper-timeout="604800000"
+            notification-prefix="update"
+            notification-tls="true"
+            notification-ack-interval="60000"
+            notification-socket-binding="simplepush-notify"
+            sockjs-prefix="simplepush"
+            sockjs-cookies-needed="true"
+            sockjs-url="http://cdn.sockjs.org/sockjs-0.3.4.min.js"
+            sockjs-session-timeout="5000"
+            sockjs-heartbeat-interval="25000"
+            sockjs-max-streaming-bytes-size="131072"
+            sockjs-tls="false"
+            sockjs-keystore="/simplepush.keystore"
+            sockjs-keystore-password="password"
+            sockjs-websocket-enabled="true" 
+            sockjs-heartbeat-interval="18000" 
+            sockjs-protocols="push-notification"
+        </server>
+    </subsystem>
 
-        <subsystem xmlns="urn:org.jboss.aerogear.simplepush:1.0">
-            <server name="my-server" socket-binding="my-socket-binding"
-                thread-factory="my-thread-factory" datasource-jndi-name="MyServerDS"
-                token-key="c88da833ee33" endpointTls="false"/>
-            ...
-        </subsystem>
-    </profile>    
-    
-One or more _server_ elements can be added enabling different types of servers to be run.  
+#### socket-binding 
+This is the name of a socket-binding configured in the _socket-binding-group_ section in a WildFly configuration xml file.  
 
-__name__  
-This is a simple name to identify the server in logs etc.
+#### datasource-jndi-name
+This referes to a JNDI name of a datasource that has been configured and bound. The datasource would normally be configured in the same WildFly configuration xml file.  
 
-__socket-binding__  
-The socket-binding to be used for this Netty server instance. 
-
-__thread-factory__  
-Thread factory that will be passed along to Netty when creating.
-
-__datasource-jndi-name__  
-An optional datasource JNDI name that this service depends on.
-    
-__token_key__  
+#### token-key 
 This should be a random token which will be used by the server for encryption/decryption of the endpoint URLs that are
 returned to clients upon successful channel registration.
 
-__endpointTls__  
-This optional determines whether the endpoint urls that are returned when a channel is registered should use
-http or https. If this setting is true https will be used and if false http will be used.
-    
+#### useragent-reaper-timeout  
+This is the amount of time which a UserAgent can be inactive after which it will be removed from the system.
+Default is 604800000 ms (7 days).
 
-    
+#### notification-prefix  
+The prefix for the the notification endpoint url. This prefix will be included in the endpointUrl returned to the client to enabling them to send notifications.
+
+#### notification-tls
+Configures Transport Layer Security (TLS) for the notification endpointUrl that is returned when a UserAgent/client registers a channel. 
+Setting this to _true_ will return a url with _https_ as the protocol.
+
+#### notification-ack-interval  
+This is the interval time for resending un-acknowledged notifications. Default is 60000 ms.
+
+#### notification-socket-binding
+This is the name of a socket-binding configured in the _socket-binding-group_ section in a WildFly configuration xml file. 
+This information is used to configure the host and port that will be returned as the notification endpoints that backend servers can 
+use to send notifications to a channel. The can be useful on OpenShift where the host and port that the server binds to might 
+not be available to external clients.
+The configuration for this socket-binding could look like this:
+
+    <interfaces>
+        <interface name="external">
+            <inet-address value="domain1.com"/>
+        </interface>
+    </interfaces>
+
+    <socket-binding-group name="standard-sockets" default-interface="public" port-offset="${jboss.socket.binding.port-offset:0}">
+        <socket-binding name="simplepush" port="7777"/>
+        <socket-binding name="simplepush-notification" interface="external" port="7777"/>
+    </socket-binding-group>
+
+#### sockjs-prefix
+The prefix/name, of the SockJS service. For example, in the url _http://localhost/simplepush/111/12345/xhr_, _simplepush_ is the prefix. 
+
+#### sockjs-cookies-needed
+This is used by some load balancers to enable session stickyness. Default is true.
+
+#### sockjs-url
+The url to the sock-js-<version>.json. This is used by the 'iframe' protocol and the url is replaced in the script 
+returned to the client. This allows for configuring the version of sockjs used.  
+Default is _http://cdn.sockjs.org/sockjs-0.3.4.min.js_.
+
+#### sockjs-session-timeout
+A timeout for inactive sessions. Default is 5000 ms. 
+
+#### sockjs-heartbeat-interval
+Specifies a heartbeat interval. Default is 25000 ms.
+
+#### sockjs-max-streaming-bytes-size
+The max number of bytes that a streaming transport protocol should allow to be returned before closing the connection, 
+forcing the client to reconnect. 
+This is done so that the responseText in the XHR Object will not grow and be come an issue for the client. Instead, 
+by forcing a reconnect the client will create a new XHR object and this can be see as a form of garbage collection.
+Default is 131072 bytes.
+
+#### sockjs-tls
+Specified whether Transport Layer Security (TLS) should be used by the SockJS layer.
+Default is false.
+
+#### sockjs-keystore
+If _tls_ is in use then the value of this property should be a path to keystore available on the classpath of the subystem.
+
+#### sockjs-keystore-password
+If _tls_ is in use, then the value of this property should be the password to the keystore specified in _keystore_.
+
+#### sockjs-websocket-enabled
+Determines whether WebSocket support is enabled on the server.
+
+#### sockjs-websocket-heartbeat-interval
+A heartbeat-interval for WebSockets. This interval is separate from the normal SockJS heartbeat-interval and might be 
+required in certain environments where idle connection are closed by a proxy. It is a separate value from the hearbeat 
+that the streaming protocols use as it is often desirable to have a much larger value for it.
+
+#### sockjs-websocket-protocols
+Adds the specified comma separated list of protocols which will be returned to during the HTTP upgrade request as the header 'WebSocket-Protocol'. 
+This is only used with raw WebSockets as the SockJS protocol does not support protocols to be specified by the client yet.
+
