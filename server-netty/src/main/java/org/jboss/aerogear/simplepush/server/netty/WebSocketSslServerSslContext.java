@@ -15,80 +15,88 @@
  */
 package org.jboss.aerogear.simplepush.server.netty;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
 import java.security.Security;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.security.cert.CertificateException;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Creates a {@link SSLContext} for just server certificates.
  */
 public final class WebSocketSslServerSslContext {
 
-    private static final Logger logger = Logger.getLogger(WebSocketSslServerSslContext.class.getName());
     private static final String PROTOCOL = "TLS";
-    private final SSLContext serverContext;
+    private final SockJsConfig sockJsConfig;
+    private final Logger logger = LoggerFactory.getLogger(SimplePushSockJSService.class);
 
-    /**
-     * Returns the singleton instance for this class
-     */
-    public static WebSocketSslServerSslContext getInstance() {
-        return SingletonHolder.INSTANCE;
-    }
-
-    private interface SingletonHolder {
-        WebSocketSslServerSslContext INSTANCE = new WebSocketSslServerSslContext();
+    WebSocketSslServerSslContext(final SockJsConfig sockJsConfig) {
+        this.sockJsConfig = sockJsConfig;
     }
 
     /**
-     * Constructor for singleton
+     * Creates a new {@link SSLContext}. This is an expensive operation and should only be done
+     * once and then the SSL context can be reused.
+     *
+     * @return {@link SSLContext} the SSLContext.
      */
-    private WebSocketSslServerSslContext() {
-        SSLContext serverContext = null;
+    public SSLContext sslContext() {
         try {
-            String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
-            if (algorithm == null) {
-                algorithm = "SunX509";
-            }
-
-            InputStream fin = null;
-            try {
-                String keyStorePassword = System.getProperty("simplepush.keystore.password");
-                String keyStorePath = System.getProperty("simplepush.keystore.path");
-
-                final KeyStore ks = KeyStore.getInstance("JKS");
-                fin = this.getClass().getResourceAsStream(keyStorePath);
-                ks.load(fin, keyStorePassword.toCharArray());
-
-                final KeyManagerFactory kmf = KeyManagerFactory.getInstance(algorithm);
-                kmf.init(ks, keyStorePassword.toCharArray());
-
-                serverContext = SSLContext.getInstance(PROTOCOL);
-                serverContext.init(kmf.getKeyManagers(), null, null);
-            } catch (final Exception e) {
-                throw new Error("Failed to initialize the server-side SSLContext", e);
-            } finally {
-                if (fin != null) {
-                    fin.close();
-                }
-            }
-        } catch (final Exception ex) {
-            logger.log(Level.WARNING, "Error initializing SslContextManager.", ex);
-            throw new RuntimeException("Error initializing SslContextManager.", ex);
-        } finally {
-            this.serverContext = serverContext;
+            final SSLContext serverContext = SSLContext.getInstance(PROTOCOL);
+            serverContext.init(keyManagerFactory(loadKeyStore()).getKeyManagers(), null, null);
+            return serverContext;
+        } catch (final Exception e) {
+            throw new RuntimeException("Failed to initialize the server-side SSLContext", e);
         }
     }
 
-    /**
-     * Returns the server context with server side key store
-     */
-    public SSLContext serverContext() {
-        return serverContext;
+    private KeyManagerFactory keyManagerFactory(final KeyStore ks) throws Exception {
+        final KeyManagerFactory kmf = KeyManagerFactory.getInstance(getKeyManagerAlgorithm());
+        kmf.init(ks, sockJsConfig.keyStorePassword().toCharArray());
+        return kmf;
+    }
+
+    private KeyStore loadKeyStore() throws Exception {
+        InputStream fin = null;
+        try {
+            fin = this.getClass().getResourceAsStream(sockJsConfig.keyStore());
+            if (fin == null) {
+                throw new IllegalStateException("Could not locate keystore [" + sockJsConfig.keyStore() + "]");
+            }
+            final KeyStore ks = KeyStore.getInstance("JKS");
+            ks.load(fin, sockJsConfig.keyStorePassword().toCharArray());
+            return ks;
+        } finally {
+            safeClose(fin);
+        }
+
+    }
+
+    private String getKeyManagerAlgorithm() {
+        String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
+        if (algorithm == null) {
+            algorithm = "SunX509";
+        }
+        return algorithm;
+    }
+
+    private void safeClose(final Closeable c) {
+        try {
+            if (c != null) {
+                c.close();
+            }
+        } catch (final IOException e) {
+            logger.error("Error while trying to close closable [" + c + "]", e);
+        }
     }
 
 }

@@ -21,13 +21,16 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
+
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.CorsInboundHandler;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.CorsOutboundHandler;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.SockJsHandler;
+
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.EventExecutorGroup;
 
+import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
@@ -43,6 +46,7 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
     private final SimplePushServerConfig simplePushConfig;
     private final EventExecutorGroup backgroundGroup;
     private final SockJsConfig sockjsConfig;
+    private SSLContext sslContext;
 
     /**
      * Sole constructor.
@@ -60,13 +64,16 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
         this.datastore = datastore;
         this.sockjsConfig = sockjsConfig;
         this.backgroundGroup = backgroundGroup;
+        if (sockjsConfig.isTls()) {
+            sslContext = new WebSocketSslServerSslContext(sockjsConfig).sslContext();
+        }
     }
 
     @Override
     protected void initChannel(final SocketChannel socketChannel) throws Exception {
         final ChannelPipeline pipeline = socketChannel.pipeline();
         if (sockjsConfig.isTls()) {
-            final SSLEngine engine = WebSocketSslServerSslContext.getInstance().serverContext().createSSLEngine();
+            final SSLEngine engine = sslContext.createSSLEngine();
             engine.setUseClientMode(false);
             pipeline.addLast(new SslHandler(engine));
         }
