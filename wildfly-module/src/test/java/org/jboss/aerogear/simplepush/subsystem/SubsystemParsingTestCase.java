@@ -36,6 +36,8 @@ import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.S
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_HEARTBEAT_INTERVAL;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_MAX_STREAMING_BYTES_SIZE;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_TLS;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_KEYSTORE;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_KEYSTORE_PASSWORD;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_ENABLE_WEBSOCKET;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_WEBSOCKET_PROTOCOLS;
@@ -88,6 +90,8 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
                 "sockjs-heartbeat-interval=\"8000\" " +
                 "sockjs-max-streaming-bytes-size=\"65356\" " +
                 "sockjs-tls=\"true\" " +
+                "sockjs-keystore=\"/simplepush-sample.keystore\" " +
+                "sockjs-keystore-password=\"simplepush\" " +
                 "sockjs-enable-websocket=\"false\" " +
                 "sockjs-websocket-heartbeat-interval=\"600000\" " +
                 "sockjs-websocket-protocols=\"push-notification, myproto\" " +
@@ -227,6 +231,8 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(options.get(SOCKJS_HEARTBEAT_INTERVAL.localName()).asLong(), is(8000L));
         assertThat(options.get(SOCKJS_MAX_STREAMING_BYTES_SIZE.localName()).asLong(), is(65356L));
         assertThat(options.get(SOCKJS_TLS.localName()).asBoolean(), is(true));
+        assertThat(options.get(SOCKJS_KEYSTORE.localName()).asString(), equalTo("/simplepush-sample.keystore"));
+        assertThat(options.get(SOCKJS_KEYSTORE_PASSWORD.localName()).asString(), equalTo("simplepush"));
         assertThat(options.get(SOCKJS_ENABLE_WEBSOCKET.localName()).asBoolean(), is(false));
         assertThat(options.get(SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL.localName()).asLong(), is(600000L));
         assertThat(options.get(SOCKJS_WEBSOCKET_PROTOCOLS.localName()).asString(), equalTo("push-notification, myproto"));

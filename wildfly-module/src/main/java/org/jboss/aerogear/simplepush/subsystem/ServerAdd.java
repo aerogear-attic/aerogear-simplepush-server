@@ -65,6 +65,8 @@ class ServerAdd extends AbstractAddStepHandler {
         ServerDefinition.SOCKJS_HEARTBEAT_INTERVAL_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_MAX_STREAMING_BYTES_SIZE_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_TLS_ATTR.validateAndSet(operation, model);
+        ServerDefinition.SOCKJS_KEYSTORE_ATTR.validateAndSet(operation, model);
+        ServerDefinition.SOCKJS_KEYSTORE_PASSWORD_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_ENABLE_WEBSOCKET_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_WEBSOCKET_PROTOCOLS.validateAndSet(operation, model);
@@ -113,6 +115,8 @@ class ServerAdd extends AbstractAddStepHandler {
         final ModelNode sockJsHeartbeatInterval = ServerDefinition.SOCKJS_HEARTBEAT_INTERVAL_ATTR.resolveModelAttribute(context, model);
         final ModelNode sockJsMaxStreamingBytesSize = ServerDefinition.SOCKJS_MAX_STREAMING_BYTES_SIZE_ATTR.resolveModelAttribute(context, model);
         final ModelNode sockJsTls = ServerDefinition.SOCKJS_TLS_ATTR.resolveModelAttribute(context, model);
+        final ModelNode sockJsKeystore = ServerDefinition.SOCKJS_KEYSTORE_ATTR.resolveModelAttribute(context, model);
+        final ModelNode sockJsKeystorePassword = ServerDefinition.SOCKJS_KEYSTORE_PASSWORD_ATTR.resolveModelAttribute(context, model);
         final ModelNode sockJsEnableWebSocket = ServerDefinition.SOCKJS_ENABLE_WEBSOCKET_ATTR.resolveModelAttribute(context, model);
         final ModelNode sockJsWebSocketHeartbeatInterval = ServerDefinition.SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL_ATTR.resolveModelAttribute(context, model);
         final ModelNode sockJsWebSocketProtocols = ServerDefinition.SOCKJS_WEBSOCKET_PROTOCOLS.resolveModelAttribute(context, model);
@@ -143,6 +147,12 @@ class ServerAdd extends AbstractAddStepHandler {
         }
         if (sockJsWebSocketProtocols.isDefined()) {
             sockJsConfig.webSocketProtocols(sockJsWebSocketProtocols.asString().split(","));
+        }
+        if (sockJsKeystore.isDefined()) {
+            sockJsConfig.keyStore(sockJsKeystore.asString());
+        }
+        if (sockJsKeystorePassword.isDefined()) {
+            sockJsConfig.keyStorePassword(sockJsKeystorePassword.asString());
         }
         return sockJsConfig.build();
     }

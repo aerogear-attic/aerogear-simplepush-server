@@ -111,6 +111,12 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                 case SOCKJS_TLS:
                     ServerDefinition.SOCKJS_TLS_ATTR.parseAndSetParameter(value, addServerOperation, reader);
                     break;
+                case SOCKJS_KEYSTORE:
+                    ServerDefinition.SOCKJS_KEYSTORE_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    break;
+                case SOCKJS_KEYSTORE_PASSWORD:
+                    ServerDefinition.SOCKJS_KEYSTORE_PASSWORD_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    break;
                 case SOCKJS_ENABLE_WEBSOCKET:
                     ServerDefinition.SOCKJS_ENABLE_WEBSOCKET_ATTR.parseAndSetParameter(value, addServerOperation, reader);
                     break;
@@ -157,6 +163,8 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             ServerDefinition.SOCKJS_HEARTBEAT_INTERVAL_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_MAX_STREAMING_BYTES_SIZE_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_TLS_ATTR.marshallAsAttribute(entry, true, writer);
+            ServerDefinition.SOCKJS_KEYSTORE_ATTR.marshallAsAttribute(entry, true, writer);
+            ServerDefinition.SOCKJS_KEYSTORE_PASSWORD_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_ENABLE_WEBSOCKET_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_WEBSOCKET_PROTOCOLS.marshallAsAttribute(entry, true, writer);
