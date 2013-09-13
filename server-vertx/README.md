@@ -18,7 +18,6 @@ Note also that Vert.x requires Java 7.
 
     cd target
     vertx runmod aerogear~simplepush~<version>
-Where version is the current project version.
     
 You can also start the server with a different configuration:
 
