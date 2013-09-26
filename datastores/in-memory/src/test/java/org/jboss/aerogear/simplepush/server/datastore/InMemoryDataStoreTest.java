@@ -22,6 +22,9 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -31,8 +34,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jboss.aerogear.simplepush.protocol.Update;
-import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
-import org.jboss.aerogear.simplepush.server.DefaultChannel;
+import org.jboss.aerogear.simplepush.server.Channel;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -43,14 +45,15 @@ public class InMemoryDataStoreTest {
     @Test
     public void saveChannel() {
         final InMemoryDataStore store = new InMemoryDataStore();
-        final boolean saved = store.saveChannel(new DefaultChannel(UUIDUtil.newUAID(), "channel-1", "endpoint/1"));
+        final Channel channel = mockChannel(UUIDUtil.newUAID(), "channel-1", "endpoint/1");
+        final boolean saved = store.saveChannel(channel);
         assertThat(saved, is(true));
     }
 
     @Test
     public void getChannel() throws ChannelNotFoundException {
         final InMemoryDataStore store = new InMemoryDataStore();
-        store.saveChannel(new DefaultChannel(UUIDUtil.newUAID(), "channel-1", "endpoint/1"));
+        store.saveChannel(mockChannel(UUIDUtil.newUAID(), "channel-1", "endpoint/1"));
         assertThat(store.getChannel("channel-1"), is(notNullValue()));
         assertThat(store.getChannel("channel-1").getChannelId(), equalTo("channel-1"));
         assertThat(store.getChannel("channel-1").getPushEndpoint(), equalTo("endpoint/1"));
@@ -62,8 +65,8 @@ public class InMemoryDataStoreTest {
         final String uaid = UUIDUtil.newUAID();
         final String channelId1 = UUID.randomUUID().toString();
         final String channelId2 = UUID.randomUUID().toString();
-        store.saveChannel(new DefaultChannel(uaid, channelId1, "endpoint/" + channelId1));
-        store.saveChannel(new DefaultChannel(uaid, channelId2, "endpoint/" + channelId2));
+        store.saveChannel(mockChannel(uaid, channelId1, "endpoint/" + channelId1));
+        store.saveChannel(mockChannel(uaid, channelId2, "endpoint/" + channelId2));
         final Set<String> channels = store.getChannelIds(uaid);
         assertThat(channels.size(), is(2));
         assertThat(channels, hasItems(channelId1, channelId2));
@@ -72,7 +75,7 @@ public class InMemoryDataStoreTest {
     @Test
     public void removeChannel() {
         final InMemoryDataStore store = new InMemoryDataStore();
-        store.saveChannel(new DefaultChannel(UUIDUtil.newUAID(), "channel-1", "endpoint/1"));
+        store.saveChannel(mockChannel(UUIDUtil.newUAID(), "channel-1", "endpoint/1"));
         assertThat(store.removeChannel("channel-1"), is(true));
         assertThat(store.removeChannel("channel-1"), is(false));
     }
@@ -82,25 +85,15 @@ public class InMemoryDataStoreTest {
         final InMemoryDataStore store = new InMemoryDataStore();
         final String uaid1 = UUIDUtil.newUAID();
         final String uaid2 = UUIDUtil.newUAID();
-        store.saveChannel(new DefaultChannel(uaid1, "channel-1", "endpoint/1"));
-        store.saveChannel(new DefaultChannel(uaid2, "channel-2", "endpoint/2"));
-        store.saveChannel(new DefaultChannel(uaid1, "channel-3", "endpoint/3"));
-        store.saveChannel(new DefaultChannel(uaid2, "channel-4", "endpoint/4"));
+        store.saveChannel(mockChannel(uaid1, "channel-1", "endpoint/1"));
+        store.saveChannel(mockChannel(uaid2, "channel-2", "endpoint/2"));
+        store.saveChannel(mockChannel(uaid1, "channel-3", "endpoint/3"));
+        store.saveChannel(mockChannel(uaid2, "channel-4", "endpoint/4"));
         store.removeChannels(uaid2);
         assertThat(hasChannel("channel-1", store), is(true));
         assertThat(hasChannel("channel-2", store), is(false));
         assertThat(hasChannel("channel-3", store), is(true));
         assertThat(hasChannel("channel-4", store), is(false));
-    }
-
-    private boolean hasChannel(final String channelId, final DataStore store) {
-        try {
-            store.getChannel(channelId);
-            return true;
-        } catch (final ChannelNotFoundException e) {
-            return false;
-        }
-
     }
 
     @Test
@@ -177,12 +170,81 @@ public class InMemoryDataStoreTest {
         }
     }
 
+    private boolean hasChannel(final String channelId, final DataStore store) {
+        try {
+            store.getChannel(channelId);
+            return true;
+        } catch (final ChannelNotFoundException e) {
+            return false;
+        }
+
+    }
+
+    private Channel mockChannel(final String uaid, final String channelId, final String pushEndpoint) {
+        final Channel channel = mock(Channel.class);
+        when(channel.getUAID()).thenReturn(uaid);
+        when(channel.getChannelId()).thenReturn(channelId);
+        when(channel.getPushEndpoint()).thenReturn(pushEndpoint);
+        return channel;
+    }
+
     private Update update(final String channelId, final Long version) {
         return new UpdateImpl(channelId, version);
     }
 
     private Set<Update> updates(final Update... updates) {
         return new HashSet<Update>(Arrays.asList(updates));
+    }
+
+    private class UpdateImpl implements Update {
+        private final String channelId;
+        private final Long version;
+
+        public UpdateImpl(final String channelId, final Long version) {
+            this.channelId = channelId;
+            this.version = version;
+        }
+
+        @Override
+        public String getChannelId() {
+            return channelId;
+        }
+
+        @Override
+        public Long getVersion() {
+            return version;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((channelId == null) ? 0 : channelId.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final UpdateImpl other = (UpdateImpl) obj;
+            if (channelId == null) {
+                if (other.channelId != null) {
+                    return false;
+                }
+            } else if (!channelId.equals(other.channelId)) {
+                return false;
+            }
+            return true;
+        }
+
     }
 
 }

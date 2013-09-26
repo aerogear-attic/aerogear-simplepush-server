@@ -19,13 +19,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.jboss.aerogear</groupId>
-        <artifactId>simplepush-server-parent</artifactId>
+        <artifactId>simplepush-datastores-parent</artifactId>
         <version>0.9.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>aerogear-simplepush-server-core</artifactId>
+    <artifactId>aerogear-simplepush-datastore-jpa</artifactId>
     <packaging>jar</packaging>
-    <name>AeroGear SimplePush Server Core</name>
+    <name>AeroGear SimplePush JPA Datastore</name>
 
     <url>http://aerogear.org</url>
     <licenses>
@@ -41,12 +41,12 @@
     </properties>
 
     <dependencies>
-    
+
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-simplepush-common</artifactId>
         </dependency>
-
+        
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-simplepush-protocol</artifactId>
@@ -56,10 +56,10 @@
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-simplepush-server-api</artifactId>
         </dependency>
-
+        
         <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-server-core</artifactId>
         </dependency>
 
         <dependency>
@@ -73,17 +73,6 @@
             <version>1.7.5</version>
         </dependency>
         
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-        </dependency>
-        
-        <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>aerogear-simplepush-datastore-in-memory</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -117,45 +106,6 @@
         </dependency>
 
     </dependencies>
-
-    <build>
-        <finalName>${project.artifactId}</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2</version>
-                <configuration>
-                    <mainClass>org.jboss.aerogear.simplepush.server.netty.NettyWebSocketServer</mainClass>
-                    <arguments>
-                        <!-- Port -->
-                        <argument>7777</argument>
-                        <!-- Transport Layer Security option -->
-                        <argument>true</argument>
-                        <!-- UserAgent Reaper timeout in ms -->
-                        <argument>300000</argument>
-                    </arguments>
-                    <systemProperties>
-                        <systemProperty>
-                            <key>keystore.file.path</key>
-                            <value>${basedir}/src/test/resources/simplePushServer.keystore</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <key>keystore.file.password</key>
-                            <value>simplepush</value>
-                        </systemProperty>
-                        <!--
-                        <systemProperty>
-                          <key>javax.net.debug</key>
-                          <value>all</value>
-                        </systemProperty>
-                        -->
-                    </systemProperties>
-                </configuration>
-            </plugin>
-
-        </plugins>
-    </build>
 
 </project>
 

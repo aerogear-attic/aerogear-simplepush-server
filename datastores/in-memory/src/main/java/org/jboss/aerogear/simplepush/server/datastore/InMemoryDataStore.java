@@ -26,7 +26,6 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.server.Channel;
-import org.jboss.aerogear.simplepush.server.DefaultChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +41,7 @@ public class InMemoryDataStore implements DataStore {
     @Override
     public boolean saveChannel(final Channel ch) {
         checkNotNull(ch, "ch");
-        final Channel previous = channels.putIfAbsent(ch.getChannelId(), new DefaultChannel(ch.getUAID(), ch.getChannelId(), ch.getPushEndpoint()));
+        final Channel previous = channels.putIfAbsent(ch.getChannelId(), ch);
         return previous == null;
     }
 

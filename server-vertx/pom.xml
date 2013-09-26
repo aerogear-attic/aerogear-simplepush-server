@@ -53,6 +53,10 @@
             <artifactId>aerogear-simplepush-protocol</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-datastore-in-memory</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-platform</artifactId>
             <version>${vertx.version}</version>
@@ -121,8 +125,10 @@
                             <overWriteIfNewer>true</overWriteIfNewer>
                             <silent>true</silent>
                             <includeArtifactIds>aerogear-simplepush-protocol,
+                                                aerogear-simplepush-common, 
                                                 aerogear-simplepush-server-api, 
                                                 aerogear-simplepush-server-core, 
+                                                aerogear-simplepush-datastore-in-memory, 
                                                 jackson-core-asl,
                                                 jackson-mapper-asl,
                                                 netty-all,

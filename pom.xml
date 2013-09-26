@@ -41,8 +41,10 @@
     </properties>
 
     <modules>
+        <module>common</module>
         <module>protocol</module>
         <module>server-api</module>
+        <module>datastores</module>
         <module>server-core</module>
         <module>netty-codec-sockjs</module>
         <module>server-netty</module>
@@ -54,12 +56,27 @@
         <dependencies>
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
+                <artifactId>aerogear-simplepush-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
                 <artifactId>aerogear-simplepush-protocol</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
                 <artifactId>aerogear-simplepush-server-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>aerogear-simplepush-datastore-in-memory</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>aerogear-simplepush-datastore-jpa</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

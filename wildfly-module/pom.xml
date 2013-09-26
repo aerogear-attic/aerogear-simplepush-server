@@ -46,6 +46,10 @@
     <dependencies>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-datastore-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-simplepush-server-netty</artifactId>
         </dependency>
          <dependency>
@@ -157,6 +161,8 @@
                                                 aerogear-simplepush-server-api, 
                                                 aerogear-simplepush-server-core, 
                                                 aerogear-simplepush-server-netty,
+                                                aerogear-simplepush-datastore-jpa,
+                                                aerogear-simplepush-common,
                                                 aerogear-netty-codec-sockjs,
                                                 netty-all,
                                                 jackson-core-asl,
