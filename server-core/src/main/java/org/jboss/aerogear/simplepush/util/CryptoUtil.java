@@ -15,11 +15,15 @@ package org.jboss.aerogear.simplepush.util;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.commons.codec.binary.Base64;
@@ -46,10 +50,10 @@ public final class CryptoUtil {
      *
      * @throws Exception
      */
-    public static String encrypt(final String key, final String content) throws Exception {
+    public static String encrypt(final byte[] key, final String content) throws Exception {
         final Cipher cipher = Cipher.getInstance(TRANSOFRMATION);
         final IvParameterSpec iv = getIV();
-        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec(key), iv);
+        cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), iv);
         final byte[] encrypted = cipher.doFinal(content.getBytes(ASCII));
         final String base64 = Base64.encodeBase64URLSafeString(prependIV(encrypted, iv.getIV()));
         return URLEncoder.encode(base64, ASCII.displayName());
@@ -70,14 +74,6 @@ public final class CryptoUtil {
         return new IvParameterSpec(iv);
     }
 
-    private static byte[] key(final byte[] key) throws Exception {
-        final KeyGenerator gen = KeyGenerator.getInstance(ALGORITHM);
-        final SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
-        sr.setSeed(key);
-        gen.init(128, sr);
-        return gen.generateKey().getEncoded();
-    }
-
     /**
      * Decrypts the content passed-in.
      *
@@ -88,10 +84,10 @@ public final class CryptoUtil {
      *
      * @throws Exception
      */
-    public static String decrypt(final String key, final String content) throws Exception {
+    public static String decrypt(final byte[] key, final String content) throws Exception {
         final Cipher cipher = Cipher.getInstance(TRANSOFRMATION);
         final byte[] decodedContent = Base64.decodeBase64(content);
-        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec(key), new IvParameterSpec(extractIV(decodedContent)));
+        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, "AES"), new IvParameterSpec(extractIV(decodedContent)));
         final byte[] decrypted = cipher.doFinal(extractContent(decodedContent));
         return new String(decrypted, ASCII);
     }
@@ -108,11 +104,26 @@ public final class CryptoUtil {
         return decodedContent;
     }
 
-    private static SecretKeySpec secretKeySpec(final String key) throws Exception {
-        return new SecretKeySpec(key(key.getBytes(ASCII)), ALGORITHM);
+
+    public static byte[] secretKey(final String seed) {
+        try {
+            final SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            final PBEKeySpec keySpec = new PBEKeySpec(seed.toCharArray(), salt(8), 65536, 128);
+            final SecretKey key = factory.generateSecret(keySpec);
+            return key.getEncoded();
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static EndpointParam decryptEndpoint(final String key, final String encrypted) throws Exception {
+    public static byte[] salt(final int size) throws NoSuchAlgorithmException {
+        final SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
+        byte[] buffer = new byte[size];
+        secureRandom.nextBytes(buffer);
+        return buffer;
+    }
+
+    public static EndpointParam decryptEndpoint(final byte[] key, final String encrypted) throws Exception {
         final String decrypt = CryptoUtil.decrypt(key, encrypted);
         final String[] uaidChannelIdPair = decrypt.split("\\.");
         return new EndpointParam(uaidChannelIdPair[0], uaidChannelIdPair[1]);

@@ -16,6 +16,8 @@
  */
 package org.jboss.aerogear.simplepush.server;
 
+import org.jboss.aerogear.simplepush.util.CryptoUtil;
+
 
 /**
  * Configuration settings for SimplePush server
@@ -26,7 +28,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
     private final String host;
     private final int port;
     private final boolean tls;
-    private final String tokenKey;
+    private final byte[] tokenKey;
     private final String endpointPrefix;
     private final String notificationUrl;
     private final long reaperTimeout;
@@ -36,11 +38,11 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         host = builder.host;
         port = builder.port;
         tls = builder.tls;
-        tokenKey = builder.tokenKey;
         endpointPrefix = builder.endpointPrefix;
         notificationUrl = makeNotifyURL(builder.endpointPrefix);
         reaperTimeout = builder.timeout;
         ackInterval = builder.ackInterval;
+        tokenKey = CryptoUtil.secretKey(builder.tokenKey);
     }
 
     private String makeNotifyURL(final String endpointUrl) {
@@ -56,7 +58,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         return port;
     }
 
-    public String tokenKey() {
+    public byte[] tokenKey() {
         return tokenKey;
     }
 

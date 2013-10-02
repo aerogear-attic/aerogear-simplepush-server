@@ -26,23 +26,26 @@ public class CryptoUtilTest {
 
     @Test
     public void encrypt() throws Exception {
-        final String encrypted = CryptoUtil.encrypt("key", "some string to endrypt");
+        final byte[] key = CryptoUtil.secretKey("key");
+        final String encrypted = CryptoUtil.encrypt(key, "some string to endrypt");
         assertThat(encrypted, is(notNullValue()));
     }
 
     @Test
     public void decrypt() throws Exception {
+        final byte[] key = CryptoUtil.secretKey("key");
         final String expected = UUID.randomUUID().toString() + "." + UUID.randomUUID().toString();
-        final String encrypted = CryptoUtil.encrypt("key", expected);
-        assertThat(CryptoUtil.decrypt("key", encrypted), is(equalTo(expected)));
+        final String encrypted = CryptoUtil.encrypt(key, expected);
+        assertThat(CryptoUtil.decrypt(key, encrypted), is(equalTo(expected)));
     }
 
     @Test
     public void decryptEndpoint() throws Exception {
+        final byte[] key = CryptoUtil.secretKey("key");
         final String uaid = UUID.randomUUID().toString();
         final String channelId = UUID.randomUUID().toString();
-        final String encrypted = CryptoUtil.encrypt("key", uaid + "." + channelId);
-        final EndpointParam endpointParam = CryptoUtil.decryptEndpoint("key", encrypted);
+        final String encrypted = CryptoUtil.encrypt(key, uaid + "." + channelId);
+        final EndpointParam endpointParam = CryptoUtil.decryptEndpoint(key, encrypted);
         assertThat(endpointParam.uaid(), is(equalTo(uaid)));
         assertThat(endpointParam.channelId(), is(equalTo(channelId)));
     }
