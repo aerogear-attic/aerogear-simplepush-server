@@ -129,18 +129,6 @@ public final class CryptoUtil {
         return new EndpointParam(uaidChannelIdPair[0], uaidChannelIdPair[1]);
     }
 
-    public static byte[] randomKey(final int size) {
-        try {
-            final KeyGenerator gen = KeyGenerator.getInstance(ALGORITHM);
-            final SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
-            sr.generateSeed(128);
-            gen.init(128, sr);
-            return gen.generateKey().getEncoded();
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static class EndpointParam {
 
         private final String uaid;
