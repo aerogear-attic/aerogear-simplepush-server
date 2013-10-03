@@ -16,21 +16,32 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.junit.BeforeClass;
+import javax.net.ssl.SSLEngine;
+
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.junit.Test;
 
 public class WebSocketSslServerSslContextTest {
 
-    @BeforeClass
-    public static void setup() {
-        System.setProperty("simplepush.keystore.password", "simplepush");
-        System.setProperty("simplepush.keystore.path", "/simplepush-sample.keystore");
+    @Test
+    public void createSSLEngine() {
+        final SockJsConfig sockJsConfig = SockJsConfig.withPrefix("/echo")
+                .tls(true)
+                .keyStore("/simplepush-sample.keystore")
+                .keyStorePassword("simplepush")
+                .build();
+        final SSLEngine engine = new WebSocketSslServerSslContext(sockJsConfig).sslContext().createSSLEngine();
+        assertThat(engine, is(notNullValue()));
     }
 
-    @Test
-    public void getInstance() {
-        final WebSocketSslServerSslContext instance = WebSocketSslServerSslContext.getInstance();
-        assertThat(instance, is(notNullValue()));
+    @Test (expected = RuntimeException.class)
+    public void createSSLContextKeyStoreNotFound() {
+        final SockJsConfig sockJsConfig = SockJsConfig.withPrefix("/echo")
+                .tls(true)
+                .keyStore("/missing.keystore")
+                .keyStorePassword("simplepush")
+                .build();
+        new WebSocketSslServerSslContext(sockJsConfig).sslContext();
     }
 
 }

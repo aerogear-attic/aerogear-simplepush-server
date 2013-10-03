@@ -58,7 +58,7 @@ public class SimplePushExtension implements Extension {
     @Override
     public void initialize(final ExtensionContext context) {
         final SubsystemRegistration subsystem = context.registerSubsystem(SUBSYSTEM_NAME, 1, 0);
-        final ManagementResourceRegistration registration = subsystem.registerSubsystemModel(NettySubsystemDefinition.INSTANCE);
+        final ManagementResourceRegistration registration = subsystem.registerSubsystemModel(SimplePushSubsystemDefinition.INSTANCE);
         registration.registerSubModel(ServerDefinition.INSTANCE);
         subsystem.registerXMLElementWriter(parser);
     }

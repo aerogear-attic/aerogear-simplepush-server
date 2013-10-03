@@ -21,8 +21,30 @@ package org.jboss.aerogear.simplepush.subsystem;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.DATASOURCE;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_TLS;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.REAPER_TIMEOUT;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKET_BINDING;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.TOKEN_KEY;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_PREFIX;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_ACK_INTERVAL;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_SOCKET_BINDING;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_PREFIX;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_COOKIES_NEEDED;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_URL;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_SESSION_TIMEOUT;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_HEARTBEAT_INTERVAL;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_MAX_STREAMING_BYTES_SIZE;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_TLS;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_KEYSTORE;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_KEYSTORE_PASSWORD;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_ENABLE_WEBSOCKET;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_WEBSOCKET_PROTOCOLS;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.NAMESPACE;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.SUBSYSTEM_NAME;
+import static org.jboss.as.controller.PathAddress.pathAddress;
+import static org.jboss.as.controller.PathElement.pathElement;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DESCRIBE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
@@ -34,16 +56,14 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
+import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.PathElement;
 import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.as.naming.deployment.ContextNames.BindInfo;
 import org.jboss.as.subsystem.test.AbstractSubsystemTest;
 import org.jboss.as.subsystem.test.AdditionalInitialization;
 import org.jboss.as.subsystem.test.ControllerInitializer;
 import org.jboss.as.subsystem.test.KernelServices;
-import org.jboss.as.threads.ThreadFactoryService;
-import org.jboss.as.threads.ThreadsServices;
 import org.jboss.dmr.ModelNode;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceBuilder;
@@ -55,8 +75,27 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
 
     private final String subsystemXml =
         "<subsystem xmlns=\"" + NAMESPACE + "\">" +
-            "<server name=\"simplepush\" socket-binding=\"simplepush\" thread-factory=\"netty-thread-factory\" " +
-                "datasource-jndi-name=\"java:jboss/datasources/TestDS\" token-key=\"testing\" endpoint-tls=\"false\"/>" +
+            "<server socket-binding=\"simplepush\" " +
+                "datasource-jndi-name=\"java:jboss/datasources/TestDS\" " +
+                "token-key=\"testing\" " +
+                "useragent-reaper-timeout=\"16000\" " +
+                "notification-prefix=\"/update\" " +
+                "notification-tls=\"false\" " +
+                "notification-ack-interval=\"120000\" " +
+                "notification-socket-binding=\"simplepush-notify\" " +
+                "sockjs-prefix=\"/someServiceName\" " +
+                "sockjs-cookies-needed=\"false\" " +
+                "sockjs-url=\"http://somehost.com/sockjs.js\" " +
+                "sockjs-session-timeout=\"2000\" " +
+                "sockjs-heartbeat-interval=\"8000\" " +
+                "sockjs-max-streaming-bytes-size=\"65356\" " +
+                "sockjs-tls=\"true\" " +
+                "sockjs-keystore=\"/simplepush-sample.keystore\" " +
+                "sockjs-keystore-password=\"simplepush\" " +
+                "sockjs-enable-websocket=\"false\" " +
+                "sockjs-websocket-heartbeat-interval=\"600000\" " +
+                "sockjs-websocket-protocols=\"push-notification, myproto\" " +
+                "/>" +
         "</subsystem>";
 
     public SubsystemParsingTestCase() {
@@ -64,78 +103,55 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
     }
 
     @Test
-    public void parseAddSubsystem() throws Exception {
-        final List<ModelNode> operations = super.parse(subsystemXml);
+    public void parseSubsystem() throws Exception {
+        final List<ModelNode> operations = parse(subsystemXml);
         assertThat(operations.size(), is(2));
-        final ModelNode addSubsystem = operations.get(0);
-        assertThat(addSubsystem.get(OP).asString(), equalTo(ADD));
-        final PathAddress addr = PathAddress.pathAddress(addSubsystem.get(OP_ADDR));
-        assertThat(addr.size(), is(1));
-        final PathElement element = addr.getElement(0);
-        assertThat(element.getKey(), equalTo(SUBSYSTEM));
-        assertThat(element.getValue(), equalTo(SUBSYSTEM_NAME));
+        final ModelNode subsystem = operations.get(0);
+        assertThat(subsystem.get(OP).asString(), equalTo(ADD));
+        final PathAddress address = pathAddress(subsystem.get(OP_ADDR));
+        assertThat(address.size(), is(1));
+        assertThat(address.getElement(0).getKey(), equalTo(SUBSYSTEM));
+        assertThat(address.getElement(0).getValue(), equalTo(SUBSYSTEM_NAME));
     }
 
     @Test
-    public void parseAddType() throws Exception {
-        final List<ModelNode> operations = super.parse(subsystemXml);
-        assertThat(operations.size(), is(2));
-        final ModelNode addType = operations.get(1);
-        assertThat(addType.get(OP).asString(), equalTo(ADD));
-        assertThat(addType.get(ServerDefinition.Element.SOCKET_BINDING.localName()).asString(), is("simplepush"));
-
-        final PathAddress addr = PathAddress.pathAddress(addType.get(OP_ADDR));
-        assertThat(addr.size(), is(2));
-        final PathElement firstPathElement = addr.getElement(0);
-        assertThat(firstPathElement.getKey(), equalTo(SUBSYSTEM));
-        assertThat(firstPathElement.getValue(), equalTo(SUBSYSTEM_NAME));
-        final PathElement secondPathElement = addr.getElement(1);
-        assertThat(secondPathElement.getKey(), equalTo("server"));
-        assertThat(secondPathElement.getValue(), equalTo("simplepush"));
+    public void parseServerAttributes() throws Exception {
+        final List<ModelNode> operations = parse(subsystemXml);
+        final ModelNode options = operations.get(1);
+        assertThat(options.get(OP).asString(), equalTo(ADD));
+        assertOptions(options);
     }
 
     @Test
     public void installIntoController() throws Exception {
-        final KernelServices services = super.installInController(new AdditionalServices(), subsystemXml);
-
+        final KernelServices services = installInController(new AdditionalServices(), subsystemXml);
         final ModelNode model = services.readWholeModel();
-        assertThat(model.get(SUBSYSTEM).hasDefined(SimplePushExtension.SUBSYSTEM_NAME), is(true));
+        assertThat(model.get(SUBSYSTEM).hasDefined(SUBSYSTEM_NAME), is(true));
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME).hasDefined("server"), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server").hasDefined("simplepush"), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush").hasDefined("socket-binding"), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "socket-binding").asString(), is("simplepush"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "thread-factory").asString(), is("netty-thread-factory"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "datasource-jndi-name").asString(), is("java:jboss/datasources/TestDS"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "token-key").asString(), is("testing"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "endpoint-tls").asBoolean(), is(false));
+        assertOptions(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush"));
     }
 
     @Test
     public void parseAndMarshalModel() throws Exception {
-        final KernelServices servicesA = super.installInController(new AdditionalServices(), subsystemXml);
+        final KernelServices servicesA = installInController(new AdditionalServices(), subsystemXml);
         final ModelNode modelA = servicesA.readWholeModel();
+        servicesA.shutdown();
         final String marshalled = servicesA.getPersistedSubsystemXml();
-
-        final KernelServices servicesB = super.installInController(new AdditionalServices(), marshalled);
+        final KernelServices servicesB = installInController(new AdditionalServices(), marshalled);
         final ModelNode modelB = servicesB.readWholeModel();
-
         super.compare(modelA, modelB);
     }
 
     @Test
     public void describeHandler() throws Exception {
-        final String subsystemXml =
-                "<subsystem xmlns=\"" + NAMESPACE + "\">" +
-                        "</subsystem>";
-        final KernelServices servicesA = super.installInController(new AdditionalServices(), subsystemXml);
-
+        final String subsystemXml = "<subsystem xmlns=\"" + NAMESPACE + "\">" + "</subsystem>";
+        final KernelServices servicesA = installInController(new AdditionalServices(), subsystemXml);
         final ModelNode modelA = servicesA.readWholeModel();
         final ModelNode describeOp = new ModelNode();
         describeOp.get(OP).set(DESCRIBE);
-        describeOp.get(OP_ADDR).set(PathAddress.pathAddress(PathElement.pathElement(SUBSYSTEM, SUBSYSTEM_NAME)).toModelNode());
-        final List<ModelNode> operations = super.checkResultAndGetContents(servicesA.executeOperation(describeOp)).asList();
-
-        final KernelServices servicesB = super.installInController(new AdditionalServices(), operations);
+        describeOp.get(OP_ADDR).set(pathAddress(pathElement(SUBSYSTEM, SUBSYSTEM_NAME)).toModelNode());
+        final List<ModelNode> operations = checkResultAndGetContents(servicesA.executeOperation(describeOp)).asList();
+        final KernelServices servicesB = installInController(new AdditionalServices(), operations);
         final ModelNode modelB = servicesB.readWholeModel();
         super.compare(modelA, modelB);
 
@@ -143,42 +159,83 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
 
     @Test (expected = ServiceNotFoundException.class)
     public void subsystemRemoval() throws Exception {
-        final KernelServices services = super.installInController(new AdditionalServices(), subsystemXml);
-        services.getContainer().getRequiredService(NettyService.createServiceName("simplepush"));
+        final KernelServices services = installInController(new AdditionalServices(), subsystemXml);
+        services.getContainer().getRequiredService(SimplePushService.createServiceName("simplepush"));
         super.assertRemoveSubsystemResources(services);
-        services.getContainer().getRequiredService(NettyService.createServiceName("simplepush"));
+        services.getContainer().getRequiredService(SimplePushService.createServiceName("simplepush"));
     }
 
     @Test
-    public void executeOperations() throws Exception {
-        final KernelServices services = super.installInController(new AdditionalServices(), subsystemXml);
-        final PathAddress serverAddress = PathAddress.pathAddress(PathElement.pathElement(SUBSYSTEM, SUBSYSTEM_NAME),
-                PathElement.pathElement("server", "foo"));
-        final ModelNode addOp = new ModelNode();
-        addOp.get(OP).set(ADD);
-        addOp.get(OP_ADDR).set(serverAddress.toModelNode());
-        addOp.get("socket-binding").set("mysocket");
-        addOp.get("thread-factory").set("netty-thread-factory");
-        addOp.get("datasource-jndi-name").set("java:jboss/datasources/NettyDS");
-        addOp.get("endpoint-tls").set("true");
-        final ModelNode result = services.executeOperation(addOp);
-        assertThat(result.get(OUTCOME).asString(), equalTo(SUCCESS));
+    public void addSecondServer() throws Exception {
+        final KernelServices services = installInController(new AdditionalServices(), subsystemXml);
+        final PathAddress serverAddress = pathAddress(pathElement(SUBSYSTEM, SUBSYSTEM_NAME), pathElement("server", "foo"));
+        final ModelNode serverTwo = new ModelNode();
+        serverTwo.get(OP).set(ADD);
+        serverTwo.get(OP_ADDR).set(serverAddress.toModelNode());
+        serverTwo.get(SOCKET_BINDING.localName()).set("mysocket");
+        serverTwo.get(DATASOURCE.localName()).set("java:jboss/datasources/NettyDS");
+        serverTwo.get(TOKEN_KEY.localName()).set("123456");
+        serverTwo.get(NOTIFICATION_TLS.localName()).set("true");
+        serverTwo.get(REAPER_TIMEOUT.localName()).set(20000);
+        serverTwo.get(NOTIFICATION_PREFIX.localName()).set("/endpoints");
+        serverTwo.get(NOTIFICATION_TLS.localName()).set(false);
+        serverTwo.get(NOTIFICATION_ACK_INTERVAL.localName()).set(10000);
+        serverTwo.get(NOTIFICATION_SOCKET_BINDING.localName()).set("simplepush-notify");
+        serverTwo.get(SOCKJS_PREFIX.localName()).set("/foo");
+        serverTwo.get(SOCKJS_COOKIES_NEEDED.localName()).set("false");
+        serverTwo.get(SOCKJS_URL.localName()).set("http://foo.com/sockjs.js");
+        serverTwo.get(SOCKJS_SESSION_TIMEOUT.localName()).set(3000);
+        serverTwo.get(SOCKJS_HEARTBEAT_INTERVAL.localName()).set(9000);
+        serverTwo.get(SOCKJS_MAX_STREAMING_BYTES_SIZE.localName()).set(23333);
+        serverTwo.get(SOCKJS_TLS.localName()).set(false);
+        serverTwo.get(SOCKJS_ENABLE_WEBSOCKET.localName()).set(true);
+        serverTwo.get(SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL.localName()).set(300000L);
+        assertThat(services.executeOperation(serverTwo).get(OUTCOME).asString(), equalTo(SUCCESS));
 
         final ModelNode model = services.readWholeModel();
-        assertThat(model.get(SUBSYSTEM).hasDefined(SUBSYSTEM_NAME), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME).hasDefined("server"), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server").hasDefined("simplepush"), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush").hasDefined("socket-binding"), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "socket-binding").asString(), is("simplepush"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "datasource-jndi-name").asString(), is("java:jboss/datasources/TestDS"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "simplepush", "endpoint-tls").asBoolean(), is(false));
-
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server").hasDefined("foo"), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo").hasDefined("socket-binding"), is(true));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo", "socket-binding").asString(), is("mysocket"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo", "thread-factory").asString(), is("netty-thread-factory"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo", "datasource-jndi-name").asString(), is("java:jboss/datasources/NettyDS"));
-        assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo", "endpoint-tls").asBoolean(), is(true));
+        final ModelNode fooOptions = model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo");
+        assertThat(fooOptions.get(SOCKET_BINDING.localName()).asString(), equalTo("mysocket"));
+        assertThat(fooOptions.get(DATASOURCE.localName()).asString(), equalTo("java:jboss/datasources/NettyDS"));
+        assertThat(fooOptions.get(TOKEN_KEY.localName()).asString(), equalTo("123456"));
+        assertThat(fooOptions.get(REAPER_TIMEOUT.localName()).asLong(), is(20000L));
+        assertThat(fooOptions.get(NOTIFICATION_TLS.localName()).asBoolean(), is(false));
+        assertThat(fooOptions.get(NOTIFICATION_PREFIX.localName()).asString(), equalTo("/endpoints"));
+        assertThat(fooOptions.get(NOTIFICATION_ACK_INTERVAL.localName()).asLong(), is(10000L));
+        assertThat(fooOptions.get(NOTIFICATION_SOCKET_BINDING.localName()).asString(), equalTo("simplepush-notify"));
+        assertThat(fooOptions.get(SOCKJS_PREFIX.localName()).asString(), equalTo("/foo"));
+        assertThat(fooOptions.get(SOCKJS_COOKIES_NEEDED.localName()).asBoolean(), is(false));
+        assertThat(fooOptions.get(SOCKJS_URL.localName()).asString(), equalTo("http://foo.com/sockjs.js"));
+        assertThat(fooOptions.get(SOCKJS_SESSION_TIMEOUT.localName()).asLong(), is(3000L));
+        assertThat(fooOptions.get(SOCKJS_HEARTBEAT_INTERVAL.localName()).asLong(), is(9000L));
+        assertThat(fooOptions.get(SOCKJS_MAX_STREAMING_BYTES_SIZE.localName()).asLong(), is(23333L));
+        assertThat(fooOptions.get(SOCKJS_TLS.localName()).asBoolean(), is(false));
+        assertThat(fooOptions.get(SOCKJS_ENABLE_WEBSOCKET.localName()).asBoolean(), is(true));
+        assertThat(fooOptions.get(SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL.localName()).asLong(), is(300000L));
+        assertThat(fooOptions.get(SOCKJS_WEBSOCKET_PROTOCOLS.localName()).asString(), equalTo("push-notification"));
+    }
+
+    private void assertOptions(final ModelNode options) {
+        assertThat(options.get(SOCKET_BINDING.localName()).asString(), equalTo("simplepush"));
+        assertThat(options.get(DATASOURCE.localName()).asString(), equalTo("java:jboss/datasources/TestDS"));
+        assertThat(options.get(TOKEN_KEY.localName()).asString(), equalTo("testing"));
+        assertThat(options.get(REAPER_TIMEOUT.localName()).asLong(), is(16000L));
+        assertThat(options.get(NOTIFICATION_PREFIX.localName()).asString(), equalTo("/update"));
+        assertThat(options.get(NOTIFICATION_TLS.localName()).asBoolean(), is(false));
+        assertThat(options.get(NOTIFICATION_ACK_INTERVAL.localName()).asLong(), equalTo(120000L));
+        assertThat(options.get(NOTIFICATION_SOCKET_BINDING.localName()).asString(), equalTo("simplepush-notify"));
+        assertThat(options.get(SOCKJS_PREFIX.localName()).asString(), equalTo("/someServiceName"));
+        assertThat(options.get(SOCKJS_COOKIES_NEEDED.localName()).asBoolean(), is(false));
+        assertThat(options.get(SOCKJS_URL.localName()).asString(), equalTo("http://somehost.com/sockjs.js"));
+        assertThat(options.get(SOCKJS_SESSION_TIMEOUT.localName()).asLong(), is(2000L));
+        assertThat(options.get(SOCKJS_HEARTBEAT_INTERVAL.localName()).asLong(), is(8000L));
+        assertThat(options.get(SOCKJS_MAX_STREAMING_BYTES_SIZE.localName()).asLong(), is(65356L));
+        assertThat(options.get(SOCKJS_TLS.localName()).asBoolean(), is(true));
+        assertThat(options.get(SOCKJS_KEYSTORE.localName()).asString(), equalTo("/simplepush-sample.keystore"));
+        assertThat(options.get(SOCKJS_KEYSTORE_PASSWORD.localName()).asString(), equalTo("simplepush"));
+        assertThat(options.get(SOCKJS_ENABLE_WEBSOCKET.localName()).asBoolean(), is(false));
+        assertThat(options.get(SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL.localName()).asLong(), is(600000L));
+        assertThat(options.get(SOCKJS_WEBSOCKET_PROTOCOLS.localName()).asString(), equalTo("push-notification, myproto"));
     }
 
     private static class AdditionalServices extends AdditionalInitialization {
@@ -186,19 +243,13 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         @Override
         protected void setupController(final ControllerInitializer controllerInitializer) {
             controllerInitializer.setBindAddress("127.0.0.1");
-            controllerInitializer.addSocketBinding("mysocket", 8888);
-            controllerInitializer.addSocketBinding("simplepush", 7777);
+            controllerInitializer.addSocketBinding("mysocket", 18888);
+            controllerInitializer.addSocketBinding("simplepush", 17777);
+            controllerInitializer.addSocketBinding("simplepush-notify", 8000);
         }
 
         @Override
         protected void addExtraServices(final ServiceTarget serviceTarget) {
-            final ThreadFactoryService threadFactoryService = new ThreadFactoryService();
-            threadFactoryService.setNamePattern("%i");
-            threadFactoryService.setPriority(Thread.NORM_PRIORITY);
-            threadFactoryService.setThreadGroupName("netty-thread-group");
-            final ServiceBuilder<?> serviceBuilder = serviceTarget.addService(ThreadsServices.threadFactoryName("netty-thread-factory"), threadFactoryService);
-            serviceBuilder.install();
-
             final Service<?> ds = mock(Service.class);
             final BindInfo testBindInfo = ContextNames.bindInfoFor("java:jboss/datasources/TestDS");
             final ServiceBuilder<?> testDS = serviceTarget.addService(testBindInfo.getBinderServiceName(), ds);
@@ -206,6 +257,10 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
             final BindInfo nettyBindInfo = ContextNames.bindInfoFor("java:jboss/datasources/NettyDS");
             final ServiceBuilder<?> nettyDS = serviceTarget.addService(nettyBindInfo.getBinderServiceName(), ds);
             nettyDS.install();
+
+            final DataStoreService datastoreService = mock(DataStoreService.class);
+            final ServiceBuilder<DataStore> dssBuilder = serviceTarget.addService(DataStoreService.SERVICE_NAME, datastoreService);
+            dssBuilder.install();
         }
     }
 }

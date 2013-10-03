@@ -37,7 +37,7 @@ class ServerRemove extends AbstractRemoveStepHandler{
             final ModelNode operation, 
             final ModelNode model) throws OperationFailedException {
         final String serverName = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.ADDRESS)).getLastElement().getValue();
-        final ServiceName name = NettyService.createServiceName(serverName);
+        final ServiceName name = SimplePushService.createServiceName(serverName);
         context.removeService(name);
     }
 

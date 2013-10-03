@@ -26,18 +26,34 @@ import java.util.Map;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
+import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 
 public class ServerDefinition extends SimpleResourceDefinition {
 
     public enum Element {
         UNKNOWN(null),
+        SERVER_NAME("name"),
         SOCKET_BINDING("socket-binding"),
-        THREAD_FACTORY("thread-factory"),
         DATASOURCE("datasource-jndi-name"),
         TOKEN_KEY("token-key"),
-        ENDPOINT_TLS("endpoint-tls"),
-        NAME("name");
+        REAPER_TIMEOUT("useragent-reaper-timeout"),
+        NOTIFICATION_PREFIX("notification-prefix"),
+        NOTIFICATION_TLS("notification-tls"),
+        NOTIFICATION_ACK_INTERVAL("notification-ack-interval"),
+        NOTIFICATION_SOCKET_BINDING("notification-socket-binding"),
+        SOCKJS_PREFIX("sockjs-prefix"),
+        SOCKJS_COOKIES_NEEDED("sockjs-cookies-needed"),
+        SOCKJS_URL("sockjs-url"),
+        SOCKJS_SESSION_TIMEOUT("sockjs-session-timeout"),
+        SOCKJS_HEARTBEAT_INTERVAL("sockjs-heartbeat-interval"),
+        SOCKJS_MAX_STREAMING_BYTES_SIZE("sockjs-max-streaming-bytes-size"),
+        SOCKJS_TLS("sockjs-tls"),
+        SOCKJS_KEYSTORE("sockjs-keystore"),
+        SOCKJS_KEYSTORE_PASSWORD("sockjs-keystore-password"),
+        SOCKJS_ENABLE_WEBSOCKET("sockjs-enable-websocket"),
+        SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL("sockjs-websocket-heartbeat-interval"),
+        SOCKJS_WEBSOCKET_PROTOCOLS("sockjs-websocket-protocols");
 
         private final String name;
 
@@ -67,11 +83,27 @@ public class ServerDefinition extends SimpleResourceDefinition {
 
     }
 
+    protected static final SimpleAttributeDefinition SERVER_NAME_ATTR = new SimpleAttributeDefinition(Element.SERVER_NAME.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition SOCKET_BINDING_ATTR = new SimpleAttributeDefinition(Element.SOCKET_BINDING.localName(), ModelType.STRING, false);
-    protected static final SimpleAttributeDefinition THREAD_FACTORY_ATTR = new SimpleAttributeDefinition(Element.THREAD_FACTORY.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition DATASOURCE_ATTR = new SimpleAttributeDefinition(Element.DATASOURCE.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition TOKEN_KEY_ATTR = new SimpleAttributeDefinition(Element.TOKEN_KEY.localName(), ModelType.STRING, true);
-    protected static final SimpleAttributeDefinition ENDPOINT_TLS_ATTR = new SimpleAttributeDefinition(Element.ENDPOINT_TLS.localName(), ModelType.BOOLEAN, true);
+    protected static final SimpleAttributeDefinition NOTIFICATION_TLS_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_TLS.localName(), ModelType.BOOLEAN, true);
+    protected static final SimpleAttributeDefinition REAPER_TIMEOUT_ATTR = new SimpleAttributeDefinition(Element.REAPER_TIMEOUT.localName(), new ModelNode(604800000), ModelType.LONG, true);
+    protected static final SimpleAttributeDefinition NOTIFICATION_PREFIX_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_PREFIX.localName(), new ModelNode("/update"), ModelType.STRING, true);
+    protected static final SimpleAttributeDefinition NOTIFICATION_ACK_INTERVAL_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_ACK_INTERVAL.localName(), new ModelNode(60000), ModelType.LONG, true);
+    protected static final SimpleAttributeDefinition NOTIFICATION_SOCKET_BINDING_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_SOCKET_BINDING.localName(), ModelType.STRING, true);
+    protected static final SimpleAttributeDefinition SOCKJS_PREFIX_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_PREFIX.localName(), new ModelNode("/simplepush"), ModelType.STRING, false);
+    protected static final SimpleAttributeDefinition SOCKJS_COOKIES_NEEDED_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_COOKIES_NEEDED.localName(), new ModelNode(true), ModelType.BOOLEAN, true);
+    protected static final SimpleAttributeDefinition SOCKJS_URL_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_URL.localName(), ModelType.STRING, true);
+    protected static final SimpleAttributeDefinition SOCKJS_SESSION_TIMEOUT_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_SESSION_TIMEOUT.localName(), new ModelNode(5000), ModelType.LONG, true);
+    protected static final SimpleAttributeDefinition SOCKJS_HEARTBEAT_INTERVAL_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_HEARTBEAT_INTERVAL.localName(), new ModelNode(25000), ModelType.LONG, true);
+    protected static final SimpleAttributeDefinition SOCKJS_MAX_STREAMING_BYTES_SIZE_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_MAX_STREAMING_BYTES_SIZE.localName(), new ModelNode(131072), ModelType.LONG, true);
+    protected static final SimpleAttributeDefinition SOCKJS_TLS_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_TLS.localName(), new ModelNode(false), ModelType.BOOLEAN, true);
+    protected static final SimpleAttributeDefinition SOCKJS_KEYSTORE_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_KEYSTORE.localName(), ModelType.STRING, true);
+    protected static final SimpleAttributeDefinition SOCKJS_KEYSTORE_PASSWORD_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_KEYSTORE_PASSWORD.localName(), ModelType.STRING, true);
+    protected static final SimpleAttributeDefinition SOCKJS_ENABLE_WEBSOCKET_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_ENABLE_WEBSOCKET.localName(), ModelType.BOOLEAN, true);
+    protected static final SimpleAttributeDefinition SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL.localName(), new ModelNode(180000L), ModelType.LONG, true);
+    protected static final SimpleAttributeDefinition SOCKJS_WEBSOCKET_PROTOCOLS = new SimpleAttributeDefinition(Element.SOCKJS_WEBSOCKET_PROTOCOLS.localName(), new ModelNode("push-notification"), ModelType.STRING, true);
 
     public static final ServerDefinition INSTANCE = new ServerDefinition();
 
@@ -84,10 +116,27 @@ public class ServerDefinition extends SimpleResourceDefinition {
 
     @Override
     public void registerAttributes(final ManagementResourceRegistration resourceRegistration) {
-        resourceRegistration.registerReadWriteAttribute(SOCKET_BINDING_ATTR, null, NettySocketBindingHandler.INSTANCE);
-        resourceRegistration.registerReadWriteAttribute(THREAD_FACTORY_ATTR, null, NettySocketBindingHandler.INSTANCE);
-        resourceRegistration.registerReadWriteAttribute(DATASOURCE_ATTR, null, NettySocketBindingHandler.INSTANCE);
-        resourceRegistration.registerReadWriteAttribute(TOKEN_KEY_ATTR, null, NettySocketBindingHandler.INSTANCE);
-        resourceRegistration.registerReadWriteAttribute(ENDPOINT_TLS_ATTR, null, NettySocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SERVER_NAME_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKET_BINDING_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(DATASOURCE_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(TOKEN_KEY_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(REAPER_TIMEOUT_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(NOTIFICATION_PREFIX_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(NOTIFICATION_TLS_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(NOTIFICATION_ACK_INTERVAL_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(NOTIFICATION_SOCKET_BINDING_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_PREFIX_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_COOKIES_NEEDED_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_URL_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_SESSION_TIMEOUT_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_HEARTBEAT_INTERVAL_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_MAX_STREAMING_BYTES_SIZE_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_TLS_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_KEYSTORE_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_KEYSTORE_PASSWORD_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_ENABLE_WEBSOCKET_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(SOCKJS_WEBSOCKET_PROTOCOLS, null, SimplePushSocketBindingHandler.INSTANCE);
     }
+
 }

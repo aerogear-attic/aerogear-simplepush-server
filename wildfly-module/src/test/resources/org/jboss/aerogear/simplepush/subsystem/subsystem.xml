@@ -1,3 +1,22 @@
 <subsystem xmlns="urn:org.jboss.aerogear.simplepush:1.0">
-    <server name="simplepush-server" thread-factory="netty" socket-binding="simplepush" datasource-jndi-name="TestDS" token-key="testing" endpoint-tls="false" />
+    <server 
+        socket-binding="simplepush" 
+        datasource-jndi-name="TestDS" 
+        token-key="testing" 
+        useragent-reaper-timeout="16000" 
+        notification-prefix="/update" 
+        notification-tls="false"
+        notification-ack-interval="80000"
+        notification-socket-binding="simplepush-notify"
+        sockjs-prefix="/mysimplepush"
+        sockjs-cookies-needed="false"
+        sockjs-url="http://someurl/sockjs.js"
+        sockjs-session-timeout="25000"
+        sockjs-heartbeat-interval="40000"
+        sockjs-max-streaming-bytes-size="65356"
+        sockjs-tls="true"
+        sockjs-enable-websocket="false"
+        sockjs-websocket-heartbeat-interval="180000"
+        sockjs-websocket-protocols="push-notification, myproto"
+        />
 </subsystem>
