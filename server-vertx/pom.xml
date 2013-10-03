@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.jboss.aerogear</groupId>
         <artifactId>simplepush-server-parent</artifactId>
-        <version>0.8.0</version>
+        <version>0.8.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>aerogear-simplepush-server-vertx</artifactId>
@@ -38,8 +38,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <module.name>aerogear~simplepush~0.0.8</module.name>
-        <module.dir>${project.build.directory}/mods/aerogear~simplepush~0.0.8</module.dir>
+		<module.name>aerogear~simplepush~${project.version}</module.name>
+		<module.dir>${project.build.directory}/mods/aerogear~simplepush~${project.version}</module.dir>
         <vertx.version>2.0.0-final</vertx.version>
     </properties>
 
