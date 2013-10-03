@@ -75,7 +75,7 @@ public class NettySimplePushSockJSServerTest {
         final ServerBootstrap sb = new ServerBootstrap();
         final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create()
                 .userAgentReaperTimeout(2000L)
-                .tokenKey(new String(CryptoUtil.randomKey(128)))
+                .tokenKey("test")
                 .build();
         sb.group(bossGroup, workerGroup)
                 .channel(NioServerSocketChannel.class)

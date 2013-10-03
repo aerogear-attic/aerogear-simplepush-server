@@ -27,7 +27,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
     private final String host;
     private final int port;
     private final boolean tls;
-    private final String tokenKey;
+    private final byte[] tokenKey;
     private final String endpointPrefix;
     private final String notificationUrl;
     private final long reaperTimeout;
@@ -37,11 +37,11 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         host = builder.host;
         port = builder.port;
         tls = builder.tls;
-        tokenKey = builder.tokenKey;
         endpointPrefix = builder.endpointPrefix;
         notificationUrl = makeNotifyURL(builder.endpointPrefix);
         reaperTimeout = builder.timeout;
         ackInterval = builder.ackInterval;
+        tokenKey = CryptoUtil.secretKey(builder.tokenKey);
     }
 
     private String makeNotifyURL(final String endpointUrl) {
@@ -57,7 +57,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         return port;
     }
 
-    public String tokenKey() {
+    public byte[] tokenKey() {
         return tokenKey;
     }
 
@@ -102,13 +102,6 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
 
     public static Builder create(final String host, final int port) {
         return new DefaultSimplePushConfig.Builder().host(host).port(port);
-    }
-
-    public static SimplePushServerConfig defaultConfig() {
-        return new DefaultSimplePushConfig.Builder().host("localhost")
-                .port(7777)
-                .tokenKey(new String(CryptoUtil.randomKey(16)))
-                .build();
     }
 
     public static class Builder {
