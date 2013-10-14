@@ -16,6 +16,8 @@
  */
 package org.jboss.aerogear.simplepush.server;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.jboss.aerogear.simplepush.protocol.Ack;
@@ -138,7 +140,8 @@ public class DefaultSimplePushServer implements SimplePushServer {
         try {
             final Channel channel = store.getChannel(channnelId);
             if (channel.getUAID().equals(uaid)) {
-                return store.removeChannel(channnelId);
+                store.removeChannels(new HashSet<String>(Arrays.asList(channnelId)));
+                return true;
             }
         } catch (final ChannelNotFoundException ignored) {
         }

@@ -50,8 +50,7 @@ public class InMemoryDataStore implements DataStore {
         return previous == null;
     }
 
-    @Override
-    public boolean removeChannel(final String channelId) {
+    private boolean removeChannel(final String channelId) {
         checkNotNull(channelId, "channelId");
         final Channel channel = channels.remove(channelId);
         if (channel != null) {

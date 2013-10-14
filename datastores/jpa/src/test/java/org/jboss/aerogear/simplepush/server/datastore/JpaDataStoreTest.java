@@ -93,15 +93,16 @@ public class JpaDataStoreTest {
         jpaDataStore.getChannel("doesNotExistId");
     }
 
-    @Test
-    public void removeChannelSingleChannel() {
+    @Test (expected = ChannelNotFoundException.class)
+    public void removeChannelsSimpleChannel() throws ChannelNotFoundException {
         final String channelId = UUID.randomUUID().toString();
         jpaDataStore.saveChannel(newChannel(UUIDUtil.newUAID(), channelId, 10L));
-        assertThat(jpaDataStore.removeChannel(channelId), is(true));
+        jpaDataStore.removeChannels(new HashSet<String>(Arrays.asList(channelId)));
+        jpaDataStore.getChannel(channelId);
     }
 
     @Test (expected = ChannelNotFoundException.class)
-    public void removeNotExistingChannel() throws ChannelNotFoundException {
+    public void removeNonExistingChannel() throws ChannelNotFoundException {
         final String channelId = "DoesNotExistChannelId";
         jpaDataStore.removeChannels(new HashSet<String>(Arrays.asList(channelId)));
         jpaDataStore.getChannel(channelId);

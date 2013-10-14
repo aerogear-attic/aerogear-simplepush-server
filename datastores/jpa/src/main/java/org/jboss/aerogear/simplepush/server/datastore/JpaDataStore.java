@@ -92,25 +92,6 @@ public final class JpaDataStore implements DataStore {
     }
 
     @Override
-    public boolean removeChannel(final String channelId) {
-        final JpaOperation<Boolean> removeChannel = new JpaOperation<Boolean>() {
-            @Override
-            public Boolean perform(EntityManager em) {
-                final Query delete = em.createQuery("DELETE from ChannelDTO c where c.channelId = :channelId");
-                delete.setParameter("channelId", channelId);
-                final int nr =  delete.executeUpdate();
-                return nr == 1 ? Boolean.TRUE : Boolean.FALSE;
-            }
-        };
-        try {
-            return jpaExecutor.execute(removeChannel);
-        } catch (final Exception e) {
-            logger.error("Could not remove channel [" + channelId + "]", e);
-            return false;
-        }
-    }
-
-    @Override
     public void removeChannels(final Set<String> channelIds) {
         if (channelIds == null || channelIds.isEmpty()) {
             return;

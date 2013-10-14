@@ -35,14 +35,6 @@ public interface DataStore {
     boolean saveChannel(Channel channel);
 
     /**
-     * Removes the channel with the matching channelId from the underlying storage system.
-     *
-     * @param channelId of the channel to be removed
-     * @return {@code true} if removal was successful.
-     */
-    boolean removeChannel(String channelId);
-
-    /**
      * Returns the Channel for the passed-in channelId.
      *
      * @param channelId of the channel to be retrieved.

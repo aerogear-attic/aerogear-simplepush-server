@@ -78,8 +78,8 @@ public class InMemoryDataStoreTest {
     public void removeChannel() {
         final InMemoryDataStore store = new InMemoryDataStore();
         store.saveChannel(mockChannel(UUIDUtil.newUAID(), "channel-1", 1, "endpointToken"));
-        assertThat(store.removeChannel("channel-1"), is(true));
-        assertThat(store.removeChannel("channel-1"), is(false));
+        store.removeChannels(new HashSet<String>(Arrays.asList("channel-1")));
+        assertThat(hasChannel("channel-1", store), is(false));
     }
 
     @Test
