@@ -107,7 +107,7 @@ public class NotificationHandlerTest {
 
     private HttpResponse sendNotification(final String channelId, final String uaid, final long version, final SimplePushServer simplePushServer) throws Exception {
         final EmbeddedChannel ch = createWebsocketChannel(simplePushServer);
-        ch.writeInbound(notificationRequest(channelId, uaid, simplePushServer.config().tokenKey(), 9L));
+        ch.writeInbound(notificationRequest(channelId, uaid, simplePushServer.config().tokenKey(), version));
         return (HttpResponse) ch.readOutbound();
     }
 
