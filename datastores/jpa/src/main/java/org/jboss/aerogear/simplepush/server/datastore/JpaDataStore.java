@@ -24,12 +24,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 
-import org.jboss.aerogear.simplepush.protocol.Update;
-import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
+import org.jboss.aerogear.simplepush.protocol.Ack;
+import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
 import org.jboss.aerogear.simplepush.server.Channel;
 import org.jboss.aerogear.simplepush.server.DefaultChannel;
+import org.jboss.aerogear.simplepush.server.datastore.model.AckDTO;
 import org.jboss.aerogear.simplepush.server.datastore.model.ChannelDTO;
-import org.jboss.aerogear.simplepush.server.datastore.model.UpdateDTO;
 import org.jboss.aerogear.simplepush.server.datastore.model.UserAgentDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -163,53 +163,53 @@ public final class JpaDataStore implements DataStore {
     }
 
     @Override
-    public void saveUpdates(final Set<Update> updates, final String uaid) {
-        final JpaOperation<Void> saveUpdates = new JpaOperation<Void>() {
+    public void saveUnacknowledged(final Set<Ack> acks, final String uaid) {
+        final JpaOperation<Void> saveAcks = new JpaOperation<Void>() {
             @Override
             public Void perform(final EntityManager em) {
                 final UserAgentDTO userAgent = em.find(UserAgentDTO.class, uaid);
-                final Set<UpdateDTO> dtos = new HashSet<UpdateDTO>(updates.size());
-                for (Update update : updates) {
-                    dtos.add(new UpdateDTO(userAgent, update.getChannelId(), update.getVersion()));
+                final Set<AckDTO> dtos = new HashSet<AckDTO>(acks.size());
+                for (Ack ack : acks) {
+                    dtos.add(new AckDTO(userAgent, ack.getChannelId(), ack.getVersion()));
                 }
-                userAgent.setUpdates(dtos);
+                userAgent.setAcks(dtos);
                 em.merge(userAgent);
                 return null;
             }
         };
-        jpaExecutor.execute(saveUpdates);
+        jpaExecutor.execute(saveAcks);
     }
 
     @Override
-    public Set<Update> getUpdates(final String uaid) {
-        final JpaOperation<Set<Update>> getUpdates = new JpaOperation<Set<Update>>() {
+    public Set<Ack> getUnacknowledged(final String uaid) {
+        final JpaOperation<Set<Ack>> getUnacks = new JpaOperation<Set<Ack>>() {
             @Override
-            public Set<Update> perform(final EntityManager em) {
+            public Set<Ack> perform(final EntityManager em) {
                 final UserAgentDTO userAgent = em.find(UserAgentDTO.class, uaid);
                 if (userAgent == null) {
                     return Collections.emptySet();
                 }
-                final HashSet<Update> updates = new HashSet<Update>();
-                for (UpdateDTO updateDTO : userAgent.getUpdates()) {
-                    updates.add(new UpdateImpl(updateDTO.getChannelId(), updateDTO.getVersion()));
+                final HashSet<Ack> acks = new HashSet<Ack>();
+                for (AckDTO ackDTO : userAgent.getAcks()) {
+                    acks.add(new AckImpl(ackDTO.getChannelId(), ackDTO.getVersion()));
                 }
-                return updates;
+                return acks;
             }
         };
-        return jpaExecutor.execute(getUpdates);
+        return jpaExecutor.execute(getUnacks);
     }
 
     @Override
-    public boolean removeUpdate(final Update update, final String uaid) {
-        final JpaOperation<Boolean> removeUpdate = new JpaOperation<Boolean>() {
+    public boolean removeAcknowledged(final Ack ack, final String uaid) {
+        final JpaOperation<Boolean> removeAck = new JpaOperation<Boolean>() {
             @Override
             public Boolean perform(final EntityManager em) {
                 final UserAgentDTO userAgent = em.find(UserAgentDTO.class, uaid);
-                final Set<UpdateDTO> updatesDtos = userAgent.getUpdates();
-                UpdateDTO toRemove = null;
-                for (UpdateDTO updateDTO : updatesDtos) {
-                    if (update.getChannelId().equals(updateDTO.getChannelId())) {
-                        toRemove = updateDTO;
+                final Set<AckDTO> askDtos = userAgent.getAcks();
+                AckDTO toRemove = null;
+                for (AckDTO ackDTO : askDtos) {
+                    if (ack.getChannelId().equals(ackDTO.getChannelId())) {
+                        toRemove = ackDTO;
                         break;
                     }
                 }
@@ -217,15 +217,15 @@ public final class JpaDataStore implements DataStore {
                     return Boolean.FALSE;
                 }
                 em.remove(toRemove);
-                updatesDtos.remove(toRemove);
-                userAgent.setUpdates(updatesDtos);
+                askDtos.remove(toRemove);
+                userAgent.setAcks(askDtos);
                 return Boolean.TRUE;
             }
         };
         try {
-            return jpaExecutor.execute(removeUpdate);
+            return jpaExecutor.execute(removeAck);
         } catch (final Exception e) {
-            logger.error("Could not remove update [" + update + "]", e);
+            logger.error("Could not remove update [" + ack + "]", e);
             return false;
         }
     }

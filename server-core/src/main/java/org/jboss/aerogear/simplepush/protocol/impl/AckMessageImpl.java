@@ -20,14 +20,14 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
-import org.jboss.aerogear.simplepush.protocol.Update;
+import org.jboss.aerogear.simplepush.protocol.Ack;
 
 public class AckMessageImpl implements AckMessage {
 
-    private final Set<Update> updates;
+    private final Set<Ack> acks;
 
-    public AckMessageImpl(final Set<Update> updates) {
-        this.updates = updates == null ? Collections.<Update> emptySet() : updates;
+    public AckMessageImpl(final Set<Ack> acks) {
+        this.acks = acks == null ? Collections.<Ack> emptySet() : acks;
     }
 
     @Override
@@ -36,13 +36,13 @@ public class AckMessageImpl implements AckMessage {
     }
 
     @Override
-    public Set<Update> getUpdates() {
-        return Collections.unmodifiableSet(updates);
+    public Set<Ack> getAcks() {
+        return Collections.unmodifiableSet(acks);
     }
 
     @Override
     public String toString() {
-        return "AckImpl[messageType=" + getMessageType() + ",update=" + updates + "]";
+        return "AckImpl[messageType=" + getMessageType() + ", acks=" + acks + "]";
     }
 
 }

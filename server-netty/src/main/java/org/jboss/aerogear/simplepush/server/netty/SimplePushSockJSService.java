@@ -18,21 +18,23 @@ package org.jboss.aerogear.simplepush.server.netty;
 
 import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.fromJson;
 import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.toJson;
+
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsService;
+
 import io.netty.util.concurrent.ScheduledFuture;
 
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
 import org.jboss.aerogear.simplepush.protocol.HelloResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
-import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
@@ -126,7 +128,7 @@ public class SimplePushSockJSService implements SockJsService {
     }
 
     private void processUnacked(final String uaid, final SockJsSessionContext session, final long delay) {
-        final Set<Update> unacked = simplePushServer.getUnacknowledged(uaid);
+        final Set<Ack> unacked = simplePushServer.getUnacknowledged(uaid);
         if (unacked.isEmpty()) {
             if (ackJobFuture != null && !ackJobFuture.isCancelled()) {
                 ackJobFuture.cancel(false);
@@ -136,7 +138,7 @@ public class SimplePushSockJSService implements SockJsService {
             ackJobFuture = session.getContext().executor().scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
-                    final Set<Update> unacked = simplePushServer.getUnacknowledged(uaid);
+                    final Set<Ack> unacked = simplePushServer.getUnacknowledged(uaid);
                     logger.info("Resending " + unacked);
                     session.send(toJson(new NotificationMessageImpl(unacked)));
                 }

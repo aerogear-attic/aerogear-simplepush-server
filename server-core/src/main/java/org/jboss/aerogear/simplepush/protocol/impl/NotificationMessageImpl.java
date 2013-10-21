@@ -21,16 +21,16 @@ import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNullAndNot
 import java.util.Collections;
 import java.util.Set;
 
+import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
-import org.jboss.aerogear.simplepush.protocol.Update;
 
 public class NotificationMessageImpl implements NotificationMessage {
 
-    private final Set<Update> updates;
+    private final Set<Ack> acks;
 
-    public NotificationMessageImpl(final Set<Update> updates) {
-        checkNotNullAndNotEmpty(updates, "updates");
-        this.updates = updates;
+    public NotificationMessageImpl(final Set<Ack> acks) {
+        checkNotNullAndNotEmpty(acks, "acks");
+        this.acks = acks;
     }
 
     @Override
@@ -39,13 +39,13 @@ public class NotificationMessageImpl implements NotificationMessage {
     }
 
     @Override
-    public Set<Update> getUpdates() {
-        return Collections.<Update> unmodifiableSet(updates);
+    public Set<Ack> getAcks() {
+        return Collections.<Ack> unmodifiableSet(acks);
     }
 
     @Override
     public String toString() {
-        return "NotificationImpl[messageType=" + getMessageType() + ", updates=" + updates + "]";
+        return "NotificationImpl[messageType=" + getMessageType() + ", acks=" + acks + "]";
     }
 
 }

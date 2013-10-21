@@ -22,7 +22,6 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -33,7 +32,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.jboss.aerogear.simplepush.protocol.Update;
+import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.server.Channel;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Assert;
@@ -101,9 +100,9 @@ public class InMemoryDataStoreTest {
         final InMemoryDataStore store = new InMemoryDataStore();
         final String uaid = UUIDUtil.newUAID();
         final String channelId1 = UUID.randomUUID().toString();
-        store.saveUpdates(updates(update(channelId1, 10L)), uaid);
-        final Set<Update> updates = store.getUpdates(uaid);
-        assertThat(updates, hasItem(update(channelId1, 10L)));
+        store.saveUnacknowledged(acks(ack(channelId1, 10L)), uaid);
+        final Set<Ack> updates = store.getUnacknowledged(uaid);
+        assertThat(updates, hasItem(ack(channelId1, 10L)));
     }
 
     @Test
@@ -111,10 +110,10 @@ public class InMemoryDataStoreTest {
         final InMemoryDataStore store = new InMemoryDataStore();
         final String uaid = UUIDUtil.newUAID();
         final String channelId1 = UUID.randomUUID().toString();
-        store.saveUpdates(updates(update(channelId1, 10L)), uaid);
-        store.saveUpdates(updates(update(channelId1, 11L)), uaid);
-        final Set<Update> updates = store.getUpdates(uaid);
-        assertThat(updates, hasItem(update(channelId1, 11L)));
+        store.saveUnacknowledged(acks(ack(channelId1, 10L)), uaid);
+        store.saveUnacknowledged(acks(ack(channelId1, 11L)), uaid);
+        final Set<Ack> updates = store.getUnacknowledged(uaid);
+        assertThat(updates, hasItem(ack(channelId1, 11L)));
         assertThat(updates.size(), is(1));
     }
 
@@ -123,10 +122,10 @@ public class InMemoryDataStoreTest {
         final InMemoryDataStore store = new InMemoryDataStore();
         final String uaid = UUIDUtil.newUAID();
         final String channelId1 = UUID.randomUUID().toString();
-        store.saveUpdates(updates(update(channelId1, 10L)), uaid);
-        assertThat(store.removeUpdate(update(channelId1, 10L), uaid), is(true));
-        assertThat(store.removeUpdate(update(channelId1, 10L), uaid), is(false));
-        assertThat(store.removeUpdate(update(channelId1, 11L), uaid), is(false));
+        store.saveUnacknowledged(acks(ack(channelId1, 10L)), uaid);
+        assertThat(store.removeAcknowledged(ack(channelId1, 10L), uaid), is(true));
+        assertThat(store.removeAcknowledged(ack(channelId1, 10L), uaid), is(false));
+        assertThat(store.removeAcknowledged(ack(channelId1, 11L), uaid), is(false));
     }
 
     @Test @Ignore("Intended to be run manually")
@@ -145,13 +144,13 @@ public class InMemoryDataStoreTest {
                         startLatch.await();
                         try {
                             final String channelId = UUID.randomUUID().toString();
-                            store.saveUpdates(updates(update(channelId, 10L)), uaid);
-                            store.saveUpdates(updates(update(channelId, 11L)), uaid);
-                            store.saveUpdates(updates(update(channelId, 12L)), uaid);
-                            store.saveUpdates(updates(update(channelId, 13L)), uaid);
-                            final Set<Update> updates = store.getUpdates(uaid);
-                            assertThat(updates, hasItems(update(channelId, 13L)));
-                            assertThat(store.removeUpdate(update(channelId, 13L), uaid), is(true));
+                            store.saveUnacknowledged(acks(ack(channelId, 10L)), uaid);
+                            store.saveUnacknowledged(acks(ack(channelId, 11L)), uaid);
+                            store.saveUnacknowledged(acks(ack(channelId, 12L)), uaid);
+                            store.saveUnacknowledged(acks(ack(channelId, 13L)), uaid);
+                            final Set<Ack> updates = store.getUnacknowledged(uaid);
+                            assertThat(updates, hasItems(ack(channelId, 13L)));
+                            assertThat(store.removeAcknowledged(ack(channelId, 13L), uaid), is(true));
                         } catch (final Exception e) {
                             e.printStackTrace();
                             outcome.compareAndSet(true, false);
@@ -188,19 +187,19 @@ public class InMemoryDataStoreTest {
         return channel;
     }
 
-    private Update update(final String channelId, final Long version) {
-        return new UpdateImpl(channelId, version);
+    private Ack ack(final String channelId, final Long version) {
+        return new AckImpl(channelId, version);
     }
 
-    private Set<Update> updates(final Update... updates) {
-        return new HashSet<Update>(Arrays.asList(updates));
+    private Set<Ack> acks(final Ack... acks) {
+        return new HashSet<Ack>(Arrays.asList(acks));
     }
 
-    private class UpdateImpl implements Update {
+    private class AckImpl implements Ack {
         private final String channelId;
         private final Long version;
 
-        public UpdateImpl(final String channelId, final Long version) {
+        public AckImpl(final String channelId, final Long version) {
             this.channelId = channelId;
             this.version = version;
         }
@@ -231,10 +230,10 @@ public class InMemoryDataStoreTest {
             if (obj == null) {
                 return false;
             }
-            if (getClass() != obj.getClass()) {
+            if (!(obj instanceof Ack)) {
                 return false;
             }
-            final UpdateImpl other = (UpdateImpl) obj;
+            final AckImpl other = (AckImpl) obj;
             if (channelId == null) {
                 if (other.channelId != null) {
                     return false;

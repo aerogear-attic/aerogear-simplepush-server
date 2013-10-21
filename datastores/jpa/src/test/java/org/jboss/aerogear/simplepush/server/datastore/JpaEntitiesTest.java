@@ -33,7 +33,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 
 import org.jboss.aerogear.simplepush.server.datastore.model.ChannelDTO;
-import org.jboss.aerogear.simplepush.server.datastore.model.UpdateDTO;
+import org.jboss.aerogear.simplepush.server.datastore.model.AckDTO;
 import org.jboss.aerogear.simplepush.server.datastore.model.UserAgentDTO;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.After;
@@ -114,12 +114,12 @@ public class JpaEntitiesTest {
         final UserAgentDTO userAgent = persist(uaid, channelId, 10, "/endpoint/" + channelId);
 
         entityManager.getTransaction().begin();
-        final UpdateDTO update = new UpdateDTO(userAgent, channelId, 10);
+        final AckDTO update = new AckDTO(userAgent, channelId, 10);
         entityManager.persist(update);
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        final UpdateDTO up = entityManager.find(UpdateDTO.class, channelId);
+        final AckDTO up = entityManager.find(AckDTO.class, channelId);
         assertThat(up.getUserAgent(), equalTo(userAgent));
         assertThat(up.getChannelId(), equalTo(channelId));
         assertThat(up.getVersion(), equalTo(10L));
@@ -133,19 +133,19 @@ public class JpaEntitiesTest {
         final UserAgentDTO userAgent = persist(uaid, channelId, 10, "/endpoint/" + channelId);
 
         entityManager.getTransaction().begin();
-        final UpdateDTO update = new UpdateDTO(userAgent, channelId, 10);
+        final AckDTO update = new AckDTO(userAgent, channelId, 10);
         entityManager.persist(update);
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
         final UserAgentDTO userAgentToUpdate = entityManager.find(UserAgentDTO.class, uaid);
-        final UpdateDTO newUpdate = new UpdateDTO(userAgent, channelId, 11);
-        userAgentToUpdate.setUpdates(new HashSet<UpdateDTO>(Arrays.asList(newUpdate)));
+        final AckDTO newUpdate = new AckDTO(userAgent, channelId, 11);
+        userAgentToUpdate.setAcks(new HashSet<AckDTO>(Arrays.asList(newUpdate)));
         entityManager.merge(userAgentToUpdate);
         entityManager.getTransaction().commit();
 
         entityManager.getTransaction().begin();
-        final UpdateDTO updated = entityManager.find(UpdateDTO.class, channelId);
+        final AckDTO updated = entityManager.find(AckDTO.class, channelId);
         assertThat(updated.getVersion(), is(11L));
     }
 

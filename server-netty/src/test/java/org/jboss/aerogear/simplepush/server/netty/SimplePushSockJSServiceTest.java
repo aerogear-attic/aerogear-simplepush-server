@@ -58,19 +58,19 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.protocol.HelloResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.PingMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
-import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HelloResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.PingMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
@@ -288,7 +288,7 @@ public class SimplePushSockJSServiceTest {
         sendWebSocketRegisterFrame(channelId, channel);
         sendNotification(channelId, uaid, 1L, simplePushServer);
 
-        final Set<Update> unacked = sendAcknowledge(channel, update(channelId, 1L));
+        final Set<Ack> unacked = sendAcknowledge(channel, ack(channelId, 1L));
         assertThat(unacked.isEmpty(), is(true));
         channel.close();
     }
@@ -308,7 +308,7 @@ public class SimplePushSockJSServiceTest {
         sendNotification(channelId1, uaid, 1L, simplePushServer);
         sendNotification(channelId2, uaid, 1L, simplePushServer);
 
-        final Set<Update> unacked = sendAcknowledge(channel, update(channelId1, 1L), update(channelId2, 1L));
+        final Set<Ack> unacked = sendAcknowledge(channel, ack(channelId1, 1L), ack(channelId2, 1L));
         assertThat(unacked.isEmpty(), is(true));
         channel.close();
     }
@@ -330,9 +330,9 @@ public class SimplePushSockJSServiceTest {
         sendNotification(channelId1, uaid, 1L, simplePushServer);
         sendNotification(channelId2, uaid, 1L, simplePushServer);
 
-        final Set<Update> unacked = sendAcknowledge(channel, update(channelId1, 1L));
+        final Set<Ack> unacked = sendAcknowledge(channel, ack(channelId1, 1L));
         assertThat(unacked.size(), is(1));
-        assertThat(unacked, hasItem(new UpdateImpl(channelId2, 1L)));
+        assertThat(unacked, hasItem(new AckImpl(channelId2, 1L)));
         channel.close();
     }
 
@@ -353,9 +353,9 @@ public class SimplePushSockJSServiceTest {
         sendNotification(channelId1, uaid, 1L, simplePushServer);
         sendNotification(channelId2, uaid, 1L, simplePushServer);
 
-        final Set<Update> unacked = sendAcknowledge(channel);
+        final Set<Ack> unacked = sendAcknowledge(channel);
         assertThat(unacked.size(), is(1));
-        assertThat(unacked, hasItems(update(channelId1, 1L), update(channelId2, 1L)));
+        assertThat(unacked, hasItems(ack(channelId1, 1L), ack(channelId2, 1L)));
         channel.close();
     }
 
@@ -379,12 +379,12 @@ public class SimplePushSockJSServiceTest {
         simplePushServer.handleNotification(channelId, uaid, "version=" + version);
     }
 
-    private Update update(final String channelId, final Long version) {
-        return new UpdateImpl(channelId, version);
+    private Ack ack(final String channelId, final Long version) {
+        return new AckImpl(channelId, version);
     }
 
-    private Set<Update> sendAcknowledge(final EmbeddedChannel channel, final Update... updates) throws Exception {
-        final Set<Update> ups = new HashSet<Update>(Arrays.asList(updates));
+    private Set<Ack> sendAcknowledge(final EmbeddedChannel channel, final Ack... acks) throws Exception {
+        final Set<Ack> ups = new HashSet<Ack>(Arrays.asList(acks));
         final TextWebSocketFrame ackFrame = ackFrame(ups);
         channel.writeInbound(ackFrame);
         channel.runPendingTasks();
@@ -395,11 +395,11 @@ public class SimplePushSockJSServiceTest {
         }
 
         final NotificationMessageImpl unacked = responseToType(out, NotificationMessageImpl.class);
-        return unacked.getUpdates();
+        return unacked.getAcks();
     }
 
-    private TextWebSocketFrame ackFrame(final Set<Update> updates) {
-        return new TextWebSocketFrame(JsonUtil.toJson(new AckMessageImpl(updates)));
+    private TextWebSocketFrame ackFrame(final Set<Ack> acks) {
+        return new TextWebSocketFrame(JsonUtil.toJson(new AckMessageImpl(acks)));
     }
 
     private RegisterResponseImpl sendWebSocketRegisterFrame(final String channelId, final EmbeddedChannel ch) {

@@ -18,7 +18,7 @@ package org.jboss.aerogear.simplepush.server.datastore;
 
 import java.util.Set;
 
-import org.jboss.aerogear.simplepush.protocol.Update;
+import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.server.Channel;
 
 /**
@@ -77,29 +77,29 @@ public interface DataStore {
     Set<String> getChannelIds(String uaid);
 
     /**
-     * Stores {@code updates/channelIds} so that the notification can be matched against
+     * Stores {@code Ack}s so that the notification can be matched against
      * acknowledged channelId from the UserAgent.
      *
-     * @param updates the {@link Update}s to store.
+     * @param acks the {@link Ack}s to store.
      * @param uaid the {@link String} identifiying the UserAgent.
      */
-    void saveUpdates(Set<Update> updates, String uaid);
+    void saveUnacknowledged(Set<Ack> acks, String uaid);
 
     /**
-     * Returns the {@code updates/channelIds} that have been sent to a UserAgent as notifications.
+     * Returns the {@code Ack}s that have been sent to a UserAgent as notifications.
      *
      * @param uaid the {@link String} of the UserAgent
      * @return {@code Set<Update>} the updates waiting for notification.
      */
-    Set<Update> getUpdates(String uaid);
+    Set<Ack> getUnacknowledged(String uaid);
 
     /**
-     * Removes the {@code update/channelId} from storage which should be done when a UserAgent
+     * Removes the {@code Ack} from storage which should be done when a UserAgent
      * has acknowledged a notification.
      *
-     * @param update the {@link Update} to remove.
+     * @param ack the {@link Ack} to remove.
      * @param uaid the {@link String} of the UserAgent
      * @return {@code true} if the {@code update} is removed, false otherwise
      */
-    boolean removeUpdate(Update update, String uaid);
+    boolean removeAcknowledged(Ack ack, String uaid);
 }

@@ -28,8 +28,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import org.jboss.aerogear.simplepush.protocol.Update;
-import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
+import org.jboss.aerogear.simplepush.protocol.Ack;
+import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
 import org.jboss.aerogear.simplepush.server.Channel;
 import org.jboss.aerogear.simplepush.server.DefaultChannel;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
@@ -138,46 +138,46 @@ public class JpaDataStoreTest {
     }
 
     @Test
-    public void saveEmptyUpdates() {
+    public void saveEmptyUnacknowledged() {
         final String uaid = UUIDUtil.newUAID();
         jpaDataStore.saveChannel(newChannel(uaid, UUID.randomUUID().toString(), 10L));
-        jpaDataStore.saveUpdates(Collections.<Update>emptySet(), uaid);
-        assertThat(jpaDataStore.getUpdates(uaid).size(), is(0));
+        jpaDataStore.saveUnacknowledged(Collections.<Ack>emptySet(), uaid);
+        assertThat(jpaDataStore.getUnacknowledged(uaid).size(), is(0));
     }
 
     @Test
-    public void saveAndGetUpdates() {
+    public void saveAndGetUnacknowledged() {
         final String uaid = UUIDUtil.newUAID();
         jpaDataStore.saveChannel(newChannel(uaid, UUID.randomUUID().toString(), 10L));
-        jpaDataStore.saveUpdates(updates(newUpdate(1L), newUpdate(2L)), uaid);
-        assertThat(jpaDataStore.getUpdates(uaid).size(), is(2));
+        jpaDataStore.saveUnacknowledged(acks(newAck(1L), newAck(2L)), uaid);
+        assertThat(jpaDataStore.getUnacknowledged(uaid).size(), is(2));
     }
 
     @Test
-    public void removeUpdates() {
+    public void removeAcknowledged() {
         final String uaid = UUIDUtil.newUAID();
         jpaDataStore.saveChannel(newChannel(uaid, UUID.randomUUID().toString(), 10L));
-        jpaDataStore.saveUpdates(updates(newUpdate(1L), newUpdate(2L)), uaid);
-        final Set<Update> storedUpdates = jpaDataStore.getUpdates(uaid);
+        jpaDataStore.saveUnacknowledged(acks(newAck(1L), newAck(2L)), uaid);
+        final Set<Ack> storedUpdates = jpaDataStore.getUnacknowledged(uaid);
         assertThat(storedUpdates.size(), is(2));
 
-        jpaDataStore.removeUpdate(storedUpdates.iterator().next(), uaid);
-        assertThat(jpaDataStore.getUpdates(uaid).size(), is(1));
+        jpaDataStore.removeAcknowledged(storedUpdates.iterator().next(), uaid);
+        assertThat(jpaDataStore.getUnacknowledged(uaid).size(), is(1));
     }
 
     @Test
-    public void getUpdatesNoChannelsSavedYet() {
+    public void getUnacknowledgedNoChannelsSavedYet() {
         final String uaid = UUIDUtil.newUAID();
-        final Set<Update> storedUpdates = jpaDataStore.getUpdates(uaid);
+        final Set<Ack> storedUpdates = jpaDataStore.getUnacknowledged(uaid);
         assertThat(storedUpdates.size(), is(0));
     }
 
-    private Update newUpdate(final long version) {
-        return new UpdateImpl(UUID.randomUUID().toString(), version);
+    private Ack newAck(final long version) {
+        return new AckImpl(UUID.randomUUID().toString(), version);
     }
 
-    private Set<Update> updates(final Update... updates) {
-        final Set<Update> ups = new HashSet<Update>();
+    private Set<Ack> acks(final Ack... updates) {
+        final Set<Ack> ups = new HashSet<Ack>();
         ups.addAll(Arrays.asList(updates));
         return ups;
     }

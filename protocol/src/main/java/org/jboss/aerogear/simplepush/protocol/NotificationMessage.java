@@ -43,6 +43,6 @@ public interface NotificationMessage extends MessageType {
      *
      * @return {@code Set<Channel>} the channels that have been updated.
      */
-    Set<Update> getUpdates();
+    Set<Ack> getAcks();
 
 }

@@ -18,20 +18,20 @@ package org.jboss.aerogear.simplepush.protocol.impl;
 
 import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
 
-import org.jboss.aerogear.simplepush.protocol.Update;
+import org.jboss.aerogear.simplepush.protocol.Ack;
 
 /**
- * Concrete {@link Update} implementation.
- * 
+ * Concrete {@link Ack} implementation.
+ *
  * This implementation considers only the channelId for hashcode/equals contract. If required
- * to take the version into consideration an manual call of getVersion is required.  
+ * to take the version into consideration an manual call of getVersion is required.
  */
-public class UpdateImpl implements Update {
+public class AckImpl implements Ack {
 
     private final String channelId;
     private final Long version;
 
-    public UpdateImpl(final String channelId, final Long version) {
+    public AckImpl(final String channelId, final Long version) {
         checkNotNull(channelId, "channelId");
         checkNotNull(version, "version");
         this.channelId = channelId;
@@ -50,7 +50,7 @@ public class UpdateImpl implements Update {
 
     @Override
     public String toString() {
-        return "UpdateImpl[channelId=" + channelId + ", version=" + version + "]";
+        return "AckImpl[channelId=" + channelId + ", version=" + version + "]";
     }
 
     @Override
@@ -69,10 +69,10 @@ public class UpdateImpl implements Update {
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (!(obj instanceof Ack)) {
             return false;
         }
-        final UpdateImpl other = (UpdateImpl) obj;
+        final AckImpl other = (AckImpl) obj;
         if (channelId == null) {
             if (other.channelId != null) {
                 return false;

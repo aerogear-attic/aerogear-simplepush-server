@@ -64,7 +64,7 @@ public class ChannelDTOTest {
 
     @Test
     public void equalsContractNull() {
-        final UpdateDTO x = new UpdateDTO(new UserAgentDTO(uaid), channelId, version);
+        final ChannelDTO x = new ChannelDTO(new UserAgentDTO(uaid), channelId, version, endpointUrl);
         assertThat(x.equals(null), is(false));
     }
 }

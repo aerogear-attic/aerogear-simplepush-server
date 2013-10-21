@@ -18,6 +18,7 @@ package org.jboss.aerogear.simplepush.server;
 
 import java.util.Set;
 
+import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
 import org.jboss.aerogear.simplepush.protocol.HelloMessage;
 import org.jboss.aerogear.simplepush.protocol.HelloResponse;
@@ -26,7 +27,6 @@ import org.jboss.aerogear.simplepush.protocol.RegisterMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
-import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
 
 /**
@@ -44,7 +44,7 @@ public interface SimplePushServer {
 
     /**
      * Handles the 'register' message in the SimplePush protocol which is used to register a channel.
-     * 
+     *
      * @param register the {@link RegisterMessage}.
      * @param uaid the UserAgent identifier that this channel will be registered for.
      * @return {@link RegisterResponse} the response for this register message.
@@ -65,17 +65,17 @@ public interface SimplePushServer {
      *
      * @param ackMessage the {@link UnregisterMessage}.
      * @param uaid the UserAgent identifier that this channel will be unregistered for.
-     * @return {@code Set<Update>} a set of un-acknowledged channel ids.
+     * @return {@code Set<Ack>} a set of un-acknowledged channel ids.
      */
-    Set<Update> handleAcknowledgement(AckMessage ackMessage, String uaid);
+    Set<Ack> handleAcknowledgement(AckMessage ackMessage, String uaid);
 
     /**
      * Returns all the un-acknowledged notifications for a specific UserAgent.
      *
      * @param uaid the UserAgent identifier for which unacked notifications should be retrieved.
-     * @return {@code Set<Update>} a set of un-acknowledged channel ids.
+     * @return {@code Set<Ack>} a set of un-acknowledged channel ids.
      */
-    Set<Update> getUnacknowledged(String uaid);
+    Set<Ack> getUnacknowledged(String uaid);
 
     /**
      * Handles the notification for a single channel

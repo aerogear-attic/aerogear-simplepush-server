@@ -43,7 +43,7 @@ public final class UserAgentDTO implements Serializable {
     private Set<ChannelDTO> channels;
 
     @OneToMany (mappedBy = "userAgent", cascade = {CascadeType.ALL})
-    private Set<UpdateDTO> updates;
+    private Set<AckDTO> acks;
 
     /**
      * Only provided as a no-args constructor is required by JPA. Should not be call directly by client
@@ -71,12 +71,12 @@ public final class UserAgentDTO implements Serializable {
         this.channels = channels;
     }
 
-    public void setUpdates(final Set<UpdateDTO> updates) {
-        this.updates = updates;
+    public void setAcks(final Set<AckDTO> acks) {
+        this.acks = acks;
     }
 
-    public Set<UpdateDTO> getUpdates() {
-        return updates;
+    public Set<AckDTO> getAcks() {
+        return acks;
     }
 
     public String getUaid() {

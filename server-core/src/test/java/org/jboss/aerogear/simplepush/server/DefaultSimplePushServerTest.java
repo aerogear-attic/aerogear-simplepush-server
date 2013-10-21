@@ -27,16 +27,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.protocol.HelloMessage;
 import org.jboss.aerogear.simplepush.protocol.HelloResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
-import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
 import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
@@ -178,7 +178,7 @@ public class DefaultSimplePushServerTest {
         final String uaid = UUIDUtil.newUAID();
         server.handleRegister(new RegisterMessageImpl(channelId), uaid);
         NotificationMessage notification = server.handleNotification(channelId, uaid, "version=1");
-        assertThat(notification.getUpdates(), hasItem(new UpdateImpl(channelId, 1L)));
+        assertThat(notification.getAcks(), hasItem(new AckImpl(channelId, 1L)));
         assertThat(server.getChannel(channelId).getVersion(), is(1L));
         notification = server.handleNotification(channelId, uaid, "version=2");
         assertThat(server.getChannel(channelId).getVersion(), is(2L));
@@ -211,9 +211,9 @@ public class DefaultSimplePushServerTest {
         server.handleNotification(channelId_1, uaid, "version=10");
         server.handleNotification(channelId_2, uaid, "version=23");
 
-        final Update updateChannel_1 = new UpdateImpl(channelId_1, 10L);
-        final Set<Update> unacked = server.handleAcknowledgement(new AckMessageImpl(new HashSet<Update>(Arrays.asList(updateChannel_1))), uaid);
-        assertThat(unacked, hasItem(new UpdateImpl(channelId_2, 23L)));
+        final Ack updateChannel_1 = new AckImpl(channelId_1, 10L);
+        final Set<Ack> unacked = server.handleAcknowledgement(new AckMessageImpl(new HashSet<Ack>(Arrays.asList(updateChannel_1))), uaid);
+        assertThat(unacked, hasItem(new AckImpl(channelId_2, 23L)));
     }
 
 }

@@ -28,8 +28,8 @@ import javax.persistence.Table;
  * A simple data transfer object (DTO) for Update information.
  */
 @Entity
-@Table (name = "updates")
-public final class UpdateDTO implements Serializable {
+@Table (name = "acks")
+public final class AckDTO implements Serializable {
 
     private static final long serialVersionUID = -3557132969354495839L;
 
@@ -41,10 +41,10 @@ public final class UpdateDTO implements Serializable {
     private UserAgentDTO userAgent;
     private long version;
 
-    protected UpdateDTO() {
+    protected AckDTO() {
     }
 
-    public UpdateDTO(final UserAgentDTO userAgent, final String channelId, final long version) {
+    public AckDTO(final UserAgentDTO userAgent, final String channelId, final long version) {
         this.userAgent = userAgent;
         this.channelId = channelId;
         this.version = version;
@@ -64,7 +64,7 @@ public final class UpdateDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "UpdateDTO[userAgent=" + userAgent + ", channelId=" + channelId + ", version=" + version + "]";
+        return "AckDTO[userAgent=" + userAgent + ", channelId=" + channelId + ", version=" + version + "]";
     }
 
     @Override
@@ -86,7 +86,7 @@ public final class UpdateDTO implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final UpdateDTO other = (UpdateDTO) obj;
+        final AckDTO other = (AckDTO) obj;
         return channelId == null ? other.channelId == null : channelId.equals(other.channelId);
     }
 

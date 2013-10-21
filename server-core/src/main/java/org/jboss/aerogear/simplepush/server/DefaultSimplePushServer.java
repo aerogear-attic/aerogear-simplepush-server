@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
 import org.jboss.aerogear.simplepush.protocol.HelloMessage;
 import org.jboss.aerogear.simplepush.protocol.HelloResponse;
@@ -29,13 +30,12 @@ import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Status;
 import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
-import org.jboss.aerogear.simplepush.protocol.Update;
 import org.jboss.aerogear.simplepush.protocol.impl.HelloResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
 import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.util.CryptoUtil;
@@ -90,8 +90,8 @@ public class DefaultSimplePushServer implements SimplePushServer {
         final Channel channel = getChannel(channelId);
         channel.setVersion(version);
         store.saveChannel(channel);
-        final NotificationMessage notification = new NotificationMessageImpl(new HashSet<Update>(Arrays.asList(new UpdateImpl(channelId, version))));
-        store.saveUpdates(notification.getUpdates(), uaid);
+        final NotificationMessage notification = new NotificationMessageImpl(new HashSet<Ack>(Arrays.asList(new AckImpl(channelId, version))));
+        store.saveUnacknowledged(notification.getAcks(), uaid);
         return notification;
     }
 
@@ -107,15 +107,15 @@ public class DefaultSimplePushServer implements SimplePushServer {
     }
 
     @Override
-    public Set<Update> handleAcknowledgement(final AckMessage ack, final String uaid) {
-        final Set<Update> acks = ack.getUpdates();
-        final Set<Update> waitingForAcks = store.getUpdates(uaid);
-        final Set<Update> unacked = new HashSet<Update>(waitingForAcks);
-        for (Update update : waitingForAcks) {
-            if (acks.contains(update)) {
-                final boolean removed = store.removeUpdate(update, uaid);
+    public Set<Ack> handleAcknowledgement(final AckMessage ackMessage, final String uaid) {
+        final Set<Ack> acks = ackMessage.getAcks();
+        final Set<Ack> waitingForAcks = store.getUnacknowledged(uaid);
+        final Set<Ack> unacked = new HashSet<Ack>(waitingForAcks);
+        for (Ack ack : waitingForAcks) {
+            if (acks.contains(ack)) {
+                final boolean removed = store.removeAcknowledged(ack, uaid);
                 if (removed) {
-                    unacked.remove(update);
+                    unacked.remove(ack);
                 }
             }
         }
@@ -123,8 +123,8 @@ public class DefaultSimplePushServer implements SimplePushServer {
     }
 
     @Override
-    public Set<Update> getUnacknowledged(final String uaid) {
-        return store.getUpdates(uaid);
+    public Set<Ack> getUnacknowledged(final String uaid) {
+        return store.getUnacknowledged(uaid);
     }
 
     public String getUAID(final String channelId) throws ChannelNotFoundException {

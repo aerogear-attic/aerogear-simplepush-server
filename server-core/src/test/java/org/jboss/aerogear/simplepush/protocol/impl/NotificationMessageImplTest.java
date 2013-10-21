@@ -28,7 +28,7 @@ import java.util.Set;
 
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
-import org.jboss.aerogear.simplepush.protocol.Update;
+import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.junit.Test;
 
@@ -41,7 +41,7 @@ public class NotificationMessageImplTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void constructWithEmptyUpdates() {
-        new NotificationMessageImpl(Collections.<Update> emptySet());
+        new NotificationMessageImpl(Collections.<Ack> emptySet());
     }
 
     @Test
@@ -49,16 +49,16 @@ public class NotificationMessageImplTest {
         final String json = "{\"messageType\": \"notification\", \"updates\": [{\"channelID\": \"abc123\", \"version\": 1}]}";
         final NotificationMessage notification = JsonUtil.fromJson(json, NotificationMessageImpl.class);
         assertThat(notification.getMessageType(), is(equalTo(MessageType.Type.NOTIFICATION)));
-        assertThat(notification.getUpdates(), hasItem(new UpdateImpl("abc123", 1L)));
+        assertThat(notification.getAcks(), hasItem(new AckImpl("abc123", 1L)));
     }
 
     @Test
     public void toJson() {
-        final Set<Update> updates = new HashSet<Update>(Arrays.asList(new UpdateImpl("abc123", 2L)));
-        final String json = JsonUtil.toJson(new NotificationMessageImpl(updates));
+        final Set<Ack> acks = new HashSet<Ack>(Arrays.asList(new AckImpl("abc123", 2L)));
+        final String json = JsonUtil.toJson(new NotificationMessageImpl(acks));
         final NotificationMessageImpl notification = JsonUtil.fromJson(json, NotificationMessageImpl.class);
         assertThat(notification.getMessageType(), is(equalTo(MessageType.Type.NOTIFICATION)));
-        assertThat(notification.getUpdates(), hasItem(new UpdateImpl("abc123", 2L)));
+        assertThat(notification.getAcks(), hasItem(new AckImpl("abc123", 2L)));
     }
 
 }

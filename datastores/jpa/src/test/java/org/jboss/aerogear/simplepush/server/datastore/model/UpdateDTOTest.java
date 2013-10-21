@@ -28,24 +28,24 @@ public class UpdateDTOTest {
 
     @Test
     public void equalsContractReflexive() {
-        final UpdateDTO x = new UpdateDTO(new UserAgentDTO(uaid), channelId, version);
+        final AckDTO x = new AckDTO(new UserAgentDTO(uaid), channelId, version);
         assertThat(x.equals(x), is(true));
     }
 
     @Test
     public void equalsContractSymmetric() {
         final UserAgentDTO userAgent = new UserAgentDTO(uaid);
-        final UpdateDTO x = new UpdateDTO(userAgent, channelId, version);
-        final UpdateDTO y = new UpdateDTO(userAgent, channelId, 10L);
+        final AckDTO x = new AckDTO(userAgent, channelId, version);
+        final AckDTO y = new AckDTO(userAgent, channelId, 10L);
         assertThat(x.equals(y), is(true));
         assertThat(y.equals(x), is(true));
     }
 
     @Test
     public void equalsContractTransative() {
-        final UpdateDTO x = new UpdateDTO(new UserAgentDTO(uaid), channelId, version);
-        final UpdateDTO y = new UpdateDTO(new UserAgentDTO(uaid), channelId, version);
-        final UpdateDTO z = new UpdateDTO(new UserAgentDTO(uaid), channelId, version);
+        final AckDTO x = new AckDTO(new UserAgentDTO(uaid), channelId, version);
+        final AckDTO y = new AckDTO(new UserAgentDTO(uaid), channelId, version);
+        final AckDTO z = new AckDTO(new UserAgentDTO(uaid), channelId, version);
         assertThat(x.equals(y), is(true));
         assertThat(y.equals(z), is(true));
         assertThat(x.equals(z), is(true));
@@ -53,8 +53,8 @@ public class UpdateDTOTest {
 
     @Test
     public void equalsContractConsistency() {
-        final UpdateDTO x = new UpdateDTO(new UserAgentDTO(uaid), channelId, version);
-        final UpdateDTO y = new UpdateDTO(new UserAgentDTO(uaid), channelId, version);
+        final AckDTO x = new AckDTO(new UserAgentDTO(uaid), channelId, version);
+        final AckDTO y = new AckDTO(new UserAgentDTO(uaid), channelId, version);
         assertThat(x.equals(y), is(true));
         assertThat(y.equals(x), is(true));
         x.getUserAgent().addChannel("9999", 11L, "/endpoint/9999");
@@ -63,8 +63,8 @@ public class UpdateDTOTest {
 
     @Test
     public void equalsContractHashCode() {
-        final UpdateDTO x = new UpdateDTO(new UserAgentDTO(uaid), channelId, version);
-        final UpdateDTO y = new UpdateDTO(new UserAgentDTO(uaid), channelId, version);
+        final AckDTO x = new AckDTO(new UserAgentDTO(uaid), channelId, version);
+        final AckDTO y = new AckDTO(new UserAgentDTO(uaid), channelId, version);
         assertThat(x.hashCode(), is(y.hashCode()));
     }
 

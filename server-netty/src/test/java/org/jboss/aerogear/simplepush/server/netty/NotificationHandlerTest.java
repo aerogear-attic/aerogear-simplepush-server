@@ -133,9 +133,9 @@ public class NotificationHandlerTest {
         // The notification destined for the connected channel
         final NotificationMessageImpl notification = responseToType(channel.readOutbound(), NotificationMessageImpl.class);
         assertThat(notification.getMessageType(), is(MessageType.Type.NOTIFICATION));
-        assertThat(notification.getUpdates().size(), is(1));
-        assertThat(notification.getUpdates().iterator().next().getChannelId(), equalTo(channelId));
-        assertThat(notification.getUpdates().iterator().next().getVersion(), equalTo(version));
+        assertThat(notification.getAcks().size(), is(1));
+        assertThat(notification.getAcks().iterator().next().getChannelId(), equalTo(channelId));
+        assertThat(notification.getAcks().iterator().next().getVersion(), equalTo(version));
 
         // The response to the client that sent the notification request
         final HttpResponse httpResponse = (HttpResponse) channel.readOutbound();

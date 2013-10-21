@@ -44,7 +44,7 @@ import org.jboss.aerogear.simplepush.protocol.RegisterMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
-import org.jboss.aerogear.simplepush.protocol.Update;
+import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HelloResponseImpl;
@@ -55,7 +55,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.UpdateImpl;
+import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
 
 /**
  * JSON utility class for transforming SimplePush messages to and from JSON.
@@ -274,32 +274,32 @@ public final class JsonUtil {
                 JsonProcessingException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
-            final JsonNode updatesNode = node.get(AckMessage.UPDATES_FIELD);
-            final Set<Update> updates = new HashSet<Update>();
-            if (updatesNode.isArray()) {
-                for (JsonNode updateNode : updatesNode) {
-                    updates.add(new UpdateImpl(updateNode.get("channelID").asText(), updateNode.get("version").asLong()));
+            final JsonNode acksNode = node.get(AckMessage.UPDATES_FIELD);
+            final Set<Ack> acks = new HashSet<Ack>();
+            if (acksNode.isArray()) {
+                for (JsonNode ackNode : acksNode) {
+                    acks.add(new AckImpl(ackNode.get("channelID").asText(), ackNode.get("version").asLong()));
                 }
             }
-            return new AckMessageImpl(updates);
+            return new AckMessageImpl(acks);
         }
     }
 
     private static class AckSerializer extends JsonSerializer<AckMessage> {
 
         @Override
-        public void serialize(final AckMessage ack, final JsonGenerator jgen,
+        public void serialize(final AckMessage ackMessage, final JsonGenerator jgen,
                 final SerializerProvider provider) throws IOException, JsonProcessingException {
             jgen.writeStartObject();
             jgen.writeFieldName(AckMessage.MESSSAGE_TYPE_FIELD);
-            jgen.writeString(ack.getMessageType().toString().toLowerCase());
+            jgen.writeString(ackMessage.getMessageType().toString().toLowerCase());
             jgen.writeArrayFieldStart(AckMessage.UPDATES_FIELD);
-            for (Update update : ack.getUpdates()) {
+            for (Ack ack : ackMessage.getAcks()) {
                 jgen.writeStartObject();
                 jgen.writeFieldName("channelID");
-                jgen.writeString(update.getChannelId());
+                jgen.writeString(ack.getChannelId());
                 jgen.writeFieldName(AckMessage.VERSION_FIELD);
-                jgen.writeNumber(update.getVersion());
+                jgen.writeNumber(ack.getVersion());
                 jgen.writeEndObject();
             }
             jgen.writeEndArray();
@@ -315,15 +315,15 @@ public final class JsonUtil {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode node = oc.readTree(jp);
             final JsonNode updatesNode = node.get(NotificationMessage.UPDATES_FIELD);
-            final Set<Update> updates = new HashSet<Update>();
+            final Set<Ack> acks = new HashSet<Ack>();
             if (updatesNode.isArray()) {
                 for (JsonNode channelNode : updatesNode) {
                     final JsonNode versionNode = channelNode.get(NotificationMessage.VERSION_FIELD);
                     final JsonNode channelIdNode = channelNode.get(RegisterMessage.CHANNEL_ID_FIELD);
-                    updates.add(new UpdateImpl(channelIdNode.asText(), versionNode.asLong()));
+                    acks.add(new AckImpl(channelIdNode.asText(), versionNode.asLong()));
                 }
             }
-            return new NotificationMessageImpl(updates);
+            return new NotificationMessageImpl(acks);
         }
     }
 
@@ -336,12 +336,12 @@ public final class JsonUtil {
             jgen.writeFieldName(NotificationMessage.MESSSAGE_TYPE_FIELD);
             jgen.writeString(notification.getMessageType().toString().toLowerCase());
             jgen.writeArrayFieldStart(NotificationMessage.UPDATES_FIELD);
-            for (Update update : notification.getUpdates()) {
+            for (Ack ack : notification.getAcks()) {
                 jgen.writeStartObject();
                 jgen.writeFieldName(RegisterMessage.CHANNEL_ID_FIELD);
-                jgen.writeString(update.getChannelId());
+                jgen.writeString(ack.getChannelId());
                 jgen.writeFieldName(NotificationMessage.VERSION_FIELD);
-                jgen.writeNumber(update.getVersion());
+                jgen.writeNumber(ack.getVersion());
                 jgen.writeEndObject();
             }
             jgen.writeEndArray();

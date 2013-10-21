@@ -29,7 +29,7 @@ import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
-import org.jboss.aerogear.simplepush.protocol.Update;
+import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
@@ -135,12 +135,12 @@ public class SimplePushServerHandler implements Handler<SockJSSocket> {
     }
 
     private void processUnacked(final String uaid) {
-        final Set<Update> unacked = simplePushServer.getUnacknowledged(uaid);
+        final Set<Ack> unacked = simplePushServer.getUnacknowledged(uaid);
         if (!unacked.isEmpty()) {
             final Long interval = container.config().getLong("ackInterval", 60000);
             vertx.setPeriodic(interval, new Handler<Long>() {
                 public void handle(final Long timerID) {
-                    final Set<Update> unacked = simplePushServer.getUnacknowledged(uaid);
+                    final Set<Ack> unacked = simplePushServer.getUnacknowledged(uaid);
                     if (unacked.isEmpty()) {
                         logger.info("Nothing to ack. Stopping periodic task");
                         vertx.cancelTimer(timerID);

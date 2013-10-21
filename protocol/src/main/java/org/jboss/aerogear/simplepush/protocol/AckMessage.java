@@ -43,6 +43,6 @@ public interface AckMessage extends MessageType {
      *
      * @return {@code Set<Channel>} the channels that have been acknowledged.
      */
-    Set<Update> getUpdates();
+    Set<Ack> getAcks();
 
 }

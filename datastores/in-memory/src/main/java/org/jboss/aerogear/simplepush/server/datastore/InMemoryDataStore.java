@@ -24,7 +24,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import org.jboss.aerogear.simplepush.protocol.Update;
+import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.server.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public class InMemoryDataStore implements DataStore {
 
     private final ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<String, Channel>();
-    private final ConcurrentMap<String, Set<Update>> notifiedChannels = new ConcurrentHashMap<String, Set<Update>>();
+    private final ConcurrentMap<String, Set<Ack>> notifiedChannels = new ConcurrentHashMap<String, Set<Ack>>();
     private final Logger logger = LoggerFactory.getLogger(InMemoryDataStore.class);
 
     @Override
@@ -99,24 +99,24 @@ public class InMemoryDataStore implements DataStore {
     }
 
     @Override
-    public void saveUpdates(final Set<Update> updates, final String uaid) {
+    public void saveUnacknowledged(final Set<Ack> acks, final String uaid) {
         checkNotNull(uaid, "uaid");
-        checkNotNull(updates, "updates");
-        final Set<Update> newUpdates = Collections.newSetFromMap(new ConcurrentHashMap<Update, Boolean>());
-        newUpdates.addAll(updates);
+        checkNotNull(acks, "acks");
+        final Set<Ack> newAcks = Collections.newSetFromMap(new ConcurrentHashMap<Ack, Boolean>());
+        newAcks.addAll(acks);
         while (true) {
-            final Set<Update> currentUpdates = notifiedChannels.get(uaid);
-            if (currentUpdates == null) {
-                final Set<Update> previous = notifiedChannels.putIfAbsent(uaid, newUpdates);
+            final Set<Ack> currentAcks = notifiedChannels.get(uaid);
+            if (currentAcks == null) {
+                final Set<Ack> previous = notifiedChannels.putIfAbsent(uaid, newAcks);
                 if (previous != null) {
-                    newUpdates.addAll(previous);
-                    if (notifiedChannels.replace(uaid, previous, newUpdates)) {
+                    newAcks.addAll(previous);
+                    if (notifiedChannels.replace(uaid, previous, newAcks)) {
                         break;
                     }
                 }
             } else {
-                newUpdates.addAll(currentUpdates);
-                if (notifiedChannels.replace(uaid, currentUpdates, newUpdates)) {
+                newAcks.addAll(currentAcks);
+                if (notifiedChannels.replace(uaid, currentAcks, newAcks)) {
                     break;
                 }
             }
@@ -124,28 +124,28 @@ public class InMemoryDataStore implements DataStore {
     }
 
     @Override
-    public Set<Update> getUpdates(final String uaid) {
+    public Set<Ack> getUnacknowledged(final String uaid) {
         checkNotNull(uaid, "uaid");
-        final Set<Update> updates = notifiedChannels.get(uaid);
-        if (updates == null) {
+        final Set<Ack> acks = notifiedChannels.get(uaid);
+        if (acks == null) {
             return Collections.emptySet();
         }
-        return Collections.unmodifiableSet(updates);
+        return Collections.unmodifiableSet(acks);
     }
 
     @Override
-    public boolean removeUpdate(final Update update, final String uaid) {
-        checkNotNull(update, "update");
+    public boolean removeAcknowledged(final Ack ack, final String uaid) {
+        checkNotNull(ack, "ack");
         checkNotNull(uaid, "uaid");
         while (true) {
-            final Set<Update> currentUpdates = notifiedChannels.get(uaid);
-            if (currentUpdates == null || currentUpdates.isEmpty()) {
+            final Set<Ack> currentAcks = notifiedChannels.get(uaid);
+            if (currentAcks == null || currentAcks.isEmpty()) {
                 return false;
             }
-            final Set<Update> newUpdates = Collections.newSetFromMap(new ConcurrentHashMap<Update, Boolean>());
-            newUpdates.addAll(currentUpdates);
-            if (newUpdates.remove(update)) {
-                if (notifiedChannels.replace(uaid, currentUpdates, newUpdates)) {
+            final Set<Ack> newAcks = Collections.newSetFromMap(new ConcurrentHashMap<Ack, Boolean>());
+            newAcks.addAll(currentAcks);
+            if (newAcks.remove(ack)) {
+                if (notifiedChannels.replace(uaid, currentAcks, newAcks)) {
                     return true;
                 }
             } else {

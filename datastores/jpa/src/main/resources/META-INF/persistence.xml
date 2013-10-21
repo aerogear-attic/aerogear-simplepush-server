@@ -20,7 +20,7 @@
     <non-jta-data-source>java:jboss/datasources/SimplePushDS</non-jta-data-source>
     <class>org.jboss.aerogear.simplepush.server.datastore.model.UserAgentDTO</class>
     <class>org.jboss.aerogear.simplepush.server.datastore.model.ChannelDTO</class>
-    <class>org.jboss.aerogear.simplepush.server.datastore.model.UpdateDTO</class>
+    <class>org.jboss.aerogear.simplepush.server.datastore.model.AckDTO</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="hibernate.hbm2ddl.auto" value="update"/>
