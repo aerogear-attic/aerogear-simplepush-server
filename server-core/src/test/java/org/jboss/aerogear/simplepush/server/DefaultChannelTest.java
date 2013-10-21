@@ -16,36 +16,56 @@
  */
 package org.jboss.aerogear.simplepush.server;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Test;
 
 public class DefaultChannelTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void constructWithNegativeVersion() {
-        new DefaultChannel(UUIDUtil.newUAID(), "123abc", -1, "http://host/simple-push/endpoint/123abc");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void setVersionEqualToCurrentVersion() {
-        final Channel channel = new DefaultChannel(UUIDUtil.newUAID(), "123abc", 10L, "http://host/simple-push/endpoint/123abc");
-        channel.setVersion(10);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void setVersionToLessThanCurrentVersion() {
-        final Channel channel = new DefaultChannel(UUIDUtil.newUAID(), "123abc", 10L, "http://host/simple-push/endpoint/123abc");
-        channel.setVersion(2);
+        new DefaultChannel("test", "123abc", -1, "33ddd2elaeee");
     }
 
     @Test
-    public void setVersion() {
-        final Channel channel = new DefaultChannel(UUIDUtil.newUAID(), "123abc", 10L, "http://host/simple-push/endpoint/123abc");
-        channel.setVersion(11);
-        assertThat(channel.getVersion(), is(11L));
+    public void equalsContractReflexive() {
+        final Channel x = new DefaultChannel("test", "123abc", 1, "33ddd2elaeee");
+        assertThat(x, equalTo(x));
+    }
+
+    @Test
+    public void equalsContractSymetric() {
+        final Channel x = new DefaultChannel("test", "123abc", 1, "33ddd2elaeee");
+        final Channel y = new DefaultChannel("test", "123abc", 1, "33ddd2elaeee");
+        assertThat(x, equalTo(y));
+        assertThat(y, equalTo(x));
+        assertThat(x.hashCode(), equalTo(y.hashCode()));
+    }
+
+    @Test
+    public void equalsContractTransitive() {
+        final Channel x = new DefaultChannel("test", "123abc", 1, "33ddd2elaeee");
+        final Channel y = new DefaultChannel("test",  "123abc", 1, "33ddd2elaeee");
+        final Channel z = new DefaultChannel("test", "123abc", 1, "33ddd2elaeee");
+        assertThat(x, equalTo(y));
+        assertThat(y, equalTo(z));
+        assertThat(x, equalTo(z));
+        assertThat(x.hashCode(), equalTo(z.hashCode()));
+    }
+
+    @Test
+    public void equalsConsistent() {
+        final Channel x = new DefaultChannel("test", "123abc", 1, "33ddd2elaeee");
+        final Channel y = new DefaultChannel("test", "xyz987", 1, "33ddd2elaeee");
+        assertThat(x.equals(y), is(false));
+    }
+
+    @Test
+    public void equalsContractNull() {
+        final Channel x = new DefaultChannel("test", "123abc", 1, "33ddd2elaeee");
+        assertThat(x.equals(null), is(false));
     }
 
 }

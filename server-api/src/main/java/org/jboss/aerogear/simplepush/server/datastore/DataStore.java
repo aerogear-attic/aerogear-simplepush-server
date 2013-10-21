@@ -63,9 +63,8 @@ public interface DataStore {
      * Removes all channels matching the set passed in.
      *
      * @param channelIds the ids of the channels to be removed.
-     * @param {@code Integer} the number of entries removed.
      */
-    Integer removeChannels(Set<String> channelIds);
+    void removeChannels(Set<String> channelIds);
 
     /**
      * Returns registered channel ids for a certain UserAgent Identifier (uaid)
@@ -77,13 +76,22 @@ public interface DataStore {
     Set<String> getChannelIds(String uaid);
 
     /**
-     * Stores {@code Ack}s so that the notification can be matched against
-     * acknowledged channelId from the UserAgent.
+     * Updates the version for a channel (identified by the endpointToken)
      *
-     * @param acks the {@link Ack}s to store.
-     * @param uaid the {@link String} identifiying the UserAgent.
+     * @param endpointToken the unique identifier for the channel/uaid combination.
+     * @param version the version to update to.
+     * @return {@code String} The channel id of the updated channel
      */
-    void saveUnacknowledged(Set<Ack> acks, String uaid);
+    String updateVersion(final String endpointToken, final long version) throws VersionException, ChannelNotFoundException;
+
+    /**
+     *
+     * @param channelId the channelId that this update/ack belongs to.
+     * @param version the {@link String} the version of the update.
+     * @return {@code String} the UserAgent Id for the channel.
+     * @throws ChannelNotFoundException
+     */
+    String saveUnacknowledged(String channelId, final long version) throws ChannelNotFoundException;
 
     /**
      * Returns the {@code Ack}s that have been sent to a UserAgent as notifications.
@@ -99,7 +107,6 @@ public interface DataStore {
      *
      * @param ack the {@link Ack} to remove.
      * @param uaid the {@link String} of the UserAgent
-     * @return {@code true} if the {@code update} is removed, false otherwise
      */
-    boolean removeAcknowledged(Ack ack, String uaid);
+    Set<Ack> removeAcknowledged(String uaid, Set<Ack> acked);
 }

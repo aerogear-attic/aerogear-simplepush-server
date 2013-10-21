@@ -18,7 +18,9 @@ package org.jboss.aerogear.simplepush.protocol.impl;
 
 import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNullAndNotEmpty;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.jboss.aerogear.simplepush.protocol.Ack;
@@ -27,6 +29,10 @@ import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
 public class NotificationMessageImpl implements NotificationMessage {
 
     private final Set<Ack> acks;
+
+    public NotificationMessageImpl(final Ack ack) {
+        this(new HashSet<Ack>(Arrays.asList(ack)));
+    }
 
     public NotificationMessageImpl(final Set<Ack> acks) {
         checkNotNullAndNotEmpty(acks, "acks");

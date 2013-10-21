@@ -25,12 +25,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
 import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
@@ -38,7 +38,6 @@ import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
-import org.jboss.aerogear.simplepush.util.CryptoUtil;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Before;
 import org.junit.Test;

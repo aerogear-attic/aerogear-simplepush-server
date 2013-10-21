@@ -16,13 +16,16 @@
  */
 package org.jboss.aerogear.simplepush.server.datastore;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 
 import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
@@ -60,7 +63,7 @@ public final class JpaDataStore implements DataStore {
                 if (userAgent == null) {
                     userAgent = new UserAgentDTO(channel.getUAID().toString());
                 }
-                userAgent.addChannel(channel.getChannelId(), channel.getVersion(), channel.getPushEndpoint());
+                userAgent.addChannel(channel.getChannelId(), channel.getVersion(), channel.getEndpointToken());
                 em.merge(userAgent);
                 return Boolean.TRUE;
             }
@@ -85,7 +88,7 @@ public final class JpaDataStore implements DataStore {
         if (dto == null) {
             throw new ChannelNotFoundException("No Channel for [" + channelId + "] was found", channelId);
         }
-        return new DefaultChannel(dto.getUserAgent().getUaid(), dto.getChannelId(), dto.getVersion(), dto.getEndpointUrl());
+        return new DefaultChannel(dto.getUserAgent().getUaid(), dto.getChannelId(), dto.getVersion(), dto.getEndpointToken());
     }
 
     @Override
@@ -108,9 +111,9 @@ public final class JpaDataStore implements DataStore {
     }
 
     @Override
-    public Integer removeChannels(final Set<String> channelIds) {
+    public void removeChannels(final Set<String> channelIds) {
         if (channelIds == null || channelIds.isEmpty()) {
-            return 0;
+            return;
         }
         final JpaOperation<Integer> removeChannel = new JpaOperation<Integer>() {
             @Override
@@ -120,7 +123,7 @@ public final class JpaDataStore implements DataStore {
                 return delete.executeUpdate();
             }
         };
-        return jpaExecutor.execute(removeChannel);
+        jpaExecutor.execute(removeChannel);
     }
 
     @Override
@@ -163,21 +166,55 @@ public final class JpaDataStore implements DataStore {
     }
 
     @Override
-    public void saveUnacknowledged(final Set<Ack> acks, final String uaid) {
-        final JpaOperation<Void> saveAcks = new JpaOperation<Void>() {
+    public String updateVersion(final String endpointToken, final long version) throws VersionException, ChannelNotFoundException {
+        final JpaOperation<ChannelDTO> updateVersion = new JpaOperation<ChannelDTO>() {
             @Override
-            public Void perform(final EntityManager em) {
-                final UserAgentDTO userAgent = em.find(UserAgentDTO.class, uaid);
-                final Set<AckDTO> dtos = new HashSet<AckDTO>(acks.size());
-                for (Ack ack : acks) {
-                    dtos.add(new AckDTO(userAgent, ack.getChannelId(), ack.getVersion()));
+            public ChannelDTO perform(final EntityManager em) {
+                final TypedQuery<ChannelDTO> select = em.createQuery("SELECT c FROM ChannelDTO c where c.endpointToken = :endpointToken", ChannelDTO.class);
+                select.setParameter("endpointToken", endpointToken);
+                final List<ChannelDTO> resultList = select.getResultList();
+                final ChannelDTO channelDTO = resultList.get(0);
+                if (channelDTO != null) {
+                    if (version > channelDTO.getVersion()) {
+                        channelDTO.setVersion(version);
+                        em.merge(channelDTO);
+                    } else {
+                        throw new VersionException("New version [" + version + "] must be greater than current version [" + channelDTO.getVersion() + "]");
+                    }
                 }
-                userAgent.setAcks(dtos);
-                em.merge(userAgent);
-                return null;
+                return channelDTO;
             }
         };
-        jpaExecutor.execute(saveAcks);
+        try {
+            final ChannelDTO channelDto = jpaExecutor.execute(updateVersion);
+            if (channelDto == null) {
+                throw new ChannelNotFoundException("No Channel for endpointToken [" + endpointToken + "] was found", endpointToken);
+            }
+            return channelDto.getChannelId();
+        } catch (final JpaException e) {
+            final Throwable cause = e.getCause();
+            if (cause instanceof VersionException) {
+                throw (VersionException) cause;
+            }
+            throw e;
+        }
+    }
+
+    @Override
+    public String saveUnacknowledged(final String channelId, final long version) throws ChannelNotFoundException {
+        final JpaOperation<String> saveAcks = new JpaOperation<String>() {
+            @Override
+            public String perform(final EntityManager em) {
+                final ChannelDTO channel = em.find(ChannelDTO.class, channelId);
+                final UserAgentDTO userAgent = channel.getUserAgent();
+                final Set<AckDTO> dtos = new HashSet<AckDTO>();
+                dtos.add(new AckDTO(userAgent, channel.getChannelId(), version));
+                userAgent.setAcks(dtos);
+                em.merge(userAgent);
+                return userAgent.getUaid();
+            }
+        };
+        return jpaExecutor.execute(saveAcks);
     }
 
     @Override
@@ -200,34 +237,27 @@ public final class JpaDataStore implements DataStore {
     }
 
     @Override
-    public boolean removeAcknowledged(final Ack ack, final String uaid) {
-        final JpaOperation<Boolean> removeAck = new JpaOperation<Boolean>() {
+    public Set<Ack> removeAcknowledged(final String uaid, final Set<Ack> acked) {
+        final JpaOperation<Set<Ack>> removeAck = new JpaOperation<Set<Ack>>() {
             @Override
-            public Boolean perform(final EntityManager em) {
+            public Set<Ack> perform(final EntityManager em) {
+                final List<String> channelIds = new ArrayList<String>(acked.size());
+                for (Ack ack : acked) {
+                    channelIds.add(ack.getChannelId());
+                }
+                final Query delete = em.createQuery("DELETE from AckDTO c where c.channelId in (:channelIds)");
+                delete.setParameter("channelIds", channelIds);
+                delete.executeUpdate();
                 final UserAgentDTO userAgent = em.find(UserAgentDTO.class, uaid);
-                final Set<AckDTO> askDtos = userAgent.getAcks();
-                AckDTO toRemove = null;
-                for (AckDTO ackDTO : askDtos) {
-                    if (ack.getChannelId().equals(ackDTO.getChannelId())) {
-                        toRemove = ackDTO;
-                        break;
-                    }
+                final Set<AckDTO> acks = userAgent.getAcks();
+                final Set<Ack> unacked = new HashSet<Ack>(acks.size());
+                for (Ack ackDto : acked) {
+                    unacked.add(new AckImpl(ackDto.getChannelId(), ackDto.getVersion()));
                 }
-                if (toRemove == null) {
-                    return Boolean.FALSE;
-                }
-                em.remove(toRemove);
-                askDtos.remove(toRemove);
-                userAgent.setAcks(askDtos);
-                return Boolean.TRUE;
+                return unacked;
             }
         };
-        try {
-            return jpaExecutor.execute(removeAck);
-        } catch (final Exception e) {
-            logger.error("Could not remove update [" + ack + "]", e);
-            return false;
-        }
+        return jpaExecutor.execute(removeAck);
     }
 
 }

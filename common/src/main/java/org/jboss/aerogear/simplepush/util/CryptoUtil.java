@@ -129,6 +129,15 @@ public final class CryptoUtil {
         return new EndpointParam(uaidChannelIdPair[0], uaidChannelIdPair[1]);
     }
 
+    public static String endpointToken(final String uaid, final String channelId, final byte[] tokenKey) {
+        try {
+            final String path = uaid + "." + channelId;
+            return encrypt(tokenKey, path);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static class EndpointParam {
 
         private final String uaid;

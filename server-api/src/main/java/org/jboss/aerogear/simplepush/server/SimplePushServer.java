@@ -80,13 +80,12 @@ public interface SimplePushServer {
     /**
      * Handles the notification for a single channel
      *
-     * @param channelId the channelId to be notified.
-     * @param uaid the UserAgent identifier 'owning' the channel.
+     * @param endpointToken the endpointToken for which this notification belongs
      * @param payload the payload which must be in the format "version=N".
      * @return {@link NotificationMessage} The notification message that should be sent over the network to the
      *         UserAgent. The actual communication is left to the underlying implementation.
      */
-    NotificationMessage handleNotification(String channelId, String uaid, String payload) throws ChannelNotFoundException;
+    Notification handleNotification(String endpointToken, String payload) throws ChannelNotFoundException;
 
     /**
      * Removes all the channels associated with the UserAgent.

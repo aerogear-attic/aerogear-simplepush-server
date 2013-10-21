@@ -51,21 +51,12 @@ public interface Channel {
     long getVersion();
 
     /**
-     * Updates the {@code version} for this channel.
+     * Returns the endpoint token for this channel.
      *
-     * @param version the version to update this channel to.
+     * This is the endpoint token that an encrypted hash of the UserAgent ID, a ':', and the channel Id.
+     *
+     * @return {@code String} the endpoint token.
      */
-    void setVersion(final long version);
-
-    /**
-     * Returns the push endpoint for this channel.
-     *
-     * This is the endpoint URL that is passed back to the UserAgent upon registering a channel. The UserAgent
-     * will then update the server side application of this endpoint, which the server side application will
-     * then use when it wants to trigger a notification.
-     *
-     * @return {@code String} the endpoint which can be used to trigger notifications.
-     */
-    String getPushEndpoint();
+    String getEndpointToken();
 
 }

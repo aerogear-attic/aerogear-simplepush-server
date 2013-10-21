@@ -19,28 +19,26 @@ package org.jboss.aerogear.simplepush.server;
 import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNegative;
 import static org.jboss.aerogear.simplepush.util.ArgumentUtil.checkNotNull;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 public class DefaultChannel implements Channel {
 
     private final String uaid;
     private final String channelId;
-    private final String pushEndpoint;
-    private final AtomicLong version;
+    private final String endpointToken;
+    private final long version;
 
-    public DefaultChannel(final String uaid, final String channelId, final String pushEndpoint) {
-        this(uaid, channelId, 0, pushEndpoint);
+    public DefaultChannel(final String uaid, final String channelId, final String endpointToken) {
+        this(uaid, channelId, 0, endpointToken);
     }
 
-    public DefaultChannel(final String uaid, final String channelId, final long version, final String pushEndpoint) {
+    public DefaultChannel(final String uaid, final String channelId, final long version, final String endpointToken) {
         checkNotNull(uaid, "uaid");
         checkNotNull(channelId, "channelId");
         checkNotNegative(version, "version");
-        checkNotNull(pushEndpoint, "pushEndpoint");
+        checkNotNull(endpointToken, "endpointToken");
         this.uaid = uaid;
         this.channelId = channelId;
-        this.version = new AtomicLong(version);
-        this.pushEndpoint = pushEndpoint;
+        this.version = version;
+        this.endpointToken = endpointToken;
     }
 
     @Override
@@ -55,39 +53,25 @@ public class DefaultChannel implements Channel {
 
     @Override
     public long getVersion() {
-        return version.get();
+        return version;
     }
 
     @Override
-    public void setVersion(final long newVersion) {
-        for (;;) {
-            final long currentVersion = version.get();
-            if (newVersion <= currentVersion) {
-                throw new IllegalArgumentException("New version [" + newVersion + "] must be greater than current version [" + currentVersion + "]");
-            }
-            if (version.compareAndSet(currentVersion, newVersion)) {
-                break;
-            }
-        }
-    }
-
-    @Override
-    public String getPushEndpoint() {
-        return pushEndpoint;
+    public String getEndpointToken() {
+        return endpointToken;
     }
 
     @Override
     public String toString() {
-        return "DefaultChannel[uaid=" + uaid + ", channelId=" + channelId + ", version=" + version + ", pushEndpoint=" + pushEndpoint + "]";
+        return "DefaultChannel[uaid=" + uaid + ", channelId=" + channelId + ", version=" + version + ", pushEndpoint=" + endpointToken + "]";
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
         int result = 1;
-        result = prime * result + ((channelId == null) ? 0 : channelId.hashCode());
-        result = prime * result + ((pushEndpoint == null) ? 0 : pushEndpoint.hashCode());
-        result = prime * result + ((version.toString() == null) ? 0 : version.toString().hashCode());
+        result = 31 * result + ((channelId == null) ? 0 : channelId.hashCode());
+        result = 31 * result + ((endpointToken == null) ? 0 : endpointToken.hashCode());
+        result = 31 * result + (int) (version ^ (version >>> 32));
         return result;
     }
 
@@ -99,32 +83,14 @@ public class DefaultChannel implements Channel {
         if (obj == null) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
+        if (!(obj instanceof Channel)) {
             return false;
         }
-        final DefaultChannel other = (DefaultChannel) obj;
-        if (channelId == null) {
-            if (other.channelId != null) {
-                return false;
-            }
-        } else if (!channelId.equals(other.channelId)) {
-            return false;
-        }
-        if (pushEndpoint == null) {
-            if (other.pushEndpoint != null) {
-                return false;
-            }
-        } else if (!pushEndpoint.equals(other.pushEndpoint)) {
-            return false;
-        }
-        if (version == null) {
-            if (other.version != null) {
-                return false;
-            }
-        } else if (version.longValue() != other.version.longValue()) {
-            return false;
-        }
-        return true;
+        final DefaultChannel o = (DefaultChannel) obj;
+        return (uaid == null ? o.uaid == null : uaid.equals(o.uaid)) &&
+            (channelId == null ? o.channelId == null : channelId.equals(o.channelId)) &&
+            (endpointToken == null ? o.endpointToken == null : endpointToken.equals(o.endpointToken)) &&
+            (version == o.version);
     }
 
 }
