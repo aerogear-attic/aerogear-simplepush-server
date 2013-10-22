@@ -33,26 +33,27 @@ import org.jboss.aerogear.simplepush.protocol.HelloMessage;
 import org.jboss.aerogear.simplepush.protocol.HelloResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
+import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.AckMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.HelloMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterMessageImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
 import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
-import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 import org.jboss.aerogear.simplepush.server.datastore.VersionException;
 import org.jboss.aerogear.simplepush.util.CryptoUtil;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DefaultSimplePushServerTest {
+public abstract class DefaultSimplePushServerTest {
 
     private DefaultSimplePushServer server;
 
+    protected abstract DataStore createDataStore();
+
     @Before
     public void setup() {
-        final DataStore dataStore = new InMemoryDataStore();
+        final DataStore dataStore = createDataStore();
         server = new DefaultSimplePushServer(dataStore, DefaultSimplePushConfig.create().tokenKey("test").build());
     }
 
