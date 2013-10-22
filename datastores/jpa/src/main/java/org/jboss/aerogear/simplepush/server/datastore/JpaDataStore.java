@@ -154,6 +154,9 @@ public final class JpaDataStore implements DataStore {
                 final TypedQuery<ChannelDTO> select = em.createQuery("SELECT c FROM ChannelDTO c where c.endpointToken = :endpointToken", ChannelDTO.class);
                 select.setParameter("endpointToken", endpointToken);
                 final List<ChannelDTO> resultList = select.getResultList();
+                if (resultList.isEmpty()) {
+                    return null;
+                }
                 final ChannelDTO channelDTO = resultList.get(0);
                 if (channelDTO != null) {
                     if (version > channelDTO.getVersion()) {
@@ -232,7 +235,7 @@ public final class JpaDataStore implements DataStore {
                 final UserAgentDTO userAgent = em.find(UserAgentDTO.class, uaid);
                 final Set<AckDTO> acks = userAgent.getAcks();
                 final Set<Ack> unacked = new HashSet<Ack>(acks.size());
-                for (Ack ackDto : acked) {
+                for (AckDTO ackDto : acks) {
                     unacked.add(new AckImpl(ackDto.getChannelId(), ackDto.getVersion()));
                 }
                 return unacked;
