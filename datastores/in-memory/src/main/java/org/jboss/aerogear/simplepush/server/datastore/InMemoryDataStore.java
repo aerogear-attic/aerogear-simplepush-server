@@ -179,6 +179,11 @@ public class InMemoryDataStore implements DataStore {
         }
     }
 
+    /**
+     * A Channel implementation which has a mutable version and indended for
+     * usage with the InMemoryDataStore.
+     * This class uses a concurrent data structure to store and update the version.
+     */
     private static class MutableChannel implements Channel {
 
         private final Channel delegate;
