@@ -17,6 +17,10 @@ import org.jboss.aerogear.simplepush.server.datastore.JpaDataStore;
 
 public class JpaSimplePushServerTest extends DefaultSimplePushServerTest {
 
+    static {
+        System.setProperty("org.jboss.logging.provider", "slf4j");
+    }
+
     private static final DataStore datastore = new JpaDataStore("SimplePushTest");
 
     @Override

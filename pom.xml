@@ -182,6 +182,11 @@
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.14</version>
+                    <configuration>
+                        <systemPropertyVariables>
+                            <org.jboss.logging.provider>slf4j</org.jboss.logging.provider>
+                        </systemPropertyVariables>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
