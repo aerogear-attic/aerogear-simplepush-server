@@ -86,6 +86,11 @@
             </dependency>
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
+                <artifactId>aerogear-simplepush-datastore-couchdb</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
                 <artifactId>aerogear-simplepush-server-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
