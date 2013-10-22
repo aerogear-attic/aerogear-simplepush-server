@@ -24,8 +24,6 @@ import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.server.Notification;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
-import org.jboss.aerogear.simplepush.util.CryptoUtil;
-import org.jboss.aerogear.simplepush.util.CryptoUtil.EndpointParam;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.buffer.Buffer;
