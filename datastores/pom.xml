@@ -33,8 +33,9 @@
     </parent>
 
     <modules>
-		<module>in-memory</module>
-		<module>jpa</module>
+        <module>in-memory</module>
+        <module>jpa</module>
+        <module>redis</module>
     </modules>
 
 </project>
