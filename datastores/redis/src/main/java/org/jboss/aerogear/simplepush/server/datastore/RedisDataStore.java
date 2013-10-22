@@ -33,16 +33,14 @@ import redis.clients.jedis.Transaction;
 
 /**
  * DataStore that uses a Redis database for storage.
- * </p>
- *
  */
 public class RedisDataStore implements DataStore {
 
-    private final static String CHID_LOOKUP = "chid:lookup:";
-    private final static String UAID_LOOKUP = "uaid:lookup:";
-    private final static String TOKEN_LOOKUP = "token:lookup:";
-    private final static String ACK_LOOKUP = "ack:";
-    private final static String ACKS_LOOKUP = "acks:";
+    private final static String CHID_LOOKUP_KEY_PREFIX = "chid:lookup:";
+    private final static String UAID_LOOKUP_KEY_PREFIX = "uaid:lookup:";
+    private final static String TOKEN_LOOKUP_KEY_PREFIX = "token:lookup:";
+    private final static String ACK_LOOKUP_KEY_PREFIX = "ack:";
+    private final static String ACKS_LOOKUP_KEY_PREFIX = "acks:";
     private final static String TOKEN_KEY = "token";
     private final static String UAID_KEY = "uaid";
 
@@ -59,15 +57,15 @@ public class RedisDataStore implements DataStore {
         try {
             final String uaid = channel.getUAID();
             final String chid = channel.getChannelId();
-            final String endpointToken = channel.getEndpointToken();
-            if (jedis.sismember(UAID_LOOKUP + uaid, chid)) {
+            if (jedis.sismember(uaidLookupKey(uaid), chid)) {
                 return false;
             }
+            final String endpointToken = channel.getEndpointToken();
             final Transaction tx = jedis.multi();
             tx.set(endpointToken, Long.toString(channel.getVersion()));
-            tx.set(TOKEN_LOOKUP + endpointToken, chid);
-            tx.hmset(CHID_LOOKUP + chid, mapOf(endpointToken, uaid));
-            tx.sadd(UAID_LOOKUP + uaid, chid);
+            tx.set(tokenLookupKey(endpointToken), chid);
+            tx.hmset(chidLookupKey(chid), mapOf(endpointToken, uaid));
+            tx.sadd(uaidLookupKey(uaid), chid);
             tx.exec();
             return true;
         } finally {
@@ -89,9 +87,9 @@ public class RedisDataStore implements DataStore {
             final String endpointToken = channel.getEndpointToken();
             final Transaction tx = jedis.multi();
             tx.del(endpointToken);
-            tx.del(CHID_LOOKUP + channelId);
-            tx.del(TOKEN_LOOKUP + endpointToken);
-            tx.srem(UAID_LOOKUP + channel.getUAID(), channelId);
+            tx.del(chidLookupKey(channelId));
+            tx.del(tokenLookupKey(endpointToken));
+            tx.srem(uaidLookupKey(channel.getUAID()), channelId);
             tx.exec();
         } catch (final ChannelNotFoundException e) {
             logger.debug("ChannelId [" + channelId + "] was not found");
@@ -111,16 +109,16 @@ public class RedisDataStore implements DataStore {
     public Channel getChannel(final String channelId) throws ChannelNotFoundException {
         final Jedis jedis = jedisPool.getResource();
         try {
-            final List<String> hmget = jedis.hmget(CHID_LOOKUP + channelId, TOKEN_KEY, UAID_KEY);
-            if (!hmget.isEmpty()) {
-                final String endpointToken = hmget.get(0);
-                final String uaid = hmget.get(1);
+            final List<String> endpointTokenAndUaid = jedis.hmget(chidLookupKey(channelId), TOKEN_KEY, UAID_KEY);
+            if (!endpointTokenAndUaid.isEmpty()) {
+                final String endpointToken = endpointTokenAndUaid.get(0);
+                final String uaid = endpointTokenAndUaid.get(1);
                 if (endpointToken == null || uaid == null) {
-                    throw new ChannelNotFoundException("Could not find channel [" + channelId + "]", channelId);
+                    throw channelNotFoundException(channelId);
                 }
                 return new DefaultChannel(uaid, channelId, Long.valueOf(jedis.get(endpointToken)), endpointToken);
             }
-            throw new ChannelNotFoundException("Could not find channel [" + channelId + "]", channelId);
+            throw channelNotFoundException(channelId);
         } finally {
             jedisPool.returnResource(jedis);
         }
@@ -130,7 +128,7 @@ public class RedisDataStore implements DataStore {
     public Set<String> getChannelIds(final String uaid) {
         final Jedis jedis = jedisPool.getResource();
         try {
-            return jedis.smembers(UAID_LOOKUP + uaid);
+            return jedis.smembers(uaidLookupKey(uaid));
         } finally {
             jedisPool.returnResource(jedis);
         }
@@ -138,39 +136,38 @@ public class RedisDataStore implements DataStore {
 
     @Override
     public void removeChannels(final String uaid) {
-        //TODO: This is not efficient. Can we to the clean up in some other way.
+        //TODO: This is not efficient. Can we do the clean up in some other way.
         //      This is only called from the reaper thread, perhaps we can use an expiration
-        //      or something equivalent.
+        //      like Mozilla does or something equivalent.
         final Jedis jedis = jedisPool.getResource();
         try {
             for (String channelId : getChannelIds(uaid)) {
                 removeChannel(channelId);
             }
-            jedis.del(UAID_LOOKUP + uaid);
+            jedis.del(uaidLookupKey(uaid));
         } finally {
             jedisPool.returnResource(jedis);
         }
     }
 
     @Override
-    public String updateVersion(final String endpointToken, final long version) throws VersionException, ChannelNotFoundException {
+    public String updateVersion(final String endpointToken, final long newVersion) throws VersionException, ChannelNotFoundException {
         final Jedis jedis = jedisPool.getResource();
         try {
             jedis.watch(endpointToken);
             final String versionString = jedis.get(endpointToken);
             if (versionString == null) {
-                throw new ChannelNotFoundException("Could not find endpointToken [" + endpointToken + "]", endpointToken);
+                throw channelNotFoundException(endpointToken);
             }
-            final long v = Long.valueOf(versionString);
-            if (version <= v) {
-                throw new VersionException("version [" + version + "] must be greater than the current version [" + v + "]");
+            final long currentVersion = Long.valueOf(versionString);
+            if (newVersion <= currentVersion) {
+                throw new VersionException("version [" + newVersion + "] must be greater than the current version [" + currentVersion + "]");
             }
             final Transaction tx = jedis.multi();
-            tx.set(endpointToken, String.valueOf(version));
-            final List<Object> exec = tx.exec();
-            logger.info("Result : " + exec);
-            logger.info(TOKEN_LOOKUP + endpointToken);
-            return jedis.get(TOKEN_LOOKUP + endpointToken);
+            tx.set(endpointToken, String.valueOf(newVersion));
+            tx.exec();
+            logger.debug(tokenLookupKey(endpointToken));
+            return jedis.get(tokenLookupKey(endpointToken));
         } finally {
             jedisPool.returnResource(jedis);
         }
@@ -180,10 +177,10 @@ public class RedisDataStore implements DataStore {
     public String saveUnacknowledged(final String channelId, final long version) {
         final Jedis jedis = jedisPool.getResource();
         try {
-            jedis.set(ACK_LOOKUP + channelId, Long.toString(version));
-            final List<String> hashValues = jedis.hmget(CHID_LOOKUP + channelId, UAID_KEY);
+            jedis.set(ackLookupKey(channelId), Long.toString(version));
+            final List<String> hashValues = jedis.hmget(chidLookupKey(channelId), UAID_KEY);
             final String uaid = hashValues.get(0);
-            jedis.sadd(ACKS_LOOKUP + uaid, channelId);
+            jedis.sadd(acksLookupKey(uaid), channelId);
             return uaid;
         } finally {
             jedisPool.returnResource(jedis);
@@ -194,13 +191,13 @@ public class RedisDataStore implements DataStore {
     public Set<Ack> getUnacknowledged(final String uaid) {
         final Jedis jedis = jedisPool.getResource();
         try {
-            final Set<String> unacks = jedis.smembers(ACKS_LOOKUP + uaid);
+            final Set<String> unacks = jedis.smembers(acksLookupKey(uaid));
             if (unacks.isEmpty()) {
                 return Collections.emptySet();
             }
             final Set<Ack> acks = new HashSet<Ack>(unacks.size());
             for (String channelId : unacks) {
-                acks.add(new AckImpl(channelId, Long.valueOf(jedis.get(ACK_LOOKUP + channelId))));
+                acks.add(new AckImpl(channelId, Long.valueOf(jedis.get(ackLookupKey(channelId)))));
             }
             return acks;
         } finally {
@@ -213,13 +210,37 @@ public class RedisDataStore implements DataStore {
         final Jedis jedis = jedisPool.getResource();
         try {
             for (Ack ack : acks) {
-                jedis.del(ACK_LOOKUP + ack.getChannelId());
-                jedis.srem(ACKS_LOOKUP + uaid, ack.getChannelId());
+                jedis.del(ackLookupKey(ack.getChannelId()));
+                jedis.srem(acksLookupKey(uaid), ack.getChannelId());
             }
             return getUnacknowledged(uaid);
         } finally {
             jedisPool.returnResource(jedis);
         }
+    }
+
+    private static String chidLookupKey(final String channelId) {
+        return CHID_LOOKUP_KEY_PREFIX + channelId;
+    }
+
+    private static String tokenLookupKey(final String endpointToken) {
+        return TOKEN_LOOKUP_KEY_PREFIX + endpointToken;
+    }
+
+    private static String uaidLookupKey(final String uaid) {
+        return UAID_LOOKUP_KEY_PREFIX + uaid;
+    }
+
+    private static String ackLookupKey(final String channelId) {
+        return ACK_LOOKUP_KEY_PREFIX + channelId;
+    }
+
+    private static String acksLookupKey(final String uaid) {
+        return ACKS_LOOKUP_KEY_PREFIX + uaid;
+    }
+
+    private static ChannelNotFoundException channelNotFoundException(final String channelId) {
+        return new ChannelNotFoundException("Could not find channel [" + channelId + "]", channelId);
     }
 
 }
