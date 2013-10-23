@@ -1,7 +1,6 @@
 <subsystem xmlns="urn:org.jboss.aerogear.simplepush:1.0">
     <server 
         socket-binding="simplepush" 
-        datasource-jndi-name="TestDS" 
         token-key="testing" 
         useragent-reaper-timeout="16000" 
         notification-prefix="/update" 
@@ -17,6 +16,9 @@
         sockjs-tls="true"
         sockjs-enable-websocket="false"
         sockjs-websocket-heartbeat-interval="180000"
-        sockjs-websocket-protocols="push-notification, myproto"
-        />
+        sockjs-websocket-protocols="push-notification, myproto">
+        <datastore>
+            <jpa datasource-jndi-name="TestDS"/>
+        </datastore>
+    </server>
 </subsystem>

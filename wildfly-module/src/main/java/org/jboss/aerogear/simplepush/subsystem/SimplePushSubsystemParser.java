@@ -19,16 +19,15 @@ package org.jboss.aerogear.simplepush.subsystem;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ADD;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
 import static org.jboss.as.controller.parsing.ParseUtils.unexpectedAttribute;
+import static org.jboss.as.controller.parsing.ParseUtils.unexpectedElement;
 
 import java.util.List;
 
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 
-import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.PathElement;
-import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.parsing.ParseUtils;
 import org.jboss.as.controller.persistence.SubsystemMarshallingContext;
 import org.jboss.dmr.ModelNode;
@@ -41,22 +40,34 @@ import org.jboss.staxmapper.XMLExtendedStreamWriter;
 public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElementReader<List<ModelNode>>, XMLElementWriter<SubsystemMarshallingContext> {
 
     @Override
-    public void readElement(final XMLExtendedStreamReader reader, final List<ModelNode> modelNodes) throws XMLStreamException {
+    public void readElement(final XMLExtendedStreamReader reader, final List<ModelNode> list) throws XMLStreamException {
+        final ModelNode address = new ModelNode();
+        address.add(SUBSYSTEM,  SimplePushExtension.SUBSYSTEM_NAME);
+        address.protect();
+
         final ModelNode subsystem = new ModelNode();
         subsystem.get(OP).set(ADD);
-        subsystem.get(OP_ADDR).set(PathAddress.pathAddress(SimplePushExtension.SUBSYSTEM_PATH).toModelNode());
-        modelNodes.add(subsystem);
+        subsystem.get(OP_ADDR).set(address);
+        list.add(subsystem);
 
         while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
             if (reader.isStartElement()) {
-                readServerType(reader, modelNodes);
+                readServerType(reader, list, address);
             }
         }
     }
 
-    private void readServerType(final XMLExtendedStreamReader reader, final List<ModelNode> modelNodes) throws XMLStreamException {
-        final ModelNode addServerOperation = new ModelNode();
-        addServerOperation.get(OP).set(ModelDescriptionConstants.ADD);
+    private void readServerType(final XMLExtendedStreamReader reader, final List<ModelNode> modelNodes, final ModelNode parentAddress) throws XMLStreamException {
+        final ModelNode node = new ModelNode();
+        node.get(OP).set(ADD);
+        modelNodes.add(node);
+
+        readServerAttributes(reader, node, parentAddress);
+        readServerElements(reader, node, modelNodes);
+        ParseUtils.requireNoContent(reader);
+    }
+
+    private void readServerAttributes(final XMLExtendedStreamReader reader, final ModelNode node, final ModelNode parentAddress) throws XMLStreamException {
         String serverName = "simplepush";
         final int count = reader.getAttributeCount();
         for (int i = 0; i < count; i++) {
@@ -67,73 +78,99 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                     serverName = value;
                     break;
                 case SOCKET_BINDING:
-                    ServerDefinition.SOCKET_BINDING_ATTR.parseAndSetParameter(value, addServerOperation, reader);
-                    break;
-                case DATASOURCE:
-                    ServerDefinition.DATASOURCE_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.SOCKET_BINDING_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case TOKEN_KEY:
-                    ServerDefinition.TOKEN_KEY_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.TOKEN_KEY_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case REAPER_TIMEOUT:
-                    ServerDefinition.REAPER_TIMEOUT_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.REAPER_TIMEOUT_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case NOTIFICATION_PREFIX:
-                    ServerDefinition.NOTIFICATION_PREFIX_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.NOTIFICATION_PREFIX_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case NOTIFICATION_TLS:
-                    ServerDefinition.NOTIFICATION_TLS_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.NOTIFICATION_TLS_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case NOTIFICATION_ACK_INTERVAL:
-                    ServerDefinition.NOTIFICATION_ACK_INTERVAL_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.NOTIFICATION_ACK_INTERVAL_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case NOTIFICATION_SOCKET_BINDING:
-                    ServerDefinition.NOTIFICATION_SOCKET_BINDING_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.NOTIFICATION_SOCKET_BINDING_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case SOCKJS_PREFIX:
-                    ServerDefinition.SOCKJS_PREFIX_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.SOCKJS_PREFIX_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case SOCKJS_COOKIES_NEEDED:
-                    ServerDefinition.SOCKJS_COOKIES_NEEDED_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.SOCKJS_COOKIES_NEEDED_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case SOCKJS_URL:
-                    ServerDefinition.SOCKJS_URL_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.SOCKJS_URL_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case SOCKJS_SESSION_TIMEOUT:
-                    ServerDefinition.SOCKJS_SESSION_TIMEOUT_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.SOCKJS_SESSION_TIMEOUT_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case SOCKJS_HEARTBEAT_INTERVAL:
-                    ServerDefinition.SOCKJS_HEARTBEAT_INTERVAL_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.SOCKJS_HEARTBEAT_INTERVAL_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case SOCKJS_MAX_STREAMING_BYTES_SIZE:
-                    ServerDefinition.SOCKJS_MAX_STREAMING_BYTES_SIZE_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.SOCKJS_MAX_STREAMING_BYTES_SIZE_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case SOCKJS_TLS:
-                    ServerDefinition.SOCKJS_TLS_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.SOCKJS_TLS_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case SOCKJS_KEYSTORE:
-                    ServerDefinition.SOCKJS_KEYSTORE_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.SOCKJS_KEYSTORE_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case SOCKJS_KEYSTORE_PASSWORD:
-                    ServerDefinition.SOCKJS_KEYSTORE_PASSWORD_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.SOCKJS_KEYSTORE_PASSWORD_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case SOCKJS_ENABLE_WEBSOCKET:
-                    ServerDefinition.SOCKJS_ENABLE_WEBSOCKET_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.SOCKJS_ENABLE_WEBSOCKET_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL:
-                    ServerDefinition.SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL_ATTR.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case SOCKJS_WEBSOCKET_PROTOCOLS:
-                    ServerDefinition.SOCKJS_WEBSOCKET_PROTOCOLS.parseAndSetParameter(value, addServerOperation, reader);
+                    ServerDefinition.SOCKJS_WEBSOCKET_PROTOCOLS.parseAndSetParameter(value, node, reader);
                     break;
                 default:
                     throw unexpectedAttribute(reader, i);
-                }
+            }
+            node.get(OP_ADDR).set(parentAddress).add(ServerDefinition.SERVER, serverName);
         }
-        final PathAddress addr = PathAddress.pathAddress(SimplePushExtension.SUBSYSTEM_PATH, PathElement.pathElement(SimplePushExtension.SERVER, serverName));
-        addServerOperation.get(OP_ADDR).set(addr.toModelNode());
-        modelNodes.add(addServerOperation);
-        ParseUtils.requireNoContent(reader);
+    }
+
+    private void readServerElements(final XMLExtendedStreamReader reader, final ModelNode node, final List<ModelNode> modelNodes) throws XMLStreamException {
+        while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            final String tagName = reader.getLocalName();
+            if (tagName.equals(DataStoreDefinition.DATASTORE)) {
+                while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+                    switch (DataStoreDefinition.Element.of(reader.getLocalName())) {
+                        case JPA: {
+                            final ModelNode jpa = readJpaElement(reader, node.get(OP_ADDR));
+                            modelNodes.add(jpa);
+                            break;
+                        }
+                        default: {
+                            throw unexpectedElement(reader);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private ModelNode readJpaElement(XMLExtendedStreamReader reader, ModelNode parentAddress) throws XMLStreamException {
+        final ModelNode node = new ModelNode();
+        node.get(OP).set(ADD);
+        node.get(OP_ADDR).set(parentAddress).add(DataStoreDefinition.DATASTORE, DataStoreDefinition.Element.JPA.localName());
+        final int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String value = reader.getAttributeValue(i);
+            DataStoreDefinition.DATASOURCE_ATTR.parseAndSetParameter(value, node, reader);
+        }
+        return node;
     }
 
     /**
@@ -143,13 +180,12 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
     public void writeContent(final XMLExtendedStreamWriter writer, final SubsystemMarshallingContext context) throws XMLStreamException {
         context.startSubsystemElement(SimplePushExtension.NAMESPACE, false);
         final ModelNode node = context.getModelNode();
-        final ModelNode server = node.get(SimplePushExtension.SERVER);
+        final ModelNode server = node.get(ServerDefinition.SERVER);
 
         for (Property property : server.asPropertyList()) {
-            writer.writeStartElement(SimplePushExtension.SERVER);
+            writer.writeStartElement(ServerDefinition.SERVER);
             final ModelNode entry = property.getValue();
             ServerDefinition.SOCKET_BINDING_ATTR.marshallAsAttribute(entry, true, writer);
-            ServerDefinition.DATASOURCE_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.TOKEN_KEY_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.REAPER_TIMEOUT_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.NOTIFICATION_TLS_ATTR.marshallAsAttribute(entry, true, writer);
@@ -168,6 +204,17 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             ServerDefinition.SOCKJS_ENABLE_WEBSOCKET_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_WEBSOCKET_PROTOCOLS.marshallAsAttribute(entry, true, writer);
+            final ModelNode datastore = entry.get(DataStoreDefinition.DATASTORE);
+            if (datastore.isDefined()) {
+                writer.writeStartElement(DataStoreDefinition.DATASTORE);
+                final ModelNode jpa = datastore.get(DataStoreDefinition.Element.JPA.localName());
+                if (jpa.isDefined()) {
+                    writer.writeStartElement(DataStoreDefinition.Element.JPA.localName());
+                    DataStoreDefinition.DATASOURCE_ATTR.marshallAsAttribute(jpa, true, writer);
+                    writer.writeEndElement();
+                }
+                writer.writeEndElement();
+            }
             writer.writeEndElement();
         }
 

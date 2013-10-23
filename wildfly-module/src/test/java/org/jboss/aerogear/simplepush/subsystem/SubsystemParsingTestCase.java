@@ -21,7 +21,7 @@ package org.jboss.aerogear.simplepush.subsystem;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.DATASOURCE;
+import static org.jboss.aerogear.simplepush.subsystem.DataStoreDefinition.Element.DATASOURCE;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_TLS;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.REAPER_TIMEOUT;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKET_BINDING;
@@ -80,7 +80,6 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
     private final String subsystemXml =
         "<subsystem xmlns=\"" + NAMESPACE + "\">" +
             "<server socket-binding=\"simplepush\" " +
-                "datasource-jndi-name=\"java:jboss/datasources/TestDS\" " +
                 "token-key=\"testing\" " +
                 "useragent-reaper-timeout=\"16000\" " +
                 "notification-prefix=\"/update\" " +
@@ -98,8 +97,11 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
                 "sockjs-keystore-password=\"simplepush\" " +
                 "sockjs-enable-websocket=\"false\" " +
                 "sockjs-websocket-heartbeat-interval=\"600000\" " +
-                "sockjs-websocket-protocols=\"push-notification, myproto\" " +
-                "/>" +
+                "sockjs-websocket-protocols=\"push-notification, myproto\">" +
+                "<datastore>" +
+                    "<jpa datasource-jndi-name=\"java:jboss/datasources/TestDS\" />" +
+                "</datastore>" +
+            "</server>" +
         "</subsystem>";
 
     public SubsystemParsingTestCase() {
@@ -109,7 +111,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
     @Test
     public void parseSubsystem() throws Exception {
         final List<ModelNode> operations = parse(subsystemXml);
-        assertThat(operations.size(), is(2));
+        assertThat(operations.size(), is(3));
         final ModelNode subsystem = operations.get(0);
         assertThat(subsystem.get(OP).asString(), equalTo(ADD));
         final PathAddress address = pathAddress(subsystem.get(OP_ADDR));
@@ -124,6 +126,8 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         final ModelNode options = operations.get(1);
         assertThat(options.get(OP).asString(), equalTo(ADD));
         assertOptions(options);
+        final ModelNode datastore = operations.get(2);
+        assertThat(datastore.get(DATASOURCE.localName()).asString(), equalTo("java:jboss/datasources/TestDS"));
     }
 
     @Test
@@ -177,7 +181,6 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         serverTwo.get(OP).set(ADD);
         serverTwo.get(OP_ADDR).set(serverAddress.toModelNode());
         serverTwo.get(SOCKET_BINDING.localName()).set("mysocket");
-        serverTwo.get(DATASOURCE.localName()).set("java:jboss/datasources/NettyDS");
         serverTwo.get(TOKEN_KEY.localName()).set("123456");
         serverTwo.get(NOTIFICATION_TLS.localName()).set("true");
         serverTwo.get(REAPER_TIMEOUT.localName()).set(20000);
@@ -196,11 +199,16 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         serverTwo.get(SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL.localName()).set(300000L);
         assertThat(services.executeOperation(serverTwo).get(OUTCOME).asString(), equalTo(SUCCESS));
 
+        final ModelNode serverTwoDatastore = new ModelNode();
+        serverTwoDatastore.get(OP).set(ADD);
+        serverTwoDatastore.get(OP_ADDR).set(serverAddress.toModelNode().add(DataStoreDefinition.DATASTORE, DataStoreDefinition.Element.JPA.localName()));
+        serverTwoDatastore.get(DATASOURCE.localName()).set("java:jboss/datasources/NettyDS");
+        assertThat(services.executeOperation(serverTwoDatastore).get(OUTCOME).asString(), equalTo(SUCCESS));
+
         final ModelNode model = services.readWholeModel();
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server").hasDefined("foo"), is(true));
         final ModelNode fooOptions = model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo");
         assertThat(fooOptions.get(SOCKET_BINDING.localName()).asString(), equalTo("mysocket"));
-        assertThat(fooOptions.get(DATASOURCE.localName()).asString(), equalTo("java:jboss/datasources/NettyDS"));
         assertThat(fooOptions.get(TOKEN_KEY.localName()).asString(), equalTo("123456"));
         assertThat(fooOptions.get(REAPER_TIMEOUT.localName()).asLong(), is(20000L));
         assertThat(fooOptions.get(NOTIFICATION_TLS.localName()).asBoolean(), is(false));
@@ -217,11 +225,13 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(fooOptions.get(SOCKJS_ENABLE_WEBSOCKET.localName()).asBoolean(), is(true));
         assertThat(fooOptions.get(SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL.localName()).asLong(), is(300000L));
         assertThat(fooOptions.get(SOCKJS_WEBSOCKET_PROTOCOLS.localName()).asString(), equalTo("push-notification"));
+
+        final ModelNode fooJpa = fooOptions.get(DataStoreDefinition.DATASTORE, DataStoreDefinition.Element.JPA.localName());
+        assertThat(fooJpa.get(DATASOURCE.localName()).asString(), equalTo("java:jboss/datasources/NettyDS"));
     }
 
     private void assertOptions(final ModelNode options) {
         assertThat(options.get(SOCKET_BINDING.localName()).asString(), equalTo("simplepush"));
-        assertThat(options.get(DATASOURCE.localName()).asString(), equalTo("java:jboss/datasources/TestDS"));
         assertThat(options.get(TOKEN_KEY.localName()).asString(), equalTo("testing"));
         assertThat(options.get(REAPER_TIMEOUT.localName()).asLong(), is(16000L));
         assertThat(options.get(NOTIFICATION_PREFIX.localName()).asString(), equalTo("/update"));

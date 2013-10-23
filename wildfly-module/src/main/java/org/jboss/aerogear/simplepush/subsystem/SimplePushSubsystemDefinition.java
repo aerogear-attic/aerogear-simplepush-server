@@ -17,6 +17,7 @@
 
 package org.jboss.aerogear.simplepush.subsystem;
 
+import org.jboss.as.controller.ResourceDefinition;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.operations.common.GenericSubsystemDescribeHandler;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -24,6 +25,11 @@ import org.jboss.as.controller.registry.OperationEntry;
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.DESCRIBE;
 
+/**
+ * A {@link ResourceDefinition} for the SimplePush subsystem.
+ * </p>
+ * This represent the top level node in the configuration.
+ */
 public class SimplePushSubsystemDefinition extends SimpleResourceDefinition {
 
     public static final SimplePushSubsystemDefinition INSTANCE = new SimplePushSubsystemDefinition();
