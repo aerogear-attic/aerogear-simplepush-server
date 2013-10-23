@@ -172,8 +172,18 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
         node.get(OP_ADDR).set(parentAddress).add(DataStoreDefinition.DATASTORE, DataStoreDefinition.Element.JPA.localName());
         final int count = reader.getAttributeCount();
         for (int i = 0; i < count; i++) {
+            final String name = reader.getAttributeLocalName(i);
             final String value = reader.getAttributeValue(i);
-            DataStoreDefinition.DATASOURCE_ATTR.parseAndSetParameter(value, node, reader);
+            switch (DataStoreDefinition.Element.of(name)) {
+                case DATASOURCE:
+                    DataStoreDefinition.DATASOURCE_ATTR.parseAndSetParameter(value, node, reader);
+                    break;
+                case PERSISTENCE_UNIT:
+                    DataStoreDefinition.PERSISTENCE_UNIT_ATTR.parseAndSetParameter(value, node, reader);
+                    break;
+                default:
+                    throw unexpectedAttribute(reader, i);
+            }
         }
         return node;
     }
@@ -239,6 +249,7 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                         writer.writeStartElement(DataStoreDefinition.Element.JPA.localName());
                         final ModelNode jpa = datastore.get(DataStoreDefinition.Element.JPA.localName());
                         DataStoreDefinition.DATASOURCE_ATTR.marshallAsAttribute(jpa, true, writer);
+                        DataStoreDefinition.PERSISTENCE_UNIT_ATTR.marshallAsAttribute(jpa, true, writer);
                         writer.writeEndElement();
                         break;
                     case REDIS:

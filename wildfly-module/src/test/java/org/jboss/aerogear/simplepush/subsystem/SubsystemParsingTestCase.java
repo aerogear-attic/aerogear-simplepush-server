@@ -22,6 +22,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.jboss.aerogear.simplepush.subsystem.DataStoreDefinition.Element.DATASOURCE;
+import static org.jboss.aerogear.simplepush.subsystem.DataStoreDefinition.Element.PERSISTENCE_UNIT;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_ACK_INTERVAL;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_PREFIX;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_SOCKET_BINDING;
@@ -56,7 +57,6 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
-import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.naming.deployment.ContextNames;
 import org.jboss.as.naming.deployment.ContextNames.BindInfo;
@@ -99,7 +99,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
                 "sockjs-websocket-heartbeat-interval=\"600000\" " +
                 "sockjs-websocket-protocols=\"push-notification, myproto\">" +
                 "<datastore>" +
-                    "<jpa datasource-jndi-name=\"java:jboss/datasources/TestDS\" />" +
+                    "<jpa datasource-jndi-name=\"java:jboss/datasources/TestDS\" persistence-unit=\"SimplePushPU\"/>" +
                 "</datastore>" +
             "</server>" +
         "</subsystem>";
@@ -128,6 +128,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertOptions(options);
         final ModelNode datastore = operations.get(2);
         assertThat(datastore.get(DATASOURCE.localName()).asString(), equalTo("java:jboss/datasources/TestDS"));
+        assertThat(datastore.get(PERSISTENCE_UNIT.localName()).asString(), equalTo("SimplePushPU"));
     }
 
     @Test
@@ -209,6 +210,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         serverTwoDatastore.get(OP).set(ADD);
         serverTwoDatastore.get(OP_ADDR).set(serverAddress.toModelNode().add(DataStoreDefinition.DATASTORE, DataStoreDefinition.Element.JPA.localName()));
         serverTwoDatastore.get(DATASOURCE.localName()).set("java:jboss/datasources/NettyDS");
+        serverTwoDatastore.get(PERSISTENCE_UNIT.localName()).set("SimplePushPU");
         steps.add(serverTwoDatastore);
         assertThat(services.executeOperation(operation).get(OUTCOME).asString(), equalTo(SUCCESS));
 
@@ -278,10 +280,6 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
             final BindInfo nettyBindInfo = ContextNames.bindInfoFor("java:jboss/datasources/NettyDS");
             final ServiceBuilder<?> nettyDS = serviceTarget.addService(nettyBindInfo.getBinderServiceName(), ds);
             nettyDS.install();
-
-            //final JpaDataStoreService datastoreService = mock(JpaDataStoreService.class);
-            //final ServiceBuilder<DataStore> dssBuilder = serviceTarget.addService(DataStoreService.SERVICE_NAME, datastoreService);
-            //dssBuilder.install();
         }
     }
 }

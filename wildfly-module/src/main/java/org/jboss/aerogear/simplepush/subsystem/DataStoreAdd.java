@@ -45,6 +45,7 @@ class DataStoreAdd extends AbstractAddStepHandler {
     @Override
     protected void populateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
         DataStoreDefinition.DATASOURCE_ATTR.validateAndSet(operation, model);
+        DataStoreDefinition.PERSISTENCE_UNIT_ATTR.validateAndSet(operation, model);
         DataStoreDefinition.HOST_ATTR.validateAndSet(operation, model);
         DataStoreDefinition.PORT_ATTR.validateAndSet(operation, model);
     }
@@ -60,16 +61,15 @@ class DataStoreAdd extends AbstractAddStepHandler {
         switch (DataStoreDefinition.Element.of(type)) {
             case JPA:
                 final ModelNode datasourceNode = DataStoreDefinition.DATASOURCE_ATTR.resolveModelAttribute(context, model);
-                if (datasourceNode.isDefined()) {
-                    final BindInfo bindinfo = ContextNames.bindInfoFor(datasourceNode.asString());
-                    logger.debug("Adding dependency to [" + bindinfo.getAbsoluteJndiName() + "]");
-                    final DataStoreService datastoreService = new JpaDataStoreService("SimplePushPU");
-                    final ServiceBuilder<DataStore> sb = context.getServiceTarget().addService(DataStoreService.SERVICE_NAME.append(serverName), datastoreService);
-                    sb.addDependencies(bindinfo.getBinderServiceName());
-                    sb.addListener(verificationHandler);
-                    sb.setInitialMode(Mode.ACTIVE);
-                    newControllers.add(sb.install());
-                }
+                final ModelNode persistenceUnitNode = DataStoreDefinition.PERSISTENCE_UNIT_ATTR.resolveModelAttribute(context, model);
+                final BindInfo bindinfo = ContextNames.bindInfoFor(datasourceNode.asString());
+                logger.debug("Adding dependency to [" + bindinfo.getAbsoluteJndiName() + "]");
+                final DataStoreService datastoreService = new JpaDataStoreService(persistenceUnitNode.asString());
+                final ServiceBuilder<DataStore> sb = context.getServiceTarget().addService(DataStoreService.SERVICE_NAME.append(serverName), datastoreService);
+                sb.addDependencies(bindinfo.getBinderServiceName());
+                sb.addListener(verificationHandler);
+                sb.setInitialMode(Mode.ACTIVE);
+                newControllers.add(sb.install());
                 break;
             default:
                 throw new IllegalStateException("invalid datastore type");
