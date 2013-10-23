@@ -21,9 +21,9 @@ import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.toJson;
 import java.util.concurrent.ConcurrentMap;
 
 import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
+import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
+import org.jboss.aerogear.simplepush.server.Notification;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
-import org.jboss.aerogear.simplepush.util.CryptoUtil;
-import org.jboss.aerogear.simplepush.util.CryptoUtil.EndpointParam;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.buffer.Buffer;
@@ -54,11 +54,12 @@ public class HttpNotificationHandler implements Handler<HttpServerRequest> {
             @Override
             public void handle(final Buffer buffer) {
                 try {
-                    final EndpointParam endpointParam = CryptoUtil.decryptEndpoint(simplePushServer.config().tokenKey(), request.params().get("endpoint"));
+                    final String endpointToken = request.params().get("endpoint");
                     final String payload = buffer.toString();
-                    logger.info("Notification channelId  [" + endpointParam.channelId() + "] " + payload);
-                    final NotificationMessage notification = simplePushServer.handleNotification(endpointParam.channelId(), endpointParam.uaid(), payload);
-                    vertx.eventBus().send(writeHandlerMap.get(endpointParam.uaid()), new Buffer(toJson(notification)));
+                    logger.info("Notification endpointToken  [" + endpointToken + "] " + payload);
+                    final Notification notification = simplePushServer.handleNotification(endpointToken, payload);
+                    final NotificationMessage notificationMessage = new NotificationMessageImpl(notification.ack());
+                    vertx.eventBus().send(writeHandlerMap.get(notification.uaid()), new Buffer(toJson(notificationMessage)));
                     request.response().setStatusCode(200);
                     request.response().end();
                 } catch (final Exception e) {

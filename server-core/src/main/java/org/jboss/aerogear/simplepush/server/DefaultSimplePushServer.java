@@ -24,14 +24,12 @@ import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
 import org.jboss.aerogear.simplepush.protocol.HelloMessage;
 import org.jboss.aerogear.simplepush.protocol.HelloResponse;
-import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterMessage;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
 import org.jboss.aerogear.simplepush.protocol.Status;
 import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 import org.jboss.aerogear.simplepush.protocol.impl.HelloResponseImpl;
-import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.RegisterResponseImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.StatusImpl;
 import org.jboss.aerogear.simplepush.protocol.impl.UnregisterResponseImpl;
@@ -66,7 +64,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
         final Set<String> oldChannels = store.getChannelIds(handshake.getUAID());
         for (String channelId : handshake.getChannelIds()) {
             if (!oldChannels.contains(channelId)) {
-                store.saveChannel(new DefaultChannel(handshake.getUAID(), channelId, makeEndpointUrl(handshake.getUAID(), channelId)));
+                store.saveChannel(new DefaultChannel(handshake.getUAID(), channelId, generateEndpointToken(handshake.getUAID(), channelId)));
             } else {
                 oldChannels.remove(channelId);
             }
@@ -75,28 +73,33 @@ public class DefaultSimplePushServer implements SimplePushServer {
         return new HelloResponseImpl(handshake.getUAID());
     }
 
+    private String generateEndpointToken(final String uaid, final String channelId) {
+        return CryptoUtil.endpointToken(uaid, channelId, config.tokenKey());
+    }
+
     @Override
     public RegisterResponse handleRegister(final RegisterMessage register, final String uaid) {
         final String channelId = register.getChannelId();
-        final String pushEndpoint = makeEndpointUrl(uaid, channelId);
-        final boolean saved = store.saveChannel(new DefaultChannel(uaid.toString(), channelId, pushEndpoint));
+        final String endpointToken = generateEndpointToken(uaid, channelId);
+        final boolean saved = store.saveChannel(new DefaultChannel(uaid, channelId, endpointToken));
         final Status status = saved ? new StatusImpl(200, "OK") : new StatusImpl(409, "Conflict: channeld [" + channelId + " is already in use");
-        return new RegisterResponseImpl(channelId, status, pushEndpoint);
+        return new RegisterResponseImpl(channelId, status, makeEndpointUrl(endpointToken));
     }
 
     @Override
-    public NotificationMessage handleNotification(final String channelId, final String uaid, final String body) throws ChannelNotFoundException {
+    public Notification handleNotification(final String endpointToken, final String body) throws ChannelNotFoundException {
         final Long version = Long.valueOf(VersionExtractor.extractVersion(body));
-        final Channel channel = getChannel(channelId);
-        channel.setVersion(version);
-        store.saveChannel(channel);
-        final NotificationMessage notification = new NotificationMessageImpl(new HashSet<Ack>(Arrays.asList(new AckImpl(channelId, version))));
-        store.saveUnacknowledged(notification.getAcks(), uaid);
-        return notification;
+        final String channelId = store.updateVersion(endpointToken, version);
+        if (channelId == null) {
+            throw new ChannelNotFoundException("Could not find channel for endpoint [" + endpointToken + "]", null);
+        }
+        final Ack ack = new AckImpl(channelId, version);
+        final String uaid = store.saveUnacknowledged(channelId, ack.getVersion());
+        return new Notification(uaid, ack);
     }
 
     @Override
-    public UnregisterResponse handleUnregister(UnregisterMessage unregister, final String uaid) {
+    public UnregisterResponse handleUnregister(final UnregisterMessage unregister, final String uaid) {
         final String channelId = unregister.getChannelId();
         try {
             removeChannel(channelId, uaid);
@@ -108,18 +111,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
 
     @Override
     public Set<Ack> handleAcknowledgement(final AckMessage ackMessage, final String uaid) {
-        final Set<Ack> acks = ackMessage.getAcks();
-        final Set<Ack> waitingForAcks = store.getUnacknowledged(uaid);
-        final Set<Ack> unacked = new HashSet<Ack>(waitingForAcks);
-        for (Ack ack : waitingForAcks) {
-            if (acks.contains(ack)) {
-                final boolean removed = store.removeAcknowledged(ack, uaid);
-                if (removed) {
-                    unacked.remove(ack);
-                }
-            }
-        }
-        return unacked;
+        return store.removeAcknowledged(uaid, ackMessage.getAcks());
     }
 
     @Override
@@ -135,10 +127,10 @@ public class DefaultSimplePushServer implements SimplePushServer {
         return store.getChannel(channelId);
     }
 
-    public boolean hasChannel(final String channelId) {
+    public boolean hasChannel(final String uaid, final String channelId) {
         try {
-            store.getChannel(channelId);
-            return true;
+            final Channel channel = store.getChannel(channelId);
+            return channel.getUAID().equals(uaid);
         } catch (final ChannelNotFoundException e) {
             return false;
         }
@@ -148,24 +140,16 @@ public class DefaultSimplePushServer implements SimplePushServer {
         try {
             final Channel channel = store.getChannel(channnelId);
             if (channel.getUAID().equals(uaid)) {
-                return store.removeChannel(channnelId);
+                store.removeChannels(new HashSet<String>(Arrays.asList(channnelId)));
+                return true;
             }
         } catch (final ChannelNotFoundException ignored) {
         }
         return false;
     }
 
-    public void removeChannels(final String uaid) {
-        store.removeChannels(uaid);
-    }
-
-    private String makeEndpointUrl(final String uaid, final String channelId) {
-        try {
-            final String path = uaid + "." + channelId;
-            return config.notificationUrl() + "/" + CryptoUtil.encrypt(config.tokenKey(), path);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+    private String makeEndpointUrl(final String endpointToken) {
+        return config.notificationUrl() + "/" + endpointToken;
     }
 
     @Override

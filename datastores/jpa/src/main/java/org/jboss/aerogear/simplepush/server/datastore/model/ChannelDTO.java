@@ -35,7 +35,7 @@ public final class ChannelDTO implements Serializable {
     @Id
     private String channelId;
     private long version;
-    private String endpointUrl;
+    private String endpointToken;
 
     @ManyToOne
     @JoinColumn (name = "useragent_fk")
@@ -48,11 +48,11 @@ public final class ChannelDTO implements Serializable {
     protected ChannelDTO() {
     }
 
-    public ChannelDTO(final UserAgentDTO userAgent, final String channelId, final long version, final String endpointUrl) {
+    public ChannelDTO(final UserAgentDTO userAgent, final String channelId, final long version, final String endpointToken) {
         this.userAgent = userAgent;
         this.channelId = channelId;
         this.version = version;
-        this.endpointUrl = endpointUrl;
+        this.endpointToken = endpointToken;
     }
 
     public String getChannelId() {
@@ -63,8 +63,12 @@ public final class ChannelDTO implements Serializable {
         return version;
     }
 
-    public String getEndpointUrl() {
-        return endpointUrl;
+    public void setVersion(final long version) {
+        this.version = version;
+    }
+
+    public String getEndpointToken() {
+        return endpointToken;
     }
 
     public UserAgentDTO getUserAgent() {
@@ -73,7 +77,7 @@ public final class ChannelDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "Channel[channelId=" + channelId + ", uaid=" + userAgent.getUaid().toString() + ", version=" + version + ", endpointUrl=" + endpointUrl + "]";
+        return "Channel[channelId=" + channelId + ", uaid=" + userAgent.getUaid().toString() + ", version=" + version + ", endpointToken=" + endpointToken + "]";
     }
 
     @Override
@@ -81,7 +85,7 @@ public final class ChannelDTO implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((channelId == null) ? 0 : channelId.hashCode());
-        result = prime * result + ((endpointUrl == null) ? 0 : endpointUrl.hashCode());
+        result = prime * result + ((endpointToken == null) ? 0 : endpointToken.hashCode());
         return result;
     }
 
@@ -101,7 +105,7 @@ public final class ChannelDTO implements Serializable {
 
         final ChannelDTO other = (ChannelDTO) obj;
         return channelId == null ? other.channelId == null : channelId.equals(other.channelId) &&
-                endpointUrl == null ? other.endpointUrl == null : endpointUrl.equals(other.endpointUrl);
+                endpointToken == null ? other.endpointToken == null : endpointToken.equals(other.endpointToken);
     }
 
 }

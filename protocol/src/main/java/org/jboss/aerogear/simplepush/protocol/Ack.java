@@ -35,6 +35,6 @@ public interface Ack {
      *
      * @return {@code String} the version for this ack.
      */
-    Long getVersion();
+    long getVersion();
 
 }

@@ -19,9 +19,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
-import java.security.NoSuchAlgorithmException;
 import java.security.Security;
-import java.security.cert.CertificateException;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -65,6 +63,7 @@ public final class WebSocketSslServerSslContext {
         return kmf;
     }
 
+    @SuppressWarnings("resource")
     private KeyStore loadKeyStore() throws Exception {
         InputStream fin = null;
         try {

@@ -49,9 +49,9 @@ public final class JpaExecutor {
             em.getTransaction().commit();
             return t;
         } catch (final Exception e) {
-            logger.error("Error while performing JpaOperation:", e);
+            logger.debug("Error while performing JpaOperation:", e);
             em.getTransaction().rollback();
-            throw new RuntimeException("Exception while trying to perform JPA operation", e);
+            throw new JpaException("Exception while trying to perform JPA operation", e);
         } finally {
             em.close();
         }

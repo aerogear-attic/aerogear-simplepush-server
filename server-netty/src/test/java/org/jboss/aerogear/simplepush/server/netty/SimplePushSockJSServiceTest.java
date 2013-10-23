@@ -41,15 +41,6 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsService;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsServiceFactory;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.CorsInboundHandler;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.CorsOutboundHandler;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.SockJsHandler;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.transports.Transports;
-
 import io.netty.util.ReferenceCountUtil;
 
 import java.util.Arrays;
@@ -59,6 +50,13 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.jboss.aerogear.simplepush.protocol.Ack;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsService;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsServiceFactory;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.CorsInboundHandler;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.CorsOutboundHandler;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.SockJsHandler;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.transports.Transports;
 import org.jboss.aerogear.simplepush.protocol.HelloResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.PingMessage;
@@ -285,8 +283,9 @@ public class SimplePushSockJSServiceTest {
         final String channelId = UUID.randomUUID().toString();
         sendWebSocketHttpUpgradeRequest(sessionUrl, channel);
         sendWebSocketHelloFrame(uaid, channel);
-        sendWebSocketRegisterFrame(channelId, channel);
-        sendNotification(channelId, uaid, 1L, simplePushServer);
+        final RegisterResponse registerResponse = sendWebSocketRegisterFrame(channelId, channel);
+        final String endpointToken = extractEndpointToken(registerResponse.getPushEndpoint());
+        sendNotification(endpointToken, 1L, simplePushServer);
 
         final Set<Ack> unacked = sendAcknowledge(channel, ack(channelId, 1L));
         assertThat(unacked.isEmpty(), is(true));
@@ -303,14 +302,20 @@ public class SimplePushSockJSServiceTest {
         final String channelId2 = UUID.randomUUID().toString();
         sendWebSocketHttpUpgradeRequest(sessionUrl, channel);
         sendWebSocketHelloFrame(uaid, channel);
-        sendWebSocketRegisterFrame(channelId1, channel);
-        sendWebSocketRegisterFrame(channelId2, channel);
-        sendNotification(channelId1, uaid, 1L, simplePushServer);
-        sendNotification(channelId2, uaid, 1L, simplePushServer);
+        final RegisterResponse registerResponse1 = sendWebSocketRegisterFrame(channelId1, channel);
+        final String endpointToken1 = extractEndpointToken(registerResponse1.getPushEndpoint());
+        final RegisterResponse registerResponse2 = sendWebSocketRegisterFrame(channelId2, channel);
+        final String endpointToken2 = extractEndpointToken(registerResponse2.getPushEndpoint());
+        sendNotification(endpointToken1, 1L, simplePushServer);
+        sendNotification(endpointToken2, 1L, simplePushServer);
 
         final Set<Ack> unacked = sendAcknowledge(channel, ack(channelId1, 1L), ack(channelId2, 1L));
         assertThat(unacked.isEmpty(), is(true));
         channel.close();
+    }
+
+    private String extractEndpointToken(final String pushEndpoint) {
+        return pushEndpoint.substring(pushEndpoint.lastIndexOf('/') + 1);
     }
 
     @Test
@@ -325,10 +330,13 @@ public class SimplePushSockJSServiceTest {
         final String channelId2 = UUID.randomUUID().toString();
         sendWebSocketHttpUpgradeRequest(sessionUrl, channel);
         sendWebSocketHelloFrame(uaid, channel);
-        sendWebSocketRegisterFrame(channelId1, channel);
-        sendWebSocketRegisterFrame(channelId2, channel);
-        sendNotification(channelId1, uaid, 1L, simplePushServer);
-        sendNotification(channelId2, uaid, 1L, simplePushServer);
+        final RegisterResponse registerResponse1 = sendWebSocketRegisterFrame(channelId1, channel);
+        final String endpointToken1 = extractEndpointToken(registerResponse1.getPushEndpoint());
+        sendNotification(endpointToken1, 1L, simplePushServer);
+
+        final RegisterResponse registerResponse2 = sendWebSocketRegisterFrame(channelId2, channel);
+        final String endpointToken2 = extractEndpointToken(registerResponse2.getPushEndpoint());
+        sendNotification(endpointToken2, 1L, simplePushServer);
 
         final Set<Ack> unacked = sendAcknowledge(channel, ack(channelId1, 1L));
         assertThat(unacked.size(), is(1));
@@ -348,10 +356,12 @@ public class SimplePushSockJSServiceTest {
         final String channelId2 = UUID.randomUUID().toString();
         sendWebSocketHttpUpgradeRequest(sessionUrl, channel);
         sendWebSocketHelloFrame(uaid, channel);
-        sendWebSocketRegisterFrame(channelId1, channel);
-        sendWebSocketRegisterFrame(channelId2, channel);
-        sendNotification(channelId1, uaid, 1L, simplePushServer);
-        sendNotification(channelId2, uaid, 1L, simplePushServer);
+        final RegisterResponse registerResponse1 = sendWebSocketRegisterFrame(channelId1, channel);
+        final String endpointToken1 = extractEndpointToken(registerResponse1.getPushEndpoint());
+        sendNotification(endpointToken1, 1L, simplePushServer);
+        final RegisterResponse registerResponse2 = sendWebSocketRegisterFrame(channelId2, channel);
+        final String endpointToken2 = extractEndpointToken(registerResponse2.getPushEndpoint());
+        sendNotification(endpointToken2, 1L, simplePushServer);
 
         final Set<Ack> unacked = sendAcknowledge(channel);
         assertThat(unacked.size(), is(1));
@@ -374,9 +384,9 @@ public class SimplePushSockJSServiceTest {
         return new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.create().tokenKey("test").build());
     }
 
-    private void sendNotification(final String channelId, final String uaid, final long version,
+    private void sendNotification(final String endpointToken, final long version,
             final SimplePushServer simplePushServer) throws ChannelNotFoundException {
-        simplePushServer.handleNotification(channelId, uaid, "version=" + version);
+        simplePushServer.handleNotification(endpointToken, "version=" + version);
     }
 
     private Ack ack(final String channelId, final Long version) {

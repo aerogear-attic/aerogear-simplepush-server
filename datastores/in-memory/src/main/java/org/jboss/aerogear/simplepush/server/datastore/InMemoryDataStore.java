@@ -23,8 +23,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.jboss.aerogear.simplepush.protocol.Ack;
+import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
 import org.jboss.aerogear.simplepush.server.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,21 +36,26 @@ import org.slf4j.LoggerFactory;
  */
 public class InMemoryDataStore implements DataStore {
 
-    private final ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<String, Channel>();
-    private final ConcurrentMap<String, Set<Ack>> notifiedChannels = new ConcurrentHashMap<String, Set<Ack>>();
+    private final ConcurrentMap<String, MutableChannel> channels = new ConcurrentHashMap<String, MutableChannel>();
+    private final ConcurrentMap<String, MutableChannel> endpoints = new ConcurrentHashMap<String, MutableChannel>();
+    private final ConcurrentMap<String, Set<Ack>> unacked = new ConcurrentHashMap<String, Set<Ack>>();
     private final Logger logger = LoggerFactory.getLogger(InMemoryDataStore.class);
 
     @Override
     public boolean saveChannel(final Channel ch) {
         checkNotNull(ch, "ch");
-        final Channel previous = channels.putIfAbsent(ch.getChannelId(), ch);
+        final MutableChannel mutableChannel = new MutableChannel(ch);
+        final Channel previous = channels.putIfAbsent(ch.getChannelId(), mutableChannel);
+        endpoints.put(ch.getEndpointToken(), mutableChannel);
         return previous == null;
     }
 
-    @Override
-    public boolean removeChannel(final String channelId) {
+    private boolean removeChannel(final String channelId) {
         checkNotNull(channelId, "channelId");
         final Channel channel = channels.remove(channelId);
+        if (channel != null) {
+            endpoints.remove(endpoints.get(channel.getEndpointToken()));
+        }
         return channel != null;
     }
 
@@ -67,23 +74,20 @@ public class InMemoryDataStore implements DataStore {
         checkNotNull(uaid, "uaid");
         for (Channel channel : channels.values()) {
             if (channel.getUAID().equals(uaid)) {
-                channels.remove(channel.getChannelId());
+                removeChannel(channel.getChannelId());
                 logger.info("Removing [" + channel.getChannelId() + "] for UserAgent [" + uaid + "]");
             }
         }
-        notifiedChannels.remove(uaid);
+        unacked.remove(uaid);
     }
 
     @Override
-    public Integer removeChannels(final Set<String> channelIds) {
+    public void removeChannels(final Set<String> channelIds) {
         checkNotNull(channelIds, "channelIds");
-        int removed = 0;
         for (String channelId : channelIds) {
-            channels.remove(channelId);
-            removed++;
+            removeChannel(channelId);
             logger.debug("Removing [" + channelId + "]");
         }
-        return removed;
     }
 
     @Override
@@ -99,34 +103,50 @@ public class InMemoryDataStore implements DataStore {
     }
 
     @Override
-    public void saveUnacknowledged(final Set<Ack> acks, final String uaid) {
-        checkNotNull(uaid, "uaid");
-        checkNotNull(acks, "acks");
+    public String updateVersion(final String endpointToken, final long version) throws VersionException, ChannelNotFoundException {
+        final MutableChannel channel = endpoints.get(endpointToken);
+        if (channel == null) {
+            throw new ChannelNotFoundException("Could not find channel for endpointToken", endpointToken);
+        }
+        channel.updateVersion(version);
+        return channel.getChannelId();
+    }
+
+    @Override
+    public String saveUnacknowledged(final String channelId, final long version) throws ChannelNotFoundException {
+        checkNotNull(channelId, "channelId");
+        checkNotNull(version, "version");
+        final Channel channel = channels.get(channelId);
+        if (channel == null) {
+            throw new ChannelNotFoundException("Could not find channel", channelId);
+        }
+        final String uaid = channel.getUAID();
         final Set<Ack> newAcks = Collections.newSetFromMap(new ConcurrentHashMap<Ack, Boolean>());
-        newAcks.addAll(acks);
+        newAcks.add(new AckImpl(channelId, version));
         while (true) {
-            final Set<Ack> currentAcks = notifiedChannels.get(uaid);
+            final Set<Ack> currentAcks = unacked.get(uaid);
             if (currentAcks == null) {
-                final Set<Ack> previous = notifiedChannels.putIfAbsent(uaid, newAcks);
+                final Set<Ack> previous = unacked.putIfAbsent(uaid, newAcks);
                 if (previous != null) {
                     newAcks.addAll(previous);
-                    if (notifiedChannels.replace(uaid, previous, newAcks)) {
+                    if (unacked.replace(uaid, previous, newAcks)) {
                         break;
                     }
                 }
             } else {
                 newAcks.addAll(currentAcks);
-                if (notifiedChannels.replace(uaid, currentAcks, newAcks)) {
+                if (unacked.replace(uaid, currentAcks, newAcks)) {
                     break;
                 }
             }
         }
+        return uaid;
     }
 
     @Override
     public Set<Ack> getUnacknowledged(final String uaid) {
         checkNotNull(uaid, "uaid");
-        final Set<Ack> acks = notifiedChannels.get(uaid);
+        final Set<Ack> acks = unacked.get(uaid);
         if (acks == null) {
             return Collections.emptySet();
         }
@@ -134,24 +154,78 @@ public class InMemoryDataStore implements DataStore {
     }
 
     @Override
-    public boolean removeAcknowledged(final Ack ack, final String uaid) {
-        checkNotNull(ack, "ack");
+    public Set<Ack> removeAcknowledged(final String uaid, final Set<Ack> acked) {
         checkNotNull(uaid, "uaid");
+        checkNotNull(acked, "acked");
         while (true) {
-            final Set<Ack> currentAcks = notifiedChannels.get(uaid);
+            final Set<Ack> currentAcks = unacked.get(uaid);
             if (currentAcks == null || currentAcks.isEmpty()) {
-                return false;
+                return Collections.emptySet();
             }
-            final Set<Ack> newAcks = Collections.newSetFromMap(new ConcurrentHashMap<Ack, Boolean>());
-            newAcks.addAll(currentAcks);
-            if (newAcks.remove(ack)) {
-                if (notifiedChannels.replace(uaid, currentAcks, newAcks)) {
-                    return true;
+            final Set<Ack> newUpdates = Collections.newSetFromMap(new ConcurrentHashMap<Ack, Boolean>());
+            boolean added = newUpdates.addAll(currentAcks);
+            if (!added){
+                return newUpdates;
+            }
+
+            boolean removed = newUpdates.removeAll(acked);
+            if (removed) {
+                if (unacked.replace(uaid, currentAcks, newUpdates)) {
+                    return newUpdates;
                 }
             } else {
-                return false;
+                return newUpdates;
             }
         }
+    }
+
+    /**
+     * A Channel implementation which has a mutable version and indended for
+     * usage with the InMemoryDataStore.
+     * This class uses a concurrent data structure to store and update the version.
+     */
+    private static class MutableChannel implements Channel {
+
+        private final Channel delegate;
+        private final AtomicLong version;
+
+        public MutableChannel(final Channel delegate) {
+            this.delegate = delegate;
+            version = new AtomicLong(delegate.getVersion());
+        }
+
+        @Override
+        public String getUAID() {
+            return delegate.getUAID();
+        }
+
+        @Override
+        public String getChannelId() {
+            return delegate.getChannelId();
+        }
+
+        @Override
+        public long getVersion() {
+            return version.get();
+        }
+
+        public void updateVersion(final long newVersion) {
+            for (;;) {
+                final long currentVersion = version.get();
+                if (newVersion <= currentVersion) {
+                    throw new VersionException("New version [" + newVersion + "] must be greater than current version [" + currentVersion + "]");
+                }
+                if (version.compareAndSet(currentVersion, newVersion)) {
+                    break;
+                }
+            }
+        }
+
+        @Override
+        public String getEndpointToken() {
+            return delegate.getEndpointToken();
+        }
+
     }
 
 }

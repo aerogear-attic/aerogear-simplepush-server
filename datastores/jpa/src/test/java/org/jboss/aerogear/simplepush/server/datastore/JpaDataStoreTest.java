@@ -23,7 +23,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -68,7 +67,7 @@ public class JpaDataStoreTest {
         assertThat(channel.getChannelId(), equalTo(channelId));
         assertThat(channel.getUAID(), equalTo(uaid));
         assertThat(channel.getVersion(), equalTo(10L));
-        assertThat(channel.getPushEndpoint(), equalTo("/endpoint/" + channelId));
+        assertThat(channel.getEndpointToken(), equalTo("endpointToken"));
     }
 
     @Test
@@ -94,17 +93,19 @@ public class JpaDataStoreTest {
         jpaDataStore.getChannel("doesNotExistId");
     }
 
-    @Test
-    public void removeChannel() {
+    @Test (expected = ChannelNotFoundException.class)
+    public void removeChannelsSimpleChannel() throws ChannelNotFoundException {
         final String channelId = UUID.randomUUID().toString();
         jpaDataStore.saveChannel(newChannel(UUIDUtil.newUAID(), channelId, 10L));
-        assertThat(jpaDataStore.removeChannel(channelId), is(true));
+        jpaDataStore.removeChannels(new HashSet<String>(Arrays.asList(channelId)));
+        jpaDataStore.getChannel(channelId);
     }
 
-    @Test
-    public void removeNotExistingChannel() {
-        final boolean removed = jpaDataStore.removeChannel("DoesNotExistChannelId");
-        assertThat(removed, is(false));
+    @Test (expected = ChannelNotFoundException.class)
+    public void removeNonExistingChannel() throws ChannelNotFoundException {
+        final String channelId = "DoesNotExistChannelId";
+        jpaDataStore.removeChannels(new HashSet<String>(Arrays.asList(channelId)));
+        jpaDataStore.getChannel(channelId);
     }
 
     @Test
@@ -119,18 +120,6 @@ public class JpaDataStoreTest {
     }
 
     @Test
-    public void removeChannelsNoChannelsRegistered() {
-        final Integer removed = jpaDataStore.removeChannels(Collections.<String>emptySet());
-        assertThat(removed, is(0));
-    }
-
-    @Test
-    public void removeChannelsNullChannels() {
-        final Integer removed = jpaDataStore.removeChannels((Set<String>)null);
-        assertThat(removed, is(0));
-    }
-
-    @Test
     public void removeChannelsNoUserAgentStored() {
         final String channelId1 = UUID.randomUUID().toString();
         jpaDataStore.removeChannels(UUIDUtil.newUAID());
@@ -138,30 +127,87 @@ public class JpaDataStoreTest {
     }
 
     @Test
-    public void saveEmptyUnacknowledged() {
-        final String uaid = UUIDUtil.newUAID();
-        jpaDataStore.saveChannel(newChannel(uaid, UUID.randomUUID().toString(), 10L));
-        jpaDataStore.saveUnacknowledged(Collections.<Ack>emptySet(), uaid);
-        assertThat(jpaDataStore.getUnacknowledged(uaid).size(), is(0));
+    public void updateVersion() throws VersionException, ChannelNotFoundException {
+        final Channel channel = newChannel(UUIDUtil.newUAID(), UUID.randomUUID().toString(), 0);
+        jpaDataStore.saveChannel(channel);
+        final String channelId = jpaDataStore.updateVersion(channel.getEndpointToken(), 1);
+        assertThat(channelId, is(equalTo(channel.getChannelId())));
+        final Channel updated = jpaDataStore.getChannel(channelId);
+        assertThat(updated.getVersion(), is(1L));
     }
 
     @Test
-    public void saveAndGetUnacknowledged() {
+    public void updateVersionLarger() throws VersionException, ChannelNotFoundException {
+        final Channel channel = newChannel(UUIDUtil.newUAID(), UUID.randomUUID().toString(), 10);
+        jpaDataStore.saveChannel(channel);
+        final String channelId = jpaDataStore.updateVersion(channel.getEndpointToken(), 121);
+        assertThat(channelId, is(equalTo(channel.getChannelId())));
+        final Channel updated = jpaDataStore.getChannel(channelId);
+        assertThat(updated.getVersion(), is(121L));
+    }
+
+
+    @Test (expected = VersionException.class)
+    public void updateVersionSameVersion() throws VersionException, ChannelNotFoundException {
+        final Channel channel = newChannel(UUIDUtil.newUAID(), UUID.randomUUID().toString(), 1);
+        jpaDataStore.saveChannel(channel);
+        final String channelId = jpaDataStore.updateVersion(channel.getEndpointToken(), 1);
+        assertThat(channelId, is(equalTo(channel.getChannelId())));
+        final Channel updated = jpaDataStore.getChannel(channelId);
+        assertThat(updated.getVersion(), is(1L));
+    }
+
+    @Test (expected = VersionException.class)
+    public void updateVersionLessThanCurrent() throws VersionException, ChannelNotFoundException {
+        final Channel channel = newChannel(UUIDUtil.newUAID(), UUID.randomUUID().toString(), 10);
+        jpaDataStore.saveChannel(channel);
+        jpaDataStore.getChannel(jpaDataStore.updateVersion(channel.getEndpointToken(), 9));
+    }
+
+    @Test (expected = VersionException.class)
+    public void updateVersionLessNegativeValue() throws VersionException, ChannelNotFoundException {
+        final Channel channel = newChannel(UUIDUtil.newUAID(), UUID.randomUUID().toString(), 10);
+        jpaDataStore.saveChannel(channel);
+        final String channelId = jpaDataStore.updateVersion(channel.getEndpointToken(), -9);
+        assertThat(channelId, is(equalTo(channel.getChannelId())));
+        final Channel updated = jpaDataStore.getChannel(channelId);
+        assertThat(updated.getVersion(), is(10L));
+    }
+
+    @Test
+    public void saveUnacknowledgement() throws ChannelNotFoundException {
         final String uaid = UUIDUtil.newUAID();
-        jpaDataStore.saveChannel(newChannel(uaid, UUID.randomUUID().toString(), 10L));
-        jpaDataStore.saveUnacknowledged(acks(newAck(1L), newAck(2L)), uaid);
+        final Channel channel = newChannel(uaid, UUID.randomUUID().toString(), 10L);
+        jpaDataStore .saveChannel(channel);
+        jpaDataStore.saveUnacknowledged(channel.getChannelId(), 10);
+        assertThat(jpaDataStore.getUnacknowledged(uaid).size(), is(1));
+    }
+
+    @Test
+    public void getUnacknowledged() throws ChannelNotFoundException {
+        final String uaid = UUIDUtil.newUAID();
+        final Channel channel1 = newChannel(uaid, UUID.randomUUID().toString(), 1);
+        final Channel channel2 = newChannel(uaid, UUID.randomUUID().toString(), 2);
+        jpaDataStore.saveChannel(channel1);
+        jpaDataStore.saveChannel(channel2);
+        jpaDataStore.saveUnacknowledged(channel1.getChannelId(), 10);
+        jpaDataStore.saveUnacknowledged(channel2.getChannelId(), 10);
         assertThat(jpaDataStore.getUnacknowledged(uaid).size(), is(2));
     }
 
     @Test
-    public void removeAcknowledged() {
+    public void removeAcknowledged() throws ChannelNotFoundException {
         final String uaid = UUIDUtil.newUAID();
-        jpaDataStore.saveChannel(newChannel(uaid, UUID.randomUUID().toString(), 10L));
-        jpaDataStore.saveUnacknowledged(acks(newAck(1L), newAck(2L)), uaid);
+        final Channel channel1 = newChannel(uaid, UUID.randomUUID().toString(), 10);
+        final Channel channel2 = newChannel(uaid, UUID.randomUUID().toString(), 2);
+        jpaDataStore.saveChannel(channel1);
+        jpaDataStore.saveChannel(channel2);
+        jpaDataStore.saveUnacknowledged(channel1.getChannelId(), 11);
+        jpaDataStore.saveUnacknowledged(channel2.getChannelId(), 3);
         final Set<Ack> storedUpdates = jpaDataStore.getUnacknowledged(uaid);
         assertThat(storedUpdates.size(), is(2));
 
-        jpaDataStore.removeAcknowledged(storedUpdates.iterator().next(), uaid);
+        jpaDataStore.removeAcknowledged(uaid, acks(new AckImpl(channel1.getChannelId(), 11)));
         assertThat(jpaDataStore.getUnacknowledged(uaid).size(), is(1));
     }
 
@@ -172,10 +218,6 @@ public class JpaDataStoreTest {
         assertThat(storedUpdates.size(), is(0));
     }
 
-    private Ack newAck(final long version) {
-        return new AckImpl(UUID.randomUUID().toString(), version);
-    }
-
     private Set<Ack> acks(final Ack... updates) {
         final Set<Ack> ups = new HashSet<Ack>();
         ups.addAll(Arrays.asList(updates));
@@ -183,7 +225,7 @@ public class JpaDataStoreTest {
     }
 
     private Channel newChannel(final String uaid, final String channelId, final long version) {
-        return new DefaultChannel(uaid, channelId, version, "/endpoint/" + channelId);
+        return new DefaultChannel(uaid, channelId, version, "endpointToken");
     }
 
     private boolean channelExists(final String channelId, final JpaDataStore store) {

@@ -18,24 +18,22 @@ package org.jboss.aerogear.simplepush.server.netty;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.util.concurrent.TimeUnit;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.ScheduledFuture;
+
+import java.util.concurrent.TimeUnit;
 
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
-import org.jboss.aerogear.simplepush.util.CryptoUtil;
 import org.junit.Test;
 
 public class UserAgentReaperHandlerTest {

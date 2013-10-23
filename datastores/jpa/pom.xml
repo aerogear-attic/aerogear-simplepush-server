@@ -58,11 +58,6 @@
         </dependency>
         
         <dependency>
-            <groupId>org.jboss.aerogear</groupId>
-            <artifactId>aerogear-simplepush-server-core</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>

@@ -34,11 +34,6 @@ import org.junit.Test;
 
 public class NotificationMessageImplTest {
 
-    @Test(expected = NullPointerException.class)
-    public void constructWithNullUpdates() {
-        new NotificationMessageImpl(null);
-    }
-
     @Test(expected = IllegalArgumentException.class)
     public void constructWithEmptyUpdates() {
         new NotificationMessageImpl(Collections.<Ack> emptySet());

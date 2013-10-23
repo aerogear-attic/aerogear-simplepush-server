@@ -32,8 +32,6 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.transports.Transports;
 import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.Future;
@@ -41,11 +39,12 @@ import io.netty.util.concurrent.GenericFutureListener;
 
 import java.util.concurrent.Callable;
 
-import org.jboss.aerogear.simplepush.protocol.NotificationMessage;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.transports.Transports;
+import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
+import org.jboss.aerogear.simplepush.server.Notification;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
-import org.jboss.aerogear.simplepush.util.CryptoUtil;
-import org.jboss.aerogear.simplepush.util.CryptoUtil.EndpointParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,13 +120,13 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
         @Override
         public Void call() throws Exception {
             try {
-                final EndpointParam endpointParam = CryptoUtil.decryptEndpoint(simplePushServer.config().tokenKey(), endpoint);
                 final String payload = content.toString(CharsetUtil.UTF_8);
-                logger.info("UserAgent [" + endpointParam.uaid() + "] Notification [" + endpointParam.channelId() + ", " + payload + "]");
-                final NotificationMessage notification = simplePushServer.handleNotification(endpointParam.channelId(), endpointParam.uaid(), payload);
-                final SockJsSessionContext session = userAgents.get(endpointParam.uaid()).context();
-                session.send(toJson(notification));
-                userAgents.updateAccessedTime(endpointParam.uaid());
+                logger.info("EndpointToken [" + endpoint + ", " + payload + "]");
+                final Notification notification = simplePushServer.handleNotification(endpoint, payload);
+                final String uaid = notification.uaid();
+                final SockJsSessionContext session = userAgents.get(uaid).context();
+                session.send(toJson(new NotificationMessageImpl(notification.ack())));
+                userAgents.updateAccessedTime(uaid);
                 return null;
             } finally {
                 content.release();

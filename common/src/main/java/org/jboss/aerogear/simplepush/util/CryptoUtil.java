@@ -19,7 +19,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
@@ -127,6 +126,15 @@ public final class CryptoUtil {
         final String decrypt = CryptoUtil.decrypt(key, encrypted);
         final String[] uaidChannelIdPair = decrypt.split("\\.");
         return new EndpointParam(uaidChannelIdPair[0], uaidChannelIdPair[1]);
+    }
+
+    public static String endpointToken(final String uaid, final String channelId, final byte[] tokenKey) {
+        try {
+            final String path = uaid + "." + channelId;
+            return encrypt(tokenKey, path);
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static class EndpointParam {

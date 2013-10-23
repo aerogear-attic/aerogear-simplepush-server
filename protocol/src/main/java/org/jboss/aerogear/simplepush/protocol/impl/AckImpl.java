@@ -29,9 +29,9 @@ import org.jboss.aerogear.simplepush.protocol.Ack;
 public class AckImpl implements Ack {
 
     private final String channelId;
-    private final Long version;
+    private final long version;
 
-    public AckImpl(final String channelId, final Long version) {
+    public AckImpl(final String channelId, final long version) {
         checkNotNull(channelId, "channelId");
         checkNotNull(version, "version");
         this.channelId = channelId;
@@ -44,7 +44,7 @@ public class AckImpl implements Ack {
     }
 
     @Override
-    public Long getVersion() {
+    public long getVersion() {
         return version;
     }
 
