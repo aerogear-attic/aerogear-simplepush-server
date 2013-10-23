@@ -51,7 +51,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
         SOCKJS_TLS("sockjs-tls"),
         SOCKJS_KEYSTORE("sockjs-keystore"),
         SOCKJS_KEYSTORE_PASSWORD("sockjs-keystore-password"),
-        SOCKJS_ENABLE_WEBSOCKET("sockjs-enable-websocket"),
+        SOCKJS_ENABLE_WEBSOCKET("sockjs-websocket-enable"),
         SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL("sockjs-websocket-heartbeat-interval"),
         SOCKJS_WEBSOCKET_PROTOCOLS("sockjs-websocket-protocols");
 

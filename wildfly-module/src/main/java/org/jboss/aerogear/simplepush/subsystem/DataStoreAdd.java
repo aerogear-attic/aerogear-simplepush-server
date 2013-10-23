@@ -58,22 +58,29 @@ class DataStoreAdd extends AbstractAddStepHandler {
         final PathAddress pathAddress = PathAddress.pathAddress(operation.get("address"));
         final String serverName = pathAddress.getElement(1).getValue();
         final String type = pathAddress.getLastElement().getValue();
+        ServiceBuilder<DataStore> sb = null;
         switch (DataStoreDefinition.Element.of(type)) {
             case JPA:
                 final ModelNode datasourceNode = DataStoreDefinition.DATASOURCE_ATTR.resolveModelAttribute(context, model);
                 final ModelNode persistenceUnitNode = DataStoreDefinition.PERSISTENCE_UNIT_ATTR.resolveModelAttribute(context, model);
                 final BindInfo bindinfo = ContextNames.bindInfoFor(datasourceNode.asString());
                 logger.debug("Adding dependency to [" + bindinfo.getAbsoluteJndiName() + "]");
-                final DataStoreService datastoreService = new JpaDataStoreService(persistenceUnitNode.asString());
-                final ServiceBuilder<DataStore> sb = context.getServiceTarget().addService(DataStoreService.SERVICE_NAME.append(serverName), datastoreService);
+                DataStoreService jpa = new JpaDataStoreService(persistenceUnitNode.asString());
+                sb = context.getServiceTarget().addService(DataStoreService.SERVICE_NAME.append(serverName), jpa);
                 sb.addDependencies(bindinfo.getBinderServiceName());
-                sb.addListener(verificationHandler);
-                sb.setInitialMode(Mode.ACTIVE);
-                newControllers.add(sb.install());
+                break;
+            case REDIS:
+                final ModelNode hostNode = DataStoreDefinition.HOST_ATTR.resolveModelAttribute(context, model);
+                final ModelNode portNode = DataStoreDefinition.PORT_ATTR.resolveModelAttribute(context, model);
+                final DataStoreService redis = new RedisDataStoreService(hostNode.asString(), portNode.asInt());
+                sb = context.getServiceTarget().addService(DataStoreService.SERVICE_NAME.append(serverName), redis);
                 break;
             default:
                 throw new IllegalStateException("invalid datastore type");
         }
+        sb.addListener(verificationHandler);
+        sb.setInitialMode(Mode.ACTIVE);
+        newControllers.add(sb.install());
     }
 
 

@@ -95,7 +95,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
                 "sockjs-tls=\"true\" " +
                 "sockjs-keystore=\"/simplepush-sample.keystore\" " +
                 "sockjs-keystore-password=\"simplepush\" " +
-                "sockjs-enable-websocket=\"false\" " +
+                "sockjs-websocket-enable=\"false\" " +
                 "sockjs-websocket-heartbeat-interval=\"600000\" " +
                 "sockjs-websocket-protocols=\"push-notification, myproto\">" +
                 "<datastore>" +
