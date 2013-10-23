@@ -12,6 +12,9 @@
  */
 package org.jboss.aerogear.simplepush.server.datastore;
 
+/**
+ * Contains CouchDB <a href="http://wiki.apache.org/couchdb/HTTP_view_API">views</a>
+ */
 public enum Views {
 
     CHANNEL("function(doc) { if (doc.type == \"channel\") { emit(doc.chid, {\"doc\": doc, \"rev\": doc._rev});}}"),
