@@ -1,18 +1,18 @@
 package org.jboss.aerogear.simplepush.subsystem;
 
+import org.jboss.aerogear.simplepush.server.datastore.CouchDBDataStore;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
-import org.jboss.aerogear.simplepush.server.datastore.RedisDataStore;
 import org.jboss.msc.service.StartContext;
 import org.jboss.msc.service.StartException;
 
-public class RedisDataStoreService extends DataStoreService {
+public class CouchDBDataStoreService extends DataStoreService {
 
-    private final String host;
-    private final int port;
+    private final String url;
+    private final String dbName;
 
-    public RedisDataStoreService(final String host, final int port) {
-        this.host = host;
-        this.port = port;
+    public CouchDBDataStoreService(final String url, final String dbName ) {
+        this.url = url;
+        this.dbName = dbName;
     }
 
     @Override
@@ -21,7 +21,7 @@ public class RedisDataStoreService extends DataStoreService {
 
     @Override
     public synchronized DataStore getValue() throws IllegalStateException, IllegalArgumentException {
-        return new RedisDataStore(host, port);
+        return new CouchDBDataStore(url, dbName);
     }
 
 }

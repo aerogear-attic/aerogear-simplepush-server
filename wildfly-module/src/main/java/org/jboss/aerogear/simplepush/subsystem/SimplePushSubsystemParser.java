@@ -153,9 +153,15 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                             break;
                         }
                         case REDIS: {
-                            final ModelNode jpa = readRedisElement(reader, node.get(OP_ADDR));
-                            modelNodes.add(jpa);
+                            final ModelNode redis = readRedisElement(reader, node.get(OP_ADDR));
+                            modelNodes.add(redis);
                             break;
+                        }
+                        case COUCHDB: {
+                            final ModelNode couchdb = readCouchDBElement(reader, node.get(OP_ADDR));
+                            modelNodes.add(couchdb);
+                            break;
+
                         }
                         default: {
                             throw unexpectedElement(reader);
@@ -202,6 +208,28 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                     break;
                 case PORT:
                     DataStoreDefinition.PORT_ATTR.parseAndSetParameter(value, node, reader);
+                    break;
+                default:
+                    throw unexpectedAttribute(reader, i);
+            }
+        }
+        return node;
+    }
+
+    private ModelNode readCouchDBElement(XMLExtendedStreamReader reader, ModelNode parentAddress) throws XMLStreamException {
+        final ModelNode node = new ModelNode();
+        node.get(OP).set(ADD);
+        node.get(OP_ADDR).set(parentAddress).add(DataStoreDefinition.DATASTORE, DataStoreDefinition.Element.COUCHDB.localName());
+        final int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String name = reader.getAttributeLocalName(i);
+            final String value = reader.getAttributeValue(i);
+            switch (DataStoreDefinition.Element.of(name)) {
+                case URL:
+                    DataStoreDefinition.URL_ATTR.parseAndSetParameter(value, node, reader);
+                    break;
+                case DB_NAME:
+                    DataStoreDefinition.DB_NAME_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 default:
                     throw unexpectedAttribute(reader, i);
@@ -257,6 +285,13 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                         final ModelNode redis = datastore.get(DataStoreDefinition.Element.REDIS.localName());
                         DataStoreDefinition.HOST_ATTR.marshallAsAttribute(redis, true, writer);
                         DataStoreDefinition.PORT_ATTR.marshallAsAttribute(redis, true, writer);
+                        writer.writeEndElement();
+                        break;
+                    case COUCHDB:
+                        writer.writeStartElement(DataStoreDefinition.Element.COUCHDB.localName());
+                        final ModelNode couchdb = datastore.get(DataStoreDefinition.Element.COUCHDB.localName());
+                        DataStoreDefinition.URL_ATTR.marshallAsAttribute(couchdb, true, writer);
+                        DataStoreDefinition.DB_NAME_ATTR.marshallAsAttribute(couchdb, true, writer);
                         writer.writeEndElement();
                         break;
                     default:

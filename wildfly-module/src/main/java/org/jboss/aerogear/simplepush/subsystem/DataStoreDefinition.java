@@ -34,8 +34,11 @@ public class DataStoreDefinition extends SimpleResourceDefinition {
         DATASOURCE("datasource-jndi-name"),
         PERSISTENCE_UNIT("persistence-unit"),
         REDIS("redis"),
+        COUCHDB("couchdb"),
         HOST("host"),
-        PORT("port");
+        PORT("port"),
+        URL("url"),
+        DB_NAME("database-name");
 
         private final String name;
 
@@ -69,6 +72,8 @@ public class DataStoreDefinition extends SimpleResourceDefinition {
     public static final SimpleAttributeDefinition PERSISTENCE_UNIT_ATTR = new SimpleAttributeDefinition(Element.PERSISTENCE_UNIT.localName(), ModelType.STRING, true);
     public static final SimpleAttributeDefinition HOST_ATTR = new SimpleAttributeDefinition(Element.HOST.localName(), ModelType.STRING, true);
     public static final SimpleAttributeDefinition PORT_ATTR = new SimpleAttributeDefinition(Element.PORT.localName(), ModelType.STRING, true);
+    public static final SimpleAttributeDefinition URL_ATTR = new SimpleAttributeDefinition(Element.URL.localName(), ModelType.STRING, true);
+    public static final SimpleAttributeDefinition DB_NAME_ATTR = new SimpleAttributeDefinition(Element.DB_NAME.localName(), ModelType.STRING, true);
 
     public static final String DATASTORE = "datastore";
 
@@ -89,6 +94,8 @@ public class DataStoreDefinition extends SimpleResourceDefinition {
         resourceRegistration.registerReadWriteAttribute(PERSISTENCE_UNIT_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(HOST_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(PORT_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(URL_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(DB_NAME_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
     }
 
     @Override

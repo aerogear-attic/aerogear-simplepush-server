@@ -74,15 +74,16 @@ This section goes through all of the configuration options available.
             sockjs-keystore-password="password"
             sockjs-websocket-enabled="true" 
             sockjs-heartbeat-interval="18000" 
-            sockjs-protocols="push-notification"
+            sockjs-protocols="push-notification">
+            <datastore>
+                <jpa datasource-jndi-name="java:jboss/datasources/TestDS" persistence-unit="SimplePushPU"/>
+            </datastore>
         </server>
     </subsystem>
 
 #### socket-binding 
 This is the name of a socket-binding configured in the _socket-binding-group_ section in a WildFly configuration xml file.  
 
-#### datasource-jndi-name
-This referes to a JNDI name of a datasource that has been configured and bound. The datasource would normally be configured in the same WildFly configuration xml file.  
 
 #### token-key 
 This should be a random token which will be used by the server for encryption/decryption of the endpoint URLs that are
@@ -154,8 +155,8 @@ If _tls_ is in use then the value of this property should be a path to keystore 
 #### sockjs-keystore-password
 If _tls_ is in use, then the value of this property should be the password to the keystore specified in _keystore_.
 
-#### sockjs-websocket-enabled
-Determines whether WebSocket support is enabled on the server.
+#### sockjs-websocket-enable
+Determines whether WebSocket support should be enabled for the server.
 
 #### sockjs-websocket-heartbeat-interval
 A heartbeat-interval for WebSockets. This interval is separate from the normal SockJS heartbeat-interval and might be 
@@ -166,3 +167,18 @@ that the streaming protocols use as it is often desirable to have a much larger 
 Adds the specified comma separated list of protocols which will be returned to during the HTTP upgrade request as the header 'WebSocket-Protocol'. 
 This is only used with raw WebSockets as the SockJS protocol does not support protocols to be specified by the client yet.
 
+#### datastore
+The datastore can be used to configure the datastore which should be used.  
+Currently, jpa, redis, and couchdb are supported:
+
+    <datastore>
+        <jpa datasource-jndi-name="java:jboss/datasources/TestDS" persistence-unit="SimplePushPU"/>
+    </datastore>
+
+    <datastore>
+        <redis host="localhost" port="6379"/>
+    </datastore>
+    
+    <datastore>
+        <couchdb url="http://127.0.0.1:5984" database-name="simplepush"/>
+    </datastore>

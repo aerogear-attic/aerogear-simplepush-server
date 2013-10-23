@@ -48,6 +48,8 @@ class DataStoreAdd extends AbstractAddStepHandler {
         DataStoreDefinition.PERSISTENCE_UNIT_ATTR.validateAndSet(operation, model);
         DataStoreDefinition.HOST_ATTR.validateAndSet(operation, model);
         DataStoreDefinition.PORT_ATTR.validateAndSet(operation, model);
+        DataStoreDefinition.URL_ATTR.validateAndSet(operation, model);
+        DataStoreDefinition.DB_NAME_ATTR.validateAndSet(operation, model);
     }
 
     @Override
@@ -74,6 +76,12 @@ class DataStoreAdd extends AbstractAddStepHandler {
                 final ModelNode portNode = DataStoreDefinition.PORT_ATTR.resolveModelAttribute(context, model);
                 final DataStoreService redis = new RedisDataStoreService(hostNode.asString(), portNode.asInt());
                 sb = context.getServiceTarget().addService(DataStoreService.SERVICE_NAME.append(serverName), redis);
+                break;
+            case COUCHDB:
+                final ModelNode urlNode = DataStoreDefinition.URL_ATTR.resolveModelAttribute(context, model);
+                final ModelNode dbNameNode = DataStoreDefinition.DB_NAME_ATTR.resolveModelAttribute(context, model);
+                final DataStoreService couchdb = new CouchDBDataStoreService(urlNode.asString(), dbNameNode.asString());
+                sb = context.getServiceTarget().addService(DataStoreService.SERVICE_NAME.append(serverName), couchdb);
                 break;
             default:
                 throw new IllegalStateException("invalid datastore type");
