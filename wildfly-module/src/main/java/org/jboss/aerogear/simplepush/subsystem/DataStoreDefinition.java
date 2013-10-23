@@ -31,7 +31,10 @@ public class DataStoreDefinition extends SimpleResourceDefinition {
     public enum Element {
         UNKNOWN(null),
         JPA("jpa"),
-        DATASOURCE("datasource-jndi-name");
+        DATASOURCE("datasource-jndi-name"),
+        REDIS("redis"),
+        HOST("host"),
+        PORT("port");
 
         private final String name;
 
@@ -62,6 +65,8 @@ public class DataStoreDefinition extends SimpleResourceDefinition {
     }
 
     public static final SimpleAttributeDefinition DATASOURCE_ATTR = new SimpleAttributeDefinition(Element.DATASOURCE.localName(), ModelType.STRING, true);
+    public static final SimpleAttributeDefinition HOST_ATTR = new SimpleAttributeDefinition(Element.HOST.localName(), ModelType.STRING, true);
+    public static final SimpleAttributeDefinition PORT_ATTR = new SimpleAttributeDefinition(Element.PORT.localName(), ModelType.STRING, true);
 
     public static final String DATASTORE = "datastore";
 
@@ -79,6 +84,8 @@ public class DataStoreDefinition extends SimpleResourceDefinition {
     public void registerAttributes(final ManagementResourceRegistration resourceRegistration) {
         super.registerAttributes(resourceRegistration);
         resourceRegistration.registerReadWriteAttribute(DATASOURCE_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(HOST_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(PORT_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
     }
 
     @Override

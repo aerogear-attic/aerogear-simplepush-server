@@ -22,25 +22,25 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.jboss.aerogear.simplepush.subsystem.DataStoreDefinition.Element.DATASOURCE;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_ACK_INTERVAL;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_PREFIX;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_SOCKET_BINDING;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_TLS;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.REAPER_TIMEOUT;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKET_BINDING;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.TOKEN_KEY;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_PREFIX;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_ACK_INTERVAL;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_SOCKET_BINDING;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_PREFIX;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_COOKIES_NEEDED;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_URL;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_SESSION_TIMEOUT;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_ENABLE_WEBSOCKET;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_HEARTBEAT_INTERVAL;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_MAX_STREAMING_BYTES_SIZE;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_TLS;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_KEYSTORE;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_KEYSTORE_PASSWORD;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_ENABLE_WEBSOCKET;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_MAX_STREAMING_BYTES_SIZE;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_PREFIX;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_SESSION_TIMEOUT;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_TLS;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_URL;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_WEBSOCKET_PROTOCOLS;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.TOKEN_KEY;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.NAMESPACE;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.SUBSYSTEM_NAME;
 import static org.jboss.as.controller.PathAddress.pathAddress;
@@ -177,6 +177,11 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
     public void addSecondServer() throws Exception {
         final KernelServices services = installInController(new AdditionalServices(), subsystemXml);
         final PathAddress serverAddress = pathAddress(pathElement(SUBSYSTEM, SUBSYSTEM_NAME), pathElement("server", "foo"));
+        final ModelNode operation = new ModelNode();
+        operation.get(OP).set("composite");
+        operation.get(ADD).setEmptyList();
+        ModelNode steps = operation.get("steps");
+
         final ModelNode serverTwo = new ModelNode();
         serverTwo.get(OP).set(ADD);
         serverTwo.get(OP_ADDR).set(serverAddress.toModelNode());
@@ -197,13 +202,15 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         serverTwo.get(SOCKJS_TLS.localName()).set(false);
         serverTwo.get(SOCKJS_ENABLE_WEBSOCKET.localName()).set(true);
         serverTwo.get(SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL.localName()).set(300000L);
-        assertThat(services.executeOperation(serverTwo).get(OUTCOME).asString(), equalTo(SUCCESS));
+        steps.add(serverTwo);
+
 
         final ModelNode serverTwoDatastore = new ModelNode();
         serverTwoDatastore.get(OP).set(ADD);
         serverTwoDatastore.get(OP_ADDR).set(serverAddress.toModelNode().add(DataStoreDefinition.DATASTORE, DataStoreDefinition.Element.JPA.localName()));
         serverTwoDatastore.get(DATASOURCE.localName()).set("java:jboss/datasources/NettyDS");
-        assertThat(services.executeOperation(serverTwoDatastore).get(OUTCOME).asString(), equalTo(SUCCESS));
+        steps.add(serverTwoDatastore);
+        assertThat(services.executeOperation(operation).get(OUTCOME).asString(), equalTo(SUCCESS));
 
         final ModelNode model = services.readWholeModel();
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server").hasDefined("foo"), is(true));
@@ -272,9 +279,9 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
             final ServiceBuilder<?> nettyDS = serviceTarget.addService(nettyBindInfo.getBinderServiceName(), ds);
             nettyDS.install();
 
-            final DataStoreService datastoreService = mock(DataStoreService.class);
-            final ServiceBuilder<DataStore> dssBuilder = serviceTarget.addService(DataStoreService.SERVICE_NAME, datastoreService);
-            dssBuilder.install();
+            //final JpaDataStoreService datastoreService = mock(JpaDataStoreService.class);
+            //final ServiceBuilder<DataStore> dssBuilder = serviceTarget.addService(DataStoreService.SERVICE_NAME, datastoreService);
+            //dssBuilder.install();
         }
     }
 }

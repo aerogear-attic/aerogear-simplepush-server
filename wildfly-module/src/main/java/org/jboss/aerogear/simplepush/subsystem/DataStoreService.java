@@ -13,28 +13,16 @@
 package org.jboss.aerogear.simplepush.subsystem;
 
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
-import org.jboss.aerogear.simplepush.server.datastore.JpaDataStore;
 import org.jboss.msc.service.Service;
 import org.jboss.msc.service.ServiceName;
-import org.jboss.msc.service.StartContext;
-import org.jboss.msc.service.StartException;
 import org.jboss.msc.service.StopContext;
 
 /**
  * A service to inject a {@link DataStore} implementation into the SimplePush service.
  */
-public class DataStoreService implements Service<DataStore>{
+public abstract class DataStoreService implements Service<DataStore>{
 
     public static final ServiceName SERVICE_NAME = ServiceName.JBOSS.append("aerogear", "simplepush", "datastore");
-
-    @Override
-    public DataStore getValue() throws IllegalStateException, IllegalArgumentException {
-        return new JpaDataStore("SimplePushPU");
-    }
-
-    @Override
-    public void start(final StartContext context) throws StartException {
-    }
 
     @Override
     public void stop(final StopContext context) {

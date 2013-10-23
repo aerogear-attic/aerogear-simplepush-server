@@ -18,13 +18,26 @@
 package org.jboss.aerogear.simplepush.subsystem;
 
 
+import java.util.List;
+
+import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.as.controller.AbstractAddStepHandler;
+import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
+import org.jboss.as.controller.PathAddress;
+import org.jboss.as.controller.ServiceVerificationHandler;
+import org.jboss.as.naming.deployment.ContextNames;
+import org.jboss.as.naming.deployment.ContextNames.BindInfo;
 import org.jboss.dmr.ModelNode;
+import org.jboss.logging.Logger;
+import org.jboss.msc.service.ServiceBuilder;
+import org.jboss.msc.service.ServiceController;
+import org.jboss.msc.service.ServiceController.Mode;
 
 class DataStoreAdd extends AbstractAddStepHandler {
 
     public static final DataStoreAdd INSTANCE = new DataStoreAdd();
+    private final Logger logger = Logger.getLogger(DataStoreAdd.class);
 
     private DataStoreAdd() {
     }
@@ -32,6 +45,37 @@ class DataStoreAdd extends AbstractAddStepHandler {
     @Override
     protected void populateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
         DataStoreDefinition.DATASOURCE_ATTR.validateAndSet(operation, model);
+        DataStoreDefinition.HOST_ATTR.validateAndSet(operation, model);
+        DataStoreDefinition.PORT_ATTR.validateAndSet(operation, model);
     }
+
+    @Override
+    protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model,
+            ServiceVerificationHandler verificationHandler, List<ServiceController<?>> newControllers)
+            throws OperationFailedException {
+
+        final PathAddress pathAddress = PathAddress.pathAddress(operation.get("address"));
+        final String serverName = pathAddress.getElement(1).getValue();
+        final String type = pathAddress.getLastElement().getValue();
+        switch (DataStoreDefinition.Element.of(type)) {
+            case JPA:
+                final ModelNode datasourceNode = DataStoreDefinition.DATASOURCE_ATTR.resolveModelAttribute(context, model);
+                if (datasourceNode.isDefined()) {
+                    final BindInfo bindinfo = ContextNames.bindInfoFor(datasourceNode.asString());
+                    logger.debug("Adding dependency to [" + bindinfo.getAbsoluteJndiName() + "]");
+                    final DataStoreService datastoreService = new JpaDataStoreService("SimplePushPU");
+                    final ServiceBuilder<DataStore> sb = context.getServiceTarget().addService(DataStoreService.SERVICE_NAME.append(serverName), datastoreService);
+                    sb.addDependencies(bindinfo.getBinderServiceName());
+                    sb.addListener(verificationHandler);
+                    sb.setInitialMode(Mode.ACTIVE);
+                    newControllers.add(sb.install());
+                }
+                break;
+            default:
+                throw new IllegalStateException("invalid datastore type");
+        }
+    }
+
+
 
 }

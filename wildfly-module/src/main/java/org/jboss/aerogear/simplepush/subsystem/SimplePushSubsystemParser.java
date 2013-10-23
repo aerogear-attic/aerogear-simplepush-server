@@ -152,6 +152,11 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                             modelNodes.add(jpa);
                             break;
                         }
+                        case REDIS: {
+                            final ModelNode jpa = readRedisElement(reader, node.get(OP_ADDR));
+                            modelNodes.add(jpa);
+                            break;
+                        }
                         default: {
                             throw unexpectedElement(reader);
                         }
@@ -169,6 +174,28 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
         for (int i = 0; i < count; i++) {
             final String value = reader.getAttributeValue(i);
             DataStoreDefinition.DATASOURCE_ATTR.parseAndSetParameter(value, node, reader);
+        }
+        return node;
+    }
+
+    private ModelNode readRedisElement(XMLExtendedStreamReader reader, ModelNode parentAddress) throws XMLStreamException {
+        final ModelNode node = new ModelNode();
+        node.get(OP).set(ADD);
+        node.get(OP_ADDR).set(parentAddress).add(DataStoreDefinition.DATASTORE, DataStoreDefinition.Element.REDIS.localName());
+        final int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String name = reader.getAttributeLocalName(i);
+            final String value = reader.getAttributeValue(i);
+            switch (DataStoreDefinition.Element.of(name)) {
+                case HOST:
+                    DataStoreDefinition.HOST_ATTR.parseAndSetParameter(value, node, reader);
+                    break;
+                case PORT:
+                    DataStoreDefinition.PORT_ATTR.parseAndSetParameter(value, node, reader);
+                    break;
+                default:
+                    throw unexpectedAttribute(reader, i);
+            }
         }
         return node;
     }
@@ -207,12 +234,31 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             final ModelNode datastore = entry.get(DataStoreDefinition.DATASTORE);
             if (datastore.isDefined()) {
                 writer.writeStartElement(DataStoreDefinition.DATASTORE);
+                switch (DataStoreDefinition.Element.of(datastore.keys().iterator().next())) {
+                    case JPA:
+                        writer.writeStartElement(DataStoreDefinition.Element.JPA.localName());
+                        final ModelNode jpa = datastore.get(DataStoreDefinition.Element.JPA.localName());
+                        DataStoreDefinition.DATASOURCE_ATTR.marshallAsAttribute(jpa, true, writer);
+                        writer.writeEndElement();
+                        break;
+                    case REDIS:
+                        writer.writeStartElement(DataStoreDefinition.Element.REDIS.localName());
+                        final ModelNode redis = datastore.get(DataStoreDefinition.Element.REDIS.localName());
+                        DataStoreDefinition.HOST_ATTR.marshallAsAttribute(redis, true, writer);
+                        DataStoreDefinition.PORT_ATTR.marshallAsAttribute(redis, true, writer);
+                        writer.writeEndElement();
+                        break;
+                    default:
+                        throw new IllegalStateException("Non supported datastore type");
+                }
+                /*
                 final ModelNode jpa = datastore.get(DataStoreDefinition.Element.JPA.localName());
                 if (jpa.isDefined()) {
                     writer.writeStartElement(DataStoreDefinition.Element.JPA.localName());
                     DataStoreDefinition.DATASOURCE_ATTR.marshallAsAttribute(jpa, true, writer);
                     writer.writeEndElement();
                 }
+                */
                 writer.writeEndElement();
             }
             writer.writeEndElement();

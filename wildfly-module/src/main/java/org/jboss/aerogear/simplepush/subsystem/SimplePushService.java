@@ -27,7 +27,6 @@ import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig.Builder;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
-import org.jboss.aerogear.simplepush.server.datastore.JpaDataStore;
 import org.jboss.aerogear.simplepush.server.netty.SockJSChannelInitializer;
 import org.jboss.as.network.SocketBinding;
 import org.jboss.logging.Logger;
@@ -44,6 +43,7 @@ public class SimplePushService implements Service<SimplePushService> {
 
     private final InjectedValue<SocketBinding> injectedSocketBinding = new InjectedValue<SocketBinding>();
     private final InjectedValue<SocketBinding> injectedNotificationSocketBinding = new InjectedValue<SocketBinding>();
+    private final InjectedValue<DataStore> injectedDataStore = new InjectedValue<DataStore>();
     private final Builder simplePushConfig;
     private final SockJsConfig sockJsConfig;
     private Channel channel;
@@ -63,7 +63,7 @@ public class SimplePushService implements Service<SimplePushService> {
             }
 
             final DefaultEventExecutorGroup reaperExcutorGroup = new DefaultEventExecutorGroup(1);
-            final DataStore datastore = new JpaDataStore("SimplePushPU");
+            final DataStore datastore = injectedDataStore.getValue();
             final SimplePushServerConfig simplePushServerConfig = simplePushConfig.build();
             final ServerBootstrap serverBootstrap = new ServerBootstrap()
                 .group(new NioEventLoopGroup(), new NioEventLoopGroup())
@@ -92,6 +92,10 @@ public class SimplePushService implements Service<SimplePushService> {
 
     public InjectedValue<SocketBinding> getInjectedNotificationSocketBinding() {
         return injectedNotificationSocketBinding;
+    }
+
+    public InjectedValue<DataStore> getInjectedDataStore() {
+        return injectedDataStore;
     }
 
     @Override
