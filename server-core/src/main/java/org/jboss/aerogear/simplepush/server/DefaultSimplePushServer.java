@@ -149,7 +149,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
     }
 
     private String makeEndpointUrl(final String endpointToken) {
-        return config.notificationUrl() + "/" + endpointToken;
+        return config.endpointUrl() + "/" + endpointToken;
     }
 
     @Override

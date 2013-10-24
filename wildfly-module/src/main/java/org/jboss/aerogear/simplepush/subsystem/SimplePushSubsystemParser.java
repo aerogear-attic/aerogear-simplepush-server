@@ -86,8 +86,8 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                 case REAPER_TIMEOUT:
                     ServerDefinition.REAPER_TIMEOUT_ATTR.parseAndSetParameter(value, node, reader);
                     break;
-                case NOTIFICATION_PREFIX:
-                    ServerDefinition.NOTIFICATION_PREFIX_ATTR.parseAndSetParameter(value, node, reader);
+                case ENDPOINT_PREFIX:
+                    ServerDefinition.ENDPOINT_PREFIX_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case NOTIFICATION_TLS:
                     ServerDefinition.NOTIFICATION_TLS_ATTR.parseAndSetParameter(value, node, reader);
@@ -265,7 +265,7 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             ServerDefinition.TOKEN_KEY_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.REAPER_TIMEOUT_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.NOTIFICATION_TLS_ATTR.marshallAsAttribute(entry, true, writer);
-            ServerDefinition.NOTIFICATION_PREFIX_ATTR.marshallAsAttribute(entry, true, writer);
+            ServerDefinition.ENDPOINT_PREFIX_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.NOTIFICATION_ACK_INTERVAL_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.NOTIFICATION_SOCKET_BINDING_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_PREFIX_ATTR.marshallAsAttribute(entry, true, writer);

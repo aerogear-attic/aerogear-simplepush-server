@@ -174,7 +174,7 @@ public class ConfigReader {
         }
         final JsonNode endpointPrefix = json.get("endpoint-prefix");
         if (endpointPrefix != null) {
-            builder.endpointUrlPrefix(endpointPrefix.asText());
+            builder.endpointPrefix(endpointPrefix.asText());
         }
         final JsonNode ackInterval = json.get("ack-interval");
         if (ackInterval != null) {

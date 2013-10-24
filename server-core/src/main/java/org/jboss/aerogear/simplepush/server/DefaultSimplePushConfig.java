@@ -30,7 +30,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
     private final boolean endpointTls;
     private final byte[] tokenKey;
     private final String endpointPrefix;
-    private final String notificationUrl;
+    private final String endpointUrl;
     private final long reaperTimeout;
     private final long ackInterval;
 
@@ -38,14 +38,14 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         host = builder.host;
         port = builder.port;
         endpointTls = builder.endpointTls;
-        endpointPrefix = builder.endpointPrefix;
-        notificationUrl = makeNotifyURL(builder.endpointPrefix);
+        endpointPrefix = builder.endpointPrefix.startsWith("/") ? builder.endpointPrefix : "/" + builder.endpointPrefix;
+        endpointUrl = makeEndpointUrl(endpointPrefix);
         reaperTimeout = builder.timeout;
         ackInterval = builder.ackInterval;
         tokenKey = CryptoUtil.secretKey(builder.tokenKey);
     }
 
-    private String makeNotifyURL(final String endpointUrl) {
+    private String makeEndpointUrl(final String endpointUrl) {
         return new StringBuilder(endpointTls ? "https://" : "http://")
             .append(host).append(":").append(port).append(endpointUrl).toString();
     }
@@ -66,8 +66,8 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         return endpointTls;
     }
 
-    public String notificationUrl() {
-        return notificationUrl;
+    public String endpointUrl() {
+        return endpointUrl;
     }
 
     public String endpointPrefix() {
@@ -91,7 +91,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
                 .append(", port=").append(port)
                 .append(", endpointTls=").append(endpointTls)
                 .append(", endpointUrlPrefix=").append(endpointPrefix)
-                .append(", notificationUrl=").append(notificationUrl)
+                .append(", endpointUrl=").append(endpointUrl)
                 .append(", reaperTimeout=").append(reaperTimeout)
                 .append(", ackInterval=").append(ackInterval)
                 .append("]").toString();
@@ -136,7 +136,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
             return this;
         }
 
-        public Builder endpointUrlPrefix(final String endpointPrefix) {
+        public Builder endpointPrefix(final String endpointPrefix) {
             if (endpointPrefix != null) {
                 this.endpointPrefix = endpointPrefix;
             }

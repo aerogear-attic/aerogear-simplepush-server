@@ -38,7 +38,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
         SOCKET_BINDING("socket-binding"),
         TOKEN_KEY("token-key"),
         REAPER_TIMEOUT("useragent-reaper-timeout"),
-        NOTIFICATION_PREFIX("notification-prefix"),
+        ENDPOINT_PREFIX("endpoint-prefix"),
         NOTIFICATION_TLS("notification-tls"),
         NOTIFICATION_ACK_INTERVAL("notification-ack-interval"),
         NOTIFICATION_SOCKET_BINDING("notification-socket-binding"),
@@ -88,7 +88,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
     protected static final SimpleAttributeDefinition TOKEN_KEY_ATTR = new SimpleAttributeDefinition(Element.TOKEN_KEY.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition NOTIFICATION_TLS_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_TLS.localName(), ModelType.BOOLEAN, true);
     protected static final SimpleAttributeDefinition REAPER_TIMEOUT_ATTR = new SimpleAttributeDefinition(Element.REAPER_TIMEOUT.localName(), new ModelNode(604800000), ModelType.LONG, true);
-    protected static final SimpleAttributeDefinition NOTIFICATION_PREFIX_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_PREFIX.localName(), new ModelNode("/update"), ModelType.STRING, true);
+    protected static final SimpleAttributeDefinition ENDPOINT_PREFIX_ATTR = new SimpleAttributeDefinition(Element.ENDPOINT_PREFIX.localName(), new ModelNode("/update"), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition NOTIFICATION_ACK_INTERVAL_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_ACK_INTERVAL.localName(), new ModelNode(60000), ModelType.LONG, true);
     protected static final SimpleAttributeDefinition NOTIFICATION_SOCKET_BINDING_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_SOCKET_BINDING.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition SOCKJS_PREFIX_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_PREFIX.localName(), new ModelNode("/simplepush"), ModelType.STRING, false);
@@ -120,7 +120,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
         resourceRegistration.registerReadWriteAttribute(SOCKET_BINDING_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(TOKEN_KEY_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(REAPER_TIMEOUT_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
-        resourceRegistration.registerReadWriteAttribute(NOTIFICATION_PREFIX_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(ENDPOINT_PREFIX_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(NOTIFICATION_TLS_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(NOTIFICATION_ACK_INTERVAL_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(NOTIFICATION_SOCKET_BINDING_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);

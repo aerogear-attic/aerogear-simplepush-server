@@ -65,12 +65,12 @@ public interface SimplePushServerConfig {
     String endpointPrefix();
 
     /**
-     * Returns the notification url prefix for this SimplePush server.
+     * Returns the notification endpoint url prefix for this SimplePush server.
      * This will be the protocol://host:port/endpointUrlPrefix
      *
      * @return {@code String} the notification url.
      */
-    String notificationUrl();
+    String endpointUrl();
 
     /**
      * Returns the UserAgent reaper time out.

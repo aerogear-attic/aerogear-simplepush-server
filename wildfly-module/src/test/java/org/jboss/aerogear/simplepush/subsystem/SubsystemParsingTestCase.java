@@ -24,7 +24,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.jboss.aerogear.simplepush.subsystem.DataStoreDefinition.Element.DATASOURCE;
 import static org.jboss.aerogear.simplepush.subsystem.DataStoreDefinition.Element.PERSISTENCE_UNIT;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_ACK_INTERVAL;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_PREFIX;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.ENDPOINT_PREFIX;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_SOCKET_BINDING;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.NOTIFICATION_TLS;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.REAPER_TIMEOUT;
@@ -82,7 +82,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
             "<server socket-binding=\"simplepush\" " +
                 "token-key=\"testing\" " +
                 "useragent-reaper-timeout=\"16000\" " +
-                "notification-prefix=\"/update\" " +
+                "endpoint-prefix=\"/update\" " +
                 "notification-tls=\"false\" " +
                 "notification-ack-interval=\"120000\" " +
                 "notification-socket-binding=\"simplepush-notify\" " +
@@ -190,7 +190,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         serverTwo.get(TOKEN_KEY.localName()).set("123456");
         serverTwo.get(NOTIFICATION_TLS.localName()).set("true");
         serverTwo.get(REAPER_TIMEOUT.localName()).set(20000);
-        serverTwo.get(NOTIFICATION_PREFIX.localName()).set("/endpoints");
+        serverTwo.get(ENDPOINT_PREFIX.localName()).set("/endpoints");
         serverTwo.get(NOTIFICATION_TLS.localName()).set(false);
         serverTwo.get(NOTIFICATION_ACK_INTERVAL.localName()).set(10000);
         serverTwo.get(NOTIFICATION_SOCKET_BINDING.localName()).set("simplepush-notify");
@@ -221,7 +221,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(fooOptions.get(TOKEN_KEY.localName()).asString(), equalTo("123456"));
         assertThat(fooOptions.get(REAPER_TIMEOUT.localName()).asLong(), is(20000L));
         assertThat(fooOptions.get(NOTIFICATION_TLS.localName()).asBoolean(), is(false));
-        assertThat(fooOptions.get(NOTIFICATION_PREFIX.localName()).asString(), equalTo("/endpoints"));
+        assertThat(fooOptions.get(ENDPOINT_PREFIX.localName()).asString(), equalTo("/endpoints"));
         assertThat(fooOptions.get(NOTIFICATION_ACK_INTERVAL.localName()).asLong(), is(10000L));
         assertThat(fooOptions.get(NOTIFICATION_SOCKET_BINDING.localName()).asString(), equalTo("simplepush-notify"));
         assertThat(fooOptions.get(SOCKJS_PREFIX.localName()).asString(), equalTo("/foo"));
@@ -243,7 +243,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(options.get(SOCKET_BINDING.localName()).asString(), equalTo("simplepush"));
         assertThat(options.get(TOKEN_KEY.localName()).asString(), equalTo("testing"));
         assertThat(options.get(REAPER_TIMEOUT.localName()).asLong(), is(16000L));
-        assertThat(options.get(NOTIFICATION_PREFIX.localName()).asString(), equalTo("/update"));
+        assertThat(options.get(ENDPOINT_PREFIX.localName()).asString(), equalTo("/update"));
         assertThat(options.get(NOTIFICATION_TLS.localName()).asBoolean(), is(false));
         assertThat(options.get(NOTIFICATION_ACK_INTERVAL.localName()).asLong(), equalTo(120000L));
         assertThat(options.get(NOTIFICATION_SOCKET_BINDING.localName()).asString(), equalTo("simplepush-notify"));
