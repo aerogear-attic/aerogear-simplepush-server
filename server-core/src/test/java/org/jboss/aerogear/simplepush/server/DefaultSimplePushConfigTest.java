@@ -13,6 +13,7 @@
 package org.jboss.aerogear.simplepush.server;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.Test;
@@ -26,4 +27,33 @@ public class DefaultSimplePushConfigTest {
         assertThat(config.endpointUrl(), equalTo("http://127.0.0.1:7777/ep"));
     }
 
+    @Test
+    public void endpointHost() {
+        final SimplePushServerConfig config = DefaultSimplePushConfig.create()
+                .endpointPrefix("ep")
+                .endpointHost("localhost")
+                .tokenKey("dummy").build();
+        assertThat(config.endpointHost(), equalTo("localhost"));
+        assertThat(config.endpointUrl(), equalTo("http://localhost:7777/ep"));
+    }
+
+    @Test
+    public void endpointPort() {
+        final SimplePushServerConfig config = DefaultSimplePushConfig.create()
+                .endpointPrefix("ep")
+                .endpointPort(8888)
+                .tokenKey("dummy").build();
+        assertThat(config.endpointPort(), is(8888));
+        assertThat(config.endpointUrl(), equalTo("http://127.0.0.1:8888/ep"));
+    }
+
+    @Test
+    public void endpointPortNegative() {
+        final SimplePushServerConfig config = DefaultSimplePushConfig.create()
+                .endpointPrefix("ep")
+                .endpointPort(-8888)
+                .tokenKey("dummy").build();
+        assertThat(config.endpointPort(), is(7777));
+        assertThat(config.endpointUrl(), equalTo("http://127.0.0.1:7777/ep"));
+    }
 }

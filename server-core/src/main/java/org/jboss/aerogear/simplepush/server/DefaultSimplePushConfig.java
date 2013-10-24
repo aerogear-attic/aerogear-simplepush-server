@@ -31,23 +31,29 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
     private final byte[] tokenKey;
     private final String endpointPrefix;
     private final String endpointUrl;
+    private final String endpointHost;
+    private final int endpointPort;
     private final long reaperTimeout;
     private final long ackInterval;
 
     private DefaultSimplePushConfig(final Builder builder) {
         host = builder.host;
         port = builder.port;
+        endpointHost = builder.endpointHost == null ? host : builder.endpointHost;
+        endpointPort = builder.endpointPort <= 0 ? port : builder.endpointPort;
         endpointTls = builder.endpointTls;
         endpointPrefix = builder.endpointPrefix.startsWith("/") ? builder.endpointPrefix : "/" + builder.endpointPrefix;
-        endpointUrl = makeEndpointUrl(endpointPrefix);
+        endpointUrl = makeEndpointUrl(endpointHost, endpointPort, endpointPrefix, endpointTls);
         reaperTimeout = builder.timeout;
         ackInterval = builder.ackInterval;
         tokenKey = CryptoUtil.secretKey(builder.tokenKey);
     }
 
-    private String makeEndpointUrl(final String endpointUrl) {
-        return new StringBuilder(endpointTls ? "https://" : "http://")
-            .append(host).append(":").append(port).append(endpointUrl).toString();
+    private static String makeEndpointUrl(final String endpointHost, final int endpointPort, final String prefix, final boolean tls) {
+        return new StringBuilder(tls ? "https://" : "http://")
+            .append(endpointHost).append(":").append(endpointPort)
+            .append(prefix)
+            .toString();
     }
 
     public String host() {
@@ -74,6 +80,14 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         return endpointPrefix;
     }
 
+    public String endpointHost() {
+        return endpointHost;
+    }
+
+    public int endpointPort() {
+        return endpointPort;
+    }
+
     public long userAgentReaperTimeout() {
         return reaperTimeout;
     }
@@ -92,6 +106,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
                 .append(", endpointTls=").append(endpointTls)
                 .append(", endpointUrlPrefix=").append(endpointPrefix)
                 .append(", endpointUrl=").append(endpointUrl)
+                .append(", endpointHost=").append(endpointHost)
                 .append(", reaperTimeout=").append(reaperTimeout)
                 .append(", ackInterval=").append(ackInterval)
                 .append("]").toString();
@@ -111,6 +126,8 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         private String tokenKey;
         private boolean endpointTls;
         private String endpointPrefix = DEFAULT_ENDPOINT_URL_PREFIX;
+        private String endpointHost;
+        private int endpointPort;
         private long timeout = 604800000L;
         private long ackInterval = 60000;
 
@@ -136,10 +153,20 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
             return this;
         }
 
+        public Builder endpointHost(final String endpointHost) {
+            this.endpointHost = endpointHost;
+            return this;
+        }
+
         public Builder endpointPrefix(final String endpointPrefix) {
             if (endpointPrefix != null) {
                 this.endpointPrefix = endpointPrefix;
             }
+            return this;
+        }
+
+        public Builder endpointPort(final int endpointPort) {
+            this.endpointPort = endpointPort;
             return this;
         }
 

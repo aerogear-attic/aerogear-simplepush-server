@@ -54,10 +54,10 @@ class ServerAdd extends AbstractAddStepHandler {
         ServerDefinition.SOCKET_BINDING_ATTR.validateAndSet(operation, model);
         ServerDefinition.TOKEN_KEY_ATTR.validateAndSet(operation, model);
         ServerDefinition.REAPER_TIMEOUT_ATTR.validateAndSet(operation, model);
-        ServerDefinition.NOTIFICATION_TLS_ATTR.validateAndSet(operation, model);
+        ServerDefinition.ENDPOINT_TLS_ATTR.validateAndSet(operation, model);
         ServerDefinition.ENDPOINT_PREFIX_ATTR.validateAndSet(operation, model);
-        ServerDefinition.NOTIFICATION_ACK_INTERVAL_ATTR.validateAndSet(operation, model);
-        ServerDefinition.NOTIFICATION_SOCKET_BINDING_ATTR.validateAndSet(operation, model);
+        ServerDefinition.ENDPOINT_ACK_INTERVAL_ATTR.validateAndSet(operation, model);
+        ServerDefinition.ENDPOINT_SOCKET_BINDING_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_PREFIX_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_COOKIES_NEEDED_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_URL_ATTR.validateAndSet(operation, model);
@@ -89,7 +89,7 @@ class ServerAdd extends AbstractAddStepHandler {
         final String socketBinding = ServerDefinition.SOCKET_BINDING_ATTR.resolveModelAttribute(context, model).asString();
         sb.addDependency(SocketBinding.JBOSS_BINDING_NAME.append(socketBinding), SocketBinding.class, simplePushService.getInjectedSocketBinding());
 
-        final ModelNode notificationSocketBinding = ServerDefinition.NOTIFICATION_SOCKET_BINDING_ATTR.resolveModelAttribute(context, model);
+        final ModelNode notificationSocketBinding = ServerDefinition.ENDPOINT_SOCKET_BINDING_ATTR.resolveModelAttribute(context, model);
         if (notificationSocketBinding.isDefined()) {
             sb.addDependency(SocketBinding.JBOSS_BINDING_NAME.append(notificationSocketBinding.asString()),SocketBinding.class, simplePushService.getInjectedNotificationSocketBinding());
         }
@@ -163,8 +163,8 @@ class ServerAdd extends AbstractAddStepHandler {
             throws OperationFailedException {
         final ModelNode reaperTimeout = ServerDefinition.REAPER_TIMEOUT_ATTR.resolveModelAttribute(context, model);
         final ModelNode notificationPrefix = ServerDefinition.ENDPOINT_PREFIX_ATTR.resolveModelAttribute(context, model);
-        final ModelNode notificationtTls = ServerDefinition.NOTIFICATION_TLS_ATTR.resolveModelAttribute(context, model);
-        final ModelNode notificationAckInterval = ServerDefinition.NOTIFICATION_ACK_INTERVAL_ATTR.resolveModelAttribute(context, model);
+        final ModelNode notificationtTls = ServerDefinition.ENDPOINT_TLS_ATTR.resolveModelAttribute(context, model);
+        final ModelNode notificationAckInterval = ServerDefinition.ENDPOINT_ACK_INTERVAL_ATTR.resolveModelAttribute(context, model);
 
         final Builder simplePushConfig = DefaultSimplePushConfig.create();
         simplePushConfig.tokenKey(ServerDefinition.TOKEN_KEY_ATTR.resolveModelAttribute(context, model).asString());
