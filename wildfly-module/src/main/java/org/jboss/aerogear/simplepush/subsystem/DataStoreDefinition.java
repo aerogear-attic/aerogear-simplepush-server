@@ -35,6 +35,7 @@ public class DataStoreDefinition extends SimpleResourceDefinition {
         PERSISTENCE_UNIT("persistence-unit"),
         REDIS("redis"),
         COUCHDB("couchdb"),
+        IN_MEMORY("in-memory"),
         HOST("host"),
         PORT("port"),
         URL("url"),

@@ -30,8 +30,11 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.ServiceVerificationHandler;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
+import org.jboss.as.naming.deployment.ContextNames;
+import org.jboss.as.naming.deployment.ContextNames.BindInfo;
 import org.jboss.as.network.SocketBinding;
 import org.jboss.dmr.ModelNode;
+import org.jboss.logging.Logger;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceController;
 import org.jboss.msc.service.ServiceController.Mode;
@@ -40,6 +43,7 @@ import org.jboss.msc.service.ServiceName;
 class ServerAdd extends AbstractAddStepHandler {
 
     public static final ServerAdd INSTANCE = new ServerAdd();
+    private final Logger logger = Logger.getLogger(ServerAdd.class);
 
     private ServerAdd() {
     }
@@ -88,6 +92,13 @@ class ServerAdd extends AbstractAddStepHandler {
         final ModelNode notificationSocketBinding = ServerDefinition.NOTIFICATION_SOCKET_BINDING_ATTR.resolveModelAttribute(context, model);
         if (notificationSocketBinding.isDefined()) {
             sb.addDependency(SocketBinding.JBOSS_BINDING_NAME.append(notificationSocketBinding.asString()),SocketBinding.class, simplePushService.getInjectedNotificationSocketBinding());
+        }
+
+        final ModelNode datasourceNode = DataStoreDefinition.DATASOURCE_ATTR.resolveModelAttribute(context, model);
+        if (datasourceNode.isDefined()) {
+            final BindInfo bindinfo = ContextNames.bindInfoFor(datasourceNode.asString());
+            logger.debug("Adding dependency to [" + bindinfo.getAbsoluteJndiName() + "]");
+            sb.addDependencies(bindinfo.getBinderServiceName());
         }
 
         sb.addDependency(DataStoreService.SERVICE_NAME.append(serverName), DataStore.class,  simplePushService.getInjectedDataStore());

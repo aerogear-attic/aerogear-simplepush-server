@@ -169,7 +169,7 @@ This is only used with raw WebSockets as the SockJS protocol does not support pr
 
 #### datastore
 The datastore can be used to configure the datastore which should be used.  
-Currently, jpa, redis, and couchdb are supported:
+Currently, in-memory, jpa, redis, and couchdb are supported:
 
     <datastore>
         <jpa datasource-jndi-name="java:jboss/datasources/TestDS" persistence-unit="SimplePushPU"/>
@@ -181,4 +181,8 @@ Currently, jpa, redis, and couchdb are supported:
     
     <datastore>
         <couchdb url="http://127.0.0.1:5984" database-name="simplepush"/>
+    </datastore>
+    
+    <datastore>
+        <in-memory/>
     </datastore>

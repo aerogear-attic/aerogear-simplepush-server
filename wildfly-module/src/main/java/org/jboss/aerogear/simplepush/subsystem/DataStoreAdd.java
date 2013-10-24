@@ -83,6 +83,9 @@ class DataStoreAdd extends AbstractAddStepHandler {
                 final DataStoreService couchdb = new CouchDBDataStoreService(urlNode.asString(), dbNameNode.asString());
                 sb = context.getServiceTarget().addService(DataStoreService.SERVICE_NAME.append(serverName), couchdb);
                 break;
+            case IN_MEMORY:
+                sb = context.getServiceTarget().addService(DataStoreService.SERVICE_NAME.append(serverName), new InMemoryDataStoreService());
+                break;
             default:
                 throw new IllegalStateException("invalid datastore type");
         }

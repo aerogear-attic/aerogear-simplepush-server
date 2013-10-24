@@ -161,7 +161,11 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                             final ModelNode couchdb = readCouchDBElement(reader, node.get(OP_ADDR));
                             modelNodes.add(couchdb);
                             break;
-
+                        }
+                        case IN_MEMORY: {
+                            final ModelNode inmem = readInMemoryDBElement(reader, node.get(OP_ADDR));
+                            modelNodes.add(inmem);
+                            break;
                         }
                         default: {
                             throw unexpectedElement(reader);
@@ -238,6 +242,13 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
         return node;
     }
 
+    private ModelNode readInMemoryDBElement(XMLExtendedStreamReader reader, ModelNode parentAddress) throws XMLStreamException {
+        final ModelNode node = new ModelNode();
+        node.get(OP).set(ADD);
+        node.get(OP_ADDR).set(parentAddress).add(DataStoreDefinition.DATASTORE, DataStoreDefinition.Element.IN_MEMORY.localName());
+        return node;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -294,17 +305,13 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                         DataStoreDefinition.DB_NAME_ATTR.marshallAsAttribute(couchdb, true, writer);
                         writer.writeEndElement();
                         break;
+                    case IN_MEMORY:
+                        writer.writeStartElement(DataStoreDefinition.Element.IN_MEMORY.localName());
+                        writer.writeEndElement();
+                        break;
                     default:
                         throw new IllegalStateException("Non supported datastore type");
                 }
-                /*
-                final ModelNode jpa = datastore.get(DataStoreDefinition.Element.JPA.localName());
-                if (jpa.isDefined()) {
-                    writer.writeStartElement(DataStoreDefinition.Element.JPA.localName());
-                    DataStoreDefinition.DATASOURCE_ATTR.marshallAsAttribute(jpa, true, writer);
-                    writer.writeEndElement();
-                }
-                */
                 writer.writeEndElement();
             }
             writer.writeEndElement();
