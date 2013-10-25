@@ -37,6 +37,10 @@ import org.junit.Test;
 
 public class JpaDataStoreTest {
 
+    static {
+        System.setProperty("org.jboss.logging.provider", "slf4j");
+    }
+
     private JpaDataStore jpaDataStore;
 
     @Before

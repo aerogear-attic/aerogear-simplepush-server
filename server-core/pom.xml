@@ -39,6 +39,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <include.redis.tests>none</include.redis.tests>
+        <include.couchdb.tests>none</include.couchdb.tests>
     </properties>
 
     <dependencies>
@@ -89,6 +90,12 @@
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-simplepush-datastore-redis</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-datastore-couchdb</artifactId>
             <scope>test</scope>
         </dependency>
         
@@ -152,12 +159,6 @@
                             <key>keystore.file.password</key>
                             <value>simplepush</value>
                         </systemProperty>
-                        <!--
-                        <systemProperty>
-                          <key>javax.net.debug</key>
-                          <value>all</value>
-                        </systemProperty>
-                        -->
                     </systemProperties>
                 </configuration>
             </plugin>
@@ -169,6 +170,7 @@
                         <include>org/jboss/aerogear/simplepush/server/InMemorySimplePushServerTest.java</include>
                         <include>org/jboss/aerogear/simplepush/server/JpaSimplePushServerTest.java</include>
                         <include>${include.redis.tests}</include>
+                        <include>${include.couchdb.tests}</include>
                     </includes>
                 </configuration>
             </plugin>
@@ -182,6 +184,12 @@
                 <include.redis.tests>org/jboss/aerogear/simplepush/server/RedisSimplePushServerTest.java</include.redis.tests>
             </properties>
           </profile>
+          <profile>
+            <id>couchdb</id>
+            <properties>
+                <include.couchdb.tests>org/jboss/aerogear/simplepush/server/CouchDBSimplePushServerTest.java</include.couchdb.tests>
+            </properties>
+        </profile>
     </profiles>
 
 </project>

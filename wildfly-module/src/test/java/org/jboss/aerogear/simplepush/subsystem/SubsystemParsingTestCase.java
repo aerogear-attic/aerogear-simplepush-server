@@ -73,6 +73,10 @@ import org.junit.Test;
 
 public class SubsystemParsingTestCase extends AbstractSubsystemTest {
 
+    static {
+        System.setProperty("org.jboss.logging.provider", "slf4j");
+    }
+
     private final String subsystemXml =
         "<subsystem xmlns=\"" + NAMESPACE + "\">" +
             "<server socket-binding=\"simplepush\" " +

@@ -127,21 +127,25 @@ public abstract class DefaultSimplePushServerTest {
     @Test
     public void handleHandshakeWithExistingAndNewChannels() throws ChannelNotFoundException {
         final String uaid = UUIDUtil.newUAID();
-        final Set<String> channelIds = new HashSet<String>(Arrays.asList("channel1", "channel2"));
+        final String channelId1 = UUID.randomUUID().toString();
+        final String channelId2 = UUID.randomUUID().toString();
+        final Set<String> channelIds = new HashSet<String>(Arrays.asList(channelId1, channelId2));
         final HelloMessage firstHello = new HelloMessageImpl(uaid, channelIds);
         final HelloResponse firstResponse = server.handleHandshake(firstHello);
         assertThat(firstResponse.getUAID(), equalTo(uaid));
-        assertThat(server.hasChannel(uaid, "channel1"), is(true));
-        assertThat(server.hasChannel(uaid, "channel2"), is(true));
+        assertThat(server.hasChannel(uaid, channelId1), is(true));
+        assertThat(server.hasChannel(uaid, channelId2), is(true));
 
-        final Set<String> newChannelIds = new HashSet<String>(Arrays.asList("channel3", "channel4"));
+        final String channelId3 = UUID.randomUUID().toString();
+        final String channelId4 = UUID.randomUUID().toString();
+        final Set<String> newChannelIds = new HashSet<String>(Arrays.asList(channelId3, channelId4));
         final HelloMessage nextHello = new HelloMessageImpl(uaid, newChannelIds);
         final HelloResponse secondResponse = server.handleHandshake(nextHello);
         assertThat(secondResponse.getUAID(), equalTo(uaid));
-        assertThat(server.hasChannel(uaid, "channel1"), is(false));
-        assertThat(server.hasChannel(uaid, "channel2"), is(false));
-        assertThat(server.hasChannel(uaid, "channel3"), is(true));
-        assertThat(server.hasChannel(uaid, "channel4"), is(true));
+        assertThat(server.hasChannel(uaid, channelId1), is(false));
+        assertThat(server.hasChannel(uaid, channelId2), is(false));
+        assertThat(server.hasChannel(uaid, channelId3), is(true));
+        assertThat(server.hasChannel(uaid, channelId4), is(true));
     }
 
     @Test

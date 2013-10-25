@@ -12,16 +12,12 @@
  */
 package org.jboss.aerogear.simplepush.server;
 
+import org.jboss.aerogear.simplepush.server.datastore.CouchDBDataStore;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
-import org.jboss.aerogear.simplepush.server.datastore.JpaDataStore;
 
-public class JpaSimplePushServerTest extends DefaultSimplePushServerTest {
+public class CouchDBSimplePushServerTest extends DefaultSimplePushServerTest {
 
-    static {
-        System.setProperty("org.jboss.logging.provider", "slf4j");
-    }
-
-    private static final DataStore datastore = new JpaDataStore("SimplePushTest");
+    private static final DataStore datastore = new CouchDBDataStore("http://127.0.0.1:5984", "simplepush-test");
 
     @Override
     protected DataStore createDataStore() {
