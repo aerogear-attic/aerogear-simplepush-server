@@ -72,7 +72,7 @@ This section goes through all of the configuration options available.
             sockjs-tls="false"
             sockjs-keystore="/simplepush.keystore"
             sockjs-keystore-password="password"
-            sockjs-websocket-enabled="true" 
+            sockjs-websocket-enable="true" 
             sockjs-heartbeat-interval="18000" 
             sockjs-protocols="push-notification">
             <datastore>
