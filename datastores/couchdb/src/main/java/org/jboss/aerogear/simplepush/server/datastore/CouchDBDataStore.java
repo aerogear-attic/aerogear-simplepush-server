@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -225,14 +226,15 @@ public class CouchDBDataStore implements DataStore {
         final ViewResult viewResult = db.queryView(query(Views.UNACKS.viewName(), uaid));
         final List<Row> rows = viewResult.getRows();
         final Collection<BulkDeleteDocument> removals = new LinkedHashSet<BulkDeleteDocument>();
-        for (Row row : rows) {
+        for (Iterator<Row> iter = rows.iterator(); iter.hasNext(); ) {
+            final Row row = iter.next();
             final JsonNode json = row.getValueAsNode();
             final JsonNode doc = json.get(DOC_FIELD);
             final String channelId = doc.get(CHID_FIELD).asText();
             for (Ack ack : acked) {
                 if (ack.getChannelId().equals(channelId)) {
                     removals.add(BulkDeleteDocument.of(doc));
-                    rows.remove(row);
+                    iter.remove();
                 }
             }
         }

@@ -16,12 +16,15 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
@@ -29,6 +32,7 @@ import org.jboss.aerogear.simplepush.server.Channel;
 import org.jboss.aerogear.simplepush.server.DefaultChannel;
 import org.jboss.aerogear.simplepush.util.CryptoUtil;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -192,13 +196,58 @@ public class CouchDBDataStoreTest {
         datastore.saveUnacknowledged(channel2.getChannelId(), channel2.getVersion());
         final Set<Ack> unacks = datastore.removeAcknowledged(uaid, acks(ack(channel1)));
         assertThat(unacks, hasItem(ack(channel2)));
+        assertThat(unacks.size(), is(1));
+        assertThat(datastore.removeAcknowledged(uaid, unacks).size(), is(0));
     }
 
-    private Set<Ack> acks(final Ack ...acks) {
+    @Test
+    public void concurrency() throws InterruptedException {
+        final String uaid = UUIDUtil.newUAID();
+        final AtomicBoolean outcome = new AtomicBoolean(true);
+        final int threads = 19;
+        final CountDownLatch startLatch = new CountDownLatch(1);
+        final CountDownLatch endLatch = new CountDownLatch(threads);
+        for (int i = 0; i < threads; i++) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        startLatch.await();
+                        try {
+                            final Channel channel = newChannel(uaid, UUID.randomUUID().toString(), 10);
+                            datastore.saveChannel(channel);
+                            datastore.saveUnacknowledged(channel.getChannelId(), 11);
+                            datastore.saveUnacknowledged(channel.getChannelId(), 12);
+                            datastore.saveUnacknowledged(channel.getChannelId(), 13);
+                            assertThat(datastore.getUnacknowledged(uaid), hasItems(ack(channel.getChannelId(), 13)));
+                            assertThat(datastore.removeAcknowledged(uaid, acks(ack(channel.getChannelId(), 13))), not(hasItem(ack(channel.getChannelId(), 13))));
+                        } catch (final Exception e) {
+                            e.printStackTrace();
+                            outcome.compareAndSet(true, false);
+                        } finally {
+                            endLatch.countDown();
+                        }
+                    } catch (InterruptedException ignored) {
+                    }
+                }
+            }).start();
+        }
+        startLatch.countDown();
+        endLatch.await();
+        if (!outcome.get()) {
+            Assert.fail("updateThreadSafety test failed. Please check stacktrace(s)");
+        }
+    }
+
+    private static Set<Ack> acks(final Ack ...acks) {
         return new HashSet<Ack>(Arrays.asList(acks));
     }
 
-    private Ack ack(final Channel channel) {
+    private Ack ack(final String channelId, final long version) {
+        return new AckImpl(channelId, version);
+    }
+
+    private static Ack ack(final Channel channel) {
         return new AckImpl(channel.getChannelId(), channel.getVersion());
     }
 
