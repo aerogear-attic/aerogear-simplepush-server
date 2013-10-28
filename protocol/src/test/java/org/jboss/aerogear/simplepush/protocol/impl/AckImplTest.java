@@ -59,4 +59,11 @@ public class AckImplTest {
         assertThat(x.equals(null), is(false));
     }
 
+    @Test
+    public void versionNotPartOfContract() {
+        final Ack x = new AckImpl("ch1", 11L);
+        final Ack y = new AckImpl("ch1", 12L);
+        assertThat(x.equals(y), is(true));
+    }
+
 }

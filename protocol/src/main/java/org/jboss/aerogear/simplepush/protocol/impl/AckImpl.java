@@ -73,14 +73,7 @@ public class AckImpl implements Ack {
             return false;
         }
         final AckImpl other = (AckImpl) obj;
-        if (channelId == null) {
-            if (other.channelId != null) {
-                return false;
-            }
-        } else if (!channelId.equals(other.channelId)) {
-            return false;
-        }
-        return true;
+        return channelId == null ? other.channelId == null : channelId.equals(other.channelId);
     }
 
 }
