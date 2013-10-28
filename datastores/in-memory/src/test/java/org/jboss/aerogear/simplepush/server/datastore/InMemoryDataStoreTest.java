@@ -20,6 +20,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -32,10 +33,11 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-
 import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.protocol.impl.AckImpl;
 import org.jboss.aerogear.simplepush.server.Channel;
+import org.jboss.aerogear.simplepush.server.DefaultChannel;
+import org.jboss.aerogear.simplepush.util.CryptoUtil;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -149,14 +151,14 @@ public class InMemoryDataStoreTest {
                     try {
                         startLatch.await();
                         try {
-                            final String channelId = UUID.randomUUID().toString();
-                            store.saveUnacknowledged(channelId, 10);
-                            store.saveUnacknowledged(channelId, 11);
-                            store.saveUnacknowledged(channelId, 12);
-                            store.saveUnacknowledged(channelId, 13);
+                            final Channel channel = newChannel(uaid, UUID.randomUUID().toString(), 10);
+                            store.saveChannel(channel);
+                            store.saveUnacknowledged(channel.getChannelId(), 11);
+                            store.saveUnacknowledged(channel.getChannelId(), 12);
+                            store.saveUnacknowledged(channel.getChannelId(), 13);
                             final Set<Ack> acks = store.getUnacknowledged(uaid);
-                            assertThat(acks, hasItems(ack(channelId, 13)));
-                            assertThat(store.removeAcknowledged(uaid, acks(ack(channelId, 3))).isEmpty(), is(true));
+                            assertThat(acks, hasItems(ack(channel.getChannelId(), 13)));
+                            assertThat(store.removeAcknowledged(uaid, acks(ack(channel.getChannelId(), 13))), not(hasItem(ack(channel.getChannelId(), 13))));
                         } catch (final Exception e) {
                             e.printStackTrace();
                             outcome.compareAndSet(true, false);
@@ -192,6 +194,11 @@ public class InMemoryDataStoreTest {
         when(channel.getVersion()).thenReturn(version);
         when(channel.getEndpointToken()).thenReturn(endpointToken);
         return channel;
+    }
+
+    private Channel newChannel(final String uaid, final String channelId, final long version) {
+        final String endpointToken = CryptoUtil.endpointToken(uaid, channelId, CryptoUtil.secretKey("testKey"));
+        return new DefaultChannel(uaid, channelId, version, endpointToken);
     }
 
     private Ack ack(final String channelId, final long version) {

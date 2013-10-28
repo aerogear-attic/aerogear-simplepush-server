@@ -162,19 +162,19 @@ public class InMemoryDataStore implements DataStore {
             if (currentAcks == null || currentAcks.isEmpty()) {
                 return Collections.emptySet();
             }
-            final Set<Ack> newUpdates = Collections.newSetFromMap(new ConcurrentHashMap<Ack, Boolean>());
-            boolean added = newUpdates.addAll(currentAcks);
+            final Set<Ack> newAcks = Collections.newSetFromMap(new ConcurrentHashMap<Ack, Boolean>());
+            boolean added = newAcks.addAll(currentAcks);
             if (!added){
-                return newUpdates;
+                return newAcks;
             }
 
-            boolean removed = newUpdates.removeAll(acked);
+            boolean removed = newAcks.removeAll(acked);
             if (removed) {
-                if (unacked.replace(uaid, currentAcks, newUpdates)) {
-                    return newUpdates;
+                if (unacked.replace(uaid, currentAcks, newAcks)) {
+                    return newAcks;
                 }
             } else {
-                return newUpdates;
+                return newAcks;
             }
         }
     }
