@@ -3,7 +3,7 @@
     "port": 7777,
     "token-key" :"testing",
     "useragent-reaper-timeout": "604800000",
-    "use-tls": false,
+    "endpoint-tls": false,
     "endpoint-prefix": "/update",
     "ack-interval": "60000",
     "sockjs-prefix": "/simplepush",

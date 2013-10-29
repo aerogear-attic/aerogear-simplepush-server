@@ -168,7 +168,7 @@ public class ConfigReader {
         if (useragentReaperTimeout != null) {
             builder.userAgentReaperTimeout(useragentReaperTimeout.asLong());
         }
-        final JsonNode useTls = json.get("use-tls");
+        final JsonNode useTls = json.get("endpoint-tls");
         if (useTls != null) {
             builder.endpointTls(useTls.asBoolean());
         }
