@@ -11,8 +11,8 @@ This project is a Java implementation of the server side that follows the [Simpl
 
     mvn exec:java
     
-This will start the server listening localhost using port 7777. To toggle these arguments you can
-specify overrides on the command line:  
+This will start the server listening localhost using port 7777. This will use a default configuration which can be found
+in ```src/main/resources/simplepush-config.json``` 
 
     mvn exec:java -Dexec.args="/simplepush-config.json"
     
@@ -128,16 +128,28 @@ Redis datastore configuration:
 Using Redis datastore:
 
     mvn exec:java -Dexec.args="src/main/resources/simplepush-redis-config.json"
+   
+CouchDB datastore:
+
+    "datastore": { "couchdb": { "url": "http://127.0.0.1:5984", "dbName": "simplepush" } }
     
-Example of running with a CouchDB datastore:
+Using CouchDB datastore:
 
     mvn exec:java -Dexec.args="src/main/resources/simplepush-couchdb-config.json"
     
-Example of running with a JPA datastore:
+JPA datastore:
+
+    "datastore": { "jpa": { "persistenceUnit": "SimplePushTest" } }
+    
+Using JPA datastore:
 
     mvn exec:java -Dexec.args="src/main/resources/simplepush-jpa-config.json"
     
-Example of running with a In-Memory datastore:
+InMemory datastore:
+
+    "datastore": { "in-memory": {} }
+    
+Using InMemory datastore:
 
     mvn exec:java -Dexec.args="src/main/resources/simplepush-inmem-config.json"
 
