@@ -27,7 +27,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
 
     private final String host;
     private final int port;
-    private final boolean tls;
+    private final boolean endpointTls;
     private final byte[] tokenKey;
     private final String endpointPrefix;
     private final String notificationUrl;
@@ -37,7 +37,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
     private DefaultSimplePushConfig(final Builder builder) {
         host = builder.host;
         port = builder.port;
-        tls = builder.tls;
+        endpointTls = builder.endpointTls;
         endpointPrefix = builder.endpointPrefix;
         notificationUrl = makeNotifyURL(builder.endpointPrefix);
         reaperTimeout = builder.timeout;
@@ -46,7 +46,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
     }
 
     private String makeNotifyURL(final String endpointUrl) {
-        return new StringBuilder(tls ? "https://" : "http://")
+        return new StringBuilder(endpointTls ? "https://" : "http://")
             .append(host).append(":").append(port).append(endpointUrl).toString();
     }
 
@@ -62,8 +62,8 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         return tokenKey;
     }
 
-    public boolean isUseTls() {
-        return tls;
+    public boolean useEndpointTls() {
+        return endpointTls;
     }
 
     public String notificationUrl() {
@@ -89,7 +89,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
     public String toString() {
         return new StringBuilder("SimplePushConfig[host=").append(host)
                 .append(", port=").append(port)
-                .append(", tls=").append(tls)
+                .append(", endpointTls=").append(endpointTls)
                 .append(", endpointUrlPrefix=").append(endpointPrefix)
                 .append(", notificationUrl=").append(notificationUrl)
                 .append(", reaperTimeout=").append(reaperTimeout)
@@ -109,7 +109,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         private String host;
         private int port;
         private String tokenKey;
-        private boolean tls;
+        private boolean endpointTls;
         private String endpointPrefix = DEFAULT_ENDPOINT_URL_PREFIX;
         private long timeout = 604800000L;
         private long ackInterval = 60000;
@@ -131,8 +131,8 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
             return this;
         }
 
-        public Builder useTls(final boolean tls) {
-            this.tls = tls;
+        public Builder endpointTls(final boolean tls) {
+            this.endpointTls = tls;
             return this;
         }
 

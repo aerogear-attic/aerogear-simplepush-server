@@ -167,7 +167,7 @@ class ServerAdd extends AbstractAddStepHandler {
         final Builder simplePushConfig = DefaultSimplePushConfig.create();
         simplePushConfig.tokenKey(ServerDefinition.TOKEN_KEY_ATTR.resolveModelAttribute(context, model).asString());
         if (notificationtTls.isDefined()) {
-            simplePushConfig.useTls(notificationtTls.asBoolean());
+            simplePushConfig.endpointTls(notificationtTls.asBoolean());
         }
         if (reaperTimeout.isDefined()) {
             simplePushConfig.userAgentReaperTimeout(reaperTimeout.asLong());

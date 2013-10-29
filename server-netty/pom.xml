@@ -77,6 +77,35 @@
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-simplepush-datastore-in-memory</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-datastore-redis</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-datastore-couchdb</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-datastore-jpa</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>4.2.3.Final</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.3.172</version>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -112,38 +141,11 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.2</version>
                 <configuration>
-                    <mainClass>org.jboss.aerogear.simplepush.server.netty.NettySockJSServer</mainClass>
+                    <mainClass>org.jboss.aerogear.simplepush.server.netty.standalone.NettySockJSServer</mainClass>
                     <classpathScope>test</classpathScope>
                     <arguments>
-                        <!-- Host -->
-                        <argument>-host=localhost</argument>
-                        <!-- Port -->
-                        <argument>-port=7777</argument>
-                        <!-- Transport Layer Security option -->
-                        <argument>-tls=true</argument>
-                        <!-- Token key used for encryption/decryption -->
-                        <argument>-token_key=dummyKey</argument>
-                        <!-- UserAgent Reaper timeout in ms -->
-                        <argument>-useragent_reaper_timeout=604800000</argument>
-                        <!-- Acknowledgment interval -->
-                        <argument>-ack_interval=300000</argument>
+                        <argument>/simplepush-config.json</argument>
                     </arguments>
-                    <systemProperties>
-                        <systemProperty>
-                            <key>simplepush.keystore.password</key>
-                            <value>simplepush</value>
-                        </systemProperty>
-                        <systemProperty>
-                            <key>simplepush.keystore.path</key>
-                            <value>/simplepush-sample.keystore</value>
-                        </systemProperty>
-                        <!--
-                        <systemProperty>
-                          <key>javax.net.debug</key>
-                          <value>all</value>
-                        </systemProperty>
-                        -->
-                    </systemProperties>
                 </configuration>
             </plugin>
 
