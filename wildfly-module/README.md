@@ -13,27 +13,7 @@ Copy the module produced by ```mvn package``` to the _modules_ directory of the 
     
 ## Configuring WildFly
 
-### Adding the Mysql module
-AeroGear Simple Push server uses a MySql datasource for persistence when deployed in WildFly and the database needs
-to be configured as well as the application server.
 
-#### Create a database and database user
-
-    $ mysql -u <user-name>
-    mysql> create database simplepush;
-    mysql> create user 'simplepush'@'localhost' identified by 'simplepush';
-    mysql> GRANT SELECT,INSERT,UPDATE,ALTER,DELETE,CREATE,DROP ON simplepush.* TO 'simplepush'@'localhost';
-    
-    
-#### Add a datasource for the SimplePush database
-The module for mysql can be found in ```src/main/resources/modules/com/mysql```. Copy this module to WildFlys modules directory:
-
-    cp -r src/main/resources/modules/com $WILDFLY_HOME/modules/
-    
-We also need the mysql driver copied to this module:
-
-    mvn dependency:copy -Dartifact=mysql:mysql-connector-java:5.1.18 -DoutputDirectory=/$WILDFLY_HOME/modules/com/mysql/jdbc/main/
-    
 Next, start your server :
 
     ./standalone.sh
@@ -42,7 +22,8 @@ Finally, run the follwing WildFly command line interface script:
 
     $WILDFLY_HOME/bin/jboss-cli.sh --file=src/main/resources/wildfly-config.cli
     
-The above script will add the mysql driver, a datasource, the SimplePush extension/subsystem.
+The above script will add the SimplePush extension/subsystem using an in-memory datastore. Please see the _datastore_ section
+below for instructions to add a different datastore.
  
 If you inspect the server console output you should see the following message:
 
@@ -168,21 +149,51 @@ Adds the specified comma separated list of protocols which will be returned to d
 This is only used with raw WebSockets as the SockJS protocol does not support protocols to be specified by the client yet.
 
 #### datastore
-The datastore can be used to configure the datastore which should be used.  
-Currently, in-memory, jpa, redis, and couchdb are supported:
+The datastore can be used to configure the datastore which should be used. Currently, in-memory, jpa, redis, and couchdb are supported.
 
-    <datastore>
-        <jpa datasource-jndi-name="java:jboss/datasources/TestDS" persistence-unit="SimplePushPU"/>
-    </datastore>
+Redis:  
+The [Redis datastore](https://github.com/aerogear/aerogear-simplepush-server/tree/master/datastores/redis) can be configured by replacing the content of the datastore element of the simplepush subsystem:
 
     <datastore>
         <redis host="localhost" port="6379"/>
     </datastore>
     
+CouchDB:  
+The [CouchDB datastore](https://github.com/aerogear/aerogear-simplepush-server/tree/master/datastores/couchdb) can be configured by replacing the content of the datastore element of the simplepush subsystem:  
+
     <datastore>
         <couchdb url="http://127.0.0.1:5984" database-name="simplepush"/>
     </datastore>
     
+InMemory:    
+The [InMemory datastore](https://github.com/aerogear/aerogear-simplepush-server/tree/master/datastores/in-memory) can be configured by replacing the content of the datastore element of the simplepush subsystem:  
+
     <datastore>
         <in-memory/>
     </datastore>
+    
+JPA:   
+The [JPA datastore](https://github.com/aerogear/aerogear-simplepush-server/tree/master/datastores/jpa) can be configured by replacing the content of the datastore element of the simplepush subsystem:  
+
+    <datastore>
+        <jpa datasource-jndi-name="java:jboss/datasources/TestDS" persistence-unit="SimplePushPU"/>
+    </datastore>
+    
+To use JPA you also need a datasource. In this case we will give an example of adding a MySql datasource.  
+Create a database and database user:  
+
+    $ mysql -u <user-name>
+    mysql> create database simplepush;
+    mysql> create user 'simplepush'@'localhost' identified by 'simplepush';
+    mysql> GRANT SELECT,INSERT,UPDATE,ALTER,DELETE,CREATE,DROP ON simplepush.* TO 'simplepush'@'localhost';
+    
+Add a datasource for the SimplePush database:   
+The module for mysql can be found in ```src/main/resources/modules/com/mysql```. 
+Copy this module to WildFlys modules directory:
+
+    cp -r src/main/resources/modules/com $WILDFLY_HOME/modules/
+    
+We also need the mysql driver copied to this module:
+
+    mvn dependency:copy -Dartifact=mysql:mysql-connector-java:5.1.18 -DoutputDirectory=/$WILDFLY_HOME/modules/com/mysql/jdbc/main/
+    
