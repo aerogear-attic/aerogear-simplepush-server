@@ -14,7 +14,7 @@ This project is a Java implementation of the server side that follows the [Simpl
 This will start the server listening localhost using port 7777. This will use a default configuration which can be found
 in ```src/main/resources/simplepush-config.json``` 
 
-    mvn exec:java -Dexec.args="/simplepush-config.json"
+    mvn exec:java -Dexec.args="src/main/resources/simplepush-config.json"
     
 The configuration can either be a path to a file on the file system or to a file on the classpath. 
 The default sample configuration file can be found in ```src/main/resources``` directory, which also contains sample 
