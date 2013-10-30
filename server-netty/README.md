@@ -11,35 +11,148 @@ This project is a Java implementation of the server side that follows the [Simpl
 
     mvn exec:java
     
-This will start the server listening localhost using port 7777. To toggle these arguments you can
-specify overrides on the command line:  
+This will start the server listening localhost using port 7777. This will use a default configuration which can be found
+in ```src/main/resources/simplepush-config.json``` 
 
-    mvn exec:java -Dexec.args="-host=localhost -port=7777 -tls=false -ack_interval=10000 -useragent_reaper_timeout=60000 -token_key=yourRandomToken"
+    mvn exec:java -Dexec.args="src/main/resources/simplepush-config.json"
     
-__host__  
+The configuration can either be a path to a file on the file system or to a file on the classpath. 
+The default sample configuration file can be found in ```src/main/resources``` directory, which also contains sample 
+configurations. 
+
+### Configuration
+Configuration is done using JSON configuration file.
+Example configuration:  
+
+    {
+        "host": "localhost",
+        "port": 7777,
+        "token-key" :"testing",
+        "useragent-reaper-timeout": "604800000",
+        "endpoint-tls": false,
+        "endpoint-prefix": "/update",
+        "ack-interval": "60000",
+        "sockjs-prefix": "/simplepush",
+        "sockjs-cookies-needed": "true",
+        "sockjs-url": "http://cdn.sockjs.org/sockjs-0.3.4.min.js",
+        "sockjs-session-timeout": "5000",
+        "sockjs-heartbeat-interval": 25000,
+        "sockjs-max-streaming-bytes-size": 65356,
+        "sockjs-tls": false,
+        "sockjs-keystore": "/simplepush-sample.keystore",
+        "sockjs-keystore-password": "simplepush",
+        "sockjs-websocket-enable": true,
+        "sockjs-websocket-heartbeat-interval": -1,
+        "sockjs-websocket-protocols": "push-notification",
+        "datastore": { "in-memory": {} }
+    }
+
+#### host
 The host that the server will bind to.
 
-__port__  
+#### port
 The port that the server will bind to.
 
-__tls__  
-Whether to use transport layer security or not.
-The server will use a system property named ```simplepush.keystore.path``` which should point to 
-a keystore available on the servers classpath. If the keystore is password protected then the system property 
-```simplepush.keystore.password``` can be used to specify the password for the keystore.
-
-When running the ```mvn exec:java``` command a sample keystore is used that contains a self signed certificate for testing. 
-The above mentioned system variables are set in the pom.xml file.
-
-__ack_interval__ 
-How often the acknowledge job will run to re-send unacknowledged notifications.
-
-__useragent_reaper_timeout__ 
-How often the UserAgent reaper job will run to clean up inactive user agents.
-
-__token_key__  
+#### token-key 
 This should be a random token which will be used by the server for encryption/decryption of the endpoint URLs that are
 returned to clients upon successful channel registration.
+
+#### useragent-reaper-timeout  
+This is the amount of time which a UserAgent can be inactive after which it will be removed from the system.
+Default is 604800000 ms (7 days).
+
+#### endpoint-tls
+Configures Transport Layer Security (TLS) for the notification endpointUrl that is returned when a UserAgent/client registers a channel. 
+Setting this to _true_ will return a url with _https_ as the protocol.
+
+#### endpoint-prefix  
+The prefix for the the notification endpoint url. This prefix will be included in the endpointUrl returned to the client to enabling them to send notifications.
+
+
+#### ack-interval  
+This is the interval time for resending un-acknowledged notifications. Default is 60000 ms.
+
+#### sockjs-prefix
+The prefix/name, of the SockJS service. For example, in the url _http://localhost/simplepush/111/12345/xhr_, _simplepush_ is the prefix. 
+
+#### sockjs-cookies-needed
+This is used by some load balancers to enable session stickyness. Default is true.
+
+#### sockjs-url
+The url to the sock-js-<version>.json. This is used by the 'iframe' protocol and the url is replaced in the script 
+returned to the client. This allows for configuring the version of sockjs used.  
+Default is _http://cdn.sockjs.org/sockjs-0.3.4.min.js_.
+
+#### sockjs-session-timeout
+A timeout for inactive sessions. Default is 5000 ms. 
+
+#### sockjs-heartbeat-interval
+Specifies a heartbeat interval. Default is 25000 ms.
+
+#### sockjs-max-streaming-bytes-size
+The max number of bytes that a streaming transport protocol should allow to be returned before closing the connection, 
+forcing the client to reconnect. 
+This is done so that the responseText in the XHR Object will not grow and be come an issue for the client. Instead, 
+by forcing a reconnect the client will create a new XHR object and this can be see as a form of garbage collection.
+Default is 131072 bytes.
+
+#### sockjs-tls
+Specified whether Transport Layer Security (TLS) should be used by the SockJS layer.
+Default is false.
+
+#### sockjs-keystore
+If _tls_ is in use then the value of this property should be a path to keystore available on the classpath of the subystem.
+
+#### sockjs-keystore-password
+If _tls_ is in use, then the value of this property should be the password to the keystore specified in _keystore_.
+
+#### sockjs-websocket-enable
+Determines whether WebSocket support is enabled on the server.
+
+#### sockjs-websocket-heartbeat-interval
+A heartbeat-interval for WebSockets. This interval is separate from the normal SockJS heartbeat-interval and might be 
+required in certain environments where idle connection are closed by a proxy. It is a separate value from the hearbeat 
+that the streaming protocols use as it is often desirable to have a much larger value for it.
+
+#### sockjs-websocket-protocols
+Adds the specified comma separated list of protocols which will be returned to during the HTTP upgrade request as the header 'WebSocket-Protocol'. 
+This is only used with raw WebSockets as the SockJS protocol does not support protocols to be specified by the client yet.
+
+#### datastore
+Configures the datastore to be used.  
+
+Redis datastore configuration:
+    
+   "datastore": { "redis": { "host": "localhost", "port": 6379 } } 
+   
+Using Redis datastore:
+
+    mvn exec:java -Dexec.args="src/main/resources/simplepush-redis-config.json"
+   
+CouchDB datastore:
+
+    "datastore": { "couchdb": { "url": "http://127.0.0.1:5984", "dbName": "simplepush" } }
+    
+Using CouchDB datastore:
+
+    mvn exec:java -Dexec.args="src/main/resources/simplepush-couchdb-config.json"
+    
+JPA datastore:
+
+    "datastore": { "jpa": { "persistenceUnit": "SimplePushTest" } }
+    
+Using JPA datastore:
+
+    mvn exec:java -Dexec.args="src/main/resources/simplepush-jpa-config.json"
+    
+InMemory datastore:
+
+    "datastore": { "in-memory": {} }
+    
+Using InMemory datastore:
+
+    mvn exec:java -Dexec.args="src/main/resources/simplepush-inmem-config.json"
+
     
 ### Access the demo html page
 
@@ -81,8 +194,9 @@ want to get registered, as the _channelId_, enter e.g. _mail_.
 
 Use one of the above mentioned IDs in the following ```curl``` command:
 
-    curl -i --header "Accept: application/x-www-form-urlencoded" -X PUT -d "version=1" "https://localhost:7777/update/{ChannelID}"
+    curl -i --header "Accept: application/x-www-form-urlencoded" -X PUT -d "version=1" "{pushEndpoint}"
 
+The ```pushEndpoint``` will be returned from the server and displayed in the textaera.
 A push notification stating the version will be displayed in the textarea of the _websocket.html_ page that has registerd for that channel.
 
     

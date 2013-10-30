@@ -47,7 +47,7 @@ public interface SimplePushServerConfig {
      *
      * @return {@code true} if transport layer security is in use.
      */
-    boolean isUseTls();
+    boolean useEndpointTls();
 
     /**
      * Token key for encryption/decryption of endpoint urls.

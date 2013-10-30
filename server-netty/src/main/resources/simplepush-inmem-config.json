@@ -1,0 +1,22 @@
+{
+    "host": "localhost",
+    "port": 7777,
+    "token-key" :"testing",
+    "useragent-reaper-timeout": "604800000",
+    "endpoint-tls": false,
+    "endpoint-prefix": "/update",
+    "ack-interval": "60000",
+    "sockjs-prefix": "/simplepush",
+    "sockjs-cookies-needed": "true",
+    "sockjs-url": "http://cdn.sockjs.org/sockjs-0.3.4.min.js",
+    "sockjs-session-timeout": "5000",
+    "sockjs-heartbeat-interval": 25000,
+    "sockjs-max-streaming-bytes-size": 65356,
+    "sockjs-tls": false,
+    "sockjs-keystore": "/simplepush-sample.keystore",
+    "sockjs-keystore-password": "simplepush",
+    "sockjs-websocket-enable": true,
+    "sockjs-websocket-heartbeat-interval": -1,
+    "sockjs-websocket-protocols": "push-notification",
+    "datastore": { "in-memory": {} }
+}
