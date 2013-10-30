@@ -13,19 +13,27 @@
 package org.jboss.aerogear.simplepush.subsystem;
 
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
-import org.jboss.msc.service.Service;
-import org.jboss.msc.service.ServiceName;
-import org.jboss.msc.service.StopContext;
+import org.jboss.aerogear.simplepush.server.datastore.RedisDataStore;
+import org.jboss.msc.service.StartContext;
+import org.jboss.msc.service.StartException;
 
-/**
- * A service to inject a {@link DataStore} implementation into the SimplePush service.
- */
-public abstract class DataStoreService implements Service<DataStore>{
+public class RedisDataStoreService extends DataStoreService {
 
-    public static final ServiceName SERVICE_NAME = ServiceName.JBOSS.append("aerogear", "simplepush", "datastore");
+    private final String host;
+    private final int port;
+
+    public RedisDataStoreService(final String host, final int port) {
+        this.host = host;
+        this.port = port;
+    }
 
     @Override
-    public void stop(final StopContext context) {
+    public synchronized void start(StartContext context) throws StartException {
+    }
+
+    @Override
+    public synchronized DataStore getValue() throws IllegalStateException, IllegalArgumentException {
+        return new RedisDataStore(host, port);
     }
 
 }

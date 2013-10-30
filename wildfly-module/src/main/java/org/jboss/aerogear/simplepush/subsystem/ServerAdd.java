@@ -23,6 +23,7 @@ import java.util.List;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig.Builder;
+import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.as.controller.AbstractAddStepHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
@@ -51,7 +52,6 @@ class ServerAdd extends AbstractAddStepHandler {
     protected void populateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
         ServerDefinition.SERVER_NAME_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKET_BINDING_ATTR.validateAndSet(operation, model);
-        ServerDefinition.DATASOURCE_ATTR.validateAndSet(operation, model);
         ServerDefinition.TOKEN_KEY_ATTR.validateAndSet(operation, model);
         ServerDefinition.REAPER_TIMEOUT_ATTR.validateAndSet(operation, model);
         ServerDefinition.NOTIFICATION_TLS_ATTR.validateAndSet(operation, model);
@@ -94,12 +94,14 @@ class ServerAdd extends AbstractAddStepHandler {
             sb.addDependency(SocketBinding.JBOSS_BINDING_NAME.append(notificationSocketBinding.asString()),SocketBinding.class, simplePushService.getInjectedNotificationSocketBinding());
         }
 
-        final ModelNode datasourceNode = ServerDefinition.DATASOURCE_ATTR.resolveModelAttribute(context, model);
+        final ModelNode datasourceNode = DataStoreDefinition.DATASOURCE_ATTR.resolveModelAttribute(context, model);
         if (datasourceNode.isDefined()) {
             final BindInfo bindinfo = ContextNames.bindInfoFor(datasourceNode.asString());
             logger.debug("Adding dependency to [" + bindinfo.getAbsoluteJndiName() + "]");
             sb.addDependencies(bindinfo.getBinderServiceName());
         }
+
+        sb.addDependency(DataStoreService.SERVICE_NAME.append(serverName), DataStore.class,  simplePushService.getInjectedDataStore());
 
         sb.addListener(verificationHandler);
         sb.setInitialMode(Mode.ACTIVE);

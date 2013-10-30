@@ -39,14 +39,35 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.jboss.as>7.1.1.Final</version.jboss.as>
+        <version.commons.http>4.1.2</version.commons.http>
+        <version.commons.pool>1.5.5</version.commons.pool>
+        <version.commons.io>2.0.1</version.commons.io>
+        <version.commons.logging>1.1.1</version.commons.logging>
+        <version.jackson>1.9.7</version.jackson>
         <module.name>org.jboss.aerogear.simplepush</module.name>
         <module.dir>${project.build.directory}/module/org/jboss/aerogear/simplepush/main</module.dir>
+        <include.libs>aerogear-simplepush-datastore-in-memory</include.libs>
+        <wildfly.resources>
+            &lt;resource-root path="aerogear-simplepush-datastore-in-memory-${project.version}.jar"/&gt;
+        </wildfly.resources>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-datastore-in-memory</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-simplepush-datastore-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-datastore-couchdb</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-simplepush-datastore-redis</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
@@ -67,6 +88,10 @@
             <artifactId>jboss-as-subsystem-test</artifactId>
             <version>${version.jboss.as}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ektorp</groupId>
+            <artifactId>org.ektorp</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.as</groupId>
@@ -161,13 +186,24 @@
                                                 aerogear-simplepush-server-api, 
                                                 aerogear-simplepush-server-core, 
                                                 aerogear-simplepush-server-netty,
-                                                aerogear-simplepush-datastore-jpa,
                                                 aerogear-simplepush-common,
                                                 aerogear-netty-codec-sockjs,
                                                 netty-all,
                                                 jackson-core-asl,
                                                 jackson-mapper-asl,
-                                                commons-codec
+                                                commons-codec,
+                                                aerogear-simplepush-datastore-couchdb,
+                                                org.ektorp,
+                                                httpclient,
+                                                httpclient-cache,
+                                                httpcore,
+                                                commons-io,
+                                                commons-logging,
+                                                aerogear-simplepush-datastore-jpa,
+                                                aerogear-simplepush-datastore-in-memory,
+                                                aerogear-simplepush-datastore-redis,
+                                                commons-pool,
+                                                jedis
                             </includeArtifactIds>
                         </configuration>
                     </execution>
@@ -188,6 +224,9 @@
                             <resources>
                                 <resource>
                                     <directory>src/main/resources/module/main</directory>
+                                    <includes>
+                                        <include>*</include>
+                                    </includes>
                                     <filtering>true</filtering>
                                 </resource>
                             </resources>
@@ -227,6 +266,6 @@
             </plugins>
         </pluginManagement>
     </build>
-
+    
 </project>
 

@@ -43,9 +43,7 @@ public class SimplePushExtension implements Extension {
      */
     public static final String SUBSYSTEM_NAME = "simplepush";
 
-    protected static final String SERVER = "server";
-    protected static final PathElement SUBSYSTEM_PATH = PathElement.pathElement(SUBSYSTEM, SUBSYSTEM_NAME);
-    protected static final PathElement SERVER_PATH = PathElement.pathElement(SERVER);
+    static final PathElement SUBSYSTEM_PATH = PathElement.pathElement(SUBSYSTEM, SUBSYSTEM_NAME);
     private static final String RESOURCE_NAME = SimplePushExtension.class.getPackage().getName() + ".LocalDescriptions";
 
     private final SimplePushSubsystemParser parser = new SimplePushSubsystemParser();

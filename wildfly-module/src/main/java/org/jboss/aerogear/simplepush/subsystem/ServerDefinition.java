@@ -17,12 +17,10 @@
 
 package org.jboss.aerogear.simplepush.subsystem;
 
-import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.SERVER;
-import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.SERVER_PATH;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -31,11 +29,13 @@ import org.jboss.dmr.ModelType;
 
 public class ServerDefinition extends SimpleResourceDefinition {
 
+    public static final String SERVER = "server";
+    public static final PathElement SERVER_PATH = PathElement.pathElement(SERVER);
+
     public enum Element {
         UNKNOWN(null),
         SERVER_NAME("name"),
         SOCKET_BINDING("socket-binding"),
-        DATASOURCE("datasource-jndi-name"),
         TOKEN_KEY("token-key"),
         REAPER_TIMEOUT("useragent-reaper-timeout"),
         NOTIFICATION_PREFIX("notification-prefix"),
@@ -51,7 +51,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
         SOCKJS_TLS("sockjs-tls"),
         SOCKJS_KEYSTORE("sockjs-keystore"),
         SOCKJS_KEYSTORE_PASSWORD("sockjs-keystore-password"),
-        SOCKJS_ENABLE_WEBSOCKET("sockjs-enable-websocket"),
+        SOCKJS_ENABLE_WEBSOCKET("sockjs-websocket-enable"),
         SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL("sockjs-websocket-heartbeat-interval"),
         SOCKJS_WEBSOCKET_PROTOCOLS("sockjs-websocket-protocols");
 
@@ -85,7 +85,6 @@ public class ServerDefinition extends SimpleResourceDefinition {
 
     protected static final SimpleAttributeDefinition SERVER_NAME_ATTR = new SimpleAttributeDefinition(Element.SERVER_NAME.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition SOCKET_BINDING_ATTR = new SimpleAttributeDefinition(Element.SOCKET_BINDING.localName(), ModelType.STRING, false);
-    protected static final SimpleAttributeDefinition DATASOURCE_ATTR = new SimpleAttributeDefinition(Element.DATASOURCE.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition TOKEN_KEY_ATTR = new SimpleAttributeDefinition(Element.TOKEN_KEY.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition NOTIFICATION_TLS_ATTR = new SimpleAttributeDefinition(Element.NOTIFICATION_TLS.localName(), ModelType.BOOLEAN, true);
     protected static final SimpleAttributeDefinition REAPER_TIMEOUT_ATTR = new SimpleAttributeDefinition(Element.REAPER_TIMEOUT.localName(), new ModelNode(604800000), ModelType.LONG, true);
@@ -116,9 +115,9 @@ public class ServerDefinition extends SimpleResourceDefinition {
 
     @Override
     public void registerAttributes(final ManagementResourceRegistration resourceRegistration) {
+        super.registerAttributes(resourceRegistration);
         resourceRegistration.registerReadWriteAttribute(SERVER_NAME_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(SOCKET_BINDING_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
-        resourceRegistration.registerReadWriteAttribute(DATASOURCE_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(TOKEN_KEY_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(REAPER_TIMEOUT_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(NOTIFICATION_PREFIX_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
@@ -138,5 +137,18 @@ public class ServerDefinition extends SimpleResourceDefinition {
         resourceRegistration.registerReadWriteAttribute(SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(SOCKJS_WEBSOCKET_PROTOCOLS, null, SimplePushSocketBindingHandler.INSTANCE);
     }
+
+    @Override
+    public void registerOperations(final ManagementResourceRegistration resourceRegistration) {
+        super.registerOperations(resourceRegistration);
+    }
+
+    @Override
+    public void registerChildren(ManagementResourceRegistration resourceRegistration) {
+        super.registerChildren(resourceRegistration);
+        resourceRegistration.registerSubModel(DataStoreDefinition.INSTANCE);
+    }
+
+
 
 }
