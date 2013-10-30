@@ -2,20 +2,13 @@
 connect
 batch
 
-## Add Mysql driver
-/subsystem=datasources/jdbc-driver=mysqlsp:add(driver-name=mysqlsp,driver-module-name=com.mysql.jdbc,driver-xa-datasource-class-name=com.mysql.jdbc.jdbc2.optional.MysqlXADataSource)
-
-## Add SimplePush Datasource
-data-source add --name=SimplePushDS --driver-name=mysqlsp --jndi-name=java:jboss/datasources/SimplePushDS --connection-url=jdbc:mysql://localhost:3306/simplepush --user-name=simplepush --password=simplepush --use-ccm=false --max-pool-size=25 --blocking-timeout-wait-millis=5000
-data-source enable --name=SimplePushDS
-
 ## Add Netty subsystem
 /extension=org.jboss.aerogear.simplepush:add
 
 ## Add SimplePush Netty Server
 /socket-binding-group=standard-sockets/socket-binding=simplepush:add(port=7777)
 /:composite(steps=[{"operation" => "add", "address" => [("subsystem" => "simplepush")]}, {"operation" => "add", "address" => [("subsystem" => "simplepush"), ("server" => "simplepush")], "socket-binding" => "simplepush", "datasource-jndi-name" => "java:jboss/datasources/SimplePushDS", "token-key" => "changeMe!", "notification-tls" => false, "sockjs-tls" => false}]
-/:composite(steps=[{"operation" => "add", "address" => [("subsystem" => "simplepush"), ("server" => "simplepush"), ("datastore" => "jpa")], "datasource-jndi-name" => "java:jboss/datasources/SimplePushDS", "persistence-unit" => "SimplePushPU"}]
+/:composite(steps=[{"operation" => "add", "address" => [("subsystem" => "simplepush"), ("server" => "simplepush"), ("datastore" => "in-memory")]}]
 
 run-batch
 #:reload
