@@ -103,10 +103,11 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
     public String toString() {
         return new StringBuilder("SimplePushConfig[host=").append(host)
                 .append(", port=").append(port)
+                .append(", endpointHost=").append(endpointHost)
+                .append(", endpointPort=").append(endpointPort)
                 .append(", endpointTls=").append(endpointTls)
                 .append(", endpointUrlPrefix=").append(endpointPrefix)
                 .append(", endpointUrl=").append(endpointUrl)
-                .append(", endpointHost=").append(endpointHost)
                 .append(", reaperTimeout=").append(reaperTimeout)
                 .append(", ackInterval=").append(ackInterval)
                 .append("]").toString();

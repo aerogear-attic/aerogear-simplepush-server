@@ -66,7 +66,8 @@ public interface SimplePushServerConfig {
 
     /**
      * Returns the notification endpoint url prefix for this SimplePush server.
-     * This will be the protocol://host:port/endpointUrlPrefix
+     * This will be the in the format:
+     * protocol://endpointHost:endpointPort/endpointPrefix
      *
      * @return {@code String} the notification url.
      */

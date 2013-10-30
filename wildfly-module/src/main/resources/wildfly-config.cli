@@ -7,13 +7,8 @@ batch
 
 ## Add SimplePush Netty Server
 /socket-binding-group=standard-sockets/socket-binding=simplepush:add(port=7777)
-<<<<<<< HEAD
 /:composite(steps=[{"operation" => "add", "address" => [("subsystem" => "simplepush")]}, {"operation" => "add", "address" => [("subsystem" => "simplepush"), ("server" => "simplepush")], "socket-binding" => "simplepush", "datasource-jndi-name" => "java:jboss/datasources/SimplePushDS", "token-key" => "changeMe!", "notification-tls" => false, "sockjs-tls" => false}]
 /:composite(steps=[{"operation" => "add", "address" => [("subsystem" => "simplepush"), ("server" => "simplepush"), ("datastore" => "in-memory")]}]
-=======
-/:composite(steps=[{"operation" => "add", "address" => [("subsystem" => "simplepush")]}, {"operation" => "add", "address" => [("subsystem" => "simplepush"), ("server" => "simplepush")], "socket-binding" => "simplepush", "datasource-jndi-name" => "java:jboss/datasources/SimplePushDS", "token-key" => "changeMe!", "endpoint-tls" => false, "sockjs-tls" => false}]
-/:composite(steps=[{"operation" => "add", "address" => [("subsystem" => "simplepush"), ("server" => "simplepush"), ("datastore" => "jpa")], "datasource-jndi-name" => "java:jboss/datasources/SimplePushDS", "persistence-unit" => "SimplePushPU"}]
->>>>>>> c744ad2... Adding endpointHost and endpointPort
 
 run-batch
 #:reload

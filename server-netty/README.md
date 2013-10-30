@@ -61,13 +61,21 @@ returned to clients upon successful channel registration.
 This is the amount of time which a UserAgent can be inactive after which it will be removed from the system.
 Default is 604800000 ms (7 days).
 
+#### endpoint-host
+The allows the configuration of the host name that will be exposed for the endpoint that clients use to send notifications.
+This enables an externally exposed host name/ip address to be specified which differs from the host that the server 
+binds to.
+
+#### endpoint-port
+The allows the configuration of the port that will be exposed for the endpoint that clients use to send notifications.
+This enables an externally exposed port to be specified which differs from the host that the server binds to.
+
 #### endpoint-tls
 Configures Transport Layer Security (TLS) for the notification endpointUrl that is returned when a UserAgent/client registers a channel. 
 Setting this to _true_ will return a url with _https_ as the protocol.
 
 #### endpoint-prefix  
 The prefix for the the notification endpoint url. This prefix will be included in the endpointUrl returned to the client to enabling them to send notifications.
-
 
 #### ack-interval  
 This is the interval time for resending un-acknowledged notifications. Default is 60000 ms.
