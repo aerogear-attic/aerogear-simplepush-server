@@ -38,6 +38,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <include.redis.tests>none</include.redis.tests>
+        <include.couchdb.tests>none</include.couchdb.tests>
     </properties>
 
     <dependencies>
@@ -148,9 +150,35 @@
                     </arguments>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>org/jboss/aerogear/simplepush/server/netty/standalone/ConfigReaderTest.java</include>
+                        <include>${include.couchdb.tests}</include>
+                        <include>${include.redis.tests}</include>
+                    </includes>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+        <profile>
+            <id>redis</id>
+            <properties>
+                <include.redis.tests>org/jboss/aerogear/simplepush/server/netty/standalone/ConfigReaderRedisTest.java</include.redis.tests>
+            </properties>
+          </profile>
+          <profile>
+            <id>couchdb</id>
+            <properties>
+                <include.couchdb.tests>org/jboss/aerogear/simplepush/server/netty/standalone/ConfigReaderCouchDBTest.java</include.couchdb.tests>
+            </properties>
+        </profile>
+    </profiles>
+    
 
 </project>
 

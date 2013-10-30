@@ -147,18 +147,6 @@ public class ConfigReaderTest {
     }
 
     @Test
-    public void redisDataStore() {
-        final StandaloneConfig config = ConfigReader.parse(ConfigReaderTest.class.getResourceAsStream("/simplepush-redis-config.json"));
-        assertThat(config.dataStore(), is(instanceOf(RedisDataStore.class)));
-    }
-
-    @Test
-    public void couchDBDataStore() {
-        final StandaloneConfig config = ConfigReader.parse(ConfigReaderTest.class.getResourceAsStream("/simplepush-couchdb-config.json"));
-        assertThat(config.dataStore(), is(instanceOf(CouchDBDataStore.class)));
-    }
-
-    @Test
     public void jpaDataStore() {
         final StandaloneConfig config = ConfigReader.parse(ConfigReaderTest.class.getResourceAsStream("/simplepush-jpa-config.json"));
         assertThat(config.dataStore(), is(instanceOf(JpaDataStore.class)));
