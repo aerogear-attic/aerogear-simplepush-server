@@ -25,6 +25,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static io.netty.util.CharsetUtil.UTF_8;
 import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.toJson;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -32,6 +33,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.util.ReferenceCountUtil;
 
@@ -40,7 +42,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.transports.Transports;
 import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.server.Notification;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
@@ -82,13 +83,10 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
     }
 
     private void handleHttpRequest(final ChannelHandlerContext ctx, final FullHttpRequest req) throws Exception {
-        if (!isHttpRequestValid(req, ctx.channel())) {
-            return;
+        if (isHttpRequestValid(req, ctx.channel())) {
+            executorServer.submit(new Notifier(req.getUri(), req.content()));
+            sendHttpResponse(OK, req, ctx.channel());
         }
-        final String requestUri = req.getUri();
-        final String endpoint = requestUri.substring(requestUri.lastIndexOf('/') + 1);
-        executorServer.submit(new Notifier(endpoint, req.content()));
-        sendHttpResponse(OK, req, ctx.channel());
     }
 
     private boolean isHttpRequestValid(final FullHttpRequest request, final Channel channel) {
@@ -104,8 +102,10 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
     }
 
     private void sendHttpResponse(final HttpResponseStatus status, final FullHttpRequest request, final Channel channel) {
-        final FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status);
-        Transports.writeContent(response, response.getStatus().toString(), Transports.CONTENT_TYPE_HTML);
+        final ByteBuf content = Unpooled.copiedBuffer(status.reasonPhrase(), UTF_8);
+        final FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, status, content);
+        response.headers().set(HttpHeaders.Names.CONTENT_LENGTH, content.readableBytes());
+        response.headers().set(HttpHeaders.Names.CONTENT_TYPE, "text/html; charset=UTF-8");
         channel.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 
@@ -114,8 +114,8 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
         private final String endpoint;
         private final ByteBuf payload;
 
-        private Notifier(final String endpoint, final ByteBuf payload) {
-            this.endpoint = endpoint;
+        private Notifier(final String requestUri, final ByteBuf payload) {
+            this.endpoint = requestUri.substring(requestUri.lastIndexOf('/') + 1);
             this.payload = payload;
             this.payload.retain();
         }
