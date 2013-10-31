@@ -22,6 +22,7 @@ import static io.netty.handler.codec.http.HttpResponseStatus.BAD_REQUEST;
 import static io.netty.handler.codec.http.HttpResponseStatus.FORBIDDEN;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import static io.netty.util.CharsetUtil.UTF_8;
 import static org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil.toJson;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -32,12 +33,11 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.util.CharsetUtil;
 import io.netty.util.ReferenceCountUtil;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.transports.Transports;
@@ -45,6 +45,7 @@ import org.jboss.aerogear.simplepush.protocol.impl.NotificationMessageImpl;
 import org.jboss.aerogear.simplepush.server.Notification;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
+import org.jboss.aerogear.simplepush.server.datastore.VersionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,9 +58,11 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
     private final Logger logger = LoggerFactory.getLogger(NotificationHandler.class);
 
     private final SimplePushServer simplePushServer;
+    private final ExecutorService executorServer;
 
     public NotificationHandler(final SimplePushServer simplePushServer) {
         this.simplePushServer = simplePushServer;
+        executorServer = Executors.newCachedThreadPool();
     }
 
     @Override
@@ -67,7 +70,7 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
         if (msg instanceof FullHttpRequest) {
             final FullHttpRequest request = (FullHttpRequest) msg;
             final String requestUri = request.getUri();
-            logger.info(requestUri);
+            logger.debug(requestUri);
             if (requestUri.startsWith(simplePushServer.config().endpointPrefix())) {
                 handleHttpRequest(ctx, request);
             } else {
@@ -84,8 +87,8 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
         }
         final String requestUri = req.getUri();
         final String endpoint = requestUri.substring(requestUri.lastIndexOf('/') + 1);
-        final Future<Void> future = ctx.channel().eventLoop().submit(new Notifier(endpoint, req.content()));
-        future.addListener(new NotificationFutureListener(ctx.channel(), req));
+        executorServer.submit(new Notifier(endpoint, req.content()));
+        sendHttpResponse(OK, req, ctx.channel());
     }
 
     private boolean isHttpRequestValid(final FullHttpRequest request, final Channel channel) {
@@ -109,52 +112,30 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
     private class Notifier implements Callable<Void> {
 
         private final String endpoint;
-        private final ByteBuf content;
+        private final ByteBuf payload;
 
-        private Notifier(final String endpoint, final ByteBuf content) {
+        private Notifier(final String endpoint, final ByteBuf payload) {
             this.endpoint = endpoint;
-            this.content = content;
-            this.content.retain();
+            this.payload = payload;
+            this.payload.retain();
         }
 
         @Override
         public Void call() throws Exception {
             try {
-                final String payload = content.toString(CharsetUtil.UTF_8);
-                logger.info("EndpointToken [" + endpoint + ", " + payload + "]");
-                final Notification notification = simplePushServer.handleNotification(endpoint, payload);
+                final Notification notification = simplePushServer.handleNotification(endpoint, payload.toString(UTF_8));
                 final String uaid = notification.uaid();
                 final SockJsSessionContext session = userAgents.get(uaid).context();
                 session.send(toJson(new NotificationMessageImpl(notification.ack())));
                 userAgents.updateAccessedTime(uaid);
-                return null;
+            } catch (final ChannelNotFoundException e) {
+                logger.debug("Could not find channel for [" + endpoint + "]");
+            } catch (final VersionException e) {
+                logger.debug(e.getMessage());
             } finally {
-                content.release();
+                payload.release();
             }
-        }
-    }
-
-    private class NotificationFutureListener implements GenericFutureListener<Future<Void>> {
-
-        private Channel channel;
-        private FullHttpRequest request;
-
-        private NotificationFutureListener(final Channel channel, final FullHttpRequest request) {
-            this.channel = channel;
-            this.request = request;
-        }
-
-        @Override
-        public void operationComplete(Future<Void> future) throws Exception {
-            if (future.cause() != null) {
-                if (future.cause() instanceof ChannelNotFoundException) {
-                    final ChannelNotFoundException cne = (ChannelNotFoundException) future.cause();
-                    logger.warn("Could not find channel [" + cne.channelId() + "]");
-                } else {
-                    logger.error("Error while processing notifiation:", future.cause());
-                }
-            }
-            sendHttpResponse(OK, request, channel);
+            return null;
         }
     }
 
