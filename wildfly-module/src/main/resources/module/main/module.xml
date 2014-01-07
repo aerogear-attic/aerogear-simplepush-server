@@ -29,7 +29,6 @@
         <resource-root path="jackson-core-${version.jackson}.jar"/>
         <resource-root path="jackson-databind-${version.jackson}.jar"/>
         <resource-root path="jackson-annotations-${version.jackson}.jar"/>
-        <resource-root path="commons-codec-${version.commons.codec}.jar"/>
         <resource-root path="netty-all-${version.io.netty}.jar"/>
         <resource-root path="aerogear-crypto-${version.aerogear.crypto}.jar"/>
         <resource-root path="bcprov-jdk16-${version.bountycastle}.jar"/>
@@ -45,10 +44,6 @@
         <resource-root path="aerogear-simplepush-datastore-jpa-${project.version}.jar"/>
         <resource-root path="aerogear-simplepush-datastore-couchdb-${project.version}.jar"/>
         <resource-root path="org.ektorp-${version.ektorp}.jar"/>
-
-        <!-- these two older version of jackson are used by ektorp until we upgrade -->
-        <resource-root path="jackson-core-asl-1.9.7.jar"/>
-        <resource-root path="jackson-mapper-asl-1.9.7.jar"/>
 
         <resource-root path="httpcore-${version.commons.http}.jar"/>
         <resource-root path="httpclient-${version.commons.http}.jar"/>

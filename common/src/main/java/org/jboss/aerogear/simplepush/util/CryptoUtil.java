@@ -12,15 +12,16 @@
  */
 package org.jboss.aerogear.simplepush.util;
 
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import org.apache.commons.codec.binary.Base64;
 import org.jboss.aerogear.AeroGearCrypto;
 import org.jboss.aerogear.crypto.BlockCipher;
 import org.jboss.aerogear.crypto.CryptoBox;
+import org.jboss.aerogear.crypto.encoders.Encoder;
 
 /**
  * Utility class for encrypting/decrypting
@@ -45,7 +46,7 @@ public final class CryptoUtil {
     public static String encrypt(final byte[] key, final String content) throws Exception {
         final byte[] iv = BlockCipher.getIV();
         final byte[] encrypted = new CryptoBox(key).encrypt(iv, content.getBytes(ASCII));
-        final String base64 = Base64.encodeBase64URLSafeString(prependIV(encrypted, iv));
+        final String base64 = Encoder.BASE64.encode(prependIV(encrypted, iv));
         return URLEncoder.encode(base64, ASCII.displayName());
     }
 
@@ -67,7 +68,7 @@ public final class CryptoUtil {
      * @throws Exception
      */
     public static String decrypt(final byte[] key, final String content) throws Exception {
-        final byte[] decodedContent = Base64.decodeBase64(content);
+        final byte[] decodedContent = Encoder.BASE64.decode(URLDecoder.decode(content, ASCII.displayName()));
         final byte[] iv = extractIV(decodedContent);
         final byte[] decrypted = new CryptoBox(key).decrypt(iv, extractContent(decodedContent));
         return new String(decrypted, ASCII);
