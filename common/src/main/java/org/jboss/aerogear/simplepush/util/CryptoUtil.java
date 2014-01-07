@@ -95,19 +95,6 @@ public final class CryptoUtil {
         }
     }
 
-    public static byte[] salt(final int size) throws NoSuchAlgorithmException {
-        final SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
-        byte[] buffer = new byte[size];
-        secureRandom.nextBytes(buffer);
-        return buffer;
-    }
-
-    public static EndpointParam decryptEndpoint(final byte[] key, final String encrypted) throws Exception {
-        final String decrypt = decrypt(key, encrypted);
-        final String[] uaidChannelIdPair = decrypt.split("\\.");
-        return new EndpointParam(uaidChannelIdPair[0], uaidChannelIdPair[1]);
-    }
-
     public static String endpointToken(final String uaid, final String channelId, final byte[] tokenKey) {
         try {
             final String path = uaid + "." + channelId;
@@ -115,26 +102,6 @@ public final class CryptoUtil {
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static class EndpointParam {
-
-        private final String uaid;
-        private final String channelId;
-
-        public EndpointParam(final String uaid, final String channelId) {
-            this.uaid = uaid;
-            this.channelId = channelId;
-        }
-
-        public String uaid() {
-            return uaid;
-        }
-
-        public String channelId() {
-            return channelId;
-        }
-
     }
 
 }

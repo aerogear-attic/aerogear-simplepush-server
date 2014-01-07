@@ -19,7 +19,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.UUID;
 
-import org.jboss.aerogear.simplepush.util.CryptoUtil.EndpointParam;
 import org.junit.Test;
 
 public class CryptoUtilTest {
@@ -37,17 +36,6 @@ public class CryptoUtilTest {
         final String expected = UUID.randomUUID().toString() + "." + UUID.randomUUID().toString();
         final String encrypted = CryptoUtil.encrypt(key, expected);
         assertThat(CryptoUtil.decrypt(key, encrypted), is(equalTo(expected)));
-    }
-
-    @Test
-    public void decryptEndpoint() throws Exception {
-        final byte[] key = CryptoUtil.secretKey("key");
-        final String uaid = UUID.randomUUID().toString();
-        final String channelId = UUID.randomUUID().toString();
-        final String encrypted = CryptoUtil.encrypt(key, uaid + "." + channelId);
-        final EndpointParam endpointParam = CryptoUtil.decryptEndpoint(key, encrypted);
-        assertThat(endpointParam.uaid(), is(equalTo(uaid)));
-        assertThat(endpointParam.channelId(), is(equalTo(channelId)));
     }
 
 }
