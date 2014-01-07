@@ -40,6 +40,8 @@
         <version.commons.codec>1.8</version.commons.codec>
         <version.ektorp>1.3.0</version.ektorp>
         <version.jedis>2.0.0</version.jedis>
+        <version.aerogear.crypto>0.1.2</version.aerogear.crypto>
+        <version.bountycastle>140</version.bountycastle>
     </properties>
 
     <modules>
@@ -100,6 +102,16 @@
                 <groupId>org.jboss.aerogear</groupId>
                 <artifactId>aerogear-simplepush-server-netty</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>aerogear-crypto</artifactId>
+                <version>${version.aerogear.crypto}</version>
+            </dependency>
+            <dependency>
+                <groupId>bouncycastle</groupId>
+                <artifactId>bcprov-jdk16</artifactId>
+                <version>${version.bountycastle}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
