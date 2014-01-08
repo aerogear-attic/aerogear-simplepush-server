@@ -19,6 +19,8 @@ import static io.netty.handler.codec.http.HttpMethod.GET;
 import static org.jboss.aerogear.io.netty.handler.codec.sockjs.transports.Transports.badRequestResponse;
 import static org.jboss.aerogear.io.netty.handler.codec.sockjs.transports.Transports.internalServerErrorResponse;
 import static org.jboss.aerogear.io.netty.handler.codec.sockjs.transports.Transports.methodNotAllowedResponse;
+
+import com.fasterxml.jackson.core.JsonParseException;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -45,7 +47,6 @@ import io.netty.util.AttributeKey;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
-import org.codehaus.jackson.JsonParseException;
 
 /**
  * WebSocketTransport is responsible for the WebSocket handshake and

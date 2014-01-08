@@ -26,8 +26,9 @@
         <resource-root path="aerogear-simplepush-server-netty-${project.version}.jar"/>
         <resource-root path="aerogear-simplepush-protocol-${project.version}.jar"/>
         <resource-root path="aerogear-simplepush-server-wildfly-${project.version}.jar"/>
-        <resource-root path="jackson-core-asl-${version.jackson}.jar"/>
-        <resource-root path="jackson-mapper-asl-${version.jackson}.jar"/>
+        <resource-root path="jackson-core-${version.jackson}.jar"/>
+        <resource-root path="jackson-databind-${version.jackson}.jar"/>
+        <resource-root path="jackson-annotations-${version.jackson}.jar"/>
         <resource-root path="commons-codec-${version.commons.codec}.jar"/>
         <resource-root path="netty-all-${version.io.netty}.jar"/>
         <!-- Enables files to be placed in the module made availble via the classloader. -->

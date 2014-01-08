@@ -19,6 +19,8 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 import static org.jboss.aerogear.io.netty.handler.codec.sockjs.transports.Transports.CONTENT_TYPE_PLAIN;
 import static org.jboss.aerogear.io.netty.handler.codec.sockjs.transports.Transports.internalServerErrorResponse;
 import static org.jboss.aerogear.io.netty.handler.codec.sockjs.transports.Transports.responseWithContent;
+
+import com.fasterxml.jackson.core.JsonParseException;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -34,7 +36,6 @@ import io.netty.util.CharsetUtil;
 
 import java.util.List;
 
-import org.codehaus.jackson.JsonParseException;
 
 /**
  * A common base class for SockJS transports that send messages to a SockJS service.

@@ -15,6 +15,14 @@
  */
 package org.jboss.aerogear.io.netty.handler.codec.sockjs.util;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.core.io.CharTypes;
+import com.fasterxml.jackson.core.json.JsonWriteContext;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -25,40 +33,29 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.Version;
-import org.codehaus.jackson.impl.JsonWriteContext;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializerProvider;
-import org.codehaus.jackson.map.module.SimpleModule;
-import org.codehaus.jackson.util.CharTypes;
-
 public final class JsonUtil {
 
     private static final ObjectMapper MAPPER;
+    private static final String[] EMPTY_STRING_ARRAY = new String[] {};
 
     static {
         MAPPER = new ObjectMapper();
 
         // This code adapted from Vert.x JsonCode.
-        SimpleModule simpleModule = new SimpleModule("simplepush", new Version(0, 0, 8, null));
+        SimpleModule simpleModule = new SimpleModule("simplepush", new Version(0, 0, 8, null, "org.jboss.aerogear",
+                "aerogear-netty-codec-sockjs"));
 
         simpleModule.addSerializer(String.class, new JsonSerializer<String>() {
-            final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
-            final int[] ESCAPE_CODES = CharTypes.get7BitOutputEscapes();
+            final char[] hexChars = "0123456789abcdef".toCharArray();
+            final int[] escapeCodes = CharTypes.get7BitOutputEscapes();
 
             private void writeUnicodeEscape(final JsonGenerator gen, final char c) throws IOException {
                 gen.writeRaw('\\');
                 gen.writeRaw('u');
-                gen.writeRaw(HEX_CHARS[(c >> 12) & 0xF]);
-                gen.writeRaw(HEX_CHARS[(c >> 8) & 0xF]);
-                gen.writeRaw(HEX_CHARS[(c >> 4) & 0xF]);
-                gen.writeRaw(HEX_CHARS[c & 0xF]);
+                gen.writeRaw(hexChars[c >> 12 & 0xF]);
+                gen.writeRaw(hexChars[c >> 8 & 0xF]);
+                gen.writeRaw(hexChars[c >> 4 & 0xF]);
+                gen.writeRaw(hexChars[c & 0xF]);
             }
 
             private void writeShortEscape(final JsonGenerator gen, final char c) throws IOException {
@@ -86,7 +83,7 @@ public final class JsonUtil {
                         writeUnicodeEscape(gen, c);
                     } else {
                         // use escape table for first 128 characters
-                        int code = c < ESCAPE_CODES.length ? ESCAPE_CODES[c] : 0;
+                        int code = c < escapeCodes.length ? escapeCodes[c] : 0;
                         if (code == 0) {
                             gen.writeRaw(c); // no escaping
                         } else if (code == -1) {
@@ -110,7 +107,7 @@ public final class JsonUtil {
             IOException {
         final ByteBuf content = frame.content();
         if (content.readableBytes() == 0) {
-            return new String[] {};
+            return EMPTY_STRING_ARRAY;
         }
         final ByteBufInputStream byteBufInputStream = new ByteBufInputStream(content);
         final byte firstByte = content.getByte(0);
@@ -137,7 +134,7 @@ public final class JsonUtil {
             throw new JsonMappingException("content must be a JSON Array but was : " + content);
         }
         final List<String> messages = new ArrayList<String>();
-        final Iterator<JsonNode> elements = root.getElements();
+        final Iterator<JsonNode> elements = root.elements();
         while (elements.hasNext()) {
             final JsonNode field = elements.next();
             if (field.isValueNode()) {
@@ -146,7 +143,7 @@ public final class JsonUtil {
                 messages.add(field.toString());
             }
         }
-        return messages.toArray(new String[] {});
+        return messages.toArray(new String[messages.size()]);
     }
 
     public static String encode(final String content) throws JsonMappingException {
