@@ -9,8 +9,12 @@ From the root folder of this project run the following command:
 ## Installing
 Copy the module produced by ```mvn package``` to the _modules_ directory of the application server.
 
-    cp -r wildfly-module/target/module/org $WILDFLY_HOME/modules/
-    
+    cp -r wildfly-module/target/module/org $WILDFLY_HOME/modules/system/layers/base/
+
+For JBoss Application Server 7.x, the following command will copy the modules to the correct location:
+
+    cp -r wildfly-module/target/module/org $AS7_HOME/modules/
+
 ## Configuring WildFly
 
 
