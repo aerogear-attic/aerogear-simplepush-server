@@ -15,6 +15,7 @@
  */
 package org.jboss.aerogear.io.netty.handler.codec.sockjs.protocol;
 
+import com.fasterxml.jackson.core.io.JsonStringEncoder;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.DefaultByteBufHolder;
 import io.netty.buffer.Unpooled;
@@ -25,7 +26,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.codehaus.jackson.io.JsonStringEncoder;
 
 /**
  * A MessageFrame carries application data, and consists of any array of JSON encoded messages.

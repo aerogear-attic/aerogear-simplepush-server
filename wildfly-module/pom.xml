@@ -43,7 +43,6 @@
         <version.commons.pool>1.5.5</version.commons.pool>
         <version.commons.io>2.0.1</version.commons.io>
         <version.commons.logging>1.1.1</version.commons.logging>
-        <version.jackson>1.9.7</version.jackson>
         <module.name>org.jboss.aerogear.simplepush</module.name>
         <module.dir>${project.build.directory}/module/org/jboss/aerogear/simplepush/main</module.dir>
         <include.libs>aerogear-simplepush-datastore-in-memory</include.libs>
@@ -191,6 +190,9 @@
                                                 netty-all,
                                                 jackson-core-asl,
                                                 jackson-mapper-asl,
+                                                jackson-core,
+                                                jackson-databind,
+                                                jackson-annotations,
                                                 commons-codec,
                                                 aerogear-simplepush-datastore-couchdb,
                                                 org.ektorp,
