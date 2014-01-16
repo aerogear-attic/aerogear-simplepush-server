@@ -3,6 +3,8 @@
     "port": 9999,
     "token-key" :"testing",
     "useragent-reaper-timeout": "16000",
+    "endpoint-host": "external",
+    "endpoint-port": 8889,
     "endpoint-tls": true,
     "endpoint-prefix": "/endpoint",
     "ack-interval": "80000",

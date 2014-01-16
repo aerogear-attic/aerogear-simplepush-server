@@ -168,13 +168,21 @@ public class ConfigReader {
         if (useragentReaperTimeout != null) {
             builder.userAgentReaperTimeout(useragentReaperTimeout.asLong());
         }
-        final JsonNode useTls = json.get("endpoint-tls");
-        if (useTls != null) {
-            builder.endpointTls(useTls.asBoolean());
+        final JsonNode endpointHost = json.get("endpoint-host");
+        if (endpointHost != null) {
+            builder.endpointHost(endpointHost.asText());
+        }
+        final JsonNode endpointPort = json.get("endpoint-port");
+        if (endpointPort != null) {
+            builder.endpointPort(endpointPort.asInt());
+        }
+        final JsonNode endpointTls = json.get("endpoint-tls");
+        if (endpointTls != null) {
+            builder.endpointTls(endpointTls.asBoolean());
         }
         final JsonNode endpointPrefix = json.get("endpoint-prefix");
         if (endpointPrefix != null) {
-            builder.endpointUrlPrefix(endpointPrefix.asText());
+            builder.endpointPrefix(endpointPrefix.asText());
         }
         final JsonNode ackInterval = json.get("ack-interval");
         if (ackInterval != null) {

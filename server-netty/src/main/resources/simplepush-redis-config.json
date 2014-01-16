@@ -3,6 +3,8 @@
     "port": 7777,
     "token-key" :"testing",
     "useragent-reaper-timeout": "604800000",
+    "endpoint-host": "localhost",
+    "endpoint-port": 7777,
     "endpoint-tls": false,
     "endpoint-prefix": "/update",
     "ack-interval": "60000",

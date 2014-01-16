@@ -55,7 +55,7 @@ public class VertxSimplePushServer extends Verticle {
     private SimplePushServerConfig fromConfig(JsonObject config) {
         return DefaultSimplePushConfig.create()
                 .ackInterval(config.getLong("ackInterval"))
-                .endpointUrlPrefix(config.getString("endpointUrlPrefix"))
+                .endpointPrefix(config.getString("endpointUrlPrefix"))
                 .tokenKey(config.getString("tokenKey", "changeme!!!"))
                 .userAgentReaperTimeout(config.getLong("userAgentReaperTimeout")).build();
     }

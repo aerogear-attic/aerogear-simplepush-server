@@ -58,8 +58,8 @@ public class SimplePushService implements Service<SimplePushService> {
         try {
             final SocketBinding notificationSocketBinding = injectedNotificationSocketBinding.getOptionalValue();
             if (notificationSocketBinding != null) {
-                simplePushConfig.host(notificationSocketBinding.getSocketAddress().getHostName());
-                simplePushConfig.port(notificationSocketBinding.getPort());
+                simplePushConfig.endpointHost(notificationSocketBinding.getSocketAddress().getHostName());
+                simplePushConfig.endpointPort(notificationSocketBinding.getPort());
             }
 
             final DefaultEventExecutorGroup reaperExcutorGroup = new DefaultEventExecutorGroup(1);

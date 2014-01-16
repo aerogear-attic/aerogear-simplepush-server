@@ -29,14 +29,14 @@ public interface SimplePushServerConfig {
     String DEFAULT_ENDPOINT_URL_PREFIX = "/update";
 
     /**
-     * The externally available host that this server is reachable by.
+     * The host that this server will bind to.
      *
      * @return {@code String} the host.
      */
     String host();
 
     /**
-     * The externally available port that this server is reachable by.
+     * The port that this server will bind to.
      *
      * @return {@code port} the port.
      */
@@ -65,12 +65,27 @@ public interface SimplePushServerConfig {
     String endpointPrefix();
 
     /**
-     * Returns the notification url prefix for this SimplePush server.
-     * This will be the protocol://host:port/endpointUrlPrefix
+     * Returns the notification endpoint url prefix for this SimplePush server.
+     * This will be the in the format:
+     * protocol://endpointHost:endpointPort/endpointPrefix
      *
      * @return {@code String} the notification url.
      */
-    String notificationUrl();
+    String endpointUrl();
+
+    /**
+     * The externally available host that this server is reachable by.
+     *
+     * @return {@code String} the host.
+     */
+    String endpointHost();
+
+    /**
+     * The externally available port that this server is reachable by.
+     *
+     * @return {@code port} the port.
+     */
+    int endpointPort();
 
     /**
      * Returns the UserAgent reaper time out.

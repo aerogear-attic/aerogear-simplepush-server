@@ -30,24 +30,30 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
     private final boolean endpointTls;
     private final byte[] tokenKey;
     private final String endpointPrefix;
-    private final String notificationUrl;
+    private final String endpointUrl;
+    private final String endpointHost;
+    private final int endpointPort;
     private final long reaperTimeout;
     private final long ackInterval;
 
     private DefaultSimplePushConfig(final Builder builder) {
         host = builder.host;
         port = builder.port;
+        endpointHost = builder.endpointHost == null ? host : builder.endpointHost;
+        endpointPort = builder.endpointPort <= 0 ? port : builder.endpointPort;
         endpointTls = builder.endpointTls;
-        endpointPrefix = builder.endpointPrefix;
-        notificationUrl = makeNotifyURL(builder.endpointPrefix);
+        endpointPrefix = builder.endpointPrefix.startsWith("/") ? builder.endpointPrefix : "/" + builder.endpointPrefix;
+        endpointUrl = makeEndpointUrl(endpointHost, endpointPort, endpointPrefix, endpointTls);
         reaperTimeout = builder.timeout;
         ackInterval = builder.ackInterval;
         tokenKey = CryptoUtil.secretKey(builder.tokenKey);
     }
 
-    private String makeNotifyURL(final String endpointUrl) {
-        return new StringBuilder(endpointTls ? "https://" : "http://")
-            .append(host).append(":").append(port).append(endpointUrl).toString();
+    private static String makeEndpointUrl(final String endpointHost, final int endpointPort, final String prefix, final boolean tls) {
+        return new StringBuilder(tls ? "https://" : "http://")
+            .append(endpointHost).append(":").append(endpointPort)
+            .append(prefix)
+            .toString();
     }
 
     public String host() {
@@ -66,12 +72,20 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         return endpointTls;
     }
 
-    public String notificationUrl() {
-        return notificationUrl;
+    public String endpointUrl() {
+        return endpointUrl;
     }
 
     public String endpointPrefix() {
         return endpointPrefix;
+    }
+
+    public String endpointHost() {
+        return endpointHost;
+    }
+
+    public int endpointPort() {
+        return endpointPort;
     }
 
     public long userAgentReaperTimeout() {
@@ -89,9 +103,11 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
     public String toString() {
         return new StringBuilder("SimplePushConfig[host=").append(host)
                 .append(", port=").append(port)
+                .append(", endpointHost=").append(endpointHost)
+                .append(", endpointPort=").append(endpointPort)
                 .append(", endpointTls=").append(endpointTls)
                 .append(", endpointUrlPrefix=").append(endpointPrefix)
-                .append(", notificationUrl=").append(notificationUrl)
+                .append(", endpointUrl=").append(endpointUrl)
                 .append(", reaperTimeout=").append(reaperTimeout)
                 .append(", ackInterval=").append(ackInterval)
                 .append("]").toString();
@@ -111,6 +127,8 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         private String tokenKey;
         private boolean endpointTls;
         private String endpointPrefix = DEFAULT_ENDPOINT_URL_PREFIX;
+        private String endpointHost;
+        private int endpointPort;
         private long timeout = 604800000L;
         private long ackInterval = 60000;
 
@@ -136,10 +154,20 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
             return this;
         }
 
-        public Builder endpointUrlPrefix(final String endpointPrefix) {
+        public Builder endpointHost(final String endpointHost) {
+            this.endpointHost = endpointHost;
+            return this;
+        }
+
+        public Builder endpointPrefix(final String endpointPrefix) {
             if (endpointPrefix != null) {
                 this.endpointPrefix = endpointPrefix;
             }
+            return this;
+        }
+
+        public Builder endpointPort(final int endpointPort) {
+            this.endpointPort = endpointPort;
             return this;
         }
 

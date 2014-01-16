@@ -21,10 +21,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
-import org.jboss.aerogear.simplepush.server.datastore.CouchDBDataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 import org.jboss.aerogear.simplepush.server.datastore.JpaDataStore;
-import org.jboss.aerogear.simplepush.server.datastore.RedisDataStore;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -64,6 +62,16 @@ public class ConfigReaderTest {
     @Test
     public void useragentReaperTimeout() {
         assertThat(simplePushServerConfig.userAgentReaperTimeout(), is(16000L));
+    }
+
+    @Test
+    public void endpointHost() {
+        assertThat(simplePushServerConfig.endpointHost(), equalTo("external"));
+    }
+
+    @Test
+    public void endpointPort() {
+        assertThat(simplePushServerConfig.endpointPort(), is(8889));
     }
 
     @Test
