@@ -75,6 +75,7 @@ import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
+import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Before;
@@ -183,7 +184,7 @@ public class SimplePushSockJSServiceTest {
 
     @Test
     public void rawWebSocketUpgradeRequest() throws Exception {
-        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create().tokenKey("test").build();
+        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create().password("test").build();
         final SockJsConfig sockjsConf = SockJsConfig.withPrefix("/simplepush").webSocketProtocols("push-notification").build();
         final SimplePushServiceFactory factory = new SimplePushServiceFactory(sockjsConf, new InMemoryDataStore(), simplePushConfig);
         final EmbeddedChannel channel = createChannel(factory);
@@ -381,7 +382,10 @@ public class SimplePushSockJSServiceTest {
     }
 
     private SimplePushServer defaultPushServer() {
-        return new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.create().tokenKey("test").build());
+        final DataStore store = new InMemoryDataStore();
+        final SimplePushServerConfig config = DefaultSimplePushConfig.create().password("test").build();
+        final byte[] privateKey = DefaultSimplePushServer.generateAndStorePrivateKey(store, config);
+        return new DefaultSimplePushServer(store, config, privateKey);
     }
 
     private void sendNotification(final String endpointToken, final long version,
@@ -569,7 +573,7 @@ public class SimplePushSockJSServiceTest {
     }
 
     private SockJsServiceFactory defaultFactory() {
-        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create().tokenKey("test").build();
+        final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create().password("test").build();
         final SockJsConfig sockjsConf = SockJsConfig.withPrefix("/simplepush").build();
         return new SimplePushServiceFactory(sockjsConf, new InMemoryDataStore(), simplePushConfig);
     }

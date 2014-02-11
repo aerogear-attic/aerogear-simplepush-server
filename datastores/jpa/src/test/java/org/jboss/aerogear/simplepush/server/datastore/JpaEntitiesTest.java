@@ -34,6 +34,7 @@ import javax.persistence.Persistence;
 
 import org.jboss.aerogear.simplepush.server.datastore.model.ChannelDTO;
 import org.jboss.aerogear.simplepush.server.datastore.model.AckDTO;
+import org.jboss.aerogear.simplepush.server.datastore.model.Server;
 import org.jboss.aerogear.simplepush.server.datastore.model.UserAgentDTO;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.After;
@@ -61,6 +62,15 @@ public class JpaEntitiesTest {
             entityManagerFactory.close();
             connection.createStatement().execute("SHUTDOWN");
         }
+    }
+
+    @Test
+    public void saveServerSalt() {
+        final String salt = "the server salt";
+        final Server server = new Server(salt);
+        entityManager.getTransaction().begin();
+        entityManager.persist(server);
+        entityManager.getTransaction().commit();
     }
 
     @Test

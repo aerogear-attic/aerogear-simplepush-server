@@ -36,7 +36,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
         UNKNOWN(null),
         SERVER_NAME("name"),
         SOCKET_BINDING("socket-binding"),
-        TOKEN_KEY("token-key"),
+        PASSWORD("password"),
         REAPER_TIMEOUT("useragent-reaper-timeout"),
         ENDPOINT_PREFIX("endpoint-prefix"),
         ENDPOINT_TLS("endpoint-tls"),
@@ -85,7 +85,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
 
     protected static final SimpleAttributeDefinition SERVER_NAME_ATTR = new SimpleAttributeDefinition(Element.SERVER_NAME.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition SOCKET_BINDING_ATTR = new SimpleAttributeDefinition(Element.SOCKET_BINDING.localName(), ModelType.STRING, false);
-    protected static final SimpleAttributeDefinition TOKEN_KEY_ATTR = new SimpleAttributeDefinition(Element.TOKEN_KEY.localName(), ModelType.STRING, true);
+    protected static final SimpleAttributeDefinition PASSWORD_ATTR = new SimpleAttributeDefinition(Element.PASSWORD.localName(), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition ENDPOINT_TLS_ATTR = new SimpleAttributeDefinition(Element.ENDPOINT_TLS.localName(), ModelType.BOOLEAN, true);
     protected static final SimpleAttributeDefinition REAPER_TIMEOUT_ATTR = new SimpleAttributeDefinition(Element.REAPER_TIMEOUT.localName(), new ModelNode(604800000), ModelType.LONG, true);
     protected static final SimpleAttributeDefinition ENDPOINT_PREFIX_ATTR = new SimpleAttributeDefinition(Element.ENDPOINT_PREFIX.localName(), new ModelNode("/update"), ModelType.STRING, true);
@@ -118,7 +118,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
         super.registerAttributes(resourceRegistration);
         resourceRegistration.registerReadWriteAttribute(SERVER_NAME_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(SOCKET_BINDING_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
-        resourceRegistration.registerReadWriteAttribute(TOKEN_KEY_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(PASSWORD_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(REAPER_TIMEOUT_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(ENDPOINT_PREFIX_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(ENDPOINT_TLS_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);

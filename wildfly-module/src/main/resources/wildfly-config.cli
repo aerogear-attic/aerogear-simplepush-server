@@ -7,7 +7,7 @@ batch
 
 ## Add SimplePush Netty Server
 /socket-binding-group=standard-sockets/socket-binding=simplepush:add(port=7777)
-/:composite(steps=[{"operation" => "add", "address" => [("subsystem" => "simplepush")]}, {"operation" => "add", "address" => [("subsystem" => "simplepush"), ("server" => "simplepush")], "socket-binding" => "simplepush", "datasource-jndi-name" => "java:jboss/datasources/SimplePushDS", "token-key" => "changeMe!", "notification-tls" => false, "sockjs-tls" => false}]
+/:composite(steps=[{"operation" => "add", "address" => [("subsystem" => "simplepush")]}, {"operation" => "add", "address" => [("subsystem" => "simplepush"), ("server" => "simplepush")], "socket-binding" => "simplepush", "datasource-jndi-name" => "java:jboss/datasources/SimplePushDS", "password" => "changeMe!", "notification-tls" => false, "sockjs-tls" => false}]
 /:composite(steps=[{"operation" => "add", "address" => [("subsystem" => "simplepush"), ("server" => "simplepush"), ("datastore" => "in-memory")]}]
 
 run-batch

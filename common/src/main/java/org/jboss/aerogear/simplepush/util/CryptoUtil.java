@@ -87,18 +87,18 @@ public final class CryptoUtil {
     }
 
 
-    public static byte[] secretKey(final String seed) {
+    public static byte[] secretKey(final String password, final byte[] salt) {
         try {
-            return AeroGearCrypto.pbkdf2().generateSecretKey(seed).getEncoded();
+            return AeroGearCrypto.pbkdf2().generateSecretKey(password, salt, 100000).getEncoded();
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static String endpointToken(final String uaid, final String channelId, final byte[] tokenKey) {
+    public static String endpointToken(final String uaid, final String channelId, final byte[] key) {
         try {
             final String path = uaid + "." + channelId;
-            return encrypt(tokenKey, path);
+            return encrypt(key, path);
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }

@@ -41,7 +41,7 @@ import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.S
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_URL;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL;
 import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_WEBSOCKET_PROTOCOLS;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.TOKEN_KEY;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.PASSWORD;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.NAMESPACE;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.SUBSYSTEM_NAME;
 import static org.jboss.as.controller.PathAddress.pathAddress;
@@ -80,7 +80,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
     private final String subsystemXml =
         "<subsystem xmlns=\"" + NAMESPACE + "\">" +
             "<server socket-binding=\"simplepush\" " +
-                "token-key=\"testing\" " +
+                "password=\"testing\" " +
                 "useragent-reaper-timeout=\"16000\" " +
                 "endpoint-prefix=\"/update\" " +
                 "endpoint-tls=\"false\" " +
@@ -187,7 +187,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         serverTwo.get(OP).set(ADD);
         serverTwo.get(OP_ADDR).set(serverAddress.toModelNode());
         serverTwo.get(SOCKET_BINDING.localName()).set("mysocket");
-        serverTwo.get(TOKEN_KEY.localName()).set("123456");
+        serverTwo.get(PASSWORD.localName()).set("123456");
         serverTwo.get(ENDPOINT_TLS.localName()).set("true");
         serverTwo.get(REAPER_TIMEOUT.localName()).set(20000);
         serverTwo.get(ENDPOINT_PREFIX.localName()).set("/endpoints");
@@ -218,7 +218,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server").hasDefined("foo"), is(true));
         final ModelNode fooOptions = model.get(SUBSYSTEM, SUBSYSTEM_NAME, "server", "foo");
         assertThat(fooOptions.get(SOCKET_BINDING.localName()).asString(), equalTo("mysocket"));
-        assertThat(fooOptions.get(TOKEN_KEY.localName()).asString(), equalTo("123456"));
+        assertThat(fooOptions.get(PASSWORD.localName()).asString(), equalTo("123456"));
         assertThat(fooOptions.get(REAPER_TIMEOUT.localName()).asLong(), is(20000L));
         assertThat(fooOptions.get(ENDPOINT_TLS.localName()).asBoolean(), is(false));
         assertThat(fooOptions.get(ENDPOINT_PREFIX.localName()).asString(), equalTo("/endpoints"));
@@ -241,7 +241,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
 
     private void assertOptions(final ModelNode options) {
         assertThat(options.get(SOCKET_BINDING.localName()).asString(), equalTo("simplepush"));
-        assertThat(options.get(TOKEN_KEY.localName()).asString(), equalTo("testing"));
+        assertThat(options.get(PASSWORD.localName()).asString(), equalTo("testing"));
         assertThat(options.get(REAPER_TIMEOUT.localName()).asLong(), is(16000L));
         assertThat(options.get(ENDPOINT_PREFIX.localName()).asString(), equalTo("/update"));
         assertThat(options.get(ENDPOINT_TLS.localName()).asBoolean(), is(false));

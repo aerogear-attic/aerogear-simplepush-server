@@ -197,7 +197,8 @@ public class InMemoryDataStoreTest {
     }
 
     private Channel newChannel(final String uaid, final String channelId, final long version) {
-        final String endpointToken = CryptoUtil.endpointToken(uaid, channelId, CryptoUtil.secretKey("testKey"));
+        final byte[] keySalt = "some string as a salt".getBytes();
+        final String endpointToken = CryptoUtil.endpointToken(uaid, channelId, CryptoUtil.secretKey("testKey", keySalt));
         return new DefaultChannel(uaid, channelId, version, endpointToken);
     }
 

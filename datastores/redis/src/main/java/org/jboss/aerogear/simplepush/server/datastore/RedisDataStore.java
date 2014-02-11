@@ -12,6 +12,7 @@
  */
 package org.jboss.aerogear.simplepush.server.datastore;
 
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -45,10 +46,32 @@ public class RedisDataStore implements DataStore {
     private final static String UAID_KEY = "uaid";
 
     private final Logger logger = LoggerFactory.getLogger(RedisDataStore.class);
+    private final static Charset UTF_8 = Charset.forName("UTF-8");
     private final JedisPool jedisPool;
 
     public RedisDataStore(final String host, final int port) {
         jedisPool = new JedisPool(new JedisPoolConfig(), host, port);
+    }
+
+    @Override
+    public void savePrivateKeySalt(final byte[] salt) {
+        final Jedis jedis = jedisPool.getResource();
+        try {
+            jedis.set("salt", new String(salt, UTF_8));
+        } finally {
+            jedisPool.returnResource(jedis);
+        }
+    }
+
+    @Override
+    public byte[] getPrivateKeySalt() {
+        final Jedis jedis = jedisPool.getResource();
+        try {
+            final String salt = jedis.get("salt");
+            return salt != null ? salt.getBytes(UTF_8) : new byte[]{};
+        } finally {
+            jedisPool.returnResource(jedis);
+        }
     }
 
     @Override

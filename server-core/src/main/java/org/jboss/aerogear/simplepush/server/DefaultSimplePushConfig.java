@@ -28,7 +28,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
     private final String host;
     private final int port;
     private final boolean endpointTls;
-    private final byte[] tokenKey;
+    private final String password;
     private final String endpointPrefix;
     private final String endpointUrl;
     private final String endpointHost;
@@ -46,7 +46,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         endpointUrl = makeEndpointUrl(endpointHost, endpointPort, endpointPrefix, endpointTls);
         reaperTimeout = builder.timeout;
         ackInterval = builder.ackInterval;
-        tokenKey = CryptoUtil.secretKey(builder.tokenKey);
+        password = builder.password;
     }
 
     private static String makeEndpointUrl(final String endpointHost, final int endpointPort, final String prefix, final boolean tls) {
@@ -64,8 +64,8 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         return port;
     }
 
-    public byte[] tokenKey() {
-        return tokenKey;
+    public String password() {
+        return password;
     }
 
     public boolean useEndpointTls() {
@@ -124,7 +124,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
     public static class Builder {
         private String host;
         private int port;
-        private String tokenKey;
+        private String password;
         private boolean endpointTls;
         private String endpointPrefix = DEFAULT_ENDPOINT_URL_PREFIX;
         private String endpointHost;
@@ -144,13 +144,13 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
             return this;
         }
 
-        public Builder tokenKey(final String tokenKey) {
-            this.tokenKey = tokenKey;
+        public Builder password(final String password) {
+            this.password = password;
             return this;
         }
 
         public Builder endpointTls(final boolean tls) {
-            this.endpointTls = tls;
+            endpointTls = tls;
             return this;
         }
 
@@ -186,8 +186,8 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         }
 
         public SimplePushServerConfig build() {
-            if (tokenKey == null) {
-                throw new IllegalStateException("No 'tokenKey' must be configured!");
+            if (password == null) {
+                throw new IllegalStateException("No 'password' was configured!");
             }
             return new DefaultSimplePushConfig(this);
         }

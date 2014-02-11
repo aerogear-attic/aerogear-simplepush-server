@@ -27,6 +27,20 @@ import org.jboss.aerogear.simplepush.server.Channel;
 public interface DataStore {
 
     /**
+     * Saves the server's private key salt.
+     *
+     * @param salt the server's private key salt.
+     */
+    void savePrivateKeySalt(byte[] salt);
+
+    /**
+     * Returns the server's private key salt.
+     *
+     * @return {@code byte[]} the server's private key salt if one has previously been saved, or an empty byte array.
+     */
+    byte[] getPrivateKeySalt();
+
+    /**
      * Saves the channel to the underlying storage system.
      *
      * @param channel the channel to be stored.

@@ -27,7 +27,7 @@ Example configuration:
     {
         "host": "localhost",
         "port": 7777,
-        "token-key" :"testing",
+        "password" :"testing",
         "useragent-reaper-timeout": "604800000",
         "endpoint-tls": false,
         "endpoint-prefix": "/update",
@@ -53,11 +53,11 @@ The host that the server will bind to.
 #### port
 The port that the server will bind to.
 
-#### token-key 
-This should be a random token which will be used by the server for encryption/decryption of the endpoint URLs that are
-returned to clients upon successful channel registration.
+#### password
+This should be a password that will be used to generate the server private key which is used for  encryption/decryption
+of the endpoint URLs that are returned to clients upon successful channel registration.
 
-#### useragent-reaper-timeout  
+#### useragent-reaper-timeout
 This is the amount of time which a UserAgent can be inactive after which it will be removed from the system.
 Default is 604800000 ms (7 days).
 

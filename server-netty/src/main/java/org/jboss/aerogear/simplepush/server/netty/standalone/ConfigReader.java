@@ -160,9 +160,9 @@ public class ConfigReader {
         final JsonNode host = json.get("host");
         final JsonNode port = json.get("port");
         final Builder builder = DefaultSimplePushConfig.create(host.asText(), port.asInt());
-        final JsonNode tokenKey = json.get("token-key");
-        if (tokenKey != null) {
-            builder.tokenKey(tokenKey.asText());
+        final JsonNode password = json.get("password");
+        if (password != null) {
+            builder.password(password.asText());
         }
         final JsonNode useragentReaperTimeout = json.get("useragent-reaper-timeout");
         if (useragentReaperTimeout != null) {

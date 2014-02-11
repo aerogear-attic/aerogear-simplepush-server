@@ -20,6 +20,7 @@ import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
+import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.eventbus.Message;
@@ -44,7 +45,9 @@ public class VertxSimplePushServer extends Verticle {
     @Override
     public void start() {
         final SimplePushServerConfig config = fromConfig(container.config());
-        final SimplePushServer simplePushServer = new DefaultSimplePushServer(new InMemoryDataStore(), config);
+        final DataStore datastore = new InMemoryDataStore();
+        final byte[] privateKey = DefaultSimplePushServer.generateAndStorePrivateKey(datastore, config);
+        final SimplePushServer simplePushServer = new DefaultSimplePushServer(datastore, config, privateKey);
         final HttpServer httpServer = vertx.createHttpServer();
         setupHttpNotificationHandler(httpServer, simplePushServer);
         setupSimplePushSockJSServer(httpServer, simplePushServer);
@@ -56,7 +59,7 @@ public class VertxSimplePushServer extends Verticle {
         return DefaultSimplePushConfig.create()
                 .ackInterval(config.getLong("ackInterval"))
                 .endpointPrefix(config.getString("endpointUrlPrefix"))
-                .tokenKey(config.getString("tokenKey", "changeme!!!"))
+                .password(config.getString("password", "changeme!!!"))
                 .userAgentReaperTimeout(config.getLong("userAgentReaperTimeout")).build();
     }
 

@@ -20,7 +20,8 @@ public enum Views {
     CHANNEL("function(doc) { if (doc.type == \"channel\") { emit(doc.chid, {\"doc\": doc, \"rev\": doc._rev});}}"),
     UAID("function(doc) { if (doc.type == \"channel\") { emit(doc.uaid, {\"doc\": doc, \"rev\": doc._rev});}}"),
     TOKEN("function(doc) { if (doc.type == \"channel\") { emit(doc.token, {\"doc\": doc});}}"),
-    UNACKS("function(doc) { if (doc.type == \"ack\") { emit(doc.uaid, {\"doc\": doc});}}");
+    UNACKS("function(doc) { if (doc.type == \"ack\") { emit(doc.uaid, {\"doc\": doc});}}"),
+    SERVER("function(doc) { if (doc.type == \"server\") { emit({\"salt\": doc.salt});}}");
 
     private final String mapFunction;
     private final String viewName;

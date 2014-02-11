@@ -33,6 +33,7 @@ import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
+import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 import org.junit.Test;
 
@@ -48,14 +49,16 @@ public class UserAgentReaperHandlerTest {
     private UserAgentReaperHandler reaper(final long timeout) {
         final SimplePushServerConfig config = DefaultSimplePushConfig.create()
                 .userAgentReaperTimeout(timeout)
-                .tokenKey("test")
+                .password("test")
                 .build();
         UserAgentReaperHandler reaper = new UserAgentReaperHandler(simplePushServer(config));
         return reaper;
     }
 
     private SimplePushServer simplePushServer(final SimplePushServerConfig config) {
-        return new DefaultSimplePushServer(new InMemoryDataStore(), config);
+        final DataStore store = new InMemoryDataStore();
+        final byte[] privateKey = DefaultSimplePushServer.generateAndStorePrivateKey(store, config);
+        return new DefaultSimplePushServer(store, config, privateKey);
     }
 
     @SuppressWarnings( { "rawtypes", "unchecked" })

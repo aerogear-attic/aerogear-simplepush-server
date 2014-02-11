@@ -25,17 +25,20 @@ public class CryptoUtilTest {
 
     @Test
     public void encrypt() throws Exception {
-        final byte[] key = CryptoUtil.secretKey("key");
+        final byte[] salt = "some salt for the server private".getBytes();
+        final byte[] key = CryptoUtil.secretKey("key", salt);
         final String encrypted = CryptoUtil.encrypt(key, "some string to endrypt");
         assertThat(encrypted, is(notNullValue()));
     }
 
     @Test
     public void decrypt() throws Exception {
-        final byte[] key = CryptoUtil.secretKey("key");
+        final byte[] salt = "some salt for the server private".getBytes();
+        final byte[] encryptKey = CryptoUtil.secretKey("key", salt);
         final String expected = UUID.randomUUID().toString() + "." + UUID.randomUUID().toString();
-        final String encrypted = CryptoUtil.encrypt(key, expected);
-        assertThat(CryptoUtil.decrypt(key, encrypted), is(equalTo(expected)));
+        final String encrypted = CryptoUtil.encrypt(encryptKey, expected);
+        final byte[] decryptKey = CryptoUtil.secretKey("key", salt);
+        assertThat(CryptoUtil.decrypt(decryptKey, encrypted), is(equalTo(expected)));
     }
 
 }
