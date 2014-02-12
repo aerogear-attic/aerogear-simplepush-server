@@ -54,7 +54,9 @@ public abstract class DefaultSimplePushServerTest {
     @Before
     public void setup() {
         final DataStore dataStore = createDataStore();
-        server = new DefaultSimplePushServer(dataStore, DefaultSimplePushConfig.create().tokenKey("test").build());
+        final SimplePushServerConfig config = DefaultSimplePushConfig.create().password("test").build();
+        final byte[] privateKey = DefaultSimplePushServer.generateAndStorePrivateKey(dataStore, config);
+        server = new DefaultSimplePushServer(dataStore, config, privateKey);
     }
 
     @Test
@@ -218,7 +220,8 @@ public abstract class DefaultSimplePushServerTest {
     public void handleNotificationNonExistingChannelId() throws ChannelNotFoundException {
         final String channelId = UUID.randomUUID().toString();
         final String uaid = UUIDUtil.newUAID();
-        final String endpointToken = CryptoUtil.endpointToken(channelId, uaid, server.config().tokenKey());
+        final byte[] key = CryptoUtil.secretKey(server.config().password(), "some salt for testing".getBytes());
+        final String endpointToken = CryptoUtil.endpointToken(channelId, uaid, key);
         server.handleNotification(endpointToken, "version=1");
     }
 

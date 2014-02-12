@@ -4,5 +4,5 @@
     "userAgentReaperTimeout" : 604800000,
     "ackInterval" : 60000,
     "endpointUrlPrefix" : "/update",
-    "tokenKey" : "changeMe!"
+    "password" : "changeMe!"
 }

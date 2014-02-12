@@ -39,6 +39,14 @@ public class RedisDataStoreTest {
     private static final int PORT = 6379;
 
     @Test
+    public void savePrivateSalt() {
+        final byte[] salt = "some private salt".getBytes();
+        final RedisDataStore store = newRedisDataStore();
+        store.savePrivateKeySalt(salt);
+        assertThat(store.getPrivateKeySalt(), equalTo(salt));
+    }
+
+    @Test
     public void saveChannel() {
         final Channel channel = newChannel2();
         assertThat(newRedisDataStore().saveChannel(channel), is(true));
@@ -167,7 +175,8 @@ public class RedisDataStoreTest {
 
     private Channel newChannel2(final String uaid) {
         final String channelId = UUID.randomUUID().toString();
-        final String endpointToken = CryptoUtil.endpointToken(uaid, channelId, CryptoUtil.secretKey("testKey"));
+        final byte[] salt = "some salt for the server private".getBytes();
+        final String endpointToken = CryptoUtil.endpointToken(uaid, channelId, CryptoUtil.secretKey("testKey", salt));
         return new DefaultChannel(uaid, channelId, endpointToken);
     }
 

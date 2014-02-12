@@ -46,6 +46,7 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
     private final SimplePushServerConfig simplePushConfig;
     private final EventExecutorGroup backgroundGroup;
     private final SockJsConfig sockjsConfig;
+    private final byte[] privateKey;
     private SSLContext sslContext;
 
     /**
@@ -53,7 +54,7 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
      *
      * @param simplePushConfig the {@link SimplePushServerConfig} configuration.
      * @param datastore the {@link DataStore} to be passed to the {@link SimplePushServiceFactory}.
-     * @param sockjsConfig the SockJS {@link Config}.
+     * @param sockjsConfig the SockJS {@link SimplePushServerConfig}.
      * @param backgroundGroup an {@link EventExecutorGroup} to be used for the {@link UserAgentReaperHandler}.
      */
     public SockJSChannelInitializer(final SimplePushServerConfig simplePushConfig,
@@ -64,6 +65,7 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
         this.datastore = datastore;
         this.sockjsConfig = sockjsConfig;
         this.backgroundGroup = backgroundGroup;
+        privateKey = DefaultSimplePushServer.generateAndStorePrivateKey(datastore, simplePushConfig);
         if (sockjsConfig.isTls()) {
             sslContext = new WebSocketSslServerSslContext(sockjsConfig).sslContext();
         }
@@ -80,7 +82,7 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
         pipeline.addLast(new HttpServerCodec());
         pipeline.addLast(new HttpObjectAggregator(65536));
 
-        final DefaultSimplePushServer simplePushServer = new DefaultSimplePushServer(datastore, simplePushConfig);
+        final DefaultSimplePushServer simplePushServer = new DefaultSimplePushServer(datastore, simplePushConfig, privateKey);
         pipeline.addLast(new NotificationHandler(simplePushServer));
         pipeline.addLast(new CorsInboundHandler());
         pipeline.addLast(new SockJsHandler(new SimplePushServiceFactory(sockjsConfig, datastore, simplePushConfig)));

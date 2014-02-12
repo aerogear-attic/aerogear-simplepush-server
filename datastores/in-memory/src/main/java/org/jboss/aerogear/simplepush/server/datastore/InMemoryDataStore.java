@@ -41,6 +41,23 @@ public class InMemoryDataStore implements DataStore {
     private final ConcurrentMap<String, Set<Ack>> unacked = new ConcurrentHashMap<String, Set<Ack>>();
     private final Logger logger = LoggerFactory.getLogger(InMemoryDataStore.class);
 
+    private byte[] salt;
+
+    @Override
+    public void savePrivateKeySalt(final byte[] salt) {
+        if (this.salt != null) {
+            this.salt = salt;
+        }
+    }
+
+    @Override
+    public byte[] getPrivateKeySalt() {
+        if (salt == null) {
+            return new byte[]{};
+        }
+        return salt;
+    }
+
     @Override
     public boolean saveChannel(final Channel ch) {
         checkNotNull(ch, "ch");

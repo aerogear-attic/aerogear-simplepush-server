@@ -128,6 +128,8 @@
                                                 jackson-core,
                                                 jackson-databind,
                                                 jackson-annotations,
+                                                aerogear-crypto,
+                                                bcprov-jdk16,
                                                 netty-all,
                                                 hazelcast,
                                                 slf4j-api,

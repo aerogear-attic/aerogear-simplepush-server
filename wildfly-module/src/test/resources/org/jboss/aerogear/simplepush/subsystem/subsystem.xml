@@ -1,8 +1,8 @@
 <subsystem xmlns="urn:org.jboss.aerogear.simplepush:1.0">
     <server 
         socket-binding="simplepush" 
-        token-key="testing" 
-        useragent-reaper-timeout="16000" 
+        password="testing"
+        useragent-reaper-timeout="16000"
         endpoint-prefix="/update" 
         endpoint-tls="false"
         endpoint-ack-interval="80000"

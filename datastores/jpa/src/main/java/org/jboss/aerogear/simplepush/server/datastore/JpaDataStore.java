@@ -16,6 +16,7 @@
  */
 package org.jboss.aerogear.simplepush.server.datastore;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -33,6 +35,7 @@ import org.jboss.aerogear.simplepush.server.Channel;
 import org.jboss.aerogear.simplepush.server.DefaultChannel;
 import org.jboss.aerogear.simplepush.server.datastore.model.AckDTO;
 import org.jboss.aerogear.simplepush.server.datastore.model.ChannelDTO;
+import org.jboss.aerogear.simplepush.server.datastore.model.Server;
 import org.jboss.aerogear.simplepush.server.datastore.model.UserAgentDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +47,7 @@ public final class JpaDataStore implements DataStore {
 
     private final Logger logger = LoggerFactory.getLogger(JpaDataStore.class);
     private final JpaExecutor jpaExecutor;
+    private final static Charset UTF_8 = Charset.forName("UTF-8");
 
     /**
      * Sole constructor.
@@ -52,6 +56,43 @@ public final class JpaDataStore implements DataStore {
      */
     public JpaDataStore(final String persistenceUnit) {
         jpaExecutor = new JpaExecutor(Persistence.createEntityManagerFactory(persistenceUnit));
+    }
+
+    @Override
+    public void savePrivateKeySalt(final byte[] salt) {
+        final byte[] privateKeySalt = getPrivateKeySalt();
+        if (privateKeySalt.length != 0) {
+            return;
+        }
+
+        final JpaOperation<Void> saveSalt = new JpaOperation<Void>() {
+            @Override
+            public Void perform(final EntityManager em) {
+                em.persist(new Server(new String(salt, UTF_8)));
+                return null;
+            }
+        };
+        jpaExecutor.execute(saveSalt);
+    }
+
+    @Override
+    public byte[] getPrivateKeySalt() {
+        final JpaOperation<byte[]> saveChannel = new JpaOperation<byte[]>() {
+            @Override
+            public byte[] perform(final EntityManager em) {
+                final Query query = em.createQuery("SELECT s FROM Server s");
+                final Server server = (Server) query.getSingleResult();
+                return server.getSalt().getBytes(UTF_8);
+            }
+        };
+        try {
+            return jpaExecutor.execute(saveChannel);
+        } catch (final Exception e) {
+            if (! (e instanceof NoResultException)) {
+                logger.debug("Exception while trying to find a the servers salt");
+            }
+            return new byte[]{};
+        }
     }
 
     @Override

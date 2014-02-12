@@ -1,7 +1,7 @@
 {
    "host": "localhost",
     "port": 7777,
-    "token-key" :"testing",
+    "password" :"testing",
     "useragent-reaper-timeout": "604800000",
     "endpoint-host": "localhost",
     "endpoint-port": 7777,

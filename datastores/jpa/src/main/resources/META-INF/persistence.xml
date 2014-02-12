@@ -21,6 +21,7 @@
     <class>org.jboss.aerogear.simplepush.server.datastore.model.UserAgentDTO</class>
     <class>org.jboss.aerogear.simplepush.server.datastore.model.ChannelDTO</class>
     <class>org.jboss.aerogear.simplepush.server.datastore.model.AckDTO</class>
+    <class>org.jboss.aerogear.simplepush.server.datastore.model.Server</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="hibernate.hbm2ddl.auto" value="update"/>

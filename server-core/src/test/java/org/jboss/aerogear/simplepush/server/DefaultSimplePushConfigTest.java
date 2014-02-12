@@ -22,7 +22,7 @@ public class DefaultSimplePushConfigTest {
 
     @Test
     public void endpointUrl() {
-        final SimplePushServerConfig config = DefaultSimplePushConfig.create().endpointPrefix("ep").tokenKey("dummy").build();
+        final SimplePushServerConfig config = DefaultSimplePushConfig.create().endpointPrefix("ep").password("dummy").build();
         assertThat(config.endpointPrefix(), equalTo("/ep"));
         assertThat(config.endpointUrl(), equalTo("http://127.0.0.1:7777/ep"));
     }
@@ -32,7 +32,7 @@ public class DefaultSimplePushConfigTest {
         final SimplePushServerConfig config = DefaultSimplePushConfig.create()
                 .endpointPrefix("ep")
                 .endpointHost("localhost")
-                .tokenKey("dummy").build();
+                .password("dummy").build();
         assertThat(config.endpointHost(), equalTo("localhost"));
         assertThat(config.endpointUrl(), equalTo("http://localhost:7777/ep"));
     }
@@ -42,7 +42,7 @@ public class DefaultSimplePushConfigTest {
         final SimplePushServerConfig config = DefaultSimplePushConfig.create()
                 .endpointPrefix("ep")
                 .endpointPort(8888)
-                .tokenKey("dummy").build();
+                .password("dummy").build();
         assertThat(config.endpointPort(), is(8888));
         assertThat(config.endpointUrl(), equalTo("http://127.0.0.1:8888/ep"));
     }
@@ -52,7 +52,7 @@ public class DefaultSimplePushConfigTest {
         final SimplePushServerConfig config = DefaultSimplePushConfig.create()
                 .endpointPrefix("ep")
                 .endpointPort(-8888)
-                .tokenKey("dummy").build();
+                .password("dummy").build();
         assertThat(config.endpointPort(), is(7777));
         assertThat(config.endpointUrl(), equalTo("http://127.0.0.1:7777/ep"));
     }

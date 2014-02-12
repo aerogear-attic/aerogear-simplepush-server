@@ -42,7 +42,7 @@ This section goes through all of the configuration options available.
         <server 
             socket-binding="simplepush-socket-binding" 
             datasource-jndi-name="java:jboss/datasources/SimplePushDS" 
-            token-key="936agbbhh6ee99=999333" 
+            password="936agbbhh6ee99=999333"
             useragent-reaper-timeout="604800000"
             notification-prefix="update"
             notification-tls="true"
@@ -70,9 +70,9 @@ This section goes through all of the configuration options available.
 This is the name of a socket-binding configured in the _socket-binding-group_ section in a WildFly configuration xml file.  
 
 
-#### token-key 
-This should be a random token which will be used by the server for encryption/decryption of the endpoint URLs that are
-returned to clients upon successful channel registration.
+#### password
+This should be a password that will be used to generate the server private key which is used for  encryption/decryption
+of the endpoint URLs that are returned to clients upon successful channel registration.
 
 #### useragent-reaper-timeout  
 This is the amount of time which a UserAgent can be inactive after which it will be removed from the system.

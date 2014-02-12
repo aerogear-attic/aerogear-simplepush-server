@@ -48,7 +48,8 @@ public class SimplePushServiceFactory extends AbstractSockJsServiceFactory {
 
     @Override
     public SockJsService create() {
-        return new SimplePushSockJSService(config(), new DefaultSimplePushServer(datastore, simplePushConfig));
+        final byte[] privateKey = DefaultSimplePushServer.generateAndStorePrivateKey(datastore, simplePushConfig);
+        return new SimplePushSockJSService(config(), new DefaultSimplePushServer(datastore, simplePushConfig, privateKey));
     }
 
 }

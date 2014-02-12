@@ -80,8 +80,8 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                 case SOCKET_BINDING:
                     ServerDefinition.SOCKET_BINDING_ATTR.parseAndSetParameter(value, node, reader);
                     break;
-                case TOKEN_KEY:
-                    ServerDefinition.TOKEN_KEY_ATTR.parseAndSetParameter(value, node, reader);
+                case PASSWORD:
+                    ServerDefinition.PASSWORD_ATTR.parseAndSetParameter(value, node, reader);
                     break;
                 case REAPER_TIMEOUT:
                     ServerDefinition.REAPER_TIMEOUT_ATTR.parseAndSetParameter(value, node, reader);
@@ -262,7 +262,7 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             writer.writeStartElement(ServerDefinition.SERVER);
             final ModelNode entry = property.getValue();
             ServerDefinition.SOCKET_BINDING_ATTR.marshallAsAttribute(entry, true, writer);
-            ServerDefinition.TOKEN_KEY_ATTR.marshallAsAttribute(entry, true, writer);
+            ServerDefinition.PASSWORD_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.REAPER_TIMEOUT_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.ENDPOINT_TLS_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.ENDPOINT_PREFIX_ATTR.marshallAsAttribute(entry, true, writer);

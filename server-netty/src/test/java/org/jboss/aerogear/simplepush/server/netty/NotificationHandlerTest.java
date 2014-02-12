@@ -44,6 +44,8 @@ import org.jboss.aerogear.simplepush.protocol.impl.json.JsonUtil;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushConfig;
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
+import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
+import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Test;
@@ -110,7 +112,10 @@ public class NotificationHandlerTest {
     }
 
     private SimplePushServer defaultPushServer() {
-        return new DefaultSimplePushServer(new InMemoryDataStore(), DefaultSimplePushConfig.create().tokenKey("testToken").build());
+        final DataStore store = new InMemoryDataStore();
+        final SimplePushServerConfig config = DefaultSimplePushConfig.create().password("testToken").build();
+        final byte[] privateKey = DefaultSimplePushServer.generateAndStorePrivateKey(store, config);
+        return new DefaultSimplePushServer(store, config, privateKey);
     }
 
     private HttpResponse sendNotification(final String endpointToken, final long version, final SimplePushServer simplePushServer) throws Exception {

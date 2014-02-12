@@ -52,7 +52,7 @@ class ServerAdd extends AbstractAddStepHandler {
     protected void populateModel(final ModelNode operation, final ModelNode model) throws OperationFailedException {
         ServerDefinition.SERVER_NAME_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKET_BINDING_ATTR.validateAndSet(operation, model);
-        ServerDefinition.TOKEN_KEY_ATTR.validateAndSet(operation, model);
+        ServerDefinition.PASSWORD_ATTR.validateAndSet(operation, model);
         ServerDefinition.REAPER_TIMEOUT_ATTR.validateAndSet(operation, model);
         ServerDefinition.ENDPOINT_TLS_ATTR.validateAndSet(operation, model);
         ServerDefinition.ENDPOINT_PREFIX_ATTR.validateAndSet(operation, model);
@@ -167,7 +167,7 @@ class ServerAdd extends AbstractAddStepHandler {
         final ModelNode notificationAckInterval = ServerDefinition.ENDPOINT_ACK_INTERVAL_ATTR.resolveModelAttribute(context, model);
 
         final Builder simplePushConfig = DefaultSimplePushConfig.create();
-        simplePushConfig.tokenKey(ServerDefinition.TOKEN_KEY_ATTR.resolveModelAttribute(context, model).asString());
+        simplePushConfig.password(ServerDefinition.PASSWORD_ATTR.resolveModelAttribute(context, model).asString());
         if (notificationtTls.isDefined()) {
             simplePushConfig.endpointTls(notificationtTls.asBoolean());
         }

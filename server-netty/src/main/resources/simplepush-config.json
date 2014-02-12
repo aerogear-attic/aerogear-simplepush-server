@@ -1,6 +1,6 @@
 {
     "host": "localhost",
     "port": 7777,
-    "token-key": "ChangeMe!!!!",
+    "password": "ChangeMe!!!!",
     "datastore": { "in-memory": {} }
 }

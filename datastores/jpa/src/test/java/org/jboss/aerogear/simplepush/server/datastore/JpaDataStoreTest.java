@@ -49,6 +49,13 @@ public class JpaDataStoreTest {
     }
 
     @Test
+    public void savePrivateKeySalt() {
+        final byte[] salt = "some private salt".getBytes();
+        jpaDataStore.savePrivateKeySalt(salt);
+        assertThat(jpaDataStore.getPrivateKeySalt(), equalTo(salt));
+    }
+
+    @Test
     public void saveChannel() {
         final boolean saved = jpaDataStore.saveChannel(newChannel(UUIDUtil.newUAID(), UUID.randomUUID().toString(), 10L));
         assertThat(saved, is(true));

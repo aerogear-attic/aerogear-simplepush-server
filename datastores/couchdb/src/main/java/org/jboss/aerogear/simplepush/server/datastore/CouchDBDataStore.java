@@ -13,6 +13,7 @@
 package org.jboss.aerogear.simplepush.server.datastore;
 
 import java.net.MalformedURLException;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -56,6 +57,7 @@ public class CouchDBDataStore implements DataStore {
     private final StdCouchDbInstance stdCouchDbInstance;
     private final StdCouchDbConnector db;
     private final DesignDocument designDocument;
+    private final static Charset UTF_8 = Charset.forName("UTF-8");
 
     public CouchDBDataStore(final String url, final String dbName) {
         try {
@@ -71,6 +73,7 @@ public class CouchDBDataStore implements DataStore {
         addView(designDocument, Views.UAID);
         addView(designDocument, Views.TOKEN);
         addView(designDocument, Views.UNACKS);
+        addView(designDocument, Views.SERVER);
         if (!db.contains(designDocument.getId())) {
             db.create(designDocument);
         }
@@ -80,6 +83,28 @@ public class CouchDBDataStore implements DataStore {
         if (!doc.containsView(view.viewName())) {
             doc.addView(view.viewName(), new View(view.mapFunction()));
         }
+    }
+
+    @Override
+    public void savePrivateKeySalt(final byte[] salt) {
+        final byte[] privateKeySalt = getPrivateKeySalt();
+        if (privateKeySalt.length == 0) {
+            final Map<String, String> map = new HashMap<String, String>(2);
+            map.put(TYPE_FIELD, Views.SERVER.viewName());
+            map.put("salt", new String(salt, UTF_8));
+            db.create(map);
+        }
+    }
+
+    @Override
+    public byte[] getPrivateKeySalt() {
+        final ViewQuery viewQuery = new ViewQuery().dbPath(db.path()).viewName(Views.SERVER.viewName()).designDocId(designDocument.getId());
+        final ViewResult viewResult = db.queryView(viewQuery);
+        if (viewResult.isEmpty()) {
+            return new byte[]{};
+        }
+        final Row row = viewResult.getRows().get(0);
+        return row.getKeyAsNode().get("salt").asText().getBytes(UTF_8);
     }
 
     @Override

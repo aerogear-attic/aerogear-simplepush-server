@@ -12,20 +12,16 @@
  */
 package org.jboss.aerogear.simplepush.util;
 
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.commons.codec.binary.Base64;
+import org.jboss.aerogear.AeroGearCrypto;
+import org.jboss.aerogear.crypto.BlockCipher;
+import org.jboss.aerogear.crypto.CryptoBox;
+import org.jboss.aerogear.crypto.encoders.Encoder;
 
 /**
  * Utility class for encrypting/decrypting
@@ -33,8 +29,6 @@ import org.apache.commons.codec.binary.Base64;
 public final class CryptoUtil {
 
     private static final Charset ASCII = Charset.forName("US-ASCII");
-    private static final String ALGORITHM = "AES";
-    private static final String TRANSOFRMATION = ALGORITHM + "/CBC/PKCS5Padding";
     private static final int IV_SIZE = 16;
 
     private CryptoUtil() {
@@ -50,11 +44,9 @@ public final class CryptoUtil {
      * @throws Exception
      */
     public static String encrypt(final byte[] key, final String content) throws Exception {
-        final Cipher cipher = Cipher.getInstance(TRANSOFRMATION);
-        final IvParameterSpec iv = getIV();
-        cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "AES"), iv);
-        final byte[] encrypted = cipher.doFinal(content.getBytes(ASCII));
-        final String base64 = Base64.encodeBase64URLSafeString(prependIV(encrypted, iv.getIV()));
+        final byte[] iv = BlockCipher.getIV();
+        final byte[] encrypted = new CryptoBox(key).encrypt(iv, content.getBytes(ASCII));
+        final String base64 = Encoder.BASE64.encode(prependIV(encrypted, iv));
         return URLEncoder.encode(base64, ASCII.displayName());
     }
 
@@ -63,14 +55,6 @@ public final class CryptoUtil {
         System.arraycopy(iv, 0, withIV, 0, IV_SIZE);
         System.arraycopy(target, 0, withIV, IV_SIZE, target.length);
         return withIV;
-    }
-
-
-    private static IvParameterSpec getIV(){
-        byte[] iv = new byte[IV_SIZE];
-        SecureRandom random = new SecureRandom();
-        random.nextBytes(iv);
-        return new IvParameterSpec(iv);
     }
 
     /**
@@ -84,10 +68,9 @@ public final class CryptoUtil {
      * @throws Exception
      */
     public static String decrypt(final byte[] key, final String content) throws Exception {
-        final Cipher cipher = Cipher.getInstance(TRANSOFRMATION);
-        final byte[] decodedContent = Base64.decodeBase64(content);
-        cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key, "AES"), new IvParameterSpec(extractIV(decodedContent)));
-        final byte[] decrypted = cipher.doFinal(extractContent(decodedContent));
+        final byte[] decodedContent = Encoder.BASE64.decode(URLDecoder.decode(content, ASCII.displayName()));
+        final byte[] iv = extractIV(decodedContent);
+        final byte[] decrypted = new CryptoBox(key).decrypt(iv, extractContent(decodedContent));
         return new String(decrypted, ASCII);
     }
 
@@ -104,57 +87,21 @@ public final class CryptoUtil {
     }
 
 
-    public static byte[] secretKey(final String seed) {
+    public static byte[] secretKey(final String password, final byte[] salt) {
         try {
-            final SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-            final PBEKeySpec keySpec = new PBEKeySpec(seed.toCharArray(), salt(8), 65536, 128);
-            final SecretKey key = factory.generateSecret(keySpec);
-            return key.getEncoded();
+            return AeroGearCrypto.pbkdf2().generateSecretKey(password, salt, 100000).getEncoded();
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static byte[] salt(final int size) throws NoSuchAlgorithmException {
-        final SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
-        byte[] buffer = new byte[size];
-        secureRandom.nextBytes(buffer);
-        return buffer;
-    }
-
-    public static EndpointParam decryptEndpoint(final byte[] key, final String encrypted) throws Exception {
-        final String decrypt = CryptoUtil.decrypt(key, encrypted);
-        final String[] uaidChannelIdPair = decrypt.split("\\.");
-        return new EndpointParam(uaidChannelIdPair[0], uaidChannelIdPair[1]);
-    }
-
-    public static String endpointToken(final String uaid, final String channelId, final byte[] tokenKey) {
+    public static String endpointToken(final String uaid, final String channelId, final byte[] key) {
         try {
             final String path = uaid + "." + channelId;
-            return encrypt(tokenKey, path);
+            return encrypt(key, path);
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static class EndpointParam {
-
-        private final String uaid;
-        private final String channelId;
-
-        public EndpointParam(final String uaid, final String channelId) {
-            this.uaid = uaid;
-            this.channelId = channelId;
-        }
-
-        public String uaid() {
-            return uaid;
-        }
-
-        public String channelId() {
-            return channelId;
-        }
-
     }
 
 }

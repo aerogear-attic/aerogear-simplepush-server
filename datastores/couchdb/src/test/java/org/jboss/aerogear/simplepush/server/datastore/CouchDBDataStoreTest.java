@@ -46,6 +46,13 @@ public class CouchDBDataStoreTest {
     }
 
     @Test
+    public void savePrivateKeySalt() {
+        final byte[] salt = "some private salt".getBytes();
+        datastore.savePrivateKeySalt(salt);
+        assertThat(datastore.getPrivateKeySalt(), equalTo(salt));
+    }
+
+    @Test
     public void saveChannel() {
         final Channel channel = newChannel(UUIDUtil.newUAID(), UUID.randomUUID().toString());
         final boolean saved = datastore.saveChannel(channel);
@@ -56,7 +63,8 @@ public class CouchDBDataStoreTest {
     public void saveChannelWithIdContainingUnderscore() {
         final String uaid = UUIDUtil.newUAID();
         final String channelId = UUID.randomUUID().toString();
-        final String endpointToken = CryptoUtil.endpointToken(uaid, channelId, CryptoUtil.secretKey("testKey"));
+        final byte[] keySalt = "some string as a salt".getBytes();
+        final String endpointToken = CryptoUtil.endpointToken(uaid, channelId, CryptoUtil.secretKey("testKey", keySalt));
         final Channel channel = new DefaultChannel(uaid, channelId, "_" + endpointToken);
         final boolean saved = datastore.saveChannel(channel);
         assertThat(saved, is(true));
@@ -256,7 +264,8 @@ public class CouchDBDataStoreTest {
     }
 
     private Channel newChannel(final String uaid, final String channelId, final long version) {
-        final String endpointToken = CryptoUtil.endpointToken(uaid, channelId, CryptoUtil.secretKey("testKey"));
+        final byte[] keySalt = "some string as a salt".getBytes();
+        final String endpointToken = CryptoUtil.endpointToken(uaid, channelId, CryptoUtil.secretKey("testKey", keySalt));
         return new DefaultChannel(uaid, channelId, version, endpointToken);
     }
 

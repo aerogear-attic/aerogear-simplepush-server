@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.jboss.aerogear.crypto.Random;
 import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
 import org.jboss.aerogear.simplepush.protocol.HelloMessage;
@@ -47,6 +48,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
 
     private final DataStore store;
     private final SimplePushServerConfig config;
+    private final byte[] privateKey;
 
     /**
      * Sole constructor.
@@ -54,17 +56,21 @@ public class DefaultSimplePushServer implements SimplePushServer {
      * @param store the {@link DataStore} that this server should use.
      * @param config the {@link SimplePushServerConfig} for this server.
      */
-    public DefaultSimplePushServer(final DataStore store, final SimplePushServerConfig config) {
+    public DefaultSimplePushServer(final DataStore store, final SimplePushServerConfig config, final byte[] privateKey) {
         this.store = store;
         this.config = config;
+        this.privateKey = privateKey;
     }
+
 
     @Override
     public HelloResponse handleHandshake(final HelloMessage handshake) {
         final Set<String> oldChannels = store.getChannelIds(handshake.getUAID());
         for (String channelId : handshake.getChannelIds()) {
             if (!oldChannels.contains(channelId)) {
-                store.saveChannel(new DefaultChannel(handshake.getUAID(), channelId, generateEndpointToken(handshake.getUAID(), channelId)));
+                store.saveChannel(new DefaultChannel(handshake.getUAID(),
+                        channelId,
+                        generateEndpointToken(handshake.getUAID(), channelId)));
             } else {
                 oldChannels.remove(channelId);
             }
@@ -74,7 +80,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
     }
 
     private String generateEndpointToken(final String uaid, final String channelId) {
-        return CryptoUtil.endpointToken(uaid, channelId, config.tokenKey());
+        return CryptoUtil.endpointToken(uaid, channelId, privateKey);
     }
 
     @Override
@@ -160,6 +166,15 @@ public class DefaultSimplePushServer implements SimplePushServer {
     @Override
     public SimplePushServerConfig config() {
         return config;
+    }
+
+    public static byte[] generateAndStorePrivateKey(final DataStore store, final SimplePushServerConfig config) {
+        byte[] keySalt = store.getPrivateKeySalt();
+        if (keySalt.length == 0) {
+            keySalt = new Random().randomBytes();
+            store.savePrivateKeySalt(keySalt);
+        }
+        return CryptoUtil.secretKey(config.password(), keySalt);
     }
 
 }

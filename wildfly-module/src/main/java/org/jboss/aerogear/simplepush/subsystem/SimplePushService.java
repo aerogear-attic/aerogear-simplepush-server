@@ -72,8 +72,6 @@ public class SimplePushService implements Service<SimplePushService> {
 
             final SocketBinding socketBinding = injectedSocketBinding.getValue();
             logger.info("SimplePush Server binding to [" + socketBinding.getAddress() + ":" + socketBinding.getPort() + "]");
-            logger.info(simplePushServerConfig);
-            logger.info(sockJsConfig);
             channel = serverBootstrap.bind(socketBinding.getAddress(), socketBinding.getPort()).sync().channel();
         } catch (final Exception e) {
             throw new StartException(e);

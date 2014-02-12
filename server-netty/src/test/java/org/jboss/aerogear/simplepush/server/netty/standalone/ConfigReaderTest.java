@@ -51,12 +51,12 @@ public class ConfigReaderTest {
     @Test
     public void port() {
         assertThat(simplePushServerConfig.port(), is(9999));
-        assertThat(simplePushServerConfig.tokenKey(), is(notNullValue()));
+        assertThat(simplePushServerConfig.password(), is(notNullValue()));
     }
 
     @Test
     public void tokenKey() {
-        assertThat(simplePushServerConfig.tokenKey(), is(notNullValue()));
+        assertThat(simplePushServerConfig.password(), is(notNullValue()));
     }
 
     @Test
@@ -165,7 +165,7 @@ public class ConfigReaderTest {
         final StandaloneConfig config = ConfigReader.parse(ConfigReaderTest.class.getResourceAsStream("/simplepush-config.json"));
         assertThat(config.simplePushServerConfig().host(), equalTo("localhost"));
         assertThat(config.simplePushServerConfig().port(), is(7777));
-        assertThat(config.simplePushServerConfig().tokenKey(), is(notNullValue()));
+        assertThat(config.simplePushServerConfig().password(), is(notNullValue()));
         assertThat(config.dataStore(), is(instanceOf(InMemoryDataStore.class)));
     }
 

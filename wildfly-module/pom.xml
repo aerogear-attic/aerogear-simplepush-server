@@ -89,6 +89,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-crypto</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>bouncycastle</groupId>
+            <artifactId>bcprov-jdk16</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.ektorp</groupId>
             <artifactId>org.ektorp</artifactId>
         </dependency>
@@ -187,9 +195,9 @@
                                                 aerogear-simplepush-server-netty,
                                                 aerogear-simplepush-common,
                                                 aerogear-netty-codec-sockjs,
+                                                aerogear-crypto,
+                                                bcprov-jdk16,
                                                 netty-all,
-                                                jackson-core-asl,
-                                                jackson-mapper-asl,
                                                 jackson-core,
                                                 jackson-databind,
                                                 jackson-annotations,

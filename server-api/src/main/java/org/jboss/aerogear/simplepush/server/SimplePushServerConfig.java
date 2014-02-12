@@ -50,11 +50,11 @@ public interface SimplePushServerConfig {
     boolean useEndpointTls();
 
     /**
-     * Token key for encryption/decryption of endpoint urls.
+     * The password for the private key.
      *
-     * @return {@code byte[]} token used for encryption/decryption of endpoint urls
+     * @return {@code String[]} password used for generating the server's private key.
      */
-    byte[] tokenKey();
+    String password();
 
     /**
      * Returns the endpoint url prefix for this SimplePush server.
