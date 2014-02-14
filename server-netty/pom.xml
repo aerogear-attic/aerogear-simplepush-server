@@ -170,12 +170,44 @@
             <properties>
                 <include.redis.tests>org/jboss/aerogear/simplepush/server/netty/standalone/ConfigReaderRedisTest.java</include.redis.tests>
             </properties>
-          </profile>
-          <profile>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <version>1.2</version>
+                        <configuration>
+                            <mainClass>org.jboss.aerogear.simplepush.server.netty.standalone.NettySockJSServer</mainClass>
+                            <classpathScope>test</classpathScope>
+                            <arguments>
+                                <argument>/simplepush-redis-config.json</argument>
+                            </arguments>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
             <id>couchdb</id>
             <properties>
                 <include.couchdb.tests>org/jboss/aerogear/simplepush/server/netty/standalone/ConfigReaderCouchDBTest.java</include.couchdb.tests>
             </properties>
+            <build>
+                  <plugins>
+                      <plugin>
+                          <groupId>org.codehaus.mojo</groupId>
+                          <artifactId>exec-maven-plugin</artifactId>
+                          <version>1.2</version>
+                          <configuration>
+                              <mainClass>org.jboss.aerogear.simplepush.server.netty.standalone.NettySockJSServer</mainClass>
+                              <classpathScope>test</classpathScope>
+                              <arguments>
+                                  <argument>/simplepush-couchdb-config.json</argument>
+                              </arguments>
+                          </configuration>
+                      </plugin>
+                  </plugins>
+              </build>
         </profile>
     </profiles>
     

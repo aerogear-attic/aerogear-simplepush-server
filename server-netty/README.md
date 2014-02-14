@@ -12,11 +12,20 @@ This project is a Java implementation of the server side that follows the [Simpl
     mvn exec:java
     
 This will start the server listening localhost using port 7777. This will use a default configuration which can be found
-in ```src/main/resources/simplepush-config.json``` 
+in ```src/main/resources/simplepush-config.json```
 
-    mvn exec:java -Dexec.args="src/main/resources/simplepush-config.json"
+    mvn exec:java
+
+To start the server with a Redis datastore:
+
+    mvn exec:java -Predis
     
-The configuration can either be a path to a file on the file system or to a file on the classpath. 
+To start the server with a Couchdb datastore:
+
+    mvn exec:java -Pcouchdb
+
+The configuration file can either be a path to a file on the file system or to a file on the classpath.
+
 The default sample configuration file can be found in ```src/main/resources``` directory, which also contains sample 
 configurations. 
 

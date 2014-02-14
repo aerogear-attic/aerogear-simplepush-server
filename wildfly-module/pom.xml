@@ -39,7 +39,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.jboss.as>7.1.1.Final</version.jboss.as>
-        <version.commons.http>4.1.2</version.commons.http>
+        <version.commons.http.core>4.2.4</version.commons.http.core>
+        <version.commons.http>4.2.5</version.commons.http>
         <version.commons.pool>1.5.5</version.commons.pool>
         <version.commons.io>2.0.1</version.commons.io>
         <version.commons.logging>1.1.1</version.commons.logging>
@@ -120,6 +121,18 @@
             <groupId>org.jboss.aerogear</groupId>
             <artifactId>aerogear-netty-codec-sockjs</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
