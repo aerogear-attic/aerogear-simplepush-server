@@ -118,7 +118,7 @@ public class StubEmbeddedEventLoop extends AbstractEventExecutor implements Even
 
     @Override
     public EventLoop next() {
-        return delegate.next();
+        return ((EventLoopGroup) delegate).next();
     }
 
     @Override
