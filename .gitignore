@@ -11,3 +11,7 @@ target/
 .project
 .settings
 .classpath
+
+#Intelij related
+.idea/
+*.iml
