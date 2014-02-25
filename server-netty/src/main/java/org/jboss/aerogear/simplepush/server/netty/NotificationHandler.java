@@ -71,7 +71,7 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
         if (msg instanceof FullHttpRequest) {
             final FullHttpRequest request = (FullHttpRequest) msg;
             final String requestUri = request.getUri();
-            logger.debug(requestUri);
+            logger.info(requestUri);
             if (requestUri.startsWith(simplePushServer.config().endpointPrefix())) {
                 handleHttpRequest(ctx, request);
             } else {

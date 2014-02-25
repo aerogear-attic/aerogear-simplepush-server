@@ -156,6 +156,7 @@
                 <configuration>
                     <includes>
                         <include>org/jboss/aerogear/simplepush/server/netty/standalone/ConfigReaderTest.java</include>
+                        <include>org/jboss/aerogear/simplepush/server/netty/*Test.java</include>
                         <include>${include.couchdb.tests}</include>
                         <include>${include.redis.tests}</include>
                     </includes>

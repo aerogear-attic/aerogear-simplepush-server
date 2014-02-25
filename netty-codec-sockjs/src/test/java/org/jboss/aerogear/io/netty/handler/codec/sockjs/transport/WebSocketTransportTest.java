@@ -28,6 +28,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static org.jboss.aerogear.io.netty.handler.codec.sockjs.util.ChannelUtil.webSocketChannel;
 import static org.jboss.aerogear.io.netty.handler.codec.sockjs.util.HttpUtil.decode;
 import static org.jboss.aerogear.io.netty.handler.codec.sockjs.util.HttpUtil.decodeFullResponse;
+import static org.jboss.aerogear.io.netty.handler.codec.sockjs.util.HttpUtil.decodeFullHttpResponse;
 import static org.jboss.aerogear.io.netty.handler.codec.sockjs.util.HttpUtil.webSocketUpgradeRequest;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -44,7 +45,6 @@ import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import io.netty.util.CharsetUtil;
 
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.transport.Transports;
 import org.junit.Test;
 
 public class WebSocketTransportTest {
@@ -75,8 +75,7 @@ public class WebSocketTransportTest {
         final FullHttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, GET, "/websocket");
         request.retain();
         ch.writeInbound(request);
-        final FullHttpResponse response = decodeFullResponse(ch);
-        System.out.println(response.content().toString(CharsetUtil.UTF_8));
+        final FullHttpResponse response = decodeFullHttpResponse(ch);
         assertThat(response.getStatus(), is(BAD_REQUEST));
         assertThat(response.headers().get(CONTENT_TYPE), is(Transports.CONTENT_TYPE_PLAIN));
         assertThat(response.content().toString(CharsetUtil.UTF_8), equalTo("Can \"Upgrade\" only to \"WebSocket\"."));
@@ -90,7 +89,7 @@ public class WebSocketTransportTest {
         request.headers().set(UPGRADE, "WebSocket");
         request.headers().set(CONNECTION, "close");
         ch.writeInbound(request);
-        final FullHttpResponse response = decodeFullResponse(ch);
+        final FullHttpResponse response = decodeFullHttpResponse(ch);
         assertThat(response.getStatus(), is(BAD_REQUEST));
         assertThat(response.content().toString(CharsetUtil.UTF_8), equalTo("\"Connection\" must be \"Upgrade\"."));
     }

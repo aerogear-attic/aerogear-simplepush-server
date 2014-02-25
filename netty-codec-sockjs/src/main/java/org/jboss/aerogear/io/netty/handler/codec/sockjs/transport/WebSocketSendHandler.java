@@ -15,18 +15,14 @@
  */
 package org.jboss.aerogear.io.netty.handler.codec.sockjs.transport;
 
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelOutboundHandlerAdapter;
-import io.netty.channel.ChannelPromise;
+import io.netty.channel.*;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.protocol.Frame;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
 
-class WebSocketSendHandler extends ChannelOutboundHandlerAdapter {
+class WebSocketSendHandler extends ChannelHandlerAdapter {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(WebSocketSendHandler.class);
 
     @Override

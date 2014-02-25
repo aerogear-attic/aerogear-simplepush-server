@@ -47,18 +47,18 @@ public class XhrStreamingTransportTest {
         final EmbeddedChannel ch = newStreamingChannel();
         ch.writeOutbound(new OpenFrame());
 
-        final HttpResponse response = (HttpResponse) ch.readOutbound();
+        final HttpResponse response = ch.readOutbound();
         assertThat(response.getStatus(), equalTo(HttpResponseStatus.OK));
         assertThat(response.headers().get(CONTENT_TYPE), equalTo(Transports.CONTENT_TYPE_JAVASCRIPT));
-        assertThat(response.headers().get(TRANSFER_ENCODING), equalTo(CHUNKED));
+        assertThat(response.headers().get(TRANSFER_ENCODING), equalTo(CHUNKED.toString()));
         SockJsTestUtil.assertCORSHeaders(response, "*");
         SockJsTestUtil.verifyNoCacheHeaders(response);
 
-        final DefaultHttpContent prelude = (DefaultHttpContent) ch.readOutbound();
+        final DefaultHttpContent prelude = ch.readOutbound();
         assertThat(prelude.content().readableBytes(), is(PRELUDE_SIZE));
         prelude.content().readBytes(Unpooled.buffer(PRELUDE_SIZE));
 
-        final DefaultHttpContent openResponse = (DefaultHttpContent) ch.readOutbound();
+        final DefaultHttpContent openResponse = ch.readOutbound();
         assertThat(openResponse.content().toString(CharsetUtil.UTF_8), equalTo("o\n"));
         ch.finish();
     }

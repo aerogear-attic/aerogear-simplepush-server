@@ -44,7 +44,8 @@ public final class JsonUtil {
         MAPPER = new ObjectMapper();
 
         // This code adapted from Vert.x JsonCode.
-        SimpleModule simpleModule = new SimpleModule("simplepush", new Version(0, 0, 8, null));
+        SimpleModule simpleModule = new SimpleModule("simplepush", new Version(0, 10, 0, null, "org.jboss.aerogear",
+                "aerogear-netty-codec-sockjs"));
         simpleModule.addSerializer(String.class, new JsonSerializer<String>() {
 
             private void writeUnicodeEscape(final JsonGenerator gen, final char c) throws IOException {

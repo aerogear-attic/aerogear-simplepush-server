@@ -27,19 +27,9 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelHandler;
-import io.netty.channel.EventLoop;
 import io.netty.channel.embedded.EmbeddedChannel;
-import io.netty.handler.codec.http.DefaultFullHttpRequest;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.HttpHeaders.Names;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpRequestDecoder;
-import io.netty.handler.codec.http.HttpResponseEncoder;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.ReferenceCountUtil;
 
@@ -95,14 +85,14 @@ public class SimplePushSockJSServiceTest {
     }
 
     @Test
-    public void xhrPollingOpenFrame() {
+    public void xhrPollingOpenFrame() throws Exception {
         final FullHttpResponse openFrameResponse = sendXhrOpenFrameRequest(factory, sessionUrl);
         assertThat(openFrameResponse.getStatus(), is(HttpResponseStatus.OK));
         assertThat(openFrameResponse.content().toString(UTF_8), equalTo("o\n"));
     }
 
     @Test
-    public void xhrPollingHelloWithChannelId() {
+    public void xhrPollingHelloWithChannelId() throws Exception {
         final String uaid = UUIDUtil.newUAID();
         final String channelId = UUID.randomUUID().toString();
         sendXhrOpenFrameRequest(factory, sessionUrl);
@@ -114,7 +104,7 @@ public class SimplePushSockJSServiceTest {
     }
 
     @Test
-    public void xhrPollingHelloWithInvalidUaid() {
+    public void xhrPollingHelloWithInvalidUaid() throws Exception {
         final String uaid = "non-valie2233??";
         final String channelId = UUID.randomUUID().toString();
         sendXhrOpenFrameRequest(factory, sessionUrl);
@@ -127,7 +117,7 @@ public class SimplePushSockJSServiceTest {
     }
 
     @Test
-    public void xhrPollingRegister() {
+    public void xhrPollingRegister() throws Exception {
         final String channelId = UUID.randomUUID().toString();
         sendXhrOpenFrameRequest(factory, sessionUrl);
         sendXhrHelloMessageRequest(factory, sessionUrl, UUIDUtil.newUAID());
@@ -143,7 +133,7 @@ public class SimplePushSockJSServiceTest {
     }
 
     @Test
-    public void xhrPollingUnregister() {
+    public void xhrPollingUnregister() throws Exception {
         final String channelId = UUID.randomUUID().toString();
         sendXhrOpenFrameRequest(factory, sessionUrl);
         sendXhrHelloMessageRequest(factory, sessionUrl, UUIDUtil.newUAID());
@@ -160,7 +150,7 @@ public class SimplePushSockJSServiceTest {
     }
 
     @Test
-    public void xhrPollingPing() {
+    public void xhrPollingPing() throws Exception {
         sendXhrOpenFrameRequest(factory, sessionUrl);
         sendXhrHelloMessageRequest(factory, sessionUrl, UUIDUtil.newUAID());
         pollXhrHelloMessageResponse(factory, sessionUrl);
@@ -175,12 +165,33 @@ public class SimplePushSockJSServiceTest {
     @Test
     public void websocketUpgradeRequest() throws Exception {
         final EmbeddedChannel channel = createChannel(factory);
-        final FullHttpResponse response = websocketHttpUpgradeRequest(sessionUrl, channel);
+        final HttpResponse response = websocketHttpUpgradeRequest(sessionUrl, channel);
         assertThat(response.getStatus(), is(HttpResponseStatus.SWITCHING_PROTOCOLS));
         assertThat(response.headers().get(HttpHeaders.Names.UPGRADE), equalTo("websocket"));
         assertThat(response.headers().get(HttpHeaders.Names.CONNECTION), equalTo("Upgrade"));
         assertThat(response.headers().get(Names.SEC_WEBSOCKET_ACCEPT), equalTo("s3pPLMBiTxaQ9kYGzzhZRbK+xOo="));
         channel.close();
+    }
+
+    public static HttpResponse decodeHttpResponse(final EmbeddedChannel channel) throws Exception {
+        final EmbeddedChannel ch = new EmbeddedChannel(new HttpResponseDecoder());
+        ch.writeInbound(channel.readOutbound());
+        return ch.readInbound();
+    }
+
+    public static FullHttpResponse decodeFullHttpResponse(final EmbeddedChannel channel) throws Exception {
+        final EmbeddedChannel ch = new EmbeddedChannel(new HttpResponseDecoder());
+        ch.writeInbound(channel.outboundMessages().toArray());
+        final HttpResponse response = ch.readInbound();
+        final HttpContent content = ch.readInbound();
+        final DefaultFullHttpResponse fullResponse;
+        if (content != null) {
+            fullResponse = new DefaultFullHttpResponse(response.getProtocolVersion(), response.getStatus(), content.content());
+        } else {
+            fullResponse = new DefaultFullHttpResponse(response.getProtocolVersion(), response.getStatus());
+        }
+        fullResponse.headers().add(response.headers());
+        return fullResponse;
     }
 
     @Test
@@ -194,7 +205,7 @@ public class SimplePushSockJSServiceTest {
         final FullHttpRequest request = websocketUpgradeRequest(factory.config().prefix() + Transports.Type.WEBSOCKET.path());
         request.headers().set(Names.SEC_WEBSOCKET_PROTOCOL, "push-notification");
         channel.writeInbound(request);
-        final FullHttpResponse response = (FullHttpResponse) channel.readOutbound();
+        final FullHttpResponse response = decodeFullHttpResponse(channel);
         assertThat(response.getStatus(), is(HttpResponseStatus.SWITCHING_PROTOCOLS));
         assertThat(response.headers().get(HttpHeaders.Names.UPGRADE), equalTo("websocket"));
         assertThat(response.headers().get(HttpHeaders.Names.CONNECTION), equalTo("Upgrade"));
@@ -434,9 +445,9 @@ public class SimplePushSockJSServiceTest {
         return responseToType(ch.readOutbound(), UnregisterResponseImpl.class);
     }
 
-    private FullHttpResponse websocketHttpUpgradeRequest(final String sessionUrl, final EmbeddedChannel ch) {
+    private HttpResponse websocketHttpUpgradeRequest(final String sessionUrl, final EmbeddedChannel ch) throws Exception{
         ch.writeInbound(websocketUpgradeRequest(sessionUrl + Transports.Type.WEBSOCKET.path()));
-        return (FullHttpResponse) ch.readOutbound();
+        return decodeHttpResponse(ch);
     }
 
     private void sendWebSocketHttpUpgradeRequest(final String sessionUrl, final EmbeddedChannel ch) {
@@ -451,7 +462,7 @@ public class SimplePushSockJSServiceTest {
     }
 
     private HelloResponse sendWebSocketHelloFrame(final String uaid, final EmbeddedChannel ch) {
-        ch.writeInbound(TestUtil.helloWebSocketFrame(uaid.toString()));
+        ch.writeInbound(TestUtil.helloWebSocketFrame(uaid));
         return responseToType(ch.readOutbound(), HelloResponseImpl.class);
     }
 
@@ -479,20 +490,20 @@ public class SimplePushSockJSServiceTest {
         throw new IllegalArgumentException("Response is expected to be of type TextWebSocketFrame was: " + response);
     }
 
-    private FullHttpResponse sendXhrOpenFrameRequest(final SockJsServiceFactory factory, final String sessionUrl) {
+    private FullHttpResponse sendXhrOpenFrameRequest(final SockJsServiceFactory factory, final String sessionUrl) throws Exception {
         final EmbeddedChannel openChannel = createChannel(factory);
         openChannel.writeInbound(httpGetRequest(sessionUrl + Transports.Type.XHR.path()));
-        final FullHttpResponse openFrameResponse = (FullHttpResponse) openChannel.readOutbound();
+        final FullHttpResponse openFrameResponse = decodeFullHttpResponse(openChannel);
         openChannel.close();
         return openFrameResponse;
     }
 
     private FullHttpResponse sendXhrHelloMessageRequest(final SockJsServiceFactory factory, final String sessionUrl,
-            final String uaid, final String... channelIds) {
-        return xhrSend(factory, sessionUrl, TestUtil.helloSockJSFrame(uaid.toString(), channelIds));
+            final String uaid, final String... channelIds) throws Exception {
+        return xhrSend(factory, sessionUrl, TestUtil.helloSockJSFrame(uaid, channelIds));
     }
 
-    private HelloResponseImpl pollXhrHelloMessageResponse(final SockJsServiceFactory factory, final String sessionUrl) {
+    private HelloResponseImpl pollXhrHelloMessageResponse(final SockJsServiceFactory factory, final String sessionUrl) throws Exception {
         final FullHttpResponse pollResponse = xhrPoll(factory, sessionUrl);
         assertThat(pollResponse.getStatus(), is(HttpResponseStatus.OK));
 
@@ -501,11 +512,11 @@ public class SimplePushSockJSServiceTest {
     }
 
     private FullHttpResponse sendXhrRegisterChannelIdRequest(final SockJsServiceFactory factory, final String sessionUrl,
-            final String channelId) {
+            final String channelId) throws Exception {
         return xhrSend(factory, sessionUrl, TestUtil.registerChannelIdMessageSockJSFrame(channelId));
     }
 
-    private RegisterResponseImpl pollXhrRegisterChannelIdResponse(final SockJsServiceFactory factory, final String sessionUrl) {
+    private RegisterResponseImpl pollXhrRegisterChannelIdResponse(final SockJsServiceFactory factory, final String sessionUrl) throws Exception {
         final FullHttpResponse pollResponse = xhrPoll(factory, sessionUrl);
         assertThat(pollResponse.getStatus(), is(HttpResponseStatus.OK));
 
@@ -514,11 +525,11 @@ public class SimplePushSockJSServiceTest {
     }
 
     private FullHttpResponse unregisterChannelIdRequest(final SockJsServiceFactory factory, final String sessionUrl,
-            final String channelId) {
+            final String channelId) throws Exception {
         return xhrSend(factory, sessionUrl, TestUtil.unregisterChannelIdMessageSockJSFrame(channelId));
     }
 
-    private UnregisterResponseImpl unregisterChannelIdResponse(final SockJsServiceFactory factory, final String sessionUrl) {
+    private UnregisterResponseImpl unregisterChannelIdResponse(final SockJsServiceFactory factory, final String sessionUrl) throws Exception {
         final FullHttpResponse pollResponse = xhrPoll(factory, sessionUrl);
         assertThat(pollResponse.getStatus(), is(HttpResponseStatus.OK));
 
@@ -526,11 +537,11 @@ public class SimplePushSockJSServiceTest {
         return JsonUtil.fromJson(json, UnregisterResponseImpl.class);
     }
 
-    private FullHttpResponse sendXhrPingRequest(final SockJsServiceFactory factory, final String sessionUrl) {
+    private FullHttpResponse sendXhrPingRequest(final SockJsServiceFactory factory, final String sessionUrl) throws Exception {
         return xhrSend(factory, sessionUrl, TestUtil.pingSockJSFrame());
     }
 
-    private PingMessageImpl pollXhrPingMessageResponse(final SockJsServiceFactory factory, final String sessionUrl) {
+    private PingMessageImpl pollXhrPingMessageResponse(final SockJsServiceFactory factory, final String sessionUrl) throws Exception {
         final FullHttpResponse pollResponse = xhrPoll(factory, sessionUrl);
         assertThat(pollResponse.getStatus(), is(HttpResponseStatus.OK));
 
@@ -538,21 +549,21 @@ public class SimplePushSockJSServiceTest {
         return JsonUtil.fromJson(helloJson, PingMessageImpl.class);
     }
 
-    private FullHttpResponse xhrSend(final SockJsServiceFactory factory, final String sessionUrl, final String content) {
+    private FullHttpResponse xhrSend(final SockJsServiceFactory factory, final String sessionUrl, final String content) throws Exception {
         final EmbeddedChannel sendChannel = createChannel(factory);
         final FullHttpRequest sendRequest = httpPostRequest(sessionUrl + Transports.Type.XHR_SEND.path());
         sendRequest.content().writeBytes(Unpooled.copiedBuffer(content, UTF_8));
         sendChannel.writeInbound(sendRequest);
-        final FullHttpResponse sendResponse = (FullHttpResponse) sendChannel.readOutbound();
+        final FullHttpResponse sendResponse = decodeFullHttpResponse(sendChannel);
         sendChannel.close();
         return sendResponse;
 
     }
 
-    private FullHttpResponse xhrPoll(final SockJsServiceFactory factory, final String sessionUrl) {
+    private FullHttpResponse xhrPoll(final SockJsServiceFactory factory, final String sessionUrl) throws Exception {
         final EmbeddedChannel pollChannel = createChannel(factory);
         pollChannel.writeInbound(httpGetRequest(sessionUrl + Transports.Type.XHR.path()));
-        return (FullHttpResponse) pollChannel.readOutbound();
+        return decodeFullHttpResponse(pollChannel);
     }
 
     private FullHttpRequest httpGetRequest(final String path) {
@@ -562,7 +573,7 @@ public class SimplePushSockJSServiceTest {
     private FullHttpRequest websocketUpgradeRequest(final String path) {
         final FullHttpRequest req = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.GET, path);
         req.headers().set(Names.HOST, "server.test.com");
-        req.headers().set(Names.UPGRADE, WEBSOCKET.toLowerCase());
+        req.headers().set(Names.UPGRADE, WEBSOCKET.toString());
         req.headers().set(Names.CONNECTION, "Upgrade");
         req.headers().set(Names.SEC_WEBSOCKET_KEY, "dGhlIHNhbXBsZSBub25jZQ==");
         req.headers().set(Names.SEC_WEBSOCKET_ORIGIN, "http://test.com");
@@ -599,7 +610,9 @@ public class SimplePushSockJSServiceTest {
     }
 
     private EmbeddedChannel createChannel(final SockJsServiceFactory factory) {
-        final EmbeddedChannel ch = new TestEmbeddedChannel(
+        final EmbeddedChannel ch = new EmbeddedChannel(
+                new HttpRequestDecoder(),
+                new HttpResponseEncoder(),
                 new CorsInboundHandler(),
                 new SockJsHandler(factory),
                 new CorsOutboundHandler());
@@ -620,18 +633,6 @@ public class SimplePushSockJSServiceTest {
 
     private String randomSessionIdUrl(final SockJsServiceFactory factory) {
         return factory.config().prefix() + "/111/" + UUID.randomUUID().toString();
-    }
-
-    private class TestEmbeddedChannel extends EmbeddedChannel {
-
-        public TestEmbeddedChannel(final ChannelHandler... handlers) {
-            super(handlers);
-        }
-
-        @Override
-        public EventLoop eventLoop() {
-            return new StubEmbeddedEventLoop(super.eventLoop());
-        }
     }
 
 }

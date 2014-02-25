@@ -17,6 +17,8 @@ package org.jboss.aerogear.simplepush.server.netty;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import io.netty.channel.ChannelHandlerInvoker;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.AbstractEventExecutor;
@@ -106,6 +108,11 @@ public class StubEmbeddedEventLoop extends AbstractEventExecutor implements Even
     @Override
     public EventLoop next() {
         return ((EventLoopGroup) delegate).next();
+    }
+
+    @Override
+    public ChannelHandlerInvoker asInvoker() {
+        return delegate.asInvoker();
     }
 
     @Override

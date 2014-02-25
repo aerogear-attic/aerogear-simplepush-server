@@ -46,7 +46,7 @@ public class UserAgents {
      * Adds the a new UserAgent "session".
      *
      * @param uaid the unique identifier for the UserAgent.
-     * @param session the {@link SessionContext} for the connected UserAgent.
+     * @param session the {@link SockJsSessionContext} for the connected UserAgent.
      */
     public void add(final String uaid, final SockJsSessionContext session) {
         userAgents.put(uaid, new UserAgent<SockJsSessionContext>(uaid, session, System.currentTimeMillis()));

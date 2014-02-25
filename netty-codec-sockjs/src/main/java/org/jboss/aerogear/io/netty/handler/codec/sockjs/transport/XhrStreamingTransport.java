@@ -19,10 +19,7 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpHeaders.Names.TRANSFER_ENCODING;
 import static org.jboss.aerogear.io.netty.handler.codec.sockjs.transport.Transports.wrapWithLN;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelOutboundHandlerAdapter;
-import io.netty.channel.ChannelPromise;
+import io.netty.channel.*;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
@@ -52,7 +49,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @see XhrSendTransport
  */
-public class XhrStreamingTransport extends ChannelOutboundHandlerAdapter {
+public class XhrStreamingTransport extends ChannelHandlerAdapter {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(XhrStreamingTransport.class);
     private final AtomicBoolean headerSent = new AtomicBoolean(false);
     private final AtomicInteger bytesSent = new AtomicInteger(0);
