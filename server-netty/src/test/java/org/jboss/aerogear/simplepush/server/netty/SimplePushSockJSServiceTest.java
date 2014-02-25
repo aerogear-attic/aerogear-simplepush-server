@@ -53,10 +53,10 @@ import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsService;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsServiceFactory;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.CorsInboundHandler;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.CorsOutboundHandler;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.SockJsHandler;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.transports.Transports;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.CorsInboundHandler;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.CorsOutboundHandler;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.SockJsHandler;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.transport.Transports;
 import org.jboss.aerogear.simplepush.protocol.HelloResponse;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.PingMessage;
@@ -191,7 +191,7 @@ public class SimplePushSockJSServiceTest {
         final SimplePushServer pushServer = new DefaultSimplePushServer(new InMemoryDataStore(), simplePushConfig, privateKey);
         final SimplePushServiceFactory factory = new SimplePushServiceFactory(sockjsConf, pushServer);
         final EmbeddedChannel channel = createChannel(factory);
-        final FullHttpRequest request = websocketUpgradeRequest(factory.config().prefix() + Transports.Types.WEBSOCKET.path());
+        final FullHttpRequest request = websocketUpgradeRequest(factory.config().prefix() + Transports.Type.WEBSOCKET.path());
         request.headers().set(Names.SEC_WEBSOCKET_PROTOCOL, "push-notification");
         channel.writeInbound(request);
         final FullHttpResponse response = (FullHttpResponse) channel.readOutbound();
@@ -435,12 +435,12 @@ public class SimplePushSockJSServiceTest {
     }
 
     private FullHttpResponse websocketHttpUpgradeRequest(final String sessionUrl, final EmbeddedChannel ch) {
-        ch.writeInbound(websocketUpgradeRequest(sessionUrl + Transports.Types.WEBSOCKET.path()));
+        ch.writeInbound(websocketUpgradeRequest(sessionUrl + Transports.Type.WEBSOCKET.path()));
         return (FullHttpResponse) ch.readOutbound();
     }
 
     private void sendWebSocketHttpUpgradeRequest(final String sessionUrl, final EmbeddedChannel ch) {
-        ch.writeInbound(websocketUpgradeRequest(sessionUrl + Transports.Types.WEBSOCKET.path()));
+        ch.writeInbound(websocketUpgradeRequest(sessionUrl + Transports.Type.WEBSOCKET.path()));
         // Discarding the Http upgrade response
         ch.readOutbound();
         ch.readOutbound();
@@ -481,7 +481,7 @@ public class SimplePushSockJSServiceTest {
 
     private FullHttpResponse sendXhrOpenFrameRequest(final SockJsServiceFactory factory, final String sessionUrl) {
         final EmbeddedChannel openChannel = createChannel(factory);
-        openChannel.writeInbound(httpGetRequest(sessionUrl + Transports.Types.XHR.path()));
+        openChannel.writeInbound(httpGetRequest(sessionUrl + Transports.Type.XHR.path()));
         final FullHttpResponse openFrameResponse = (FullHttpResponse) openChannel.readOutbound();
         openChannel.close();
         return openFrameResponse;
@@ -540,7 +540,7 @@ public class SimplePushSockJSServiceTest {
 
     private FullHttpResponse xhrSend(final SockJsServiceFactory factory, final String sessionUrl, final String content) {
         final EmbeddedChannel sendChannel = createChannel(factory);
-        final FullHttpRequest sendRequest = httpPostRequest(sessionUrl + Transports.Types.XHR_SEND.path());
+        final FullHttpRequest sendRequest = httpPostRequest(sessionUrl + Transports.Type.XHR_SEND.path());
         sendRequest.content().writeBytes(Unpooled.copiedBuffer(content, UTF_8));
         sendChannel.writeInbound(sendRequest);
         final FullHttpResponse sendResponse = (FullHttpResponse) sendChannel.readOutbound();
@@ -551,7 +551,7 @@ public class SimplePushSockJSServiceTest {
 
     private FullHttpResponse xhrPoll(final SockJsServiceFactory factory, final String sessionUrl) {
         final EmbeddedChannel pollChannel = createChannel(factory);
-        pollChannel.writeInbound(httpGetRequest(sessionUrl + Transports.Types.XHR.path()));
+        pollChannel.writeInbound(httpGetRequest(sessionUrl + Transports.Type.XHR.path()));
         return (FullHttpResponse) pollChannel.readOutbound();
     }
 

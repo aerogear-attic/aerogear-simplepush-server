@@ -26,7 +26,7 @@ import io.netty.buffer.Unpooled;
  */
 public class PreludeFrame extends DefaultByteBufHolder implements Frame {
 
-    public static final int CONTENT_SIZE = 2048;
+    static final int CONTENT_SIZE = 2048;
     private static final ByteBuf PRELUDE_FRAME = unreleasableBuffer(generateContent());
 
     public PreludeFrame() {
@@ -39,6 +39,28 @@ public class PreludeFrame extends DefaultByteBufHolder implements Frame {
             buf.writeByte('h');
         }
         return buf;
+    }
+
+    @Override
+    public PreludeFrame copy() {
+        return new PreludeFrame();
+    }
+
+    @Override
+    public PreludeFrame duplicate() {
+        return new PreludeFrame();
+    }
+
+    @Override
+    public PreludeFrame retain() {
+        PRELUDE_FRAME.retain();
+        return this;
+    }
+
+    @Override
+    public PreludeFrame retain(int increment) {
+        PRELUDE_FRAME.retain(increment);
+        return this;
     }
 
 }

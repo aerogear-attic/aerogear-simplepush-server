@@ -67,7 +67,7 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
     }
 
     @Override
-    public void channelRead0(final ChannelHandlerContext ctx, final Object msg) throws Exception {
+    public void messageReceived(final ChannelHandlerContext ctx, final Object msg) throws Exception {
         if (msg instanceof FullHttpRequest) {
             final FullHttpRequest request = (FullHttpRequest) msg;
             final String requestUri = request.getUri();
