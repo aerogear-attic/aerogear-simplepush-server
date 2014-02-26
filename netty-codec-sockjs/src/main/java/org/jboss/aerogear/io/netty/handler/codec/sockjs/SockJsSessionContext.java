@@ -38,5 +38,10 @@ public interface SockJsSessionContext {
     /**
      * Get the underlying ChannelHandlerContext.
      */
-    ChannelHandlerContext getContext();
+    ChannelHandlerContext getConnectionContext();
+
+    /**
+     * Get the underlying ChannelHandlerContext.
+     */
+    ChannelHandlerContext getCurrentContext();
 }

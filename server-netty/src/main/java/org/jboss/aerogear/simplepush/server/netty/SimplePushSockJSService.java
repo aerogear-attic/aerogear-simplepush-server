@@ -135,7 +135,7 @@ public class SimplePushSockJSService implements SockJsService {
                 logger.info("Cancelled Re-Acknowledger job");
             }
         } else if (ackJobFuture == null) {
-            ackJobFuture = session.getContext().executor().scheduleAtFixedRate(new Runnable() {
+            ackJobFuture = session.getConnectionContext().executor().scheduleAtFixedRate(new Runnable() {
                 @Override
                 public void run() {
                     final Set<Ack> unacked = simplePushServer.getUnacknowledged(uaid);

@@ -61,14 +61,14 @@ public class UserAgentReaper implements Runnable {
                 // remove from database
                 simplePushServer.removeAllChannels(userAgent.uaid());
 
-                // close the user agent context
+                // close the user agent connectContext
                 userAgent.context().close();
             }
         }
     }
 
     private boolean isChannelInactive(final UserAgent<SockJsSessionContext> userAgent) {
-        final Channel ch = userAgent.context().getContext().channel();
+        final Channel ch = userAgent.context().getConnectionContext().channel();
         return !ch.isActive() && !ch.isRegistered();
     }
 }

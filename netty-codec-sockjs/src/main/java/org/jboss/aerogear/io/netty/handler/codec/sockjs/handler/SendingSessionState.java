@@ -47,11 +47,16 @@ class SendingSessionState implements SessionState {
     }
 
     @Override
+    public ChannelHandlerContext getSendingContext(SockJsSession session) {
+        return session.currentContext();
+    }
+
+    @Override
     public void onSockJSServerInitiatedClose(final SockJsSession session) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Will close session context {}", session.context());
+            logger.debug("Will close session connectionContext {}", session.connectionContext());
         }
-        session.context().close();
+        session.connectionContext().close();
         sessions.remove(session.sessionId());
     }
 

@@ -129,7 +129,11 @@ public class RawWebSocketTransport extends SimpleChannelInboundHandler<Object> {
                                 ctx.close();
                             }
                             @Override
-                            public ChannelHandlerContext getContext() {
+                            public ChannelHandlerContext getConnectionContext() {
+                                return ctx;
+                            }
+                            @Override
+                            public ChannelHandlerContext getCurrentContext() {
                                 return ctx;
                             }
                         });

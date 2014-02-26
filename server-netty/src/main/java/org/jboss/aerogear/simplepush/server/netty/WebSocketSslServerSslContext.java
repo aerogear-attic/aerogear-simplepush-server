@@ -43,7 +43,7 @@ public final class WebSocketSslServerSslContext {
 
     /**
      * Creates a new {@link SSLContext}. This is an expensive operation and should only be done
-     * once and then the SSL context can be reused.
+     * once and then the SSL connectContext can be reused.
      *
      * @return {@link SSLContext} the SSLContext.
      */

@@ -65,7 +65,7 @@
             div.scrollTop(div.scrollTop()+10000);
         };
 
-		sockjs.onopen    = function()  {
+		sockjs.onopen  = function()  {
 			print('[*] open', sockjs.protocol);
 		};
 
@@ -73,7 +73,7 @@
 			print('[.] message', e.data);
 		};
 
-		sockjs.onclose   = function()  {
+		sockjs.onclose  = function()  {
 			print('[*] close');
 		};
 

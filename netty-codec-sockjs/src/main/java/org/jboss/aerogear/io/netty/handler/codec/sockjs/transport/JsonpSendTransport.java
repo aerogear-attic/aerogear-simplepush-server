@@ -16,10 +16,18 @@
 package org.jboss.aerogear.io.netty.handler.codec.sockjs.transport;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.util.internal.logging.InternalLogger;
+import io.netty.util.internal.logging.InternalLoggerFactory;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import io.netty.util.internal.StringUtil;
+import static org.jboss.aerogear.io.netty.handler.codec.sockjs.transport.Transports.CONTENT_TYPE_PLAIN;
+import static org.jboss.aerogear.io.netty.handler.codec.sockjs.transport.Transports.responseWithContent;
+import static org.jboss.aerogear.io.netty.handler.codec.sockjs.transport.Transports.setDefaultHeaders;
 
 /**
  * JSON Padding (JSONP) Polling is a transport where there is no open connection between
@@ -32,13 +40,20 @@ import io.netty.util.internal.StringUtil;
  */
 public class JsonpSendTransport extends AbstractSendTransport {
 
+    private static final InternalLogger logger = InternalLoggerFactory.getInstance(JsonpSendTransport.class);
+
     public JsonpSendTransport(final SockJsConfig config) {
         super(config);
     }
 
     @Override
     public void respond(final ChannelHandlerContext ctx, final FullHttpRequest request) throws Exception {
-        respond(ctx, request.getProtocolVersion(), OK, "ok");
+        final FullHttpResponse response = responseWithContent(request.getProtocolVersion(), OK, CONTENT_TYPE_PLAIN, "ok");
+        logger.info("Responding=" + response.getStatus() + ", request.uri=" + request.getUri());
+        setDefaultHeaders(response, config);
+        if (ctx.channel().isActive() && ctx.channel().isRegistered()) {
+            ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+        }
     }
 
     @Override

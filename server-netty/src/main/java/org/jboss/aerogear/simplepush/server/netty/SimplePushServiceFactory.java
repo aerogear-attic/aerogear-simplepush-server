@@ -19,11 +19,7 @@ package org.jboss.aerogear.simplepush.server.netty;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.AbstractSockJsServiceFactory;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsService;
-
-import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServer;
-import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
-import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 
 /**
  * Factory class that creates instances of {@link SimplePushSockJSService}.

@@ -27,7 +27,6 @@ import static io.netty.handler.codec.http.HttpResponseStatus.METHOD_NOT_ALLOWED;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 import static org.jboss.aerogear.io.netty.handler.codec.sockjs.util.ChannelUtil.webSocketChannel;
 import static org.jboss.aerogear.io.netty.handler.codec.sockjs.util.HttpUtil.decode;
-import static org.jboss.aerogear.io.netty.handler.codec.sockjs.util.HttpUtil.decodeFullResponse;
 import static org.jboss.aerogear.io.netty.handler.codec.sockjs.util.HttpUtil.decodeFullHttpResponse;
 import static org.jboss.aerogear.io.netty.handler.codec.sockjs.util.HttpUtil.webSocketUpgradeRequest;
 import static org.hamcrest.CoreMatchers.nullValue;

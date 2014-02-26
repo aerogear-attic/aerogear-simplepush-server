@@ -32,7 +32,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
  *
  * For every connection received a new SessionHandler will be created
  * and added to the pipeline
- * Depending on the type of connection (polling, streaming, send, or websocket)
+ * Depending on the type of connection (polling, streaming, send, or WebSocket)
  * the type of {@link SessionState} that this session handles will differ.
  *
  */
@@ -43,7 +43,6 @@ public class SessionHandler extends ChannelHandlerAdapter implements SockJsSessi
 
     private final SessionState sessionState;
     private final SockJsSession session;
-    private ChannelHandlerContext currentContext;
 
     public SessionHandler(final SessionState sessionState, final SockJsSession session) {
         ArgumentUtil.checkNotNull(sessionState, "sessionState");
@@ -53,6 +52,7 @@ public class SessionHandler extends ChannelHandlerAdapter implements SockJsSessi
 
     @Override
     public void channelRead(final ChannelHandlerContext ctx, final Object msg) throws Exception {
+        session.setCurrentContext(ctx);
         if (msg instanceof HttpRequest) {
             handleSession(ctx);
         } else if (msg instanceof String) {
@@ -63,7 +63,6 @@ public class SessionHandler extends ChannelHandlerAdapter implements SockJsSessi
     }
 
     private void handleSession(final ChannelHandlerContext ctx) throws Exception {
-        currentContext = ctx;
         if (logger.isDebugEnabled()) {
             logger.debug("handleSession {}", sessionState);
         }
@@ -71,7 +70,7 @@ public class SessionHandler extends ChannelHandlerAdapter implements SockJsSessi
         case CONNECTING:
             logger.debug("State.CONNECTING sending open frame");
             ctx.channel().writeAndFlush(new OpenFrame());
-            session.setContext(ctx);
+            session.setConnectionContext(ctx);
             session.onOpen(this);
             sessionState.onConnect(session, ctx);
             break;
@@ -103,17 +102,12 @@ public class SessionHandler extends ChannelHandlerAdapter implements SockJsSessi
 
     @Override
     public void send(String message) {
-        final Channel channel = getActiveChannel();
+        final Channel channel = sessionState.getSendingContext(session).channel();
         if (isWritable(channel)) {
             channel.writeAndFlush(new MessageFrame(message));
         } else {
             session.addMessage(message);
         }
-    }
-
-    private Channel getActiveChannel() {
-        final Channel sessionChannel = session.context().channel();
-        return sessionChannel.isActive() && sessionChannel.isRegistered() ? sessionChannel : currentContext.channel();
     }
 
     @Override
@@ -130,7 +124,7 @@ public class SessionHandler extends ChannelHandlerAdapter implements SockJsSessi
     public void close() {
         session.onClose();
         sessionState.onClose();
-        final Channel channel = getActiveChannel();
+        final Channel channel = sessionState.getSendingContext(session).channel();
         if (isWritable(channel)) {
             final CloseFrame closeFrame = new CloseFrame(3000, "Go away!");
             if (logger.isDebugEnabled()) {
@@ -150,8 +144,13 @@ public class SessionHandler extends ChannelHandlerAdapter implements SockJsSessi
     }
 
     @Override
-    public ChannelHandlerContext getContext() {
-        return currentContext;
+    public ChannelHandlerContext getConnectionContext() {
+        return session.connectionContext();
+    }
+
+    @Override
+    public ChannelHandlerContext getCurrentContext() {
+        return session.currentContext();
     }
 
 }

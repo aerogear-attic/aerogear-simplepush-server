@@ -83,7 +83,7 @@ public class UserAgentReaperTest {
         final ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
         when(ctx.channel()).thenReturn(channel);
         final SockJsSessionContext sessionContext = mock(SockJsSessionContext.class);
-        when(sessionContext.getContext()).thenReturn(ctx);
+        when(sessionContext.getConnectionContext()).thenReturn(ctx);
         return sessionContext;
     }
 
