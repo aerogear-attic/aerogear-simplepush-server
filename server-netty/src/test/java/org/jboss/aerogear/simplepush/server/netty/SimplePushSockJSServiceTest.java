@@ -77,6 +77,7 @@ import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.ChannelNotFoundException;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
+import org.jboss.aerogear.simplepush.util.CryptoUtil;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -186,7 +187,9 @@ public class SimplePushSockJSServiceTest {
     public void rawWebSocketUpgradeRequest() throws Exception {
         final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create().password("test").build();
         final SockJsConfig sockjsConf = SockJsConfig.withPrefix("/simplepush").webSocketProtocols("push-notification").build();
-        final SimplePushServiceFactory factory = new SimplePushServiceFactory(sockjsConf, new InMemoryDataStore(), simplePushConfig);
+        final byte[] privateKey = CryptoUtil.secretKey(simplePushConfig.password(), "someSaltForTesting".getBytes());
+        final SimplePushServer pushServer = new DefaultSimplePushServer(new InMemoryDataStore(), simplePushConfig, privateKey);
+        final SimplePushServiceFactory factory = new SimplePushServiceFactory(sockjsConf, pushServer);
         final EmbeddedChannel channel = createChannel(factory);
         final FullHttpRequest request = websocketUpgradeRequest(factory.config().prefix() + Transports.Types.WEBSOCKET.path());
         request.headers().set(Names.SEC_WEBSOCKET_PROTOCOL, "push-notification");
@@ -575,7 +578,9 @@ public class SimplePushSockJSServiceTest {
     private SockJsServiceFactory defaultFactory() {
         final SimplePushServerConfig simplePushConfig = DefaultSimplePushConfig.create().password("test").build();
         final SockJsConfig sockjsConf = SockJsConfig.withPrefix("/simplepush").build();
-        return new SimplePushServiceFactory(sockjsConf, new InMemoryDataStore(), simplePushConfig);
+        final byte[] privateKey = CryptoUtil.secretKey(simplePushConfig.password(), "someSaltForTesting".getBytes());
+        final SimplePushServer pushServer = new DefaultSimplePushServer(new InMemoryDataStore(), simplePushConfig, privateKey);
+        return new SimplePushServiceFactory(sockjsConf, pushServer);
     }
 
     private SockJsServiceFactory defaultFactory(final SimplePushServer simplePushServer) {

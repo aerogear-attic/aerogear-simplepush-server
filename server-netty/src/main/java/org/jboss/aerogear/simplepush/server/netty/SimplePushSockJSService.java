@@ -63,7 +63,7 @@ public class SimplePushSockJSService implements SockJsService {
     /**
      * Sole constructor.
      *
-     * @param sockjsConfig the SockJS {@link Config} for this service.
+     * @param sockjsConfig the SockJS {@link SockJsConfig} for this service.
      * @param simplePushServer the {@link SimplePushServer} that this instance will use.
      */
     public SimplePushSockJSService(final SockJsConfig sockjsConfig, final SimplePushServer simplePushServer) {

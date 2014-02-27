@@ -21,6 +21,7 @@ import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsService;
 
 import org.jboss.aerogear.simplepush.server.DefaultSimplePushServer;
+import org.jboss.aerogear.simplepush.server.SimplePushServer;
 import org.jboss.aerogear.simplepush.server.SimplePushServerConfig;
 import org.jboss.aerogear.simplepush.server.datastore.DataStore;
 
@@ -29,27 +30,22 @@ import org.jboss.aerogear.simplepush.server.datastore.DataStore;
  */
 public class SimplePushServiceFactory extends AbstractSockJsServiceFactory {
 
-    private final DataStore datastore;
-    private final SimplePushServerConfig simplePushConfig;
+    private final SimplePushServer simplePushServer;
 
     /**
      * Sole constructor.
      *
      * @param sockjsConfig the Netty SockJS configuration.
-     * @param datastore the {@link DataStore} to be used by all instances created.
-     * @param simplePushConfig the {@link SimplePushServerConfig} configuration.
+     * @param simplePushServer the {@link SimplePushServer} to be used by all instances created.
      */
-    public SimplePushServiceFactory(final SockJsConfig sockjsConfig, final DataStore datastore,
-            final SimplePushServerConfig simplePushConfig) {
+    public SimplePushServiceFactory(final SockJsConfig sockjsConfig, final SimplePushServer simplePushServer) {
         super(sockjsConfig);
-        this.datastore = datastore;
-        this.simplePushConfig = simplePushConfig;
+        this.simplePushServer = simplePushServer;
     }
 
     @Override
     public SockJsService create() {
-        final byte[] privateKey = DefaultSimplePushServer.generateAndStorePrivateKey(datastore, simplePushConfig);
-        return new SimplePushSockJSService(config(), new DefaultSimplePushServer(datastore, simplePushConfig, privateKey));
+        return new SimplePushSockJSService(config(), simplePushServer);
     }
 
 }

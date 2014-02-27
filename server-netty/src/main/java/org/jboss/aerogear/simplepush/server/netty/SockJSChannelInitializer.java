@@ -85,7 +85,7 @@ public class SockJSChannelInitializer extends ChannelInitializer<SocketChannel> 
         final DefaultSimplePushServer simplePushServer = new DefaultSimplePushServer(datastore, simplePushConfig, privateKey);
         pipeline.addLast(new NotificationHandler(simplePushServer));
         pipeline.addLast(new CorsInboundHandler());
-        pipeline.addLast(new SockJsHandler(new SimplePushServiceFactory(sockjsConfig, datastore, simplePushConfig)));
+        pipeline.addLast(new SockJsHandler(new SimplePushServiceFactory(sockjsConfig, simplePushServer)));
         pipeline.addLast(backgroundGroup, new UserAgentReaperHandler(simplePushServer));
         pipeline.addLast(new CorsOutboundHandler());
     }
