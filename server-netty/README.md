@@ -38,6 +38,8 @@ Example configuration:
         "port": 7777,
         "password" :"testing",
         "useragent-reaper-timeout": "604800000",
+        "endpoint-host": "external.name",
+        "endpoint-port": 8899,
         "endpoint-tls": false,
         "endpoint-prefix": "/update",
         "ack-interval": "60000",

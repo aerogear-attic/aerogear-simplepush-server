@@ -31,7 +31,25 @@ below for instructions to add a different datastore.
  
 If you inspect the server console output you should see the following message:
 
-    08:56:13,052 INFO  [org.jboss.aerogear.simplepush.subsystem.SimplePushService] (MSC service thread 1-3) SimplePush Server binding to [/127.0.0.1:7777]    
+    08:56:13,052 INFO  [org.jboss.aerogear.simplepush.subsystem.SimplePushService] (MSC service thread 1-3) SimplePush Server binding to [/127.0.0.1:7777]
+
+## OpenShift
+Deploying on OpenShift can be done using the [OpenShift Cartridge](https://github.com/aerogear/openshift-origin-cartridge-aerogear-push). This
+cartridge can be installed directly using [OpenShift](https://www.openshift.com/)s web interface.
+
+### Client URL
+By default an application created using the OpenShift cartridge can be accessed by using the following urls:
+
+For _secured_ connections:
+
+    https://{APP}-{NAMESPACE}-rhcloud.com:8443/simplepush
+
+For _unsecured_ connections:
+
+    http://{APP}-{NAMESPACE}-rhcloud.com:8000/simplepush
+
+**NOTE:** It is recommended that you always use _secured_ connections.
+
 
 ## Configuration options
 The wildfly-config.cli script will add the configuration elements to the running server. But not all configuration options
@@ -44,10 +62,10 @@ This section goes through all of the configuration options available.
             datasource-jndi-name="java:jboss/datasources/SimplePushDS" 
             password="936agbbhh6ee99=999333"
             useragent-reaper-timeout="604800000"
-            notification-prefix="update"
-            notification-tls="true"
-            notification-ack-interval="60000"
-            notification-socket-binding="simplepush-notify"
+            endpoint-prefix="update"
+            endpoint-tls="true"
+            endpoint-ack-interval="60000"
+            endpoint-socket-binding="simplepush-notify"
             sockjs-prefix="simplepush"
             sockjs-cookies-needed="true"
             sockjs-url="http://cdn.sockjs.org/sockjs-0.3.4.min.js"
@@ -78,17 +96,17 @@ of the endpoint URLs that are returned to clients upon successful channel regist
 This is the amount of time which a UserAgent can be inactive after which it will be removed from the system.
 Default is 604800000 ms (7 days).
 
-#### notification-prefix  
+#### endpoint-prefix
 The prefix for the the notification endpoint url. This prefix will be included in the endpointUrl returned to the client to enabling them to send notifications.
 
-#### notification-tls
+#### endpoint-tls
 Configures Transport Layer Security (TLS) for the notification endpointUrl that is returned when a UserAgent/client registers a channel. 
 Setting this to _true_ will return a url with _https_ as the protocol.
 
-#### notification-ack-interval  
+#### endpoint-ack-interval
 This is the interval time for resending un-acknowledged notifications. Default is 60000 ms.
 
-#### notification-socket-binding
+#### endpoint-socket-binding
 This is the name of a socket-binding configured in the _socket-binding-group_ section in a WildFly configuration xml file. 
 This information is used to configure the host and port that will be returned as the notification endpoints that backend servers can 
 use to send notifications to a channel. The can be useful on OpenShift where the host and port that the server binds to might 
