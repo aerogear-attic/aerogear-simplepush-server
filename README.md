@@ -12,7 +12,13 @@ Instead a version number is sent to the client. Based on that version number the
 Mozilla published a very detailed [article](https://hacks.mozilla.org/2013/07/dont-miss-out-on-the-real-time-fun-use-firefox-os-push-notifications/) 
 that explains the API in depth.
 
-AeroGear SimplePush consists of the following modules:  
+AeroGear SimplePush consists of the following modules:
+
+* [common](https://github.com/aerogear/aerogear-simple-push-server/tree/master/common)  
+Just common classes used by multiple modules in the project.
+
+* [datastores](https://github.com/aerogear/aerogear-simple-push-server/tree/master/datastores)  
+Contains implementations of various datastores. Please see the specific datastore's readme for further details.
 
 * [protocol](https://github.com/aerogear/aerogear-simple-push-server/tree/master/protocol)  
 The SimplePush Server Protocol provides interfaces for the protocol.
