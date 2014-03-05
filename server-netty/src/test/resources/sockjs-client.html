@@ -44,6 +44,7 @@
 		  <input id="register" autocomplete="off" value='{"messageType": "register", "channelID":""}'></input>
 	  </form>
     </div>
+    <button id="closeBtn" type="button">Close Session</button>
 
     <script>
         var sockjs_url = 'http://localhost:7777/simplepush';
@@ -57,38 +58,44 @@
         var helloForm = $('#first #helloForm');
         var registerInp  = $('#first #register');
         var registerForm = $('#first #registerForm');
+        var closeBtn = $('#closeBtn');
 
         var print = function(m, p) {
-            p = (p === undefined) ? '' : JSON.stringify(p);
-            div.append($("<code>").text(m + ' ' + p));
-            div.append($("<br>"));
-            div.scrollTop(div.scrollTop()+10000);
+          p = (p === undefined) ? '' : JSON.stringify(p);
+          div.append($("<code>").text(m + ' ' + p));
+          div.append($("<br>"));
+          div.scrollTop(div.scrollTop()+10000);
         };
 
-		sockjs.onopen  = function()  {
-			print('[*] open', sockjs.protocol);
-		};
+        sockjs.onopen = function()  {
+          print('[*] open', sockjs.protocol);
+        };
 
-		sockjs.onmessage = function(e) {
-			print('[.] message', e.data);
-		};
+        sockjs.onmessage = function(e) {
+          print('[.] message', e.data);
+        };
 
-		sockjs.onclose  = function()  {
-			print('[*] close');
-		};
+        sockjs.onclose = function()  {
+          print('[*] close');
+        };
 
         helloForm.submit(function() {
-            print('[ ] sending', helloInp.val());
-            sockjs.send(helloInp.val());
-            helloInp.val('');
-            return false;
+          print('[ ] sending', helloInp.val());
+          sockjs.send(helloInp.val());
+          helloInp.val('');
+          return false;
         });
 
         registerForm.submit(function() {
-            print('[ ] sending', registerInp.val());
-            sockjs.send(registerInp.val());
-            registerInp.val('');
-            return false;
+          print('[ ] sending', registerInp.val());
+          sockjs.send(registerInp.val());
+          registerInp.val('');
+          return false;
+        });
+
+        closeBtn.click(function() {
+          sockjs.close();
+          return false;
         });
 
     </script>

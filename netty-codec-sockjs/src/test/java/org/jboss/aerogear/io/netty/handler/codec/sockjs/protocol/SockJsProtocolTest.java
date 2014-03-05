@@ -15,52 +15,17 @@
  */
 package org.jboss.aerogear.io.netty.handler.codec.sockjs.protocol;
 
-import static io.netty.handler.codec.http.HttpHeaders.Names.CACHE_CONTROL;
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_LENGTH;
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
-import static io.netty.handler.codec.http.HttpHeaders.Names.ETAG;
-import static io.netty.handler.codec.http.HttpHeaders.Names.EXPIRES;
-import static io.netty.handler.codec.http.HttpHeaders.Names.IF_NONE_MATCH;
-import static io.netty.handler.codec.http.HttpHeaders.Names.SET_COOKIE;
-import static io.netty.handler.codec.http.HttpHeaders.Names.UPGRADE;
-import static io.netty.handler.codec.http.HttpHeaders.Names.HOST;
-import static io.netty.handler.codec.http.HttpHeaders.Names.SEC_WEBSOCKET_KEY1;
-import static io.netty.handler.codec.http.HttpHeaders.Names.SEC_WEBSOCKET_KEY2;
-import static io.netty.handler.codec.http.HttpHeaders.Names.SEC_WEBSOCKET_KEY;
-import static io.netty.handler.codec.http.HttpHeaders.Names.SEC_WEBSOCKET_ORIGIN;
-import static io.netty.handler.codec.http.HttpHeaders.Names.SEC_WEBSOCKET_VERSION;
-import static io.netty.handler.codec.http.HttpHeaders.Names.TRANSFER_ENCODING;
-import static io.netty.handler.codec.http.HttpHeaders.Names.ACCESS_CONTROL_ALLOW_CREDENTIALS;
-import static io.netty.handler.codec.http.HttpHeaders.Names.ACCESS_CONTROL_MAX_AGE;
-import static io.netty.handler.codec.http.HttpHeaders.Names.ACCESS_CONTROL_ALLOW_HEADERS;
-import static io.netty.handler.codec.http.HttpHeaders.Names.ACCESS_CONTROL_ALLOW_METHODS;
-import static io.netty.handler.codec.http.HttpHeaders.Names.ACCESS_CONTROL_REQUEST_HEADERS;
-import static io.netty.handler.codec.http.HttpHeaders.Names.ORIGIN;
-import static io.netty.handler.codec.http.HttpHeaders.Values.WEBSOCKET;
-import static io.netty.handler.codec.http.HttpHeaders.Values.KEEP_ALIVE;
-import static io.netty.handler.codec.http.HttpMethod.GET;
-import static io.netty.handler.codec.http.HttpMethod.OPTIONS;
-import static io.netty.handler.codec.http.HttpMethod.POST;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_0;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static io.netty.util.CharsetUtil.UTF_8;
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufHolder;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.*;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerAdapter;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelHandlerInvoker;
+import io.netty.channel.ChannelOutboundBuffer;
+import io.netty.channel.ChannelPromise;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.ClientCookieEncoder;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
@@ -76,14 +41,18 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
+import io.netty.util.CharsetUtil;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.AbstractSockJsServiceFactory;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.CloseService;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.EchoService;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsService;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsServiceFactory;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsTestUtil;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.CorsInboundHandler;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.CorsOutboundHandler;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.SockJsHandler;
@@ -92,15 +61,29 @@ import org.jboss.aerogear.io.netty.handler.codec.sockjs.transport.Transports;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.util.ChannelUtil;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.util.HttpUtil;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.util.JsonUtil;
-import io.netty.util.CharsetUtil;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.util.StubEmbeddedEventLoop;
+import org.junit.Test;
 
 import java.net.SocketAddress;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsTestUtil;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.util.StubEmbeddedEventLoop;
-import org.junit.Test;
+import static io.netty.handler.codec.http.HttpHeaders.Names.*;
+import static io.netty.handler.codec.http.HttpHeaders.Names.UPGRADE;
+import static io.netty.handler.codec.http.HttpHeaders.Values.*;
+import static io.netty.handler.codec.http.HttpMethod.*;
+import static io.netty.handler.codec.http.HttpVersion.*;
+import static io.netty.handler.codec.http.websocketx.WebSocketVersion.*;
+import static io.netty.util.CharsetUtil.*;
+import static org.hamcrest.CoreMatchers.containsString;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.*;
 
 public class SockJsProtocolTest {
 
@@ -457,7 +440,7 @@ public class SockJsProtocolTest {
         final TextWebSocketFrame closeFrame = ch.readOutbound();
         assertThat(closeFrame.content().toString(UTF_8), equalTo("c[3000,\"Go away!\"]"));
         assertThat(ch.isActive(), is(false));
-        webSocketTestClose(WebSocketVersion.V13);
+        webSocketTestClose(V13);
     }
 
     /*
@@ -590,7 +573,7 @@ public class SockJsProtocolTest {
         final TextWebSocketFrame webSocketFrame = new TextWebSocketFrame("[\"a\"");
         ch.writeInbound(webSocketFrame);
         assertThat(ch.isActive(), is(false));
-        webSocketTestBrokenJSON(WebSocketVersion.V13);
+        webSocketTestBrokenJSON(V13);
     }
 
     /*
@@ -616,7 +599,7 @@ public class SockJsProtocolTest {
     public void webSocketHybi10TestHeadersSanity() throws Exception {
         verifyHeaders(WebSocketVersion.V07);
         verifyHeaders(WebSocketVersion.V08);
-        verifyHeaders(WebSocketVersion.V13);
+        verifyHeaders(V13);
     }
 
     /*
@@ -1265,6 +1248,31 @@ public class SockJsProtocolTest {
         ch.writeInbound(webSocketUpgradeRequest(closeFactory.config().prefix() + "/websocket"));
         assertThat(ch.isActive(), is(false));
         ch.finish();
+    }
+
+    @Test
+    public void webSocketCloseSession() throws Exception {
+        final String serviceName = "/closesession";
+        final String sessionUrl = serviceName + "/222/" + UUID.randomUUID().toString();
+        final SockJsConfig config = SockJsConfig.withPrefix(serviceName).build();
+        final SockJsService sockJsService = mock(SockJsService.class);
+        final EmbeddedChannel ch = wsChannelForService(factoryFor(sockJsService, config));
+
+        final FullHttpRequest request = webSocketUpgradeRequest(sessionUrl + "/websocket", V13.toHttpHeaderValue());
+        ch.writeInbound(request);
+
+        // read and discard the HTTP Response (this will be a ByteBuf and not an object
+        // as we have a HttpEncoder in the pipeline to start with.
+        ch.readOutbound();
+
+        assertThat(((TextWebSocketFrame) readOutboundDiscardEmpty(ch)).content().toString(UTF_8), equalTo("o"));
+
+        ch.writeInbound(new CloseWebSocketFrame(1000, "Normal close"));
+        final CloseWebSocketFrame closeFrame = (CloseWebSocketFrame) ch.readOutbound();
+        assertThat(closeFrame.statusCode(), is(1000));
+        assertThat(closeFrame.reasonText(), equalTo("Normal close"));
+        verify(sockJsService).onOpen(any(SockJsSessionContext.class));
+        verify(sockJsService).onClose();
     }
 
     /*
@@ -2146,12 +2154,16 @@ public class SockJsProtocolTest {
     }
 
     private static EmbeddedChannel channelForMockService(final SockJsConfig config) {
-        final SockJsServiceFactory factory = mock(SockJsServiceFactory.class);
         final SockJsService service = mock(SockJsService.class);
+        return channelForService(factoryFor(service, config));
+    }
+
+    private static SockJsServiceFactory factoryFor(final SockJsService service, final SockJsConfig config) {
+        final SockJsServiceFactory factory = mock(SockJsServiceFactory.class);
         when(service.config()).thenReturn(config);
         when(factory.config()).thenReturn(config);
         when(factory.create()).thenReturn(service);
-        return channelForService(factory);
+        return factory;
     }
 
     private static EmbeddedChannel channelForService(final SockJsServiceFactory service) {
