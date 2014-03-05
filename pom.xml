@@ -34,6 +34,29 @@
         <version>0.1.0</version>
     </parent>
 
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <distribution>repo</distribution>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+        </license>
+    </licenses>
+
+    <developers>
+      <developer>
+        <id>aerogear</id>
+        <name>AeroGear Team</name>
+        <email>aerogear-dev@lists.jboss.org</email>
+      </developer>
+    </developers>
+
+    <scm>
+      <connection>scm:git:git://github.com/aerogear/aerogear-simplepush-server.git</connection>
+      <developerConnection>scm:git:git@github.com:aerogear/aerogear-simplepush-server.git</developerConnection>
+      <url>https://github.com/aerogear/aerogear-simplepush-server.git</url>
+      <tag>HEAD</tag>
+    </scm>
+
     <properties>
         <version.io.netty>4.0.8.Final</version.io.netty>
         <version.jackson>2.3.0</version.jackson>
@@ -126,7 +149,7 @@
                 <groupId>redis.clients</groupId>
                 <artifactId>jedis</artifactId>
                 <version>2.0.0</version>
-        </dependency>
+            </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
@@ -204,6 +227,14 @@
                     <retryFailedDeploymentCount>10</retryFailedDeploymentCount>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <pushChanges>false</pushChanges>
+                </configuration>
+            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>
@@ -275,4 +306,35 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release-sign-artifacts</id>
+            <activation>
+              <property>
+                  <name>performRelease</name>
+                  <value>true</value>
+              </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.4</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+              </plugins>
+            </build>
+        </profile>
+    </profiles>
+
 </project>
