@@ -17,7 +17,6 @@ package org.jboss.aerogear.io.netty.handler.codec.sockjs.util;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.core.io.CharTypes;
 import com.fasterxml.jackson.core.json.JsonWriteContext;
@@ -33,29 +32,29 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+
 public final class JsonUtil {
 
     private static final ObjectMapper MAPPER;
-    private static final String[] EMPTY_STRING_ARRAY = new String[] {};
+    private static final String[] EMPTY_STRING_ARRAY = {};
+    private static final char[] HEX_CHARS = "0123456789abcdef".toCharArray();
+    private static final int[] ESCAPE_CODES = CharTypes.get7BitOutputEscapes();
 
     static {
         MAPPER = new ObjectMapper();
 
         // This code adapted from Vert.x JsonCode.
-        SimpleModule simpleModule = new SimpleModule("simplepush", new Version(0, 0, 8, null, "org.jboss.aerogear",
+        SimpleModule simpleModule = new SimpleModule("simplepush", new Version(0, 10, 0, null, "org.jboss.aerogear",
                 "aerogear-netty-codec-sockjs"));
-
         simpleModule.addSerializer(String.class, new JsonSerializer<String>() {
-            final char[] hexChars = "0123456789abcdef".toCharArray();
-            final int[] escapeCodes = CharTypes.get7BitOutputEscapes();
 
             private void writeUnicodeEscape(final JsonGenerator gen, final char c) throws IOException {
                 gen.writeRaw('\\');
                 gen.writeRaw('u');
-                gen.writeRaw(hexChars[c >> 12 & 0xF]);
-                gen.writeRaw(hexChars[c >> 8 & 0xF]);
-                gen.writeRaw(hexChars[c >> 4 & 0xF]);
-                gen.writeRaw(hexChars[c & 0xF]);
+                gen.writeRaw(HEX_CHARS[c >> 12 & 0xF]);
+                gen.writeRaw(HEX_CHARS[c >> 8 & 0xF]);
+                gen.writeRaw(HEX_CHARS[c >> 4 & 0xF]);
+                gen.writeRaw(HEX_CHARS[c & 0xF]);
             }
 
             private void writeShortEscape(final JsonGenerator gen, final char c) throws IOException {
@@ -83,7 +82,7 @@ public final class JsonUtil {
                         writeUnicodeEscape(gen, c);
                     } else {
                         // use escape table for first 128 characters
-                        int code = c < escapeCodes.length ? escapeCodes[c] : 0;
+                        int code = c < ESCAPE_CODES.length ? ESCAPE_CODES[c] : 0;
                         if (code == 0) {
                             gen.writeRaw(c); // no escaping
                         } else if (code == -1) {
@@ -103,8 +102,7 @@ public final class JsonUtil {
     }
 
     @SuppressWarnings("resource")
-    public static String[] decode(final TextWebSocketFrame frame) throws JsonParseException, JsonMappingException,
-            IOException {
+    public static String[] decode(final TextWebSocketFrame frame) throws IOException {
         final ByteBuf content = frame.content();
         if (content.readableBytes() == 0) {
             return EMPTY_STRING_ARRAY;
@@ -120,7 +118,7 @@ public final class JsonUtil {
         }
     }
 
-    public static String[] decode(final String content) throws JsonParseException, JsonMappingException, IOException {
+    public static String[] decode(final String content) throws IOException {
         final JsonNode root = MAPPER.readTree(content);
         if (root.isObject()) {
             return new String[] { root.toString() };

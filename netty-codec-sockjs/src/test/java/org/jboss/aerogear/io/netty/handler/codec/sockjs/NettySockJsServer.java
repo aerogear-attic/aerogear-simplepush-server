@@ -20,11 +20,6 @@ import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.AbstractSockJsServiceFactory;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsChannelInitializer;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsService;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsServiceFactory;
 
 /**
  * A SockJS server that will start the services required for the

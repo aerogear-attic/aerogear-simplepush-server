@@ -20,13 +20,14 @@ import static io.netty.buffer.Unpooled.unreleasableBuffer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.DefaultByteBufHolder;
 import io.netty.util.CharsetUtil;
+import io.netty.util.internal.StringUtil;
 
 /**
  * A heartbeat frame is sent by the server to keep the connection from breaking.
  */
-public class HeartbeatFrame extends DefaultByteBufHolder  implements Frame {
+public class HeartbeatFrame extends DefaultByteBufHolder implements Frame {
 
-    public static final String HEARTBEAT = "h";
+    private static final String HEARTBEAT = "h";
     private static final ByteBuf HEARTBEAT_FRAME = unreleasableBuffer(copiedBuffer(HEARTBEAT, CharsetUtil.UTF_8));
 
     public HeartbeatFrame() {
@@ -34,8 +35,30 @@ public class HeartbeatFrame extends DefaultByteBufHolder  implements Frame {
     }
 
     @Override
+    public HeartbeatFrame copy() {
+        return new HeartbeatFrame();
+    }
+
+    @Override
+    public HeartbeatFrame duplicate() {
+        return new HeartbeatFrame();
+    }
+
+    @Override
+    public HeartbeatFrame retain() {
+        HEARTBEAT_FRAME.retain();
+        return this;
+    }
+
+    @Override
+    public HeartbeatFrame retain(int increment) {
+        HEARTBEAT_FRAME.retain(increment);
+        return this;
+    }
+
+    @Override
     public String toString() {
-        return "HeartbeatFrame[h]";
+        return StringUtil.simpleClassName(this) + "[h]";
     }
 
 }

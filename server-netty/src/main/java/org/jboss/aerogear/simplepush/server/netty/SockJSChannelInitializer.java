@@ -23,9 +23,9 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.CorsInboundHandler;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.CorsOutboundHandler;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.handlers.SockJsHandler;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.CorsInboundHandler;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.CorsOutboundHandler;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.SockJsHandler;
 
 import io.netty.handler.ssl.SslHandler;
 import io.netty.util.concurrent.EventExecutorGroup;

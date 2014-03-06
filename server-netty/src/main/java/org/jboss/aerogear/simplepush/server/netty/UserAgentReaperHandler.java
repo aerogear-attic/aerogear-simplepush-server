@@ -17,8 +17,8 @@
 package org.jboss.aerogear.simplepush.server.netty;
 
 import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.concurrent.ScheduledFuture;
 
 import java.util.concurrent.TimeUnit;
@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * @see UserAgentReaper
  */
 @Sharable
-public class UserAgentReaperHandler extends ChannelInboundHandlerAdapter {
+public class UserAgentReaperHandler extends ChannelHandlerAdapter {
 
     private final Logger logger = LoggerFactory.getLogger(UserAgentReaperHandler.class);
     private final SimplePushServer simplePushServer;

@@ -22,7 +22,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.junit.Test;
 
 public class ConfigTest {

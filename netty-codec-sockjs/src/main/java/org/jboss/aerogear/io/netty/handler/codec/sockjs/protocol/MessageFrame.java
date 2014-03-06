@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import io.netty.util.internal.StringUtil;
 
 /**
  * A MessageFrame carries application data, and consists of any array of JSON encoded messages.
@@ -39,8 +40,12 @@ public class MessageFrame extends DefaultByteBufHolder implements Frame {
     }
 
     public MessageFrame(final String... messages) {
+        this(new ArrayList<String>(Arrays.asList(messages)));
+    }
+
+    public MessageFrame(final List<String> messages) {
         super(generateContent(messages));
-        this.messages = new ArrayList<String>(Arrays.asList(messages));
+        this.messages = messages;
     }
 
     public List<String> messages() {
@@ -48,19 +53,48 @@ public class MessageFrame extends DefaultByteBufHolder implements Frame {
     }
 
     @Override
-    public String toString() {
-        return "MessageFrame[messages=" + messages + "]";
+    public MessageFrame copy() {
+        return new MessageFrame(messages);
     }
 
-    private static ByteBuf generateContent(final String[] messages) {
-        final int size = messages.length;
+    @Override
+    public MessageFrame duplicate() {
+        return new MessageFrame(messages);
+    }
+
+    @Override
+    public MessageFrame retain() {
+        super.retain();
+        return this;
+    }
+
+    @Override
+    public MessageFrame retain(int increment) {
+        super.retain(increment);
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return StringUtil.simpleClassName(this) + "[messages=" + messages + ']';
+    }
+
+    private static ByteBuf generateContent(final List<String> messages) {
         final JsonStringEncoder jsonEndocder = new JsonStringEncoder();
         final ByteBuf content = Unpooled.buffer();
         content.writeByte('a').writeByte('[');
+        final int size = messages.size();
         for (int i = 0; i < size; i++) {
             content.writeByte('"');
-            final String escaped = escapeCharacters(jsonEndocder.quoteAsString(messages[i]));
-            content.writeBytes(Unpooled.copiedBuffer(escaped, CharsetUtil.UTF_8)).writeByte('"');
+            final String element = messages.get(i);
+            if (element == null) {
+                messages.removeAll(messages.subList(i, size));
+                break;
+            }
+            final String escaped = escapeCharacters(jsonEndocder.quoteAsString(element));
+            final ByteBuf escapedBuf = Unpooled.copiedBuffer(escaped, CharsetUtil.UTF_8);
+            content.writeBytes(escapedBuf).writeByte('"');
+            escapedBuf.release();
             if (i < size - 1) {
                 content.writeByte(',');
             }
@@ -70,14 +104,13 @@ public class MessageFrame extends DefaultByteBufHolder implements Frame {
 
     private static String escapeCharacters(final char[] value) {
         final StringBuilder sb = new StringBuilder(value.length);
-        for (int i = 0; i < value.length; i++) {
-            final char ch = value[i];
-            if ((ch >= '\u0000' && ch <= '\u001F') ||
-                    (ch >= '\uD800' && ch <= '\uDFFF') ||
-                    (ch >= '\u200C' && ch <= '\u200F') ||
-                    (ch >= '\u2028' && ch <= '\u202F') ||
-                    (ch >= '\u2060' && ch <= '\u206F') ||
-                    (ch >= '\uFFF0' && ch <= '\uFFFF')) {
+        for (char ch : value) {
+            if (ch >= '\u0000' && ch <= '\u001F' ||
+                    ch >= '\uD800' && ch <= '\uDFFF' ||
+                    ch >= '\u200C' && ch <= '\u200F' ||
+                    ch >= '\u2028' && ch <= '\u202F' ||
+                    ch >= '\u2060' && ch <= '\u206F' ||
+                    ch >= '\uFFF0' && ch <= '\uFFFF') {
                 final String ss = Integer.toHexString(ch);
                 sb.append('\\');
                 sb.append('u');
