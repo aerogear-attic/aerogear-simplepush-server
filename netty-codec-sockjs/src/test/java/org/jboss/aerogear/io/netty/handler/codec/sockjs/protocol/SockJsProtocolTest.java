@@ -1268,7 +1268,7 @@ public class SockJsProtocolTest {
         assertThat(((TextWebSocketFrame) readOutboundDiscardEmpty(ch)).content().toString(UTF_8), equalTo("o"));
 
         ch.writeInbound(new CloseWebSocketFrame(1000, "Normal close"));
-        final CloseWebSocketFrame closeFrame = (CloseWebSocketFrame) ch.readOutbound();
+        final CloseWebSocketFrame closeFrame = ch.readOutbound();
         assertThat(closeFrame.statusCode(), is(1000));
         assertThat(closeFrame.reasonText(), equalTo("Normal close"));
         verify(sockJsService).onOpen(any(SockJsSessionContext.class));
@@ -1735,7 +1735,7 @@ public class SockJsProtocolTest {
                "\\ufffe\\uffff";
     }
 
-    private static void assertSetCookie(final String transportPath) throws Exception {
+    private static void assertSetCookie(final String transportPath) {
         final String serviceName = "/cookie_needed_echo";
         final String sessionUrl = serviceName + "/abc/" + UUID.randomUUID().toString();
         final SockJsConfig config = SockJsConfig.withPrefix(serviceName).cookiesNeeded().build();
@@ -1849,7 +1849,7 @@ public class SockJsProtocolTest {
         };
     }
 
-    private static void webSocketTestTransport(final WebSocketVersion version) throws Exception {
+    private static void webSocketTestTransport(final WebSocketVersion version) {
         final String serviceName = "/echo";
         final String sessionUrl = serviceName + "/222/" + UUID.randomUUID().toString();
         final SockJsConfig config = SockJsConfig.withPrefix(serviceName).build();
@@ -1873,7 +1873,7 @@ public class SockJsProtocolTest {
         assertThat(textFrame.content().toString(UTF_8), equalTo("a[\"a\"]"));
     }
 
-    private static void webSocketTestClose(final WebSocketVersion version) throws Exception {
+    private static void webSocketTestClose(final WebSocketVersion version) {
         final String serviceName = "/close";
         final String sessionUrl = serviceName + "/222/" + UUID.randomUUID().toString();
         final SockJsConfig config = SockJsConfig.withPrefix(serviceName).build();
@@ -1895,7 +1895,7 @@ public class SockJsProtocolTest {
         assertThat(ch.isActive(), is(false));
     }
 
-    private static void webSocketTestBrokenJSON(final WebSocketVersion version) throws Exception {
+    private static void webSocketTestBrokenJSON(final WebSocketVersion version) {
         final String serviceName = "/close";
         final String sessionUrl = serviceName + "/222/" + UUID.randomUUID().toString();
         final SockJsConfig config = SockJsConfig.withPrefix(serviceName).build();

@@ -51,14 +51,14 @@ public class HelloMessageImplTest {
 
     @Test
     public void constructWithChannelIds() {
-        final HelloMessageImpl handshake = new HelloMessageImpl(newUAID().toString(), channelIds("123abc", "efg456"));
+        final HelloMessageImpl handshake = new HelloMessageImpl(newUAID(), channelIds("123abc", "efg456"));
         assertThat(handshake.getUAID(), notNullValue());
         assertThat(handshake.getChannelIds(), hasItems("123abc", "efg456"));
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void channelIdsUnmodifiable() {
-        final HelloMessageImpl handshake = new HelloMessageImpl(newUAID().toString(), channelIds("123abc", "efg456"));
+        final HelloMessageImpl handshake = new HelloMessageImpl(newUAID(), channelIds("123abc", "efg456"));
         handshake.getChannelIds().remove("123abc");
     }
 
@@ -124,11 +124,11 @@ public class HelloMessageImplTest {
     @Test
     public void toJson() {
         final String uaid = UUIDUtil.newUAID();
-        final HelloMessageImpl handshake = new HelloMessageImpl(uaid.toString(), channelIds("123abc", "efg456"));
+        final HelloMessageImpl handshake = new HelloMessageImpl(uaid, channelIds("123abc", "efg456"));
         final String asJson = JsonUtil.toJson(handshake);
         final HelloMessage parsed = JsonUtil.fromJson(asJson, HelloMessageImpl.class);
         assertThat(parsed.getMessageType(), is(equalTo(MessageType.Type.HELLO)));
-        assertThat(parsed.getUAID().toString(), is(equalTo(uaid)));
+        assertThat(parsed.getUAID(), is(equalTo(uaid)));
         assertThat(parsed.getChannelIds(), hasItems("123abc", "efg456"));
     }
 

@@ -109,7 +109,7 @@ public class StubEmbeddedEventLoop extends AbstractEventLoop implements ChannelH
 
     @Override
     public EventLoop next() {
-        return ((EventLoopGroup) delegate).next();
+        return delegate.next();
     }
 
     @Override

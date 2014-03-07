@@ -173,13 +173,13 @@ public class SimplePushSockJSServiceTest {
         channel.close();
     }
 
-    public static HttpResponse decodeHttpResponse(final EmbeddedChannel channel) throws Exception {
+    public static HttpResponse decodeHttpResponse(final EmbeddedChannel channel) {
         final EmbeddedChannel ch = new EmbeddedChannel(new HttpResponseDecoder());
         ch.writeInbound(channel.readOutbound());
         return ch.readInbound();
     }
 
-    public static FullHttpResponse decodeFullHttpResponse(final EmbeddedChannel channel) throws Exception {
+    public static FullHttpResponse decodeFullHttpResponse(final EmbeddedChannel channel) {
         final EmbeddedChannel ch = new EmbeddedChannel(new HttpResponseDecoder());
         ch.writeInbound(channel.outboundMessages().toArray());
         final HttpResponse response = ch.readInbound();
@@ -411,7 +411,7 @@ public class SimplePushSockJSServiceTest {
         return new AckImpl(channelId, version);
     }
 
-    private Set<Ack> sendAcknowledge(final EmbeddedChannel channel, final Ack... acks) throws Exception {
+    private Set<Ack> sendAcknowledge(final EmbeddedChannel channel, final Ack... acks) {
         final Set<Ack> ups = new HashSet<Ack>(Arrays.asList(acks));
         final TextWebSocketFrame ackFrame = ackFrame(ups);
         channel.writeInbound(ackFrame);

@@ -66,7 +66,6 @@ public class ConfigReader {
      *
      * @param in the input stream to parse. Should be from a JSON source representing a SimplePush configuration.
      * @return {@link StandaloneConfig} populated with the values in the JSON input stream.
-     * @throws Exception
      */
     public static StandaloneConfig parse(final InputStream in) {
         try {

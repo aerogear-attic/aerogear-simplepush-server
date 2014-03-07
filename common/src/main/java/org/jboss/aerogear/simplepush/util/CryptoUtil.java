@@ -12,16 +12,15 @@
  */
 package org.jboss.aerogear.simplepush.util;
 
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.Charset;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import org.jboss.aerogear.AeroGearCrypto;
 import org.jboss.aerogear.crypto.BlockCipher;
 import org.jboss.aerogear.crypto.CryptoBox;
 import org.jboss.aerogear.crypto.encoders.Encoder;
+
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.security.InvalidKeyException;
 
 /**
  * Utility class for encrypting/decrypting

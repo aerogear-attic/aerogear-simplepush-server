@@ -77,7 +77,7 @@ public final class ChannelDTO implements Serializable {
 
     @Override
     public String toString() {
-        return "Channel[channelId=" + channelId + ", uaid=" + userAgent.getUaid().toString() + ", version=" + version + ", endpointToken=" + endpointToken + "]";
+        return "Channel[channelId=" + channelId + ", uaid=" + userAgent.getUaid() + ", version=" + version + ", endpointToken=" + endpointToken + "]";
     }
 
     @Override

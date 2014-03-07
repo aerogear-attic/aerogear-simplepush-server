@@ -51,8 +51,7 @@ public class UserAgentReaperHandlerTest {
                 .userAgentReaperTimeout(timeout)
                 .password("test")
                 .build();
-        UserAgentReaperHandler reaper = new UserAgentReaperHandler(simplePushServer(config));
-        return reaper;
+        return new UserAgentReaperHandler(simplePushServer(config));
     }
 
     private SimplePushServer simplePushServer(final SimplePushServerConfig config) {

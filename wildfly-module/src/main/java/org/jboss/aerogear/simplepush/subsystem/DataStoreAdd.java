@@ -60,7 +60,7 @@ class DataStoreAdd extends AbstractAddStepHandler {
         final PathAddress pathAddress = PathAddress.pathAddress(operation.get("address"));
         final String serverName = pathAddress.getElement(1).getValue();
         final String type = pathAddress.getLastElement().getValue();
-        ServiceBuilder<DataStore> sb = null;
+        ServiceBuilder<DataStore> sb;
         switch (DataStoreDefinition.Element.of(type)) {
             case JPA:
                 final ModelNode datasourceNode = DataStoreDefinition.DATASOURCE_ATTR.resolveModelAttribute(context, model);

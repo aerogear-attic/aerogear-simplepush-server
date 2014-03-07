@@ -198,7 +198,7 @@ public abstract class DefaultSimplePushServerTest {
         Notification notification = server.handleNotification(endpointToken, "version=1");
         assertThat(notification.ack(), equalTo((Ack)new AckImpl(channelId, 1L)));
         assertThat(server.getChannel(channelId).getVersion(), is(1L));
-        notification = server.handleNotification(endpointToken, "version=2");
+        server.handleNotification(endpointToken, "version=2");
         assertThat(server.getChannel(channelId).getVersion(), is(2L));
     }
 

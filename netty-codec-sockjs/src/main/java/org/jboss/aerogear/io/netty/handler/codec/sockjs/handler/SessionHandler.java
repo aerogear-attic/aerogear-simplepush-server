@@ -62,7 +62,7 @@ public class SessionHandler extends ChannelHandlerAdapter implements SockJsSessi
         }
     }
 
-    private void handleSession(final ChannelHandlerContext ctx) throws Exception {
+    private void handleSession(final ChannelHandlerContext ctx) {
         if (logger.isDebugEnabled()) {
             logger.debug("handleSession {}", sessionState);
         }

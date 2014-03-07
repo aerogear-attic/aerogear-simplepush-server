@@ -46,8 +46,7 @@ public class XhrPollingSessionStateTest {
         final ConcurrentMap<String, SockJsSession> sessions = new ConcurrentHashMap<String, SockJsSession>();
         final HttpRequest request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/123/456/xhr");
         final SockJsConfig config = SockJsConfig.withPrefix("serviceName").build();
-        final PollingSessionState pollingSessionState = new XhrPollingSessionState(sessions, request, config);
-        return pollingSessionState;
+        return new XhrPollingSessionState(sessions, request, config);
     }
 
     private ChannelHandlerContext contextForChannel(final EmbeddedChannel ch) {

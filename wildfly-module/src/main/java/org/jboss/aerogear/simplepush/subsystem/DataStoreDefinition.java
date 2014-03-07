@@ -99,14 +99,4 @@ public class DataStoreDefinition extends SimpleResourceDefinition {
         resourceRegistration.registerReadWriteAttribute(DB_NAME_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
     }
 
-    @Override
-    public void registerOperations(ManagementResourceRegistration resourceRegistration) {
-        super.registerOperations(resourceRegistration);
-    }
-
-    @Override
-    public void registerChildren(ManagementResourceRegistration resourceRegistration) {
-        super.registerChildren(resourceRegistration);
-    }
-
 }

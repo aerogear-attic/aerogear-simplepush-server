@@ -15,12 +15,6 @@
  */
 package org.jboss.aerogear.io.netty.handler.codec.sockjs.transport;
 
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE;
-import static io.netty.handler.codec.http.HttpMethod.GET;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static io.netty.util.CharsetUtil.UTF_8;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpContent;
@@ -28,12 +22,16 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.protocol.OpenFrame;
-
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.transport.EventSourceTransport;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.transport.Transports;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsTestUtil;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.protocol.OpenFrame;
 import org.junit.Test;
+
+import static io.netty.handler.codec.http.HttpHeaders.Names.*;
+import static io.netty.handler.codec.http.HttpMethod.*;
+import static io.netty.handler.codec.http.HttpVersion.*;
+import static io.netty.util.CharsetUtil.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
 
 public class EventSourceTransportTest {
 
@@ -42,14 +40,14 @@ public class EventSourceTransportTest {
         final EmbeddedChannel ch = newEventSourceChannel();
         ch.writeOutbound(new OpenFrame());
 
-        final HttpResponse response = (HttpResponse) ch.readOutbound();
+        final HttpResponse response = ch.readOutbound();
         assertThat(response.getStatus(), equalTo(HttpResponseStatus.OK));
         assertThat(response.headers().get(CONTENT_TYPE), equalTo(EventSourceTransport.CONTENT_TYPE_EVENT_STREAM));
         SockJsTestUtil.verifyNoCacheHeaders(response);
 
-        final DefaultHttpContent newLinePrelude = (DefaultHttpContent) ch.readOutbound();
+        final DefaultHttpContent newLinePrelude = ch.readOutbound();
         assertThat(newLinePrelude.content().toString(UTF_8), equalTo("\r\n"));
-        final DefaultHttpContent data = (DefaultHttpContent) ch.readOutbound();
+        final DefaultHttpContent data = ch.readOutbound();
         assertThat(data.content().toString(UTF_8), equalTo("data: o\r\n\r\n"));
     }
 
@@ -60,8 +58,7 @@ public class EventSourceTransportTest {
     private static EmbeddedChannel newStreamingChannel(final SockJsConfig config) {
         final HttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, GET, Transports.Type.EVENTSOURCE.path());
         final EventSourceTransport transport = new EventSourceTransport(config, request);
-        final EmbeddedChannel ch = new EmbeddedChannel(transport);
-        return ch;
+        return new EmbeddedChannel(transport);
     }
 
 }

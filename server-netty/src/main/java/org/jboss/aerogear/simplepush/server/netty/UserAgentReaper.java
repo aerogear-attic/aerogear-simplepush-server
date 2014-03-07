@@ -50,7 +50,7 @@ public class UserAgentReaper implements Runnable {
             final UserAgent<SockJsSessionContext> userAgent = it.next();
             final long now = System.currentTimeMillis();
             if (isChannelInactive(userAgent) && userAgent.timestamp() + simplePushServer.config().userAgentReaperTimeout() < now) {
-                logger.info("Removing inactive UserAgent [" + userAgent.uaid().toString() + "]");
+                logger.info("Removing inactive UserAgent [" + userAgent.uaid() + "]");
                 /* TODO: update this when persistence is in place so that the logic to remove is in one place
                          and not spread out among the UserAgents class and the SimplePushServer.
                  */

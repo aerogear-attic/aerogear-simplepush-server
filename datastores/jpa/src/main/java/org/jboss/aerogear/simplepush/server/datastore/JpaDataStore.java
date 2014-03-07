@@ -100,9 +100,9 @@ public final class JpaDataStore implements DataStore {
         final JpaOperation<Boolean> saveChannel = new JpaOperation<Boolean>() {
             @Override
             public Boolean perform(final EntityManager em) {
-                UserAgentDTO userAgent = em.find(UserAgentDTO.class, channel.getUAID().toString());
+                UserAgentDTO userAgent = em.find(UserAgentDTO.class, channel.getUAID());
                 if (userAgent == null) {
-                    userAgent = new UserAgentDTO(channel.getUAID().toString());
+                    userAgent = new UserAgentDTO(channel.getUAID());
                 }
                 userAgent.addChannel(channel.getChannelId(), channel.getVersion(), channel.getEndpointToken());
                 em.merge(userAgent);

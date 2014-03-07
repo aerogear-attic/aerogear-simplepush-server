@@ -106,7 +106,7 @@ public class NotificationHandlerTest {
         final SimplePushServer simplePushServer = defaultPushServer();
         final EmbeddedChannel channel = createWebsocketChannel(simplePushServer);
         channel.writeInbound(notificationRequest("non-existing-channelId", 10L));
-        final HttpResponse httpResponse = (HttpResponse) channel.readOutbound();
+        final HttpResponse httpResponse = channel.readOutbound();
         assertThat(httpResponse.getStatus().code(), equalTo(200));
         channel.close();
     }
@@ -128,11 +128,11 @@ public class NotificationHandlerTest {
         UserAgents.getInstance().add(uaid, channelSession(ch));
     }
 
-    private RegisterResponse doRegister(final String channelId, final String uaid, final SimplePushServer server) throws Exception {
+    private RegisterResponse doRegister(final String channelId, final String uaid, final SimplePushServer server) {
         return server.handleRegister(new RegisterMessageImpl(channelId), uaid);
     }
 
-    private FullHttpRequest notificationRequest(final String endpointToken, final Long version) throws Exception {
+    private FullHttpRequest notificationRequest(final String endpointToken, final Long version) {
         final FullHttpRequest req = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.PUT, "/update/" + endpointToken);
         req.content().writeBytes(Unpooled.copiedBuffer("version=" + version.toString(), CharsetUtil.UTF_8));
         return req;
@@ -177,7 +177,7 @@ public class NotificationHandlerTest {
         throw new IllegalArgumentException("Response is expected to be of type TextWebSocketFrame was: " + response);
     }
 
-    private EmbeddedChannel createWebsocketChannel(SimplePushServer simplePushServer) throws Exception {
+    private EmbeddedChannel createWebsocketChannel(SimplePushServer simplePushServer) {
         return new EmbeddedChannel(new NotificationHandler(simplePushServer));
     }
 

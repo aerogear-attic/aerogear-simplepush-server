@@ -15,10 +15,6 @@
  */
 package org.jboss.aerogear.io.netty.handler.codec.sockjs.transport;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Mockito.mock;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -28,14 +24,15 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.protocol.OpenFrame;
 import io.netty.util.CharsetUtil;
-
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.transport.Transports;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.transport.XhrPollingTransport;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsTestUtil;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.protocol.OpenFrame;
 import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
+import static org.mockito.Mockito.*;
 
 public class XhrPollingTransportTest {
 
@@ -55,7 +52,7 @@ public class XhrPollingTransportTest {
         final XhrPollingTransport transport = new XhrPollingTransport(config, request("", HttpVersion.HTTP_1_1));
         final EmbeddedChannel channel = new EmbeddedChannel(transport);
         channel.writeOutbound(new OpenFrame());
-        final FullHttpResponse response = (FullHttpResponse) channel.readOutbound();
+        final FullHttpResponse response = channel.readOutbound();
         assertThat(response.getStatus(), equalTo(HttpResponseStatus.OK));
         assertThat(response.content().toString(CharsetUtil.UTF_8), equalTo("o" + '\n'));
         assertThat(response.getProtocolVersion(), equalTo(HttpVersion.HTTP_1_1));

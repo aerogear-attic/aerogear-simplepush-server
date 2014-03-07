@@ -31,7 +31,6 @@ import org.jboss.aerogear.io.netty.handler.codec.sockjs.protocol.MessageFrame;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.protocol.OpenFrame;
 import io.netty.util.CharsetUtil;
 
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.transport.JsonpPollingTransport;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsTestUtil;
 import org.junit.Test;
 
@@ -88,7 +87,7 @@ public class JsonpPollingTransportTest {
         final EmbeddedChannel ch = new EmbeddedChannel(jsonpPollingOutbound);
         ch.writeInbound(request);
         ch.writeOutbound(frame);
-        final FullHttpResponse response =  (FullHttpResponse) ch.readOutbound();
+        final FullHttpResponse response =  ch.readOutbound();
         ch.finish();
         return response;
     }

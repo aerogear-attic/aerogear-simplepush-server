@@ -46,7 +46,7 @@ public class NotificationMessageImpl implements NotificationMessage {
 
     @Override
     public Set<Ack> getAcks() {
-        return Collections.<Ack> unmodifiableSet(acks);
+        return Collections.unmodifiableSet(acks);
     }
 
     @Override

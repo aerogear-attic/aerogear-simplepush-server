@@ -38,18 +38,18 @@
     <div id="first" class="box">
       <div></div>
 	  <form id="helloForm">
-		  <input id="hello" autocomplete="off" value='{"messageType": "hello"}'></input>
+		  <input id="hello" autocomplete="off" value='{"messageType": "hello"}'/>
 	  </form>
 	  <form id="registerForm">
-		  <input id="register" autocomplete="off" value='{"messageType": "register", "channelID":""}'></input>
+		  <input id="register" autocomplete="off" value='{"messageType": "register", "channelID":""}'/>
 	  </form>
     </div>
     <button id="closeBtn" type="button">Close Session</button>
 
     <script>
         var sockjs_url = 'http://localhost:7777/simplepush';
-        //var sockjs = new SockJS(sockjs_url);
-        var sockjs = new SockJS(sockjs_url, null, {"debug": true, "protocols_whitelist": ["xhr-polling"]});
+        var sockjs = new SockJS(sockjs_url);
+        //var sockjs = new SockJS(sockjs_url, null, {"debug": true, "protocols_whitelist": ["xhr-polling"]});
 
         $('#first input').focus();
 

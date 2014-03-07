@@ -16,14 +16,11 @@
  */
 package org.jboss.aerogear.simplepush.server.datastore.model;
 
-import java.io.Serializable;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import java.io.Serializable;
 
 /**
  * A simple data transfer object (DTO) for Update information.

@@ -23,7 +23,7 @@ import org.jboss.aerogear.simplepush.protocol.UnregisterResponse;
 
 public class UnregisterResponseImpl extends UnregisterMessageImpl implements UnregisterResponse {
 
-    private Status status;
+    private final Status status;
 
     public UnregisterResponseImpl(final String channelId, final Status status) {
         super(channelId);

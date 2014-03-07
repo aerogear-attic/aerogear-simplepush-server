@@ -15,13 +15,6 @@
  */
 package org.jboss.aerogear.io.netty.handler.codec.sockjs.transport;
 
-import static io.netty.handler.codec.http.HttpMethod.GET;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static io.netty.handler.codec.http.HttpHeaders.Names.*;
-import static io.netty.handler.codec.http.HttpHeaders.Values.*;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
@@ -29,14 +22,18 @@ import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.protocol.OpenFrame;
 import io.netty.util.CharsetUtil;
-
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.transport.Transports;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.transport.XhrStreamingTransport;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsTestUtil;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.protocol.OpenFrame;
 import org.junit.Test;
+
+import static io.netty.handler.codec.http.HttpHeaders.Names.*;
+import static io.netty.handler.codec.http.HttpHeaders.Values.*;
+import static io.netty.handler.codec.http.HttpMethod.*;
+import static io.netty.handler.codec.http.HttpVersion.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
 
 public class XhrStreamingTransportTest {
 
@@ -70,8 +67,7 @@ public class XhrStreamingTransportTest {
     private static EmbeddedChannel newStreamingChannel(final SockJsConfig config) {
         final HttpRequest request = new DefaultFullHttpRequest(HTTP_1_1, GET, "/xhr-streaming");
         final XhrStreamingTransport transport = new XhrStreamingTransport(config, request);
-        final EmbeddedChannel ch = new EmbeddedChannel(transport);
-        return ch;
+        return new EmbeddedChannel(transport);
     }
 
 }

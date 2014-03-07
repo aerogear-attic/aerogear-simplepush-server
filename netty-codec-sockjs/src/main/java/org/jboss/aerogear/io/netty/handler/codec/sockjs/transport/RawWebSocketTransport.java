@@ -98,7 +98,7 @@ public class RawWebSocketTransport extends SimpleChannelInboundHandler<Object> {
         return true;
     }
 
-    private void handleHttpRequest(final ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
+    private void handleHttpRequest(final ChannelHandlerContext ctx, FullHttpRequest req) {
         if (!checkRequestHeaders(ctx, req)) {
             return;
         }

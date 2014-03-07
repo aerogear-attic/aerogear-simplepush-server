@@ -139,11 +139,6 @@ public class ServerDefinition extends SimpleResourceDefinition {
     }
 
     @Override
-    public void registerOperations(final ManagementResourceRegistration resourceRegistration) {
-        super.registerOperations(resourceRegistration);
-    }
-
-    @Override
     public void registerChildren(ManagementResourceRegistration resourceRegistration) {
         super.registerChildren(resourceRegistration);
         resourceRegistration.registerSubModel(DataStoreDefinition.INSTANCE);

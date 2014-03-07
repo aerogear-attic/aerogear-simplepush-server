@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public final class JpaExecutor {
 
     private final Logger logger = LoggerFactory.getLogger(JpaExecutor.class);
-    private EntityManagerFactory entityManagerFactory;
+    private final EntityManagerFactory entityManagerFactory;
 
     public JpaExecutor(final EntityManagerFactory entityManagerFactory) {
         this.entityManagerFactory = entityManagerFactory;

@@ -20,8 +20,6 @@ package org.jboss.aerogear.simplepush.subsystem;
 import org.jboss.as.controller.AbstractWriteAttributeHandler;
 import org.jboss.as.controller.OperationContext;
 import org.jboss.as.controller.OperationFailedException;
-import org.jboss.as.controller.PathAddress;
-import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.dmr.ModelNode;
 
 class SimplePushSocketBindingHandler extends AbstractWriteAttributeHandler<Void> {
@@ -40,8 +38,8 @@ class SimplePushSocketBindingHandler extends AbstractWriteAttributeHandler<Void>
             final HandbackHolder<Void> handbackHolder) throws OperationFailedException {
         
         if (attributeName.equals(ServerDefinition.Element.SOCKET_BINDING.localName())) {
-            final String serverName = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.ADDRESS)).getLastElement().getValue();
-            final SimplePushService service = (SimplePushService) context.getServiceRegistry(true).getRequiredService(SimplePushService.createServiceName(serverName)).getValue();
+            //final String serverName = PathAddress.pathAddress(operation.get(ModelDescriptionConstants.ADDRESS)).getLastElement().getValue();
+            //context.getServiceRegistry(true).getRequiredService(SimplePushService.createServiceName(serverName)).getValue();
             //TODO: support changing the socket-binding?
             context.completeStep();
         }

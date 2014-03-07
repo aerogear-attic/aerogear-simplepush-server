@@ -24,8 +24,8 @@ import org.jboss.aerogear.simplepush.protocol.Ack;
  */
 public class Notification {
 
-    private String uaid;
-    private Ack ack;
+    private final String uaid;
+    private final Ack ack;
 
     public Notification(final String uaid, final Ack ack) {
         this.uaid = uaid;

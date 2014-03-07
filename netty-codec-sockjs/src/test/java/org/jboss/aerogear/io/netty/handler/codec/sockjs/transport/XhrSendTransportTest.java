@@ -15,11 +15,6 @@
  */
 package org.jboss.aerogear.io.netty.handler.codec.sockjs.transport;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static io.netty.util.CharsetUtil.UTF_8;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -31,11 +26,12 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
-
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.transport.Transports;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.transport.XhrSendTransport;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsTestUtil;
 import org.junit.Test;
+
+import static io.netty.util.CharsetUtil.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
 
 public class XhrSendTransportTest {
 
@@ -116,7 +112,7 @@ public class XhrSendTransportTest {
                 .cookiesNeeded().build());
         final EmbeddedChannel channel = new EmbeddedChannel(transport);
         channel.writeInbound(request);
-        final FullHttpResponse response = (FullHttpResponse) channel.readOutbound();
+        final FullHttpResponse response = channel.readOutbound();
         channel.finish();
         return response;
     }

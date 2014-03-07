@@ -22,8 +22,8 @@ import org.jboss.aerogear.simplepush.protocol.Status;
 
 public class RegisterResponseImpl extends RegisterMessageImpl implements RegisterResponse {
 
-    private Status status;
-    private String pushEndpoint;
+    private final Status status;
+    private final String pushEndpoint;
 
     public RegisterResponseImpl(final String channelId, final Status status, final String pushEndpoint) {
         super(channelId);

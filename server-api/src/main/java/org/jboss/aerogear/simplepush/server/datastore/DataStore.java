@@ -108,11 +108,11 @@ public interface DataStore {
     Set<Ack> getUnacknowledged(String uaid);
 
     /**
-     * Removes the {@code Ack} from storage which should be done when a UserAgent
-     * has acknowledged a notification.
+     * Removes the {@code Ack}s from storage which should be done when a UserAgent
+     * has acknowledged notifications.
      *
-     * @param ack the {@link Ack} to remove.
      * @param uaid the {@link String} of the UserAgent
+     * @param acked the {@link Ack}s to be remove.
      */
     Set<Ack> removeAcknowledged(String uaid, Set<Ack> acked);
 }

@@ -21,7 +21,7 @@ import org.jboss.aerogear.simplepush.protocol.UnregisterMessage;
 
 public class UnregisterMessageImpl implements UnregisterMessage {
 
-    private String channelId;
+    private final String channelId;
 
     public UnregisterMessageImpl(final String channelId) {
         checkNotNull(channelId, "channelId");

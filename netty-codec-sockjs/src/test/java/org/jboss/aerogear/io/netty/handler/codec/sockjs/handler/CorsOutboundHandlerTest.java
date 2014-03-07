@@ -15,23 +15,16 @@
  */
 package org.jboss.aerogear.io.netty.handler.codec.sockjs.handler;
 
-import static io.netty.handler.codec.http.HttpHeaders.Names.ACCESS_CONTROL_ALLOW_CREDENTIALS;
-import static io.netty.handler.codec.http.HttpHeaders.Names.ACCESS_CONTROL_ALLOW_HEADERS;
-import static io.netty.handler.codec.http.HttpHeaders.Names.ACCESS_CONTROL_ALLOW_ORIGIN;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.CorsInboundHandler;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.CorsMetadata;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.CorsOutboundHandler;
 import org.junit.Test;
+
+import static io.netty.handler.codec.http.HttpHeaders.Names.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.MatcherAssert.*;
 
 public class CorsOutboundHandlerTest {
 
@@ -42,7 +35,7 @@ public class CorsOutboundHandlerTest {
         boolean write = channel.writeOutbound(new DefaultFullHttpResponse(HttpVersion.HTTP_1_0, HttpResponseStatus.OK));
         assertThat(write, is(true));
 
-        final HttpResponse response = (HttpResponse) channel.readOutbound();
+        final HttpResponse response = channel.readOutbound();
         assertThat(response.getProtocolVersion(), equalTo(HttpVersion.HTTP_1_0));
         assertThat(response.headers().get(ACCESS_CONTROL_ALLOW_ORIGIN), equalTo("xyz.com"));
         assertThat(response.headers().get(ACCESS_CONTROL_ALLOW_CREDENTIALS), equalTo("true"));
@@ -56,7 +49,7 @@ public class CorsOutboundHandlerTest {
         channel.attr(CorsInboundHandler.CORS).set(new CorsMetadata());
         channel.writeOutbound(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
 
-        final HttpResponse response = (HttpResponse) channel.readOutbound();
+        final HttpResponse response = channel.readOutbound();
         assertThat(response.getProtocolVersion(), equalTo(HttpVersion.HTTP_1_1));
         assertThat(response.headers().get(ACCESS_CONTROL_ALLOW_ORIGIN), equalTo("*"));
         assertThat(response.headers().get(ACCESS_CONTROL_ALLOW_CREDENTIALS), equalTo("true"));
