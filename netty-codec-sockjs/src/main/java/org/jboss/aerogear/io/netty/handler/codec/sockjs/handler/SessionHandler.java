@@ -83,6 +83,7 @@ public class SessionHandler extends ChannelHandlerAdapter implements SockJsSessi
                 session.setState(States.INTERRUPTED);
             } else {
                 session.setInuse();
+                session.setOpenContext(ctx);
                 sessionState.onOpen(session, ctx);
             }
             break;

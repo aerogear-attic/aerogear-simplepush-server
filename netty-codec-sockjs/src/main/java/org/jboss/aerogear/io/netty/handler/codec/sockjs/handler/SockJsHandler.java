@@ -128,11 +128,11 @@ public class SockJsHandler extends SimpleChannelInboundHandler<FullHttpRequest> 
         switch (pathParams.transport()) {
         case XHR:
             addTransportHandler(new XhrPollingTransport(factory.config(), request), ctx);
-            addSessionHandler(new XhrPollingSessionState(sessions, request, factory.config()), getSession(factory, pathParams.sessionId()), ctx);
+            addSessionHandler(new PollingSessionState(sessions), getSession(factory, pathParams.sessionId()), ctx);
             break;
         case JSONP:
             addTransportHandler(new JsonpPollingTransport(factory.config(), request), ctx);
-            addSessionHandler(new JsonpPollingSessionState(sessions, request, factory.config()), getSession(factory, pathParams.sessionId()), ctx);
+            addSessionHandler(new PollingSessionState(sessions), getSession(factory, pathParams.sessionId()), ctx);
             break;
         case XHR_SEND:
             checkSessionExists(pathParams.sessionId(), request);
