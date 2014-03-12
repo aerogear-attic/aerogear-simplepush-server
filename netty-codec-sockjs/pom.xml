@@ -96,7 +96,24 @@
             <scope>test</scope>
         </dependency>
         
-	</dependencies>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>org.jboss.aerogear.io.netty.handler.codec.sockjs.NettySockJsServer</mainClass>
+                    <classpathScope>test</classpathScope>
+                    <arguments>
+                        <!-- Port -->
+                        <argument>8081</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
 

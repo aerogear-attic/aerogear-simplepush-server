@@ -18,12 +18,10 @@ package org.jboss.aerogear.io.netty.handler.codec.sockjs.handler;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.*;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.protocol.MessageFrame;
 import io.netty.util.internal.StringUtil;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.protocol.MessageFrame;
 
 import java.util.concurrent.ConcurrentMap;
 
@@ -43,30 +41,14 @@ import java.util.concurrent.ConcurrentMap;
  * in the response.
  *
  */
-abstract class PollingSessionState extends AbstractTimersSessionState {
+class PollingSessionState extends AbstractTimersSessionState {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(PollingSessionState.class);
     private final ConcurrentMap<String, SockJsSession> sessions;
-    private final HttpRequest request;
-    private final SockJsConfig config;
 
-    public PollingSessionState(final ConcurrentMap<String, SockJsSession> sessions,
-                               final HttpRequest request,
-                               final SockJsConfig config) {
+    PollingSessionState(final ConcurrentMap<String, SockJsSession> sessions) {
         super(sessions);
         this.sessions = sessions;
-        this.request = request;
-        this.config = config;
     }
-
-    /**
-     * Gives implementations the ability to decide what a response should look like and
-     * also how it should be written back to the client.
-     *
-     * @param request the polling HttpRequest.
-     * @param config the SockJsConfig.
-     * @param ctx {@code ChannelHandlerContext} the context.
-     */
-    public abstract void sendNoMessagesResponse(HttpRequest request, SockJsConfig config, ChannelHandlerContext ctx);
 
     @Override
     public void onOpen(final SockJsSession session, final ChannelHandlerContext ctx) {
@@ -75,13 +57,13 @@ abstract class PollingSessionState extends AbstractTimersSessionState {
 
     @Override
     public ChannelHandlerContext getSendingContext(SockJsSession session) {
-        return session.connectionContext();
+        final ChannelHandlerContext openContext = session.openContext();
+        return openContext == null ? session.connectionContext() : openContext;
     }
 
     private void flushMessages(final ChannelHandlerContext ctx, final SockJsSession session) {
         final String[] allMessages = session.getAllMessages();
         if (allMessages.length == 0) {
-            sendNoMessagesResponse(request, config, ctx);
             return;
         }
         final MessageFrame messageFrame = new MessageFrame(allMessages);

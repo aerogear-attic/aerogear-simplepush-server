@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 class SockJsSession {
 
+
     enum States { CONNECTING, OPEN, CLOSED, INTERRUPTED }
 
     private States state = States.CONNECTING;
@@ -38,24 +39,63 @@ class SockJsSession {
     private final AtomicBoolean inuse = new AtomicBoolean();
     private ChannelHandlerContext connectionContext;
     private ChannelHandlerContext currentContext;
+    private ChannelHandlerContext openContext;
 
     public SockJsSession(final String sessionId, final SockJsService service) {
         this.sessionId = sessionId;
         this.service = service;
     }
 
+    /**
+     * Returns the ChannelHandlerContext used to initially connect.
+     *
+     * @return {@code ChannelHandlerContext} the ChannelHandlerContext used establishing a connection.
+     */
     public synchronized ChannelHandlerContext connectionContext() {
         return connectionContext;
     }
 
+    /**
+     * Sets the ChannelHandlerContext used to initially connect.
+     *
+     * @param ctx the ChannelHandlerContext used establishing a connection.
+     */
     public synchronized void setConnectionContext(final ChannelHandlerContext ctx) {
         connectionContext = ctx;
     }
 
+    /**
+     * Returns the ChannelHandlerContext used on an open session.
+     *
+     * @return {@code ChannelHandlerContext} the ChannelHandlerContext used establishing a connection.
+     */
+    public synchronized ChannelHandlerContext openContext() {
+        return openContext;
+    }
+
+    /**
+     * Sets the ChannelHandlerContext used to initially connect.
+     *
+     * @param ctx the ChannelHandlerContext used when the session is open.
+     */
+    public synchronized void setOpenContext(final ChannelHandlerContext ctx) {
+        openContext = ctx;
+    }
+
+    /**
+     * Returns the ChannelHandlerContext for the current connection.
+     *
+     * @return {@code ChannelHandlerContext} the ChannelHandlerContext for the current connection
+     */
     public synchronized ChannelHandlerContext currentContext() {
         return currentContext;
     }
 
+    /**
+     * Sets the ChannelHandlerContext for the current connection.
+     *
+     * @param ctx the ChannelHandlerContext for the current connection.
+     */
     public synchronized void setCurrentContext(final ChannelHandlerContext ctx) {
         currentContext = ctx;
     }

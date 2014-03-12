@@ -1053,25 +1053,6 @@ public class SockJsProtocolTest {
         verifyNotCached(pollResponse);
     }
 
-    @Test
-    public void jsonpPollingNoData() throws Exception {
-        final String serviceName = "/echo";
-        final String sessionUrl = serviceName + "/222/" + UUID.randomUUID().toString();
-        final SockJsServiceFactory echoService = echoService();
-
-        final FullHttpResponse openResponse = jsonpRequest(sessionUrl + "/jsonp?c=%63allback", echoService);
-        assertThat(openResponse.getStatus(), is(HttpResponseStatus.OK));
-        assertThat(openResponse.content().toString(UTF_8), equalTo("callback(\"o\");\r\n"));
-        assertThat(openResponse.headers().get(CONTENT_TYPE), equalTo(Transports.CONTENT_TYPE_JAVASCRIPT));
-        verifyNotCached(openResponse);
-
-        final FullHttpResponse pollResponse = jsonpRequest(sessionUrl + "/jsonp?c=callback", echoService);
-        assertThat(pollResponse.getStatus(), is(HttpResponseStatus.OK));
-        assertThat(pollResponse.headers().get(CONTENT_TYPE), equalTo(Transports.CONTENT_TYPE_JAVASCRIPT));
-        assertThat(pollResponse.content().toString(UTF_8), equalTo("callback(\"h\");\r\n"));
-        verifyNotCached(pollResponse);
-    }
-
     /*
      * Equivalent to JsonPolling.test_no_callback in sockjs-protocol-0.3.3.py.
      */

@@ -33,7 +33,7 @@ class SendingSessionState implements SessionState {
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(SendingSessionState.class);
     private final ConcurrentMap<String, SockJsSession> sessions;
 
-    public SendingSessionState(final ConcurrentMap<String, SockJsSession> sessions) {
+    SendingSessionState(final ConcurrentMap<String, SockJsSession> sessions) {
         ArgumentUtil.checkNotNull(sessions, "sessions");
         this.sessions = sessions;
     }
@@ -48,7 +48,7 @@ class SendingSessionState implements SessionState {
 
     @Override
     public ChannelHandlerContext getSendingContext(SockJsSession session) {
-        return session.currentContext();
+        return session.openContext();
     }
 
     @Override
