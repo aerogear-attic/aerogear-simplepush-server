@@ -107,6 +107,13 @@
                         <!-- Port -->
                         <argument>8081</argument>
                     </arguments>
+                    <systemProperties>
+                        <systemProperty>
+                            <key>io.netty.leakDetectionLevel</key>
+                            <!-- disabled, simple, advanced, or paranoid -->
+                            <value>disabled</value>
+                        </systemProperty>
+                    </systemProperties>
                 </configuration>
             </plugin>
         </plugins>

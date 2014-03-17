@@ -70,6 +70,7 @@ public class JsonpPollingTransport extends ChannelHandlerAdapter {
             final QueryStringDecoder qsd = new QueryStringDecoder(request.getUri());
             final List<String> c = qsd.parameters().get("c");
             if (c == null) {
+                ReferenceCountUtil.release(msg);
                 respond(ctx, request.getProtocolVersion(), INTERNAL_SERVER_ERROR, "\"callback\" parameter required");
                 ctx.fireUserEventTriggered(Event.CLOSE_SESSION);
                 return;
