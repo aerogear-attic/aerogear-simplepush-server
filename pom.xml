@@ -75,9 +75,6 @@
         <version.jboss.as>7.1.1.Final</version.jboss.as>
         <version.jedis>2.0.0</version.jedis>
         <version.junit>4.11</version.junit>
-        <!-- Specific version for common, protocol, server-api modules -->
-        <version.maven-compiler-plugin>2.3.1</version.maven-compiler-plugin>
-        <version.maven-surefire-plugin>2.14</version.maven-surefire-plugin>
         <version.mysql>5.1.18</version.mysql>
         <version.org.easytesting>1.4</version.org.easytesting>
         <version.org.eclipse.m2e>1.0.0</version.org.eclipse.m2e>
@@ -272,7 +269,6 @@
             <plugins>
                 <plugin>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>${version.maven-surefire-plugin}</version>
                     <configuration>
                         <systemPropertyVariables>
                             <org.jboss.logging.provider>slf4j</org.jboss.logging.provider>
