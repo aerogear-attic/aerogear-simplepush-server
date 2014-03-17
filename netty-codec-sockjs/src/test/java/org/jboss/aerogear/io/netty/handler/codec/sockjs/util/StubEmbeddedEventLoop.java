@@ -18,7 +18,12 @@ package org.jboss.aerogear.io.netty.handler.codec.sockjs.util;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import io.netty.channel.*;
+import io.netty.channel.AbstractEventLoop;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelHandlerInvoker;
+import io.netty.channel.ChannelPromise;
+import io.netty.channel.EventLoop;
+import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.ScheduledFuture;

@@ -68,7 +68,7 @@ public class UserAgentReaper implements Runnable {
     }
 
     private boolean isChannelInactive(final UserAgent<SockJsSessionContext> userAgent) {
-        final Channel ch = userAgent.context().getConnectionContext().channel();
+        final Channel ch = userAgent.context().getContext().channel();
         return !ch.isActive() && !ch.isRegistered();
     }
 }

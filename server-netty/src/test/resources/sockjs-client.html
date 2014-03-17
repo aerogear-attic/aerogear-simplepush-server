@@ -48,9 +48,9 @@
 
     <script>
         var sockjs_url = 'http://localhost:7777/simplepush';
-        //var sockjs = new SockJS(sockjs_url);
+        var sockjs = new SockJS(sockjs_url);
         //var sockjs = new SockJS(sockjs_url, null, {"debug": true, "protocols_whitelist": ["jsonp-polling"]});
-        var sockjs = new SockJS(sockjs_url, null, {"debug": true, "protocols_whitelist": ["xhr-polling"]});
+        //var sockjs = new SockJS(sockjs_url, null, {"debug": true, "protocols_whitelist": ["xhr-polling"]});
         //var sockjs = new SockJS(sockjs_url, null, {"debug": true, "protocols_whitelist": ["xhr-streaming"]});
 
         $('#first input').focus();

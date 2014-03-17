@@ -194,14 +194,10 @@ public class NotificationHandlerTest {
             }
 
             @Override
-            public ChannelHandlerContext getConnectionContext() {
+            public ChannelHandlerContext getContext() {
                 return null;
             }
 
-            @Override
-            public ChannelHandlerContext getCurrentContext() {
-                return null;
-            }
         };
     }
 

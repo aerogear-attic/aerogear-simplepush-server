@@ -21,8 +21,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsService;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.SockJsSession;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.SockJsSession.States;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.SessionState.State;
 
 import org.junit.Test;
 
@@ -32,8 +31,8 @@ public class SockJsSessionTest {
     public void setState() throws Exception {
         final SockJsService service = mock(SockJsService.class);
         final SockJsSession session = new SockJsSession("123", service);
-        session.setState(States.OPEN);
-        assertThat(session.getState(), is(States.OPEN));
+        session.setState(State.OPEN);
+        assertThat(session.getState(), is(State.OPEN));
     }
 
     @Test
@@ -43,7 +42,7 @@ public class SockJsSessionTest {
         final SockJsSessionContext session = mock(SockJsSessionContext.class);
         sockJSSession.onOpen(session);
         verify(service).onOpen(session);
-        assertThat(sockJSSession.getState(), is(States.OPEN));
+        assertThat(sockJSSession.getState(), is(State.OPEN));
     }
 
     @Test

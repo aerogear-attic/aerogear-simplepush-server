@@ -24,7 +24,10 @@ import static io.netty.handler.codec.http.HttpHeaders.Names.TRANSFER_ENCODING;
 import static io.netty.handler.codec.http.HttpResponseStatus.INTERNAL_SERVER_ERROR;
 import static io.netty.util.CharsetUtil.UTF_8;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerAdapter;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
@@ -36,11 +39,11 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsConfig;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.SessionHandler.Event;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.protocol.Frame;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.SessionHandler;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -97,7 +100,7 @@ public class HtmlFileTransport extends ChannelHandlerAdapter {
             final String c = getCallbackFromRequest((HttpRequest) msg);
             if (c.isEmpty()) {
                 respondCallbackRequired(ctx);
-                ctx.fireUserEventTriggered(SessionHandler.Events.CLOSE_SESSION);
+                ctx.fireUserEventTriggered(Event.CLOSE_SESSION);
                 return;
             } else {
                 callback = c;
@@ -139,6 +142,7 @@ public class HtmlFileTransport extends ChannelHandlerAdapter {
             final ByteBuf data = ctx.alloc().buffer();
             data.writeBytes(PREFIX.duplicate());
             data.writeBytes(Transports.escapeJson(frame.content(), data));
+            frame.content().release();
             data.writeBytes(POSTFIX.duplicate());
             final int dataSize = data.readableBytes();
             ctx.writeAndFlush(new DefaultHttpContent(data));

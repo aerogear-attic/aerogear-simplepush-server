@@ -27,12 +27,17 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandlerInvoker;
+import io.netty.channel.ChannelOutboundBuffer;
+import io.netty.channel.ChannelPromise;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.HttpHeaders.Names;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.ReferenceCountUtil;
 
+import java.net.SocketAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -609,8 +614,12 @@ public class SimplePushSockJSServiceTest {
         };
     }
 
+    private String randomSessionIdUrl(final SockJsServiceFactory factory) {
+        return factory.config().prefix() + "/111/" + UUID.randomUUID().toString();
+    }
+
     private EmbeddedChannel createChannel(final SockJsServiceFactory factory) {
-        final EmbeddedChannel ch = new EmbeddedChannel(
+        final EmbeddedChannel ch = new TestEmbeddedChannel(
                 new HttpRequestDecoder(),
                 new HttpResponseEncoder(),
                 new CorsInboundHandler(),
@@ -621,7 +630,7 @@ public class SimplePushSockJSServiceTest {
     }
 
     private EmbeddedChannel createWebSocketChannel(final SockJsServiceFactory factory) {
-        final EmbeddedChannel ch = new EmbeddedChannel(
+        final EmbeddedChannel ch = new TestEmbeddedChannel(
                 new HttpRequestDecoder(),
                 new HttpResponseEncoder(),
                 new CorsInboundHandler(),
@@ -631,8 +640,99 @@ public class SimplePushSockJSServiceTest {
         return ch;
     }
 
-    private String randomSessionIdUrl(final SockJsServiceFactory factory) {
-        return factory.config().prefix() + "/111/" + UUID.randomUUID().toString();
+    private static class TestEmbeddedChannel extends EmbeddedChannel {
+
+        public TestEmbeddedChannel(final ChannelHandler... handlers) {
+            super(handlers);
+        }
+
+        @Override
+        public Unsafe unsafe() {
+            final AbstractUnsafe delegate = super.newUnsafe();
+            return new TestUnsafe(delegate, new StubEmbeddedEventLoop(super.eventLoop()));
+        }
+
+        private class TestUnsafe implements Unsafe {
+
+            private final Unsafe delegate;
+            private final ChannelHandlerInvoker invoker;
+
+            public TestUnsafe(final Unsafe delegate, final ChannelHandlerInvoker invoker) {
+                this.delegate = delegate;
+                this.invoker = invoker;
+            }
+
+            @Override
+            public ChannelHandlerInvoker invoker() {
+                return invoker;
+            }
+
+            @Override
+            public SocketAddress localAddress() {
+                return delegate.localAddress();
+            }
+
+            @Override
+            public SocketAddress remoteAddress() {
+                return delegate.remoteAddress();
+            }
+
+            @Override
+            public void register(ChannelPromise promise) {
+                delegate.register(promise);
+            }
+
+            @Override
+            public void bind(SocketAddress localAddress, ChannelPromise promise) {
+                delegate.bind(localAddress, promise);
+            }
+
+            @Override
+            public void connect(SocketAddress remoteAddress, SocketAddress localAddress, ChannelPromise promise) {
+                delegate.connect(remoteAddress, localAddress, promise);
+            }
+
+            @Override
+            public void disconnect(ChannelPromise promise) {
+                delegate.disconnect(promise);
+            }
+
+            @Override
+            public void close(ChannelPromise promise) {
+                delegate.close(promise);
+            }
+
+            @Override
+            public void closeForcibly() {
+                delegate.closeForcibly();
+            }
+
+            @Override
+            public void beginRead() {
+                delegate.beginRead();
+            }
+
+            @Override
+            public void write(Object msg, ChannelPromise promise) {
+                delegate.write(msg, promise);
+            }
+
+            @Override
+            public void flush() {
+                delegate.flush();
+            }
+
+            @Override
+            public ChannelPromise voidPromise() {
+                return delegate.voidPromise();
+            }
+
+            @Override
+            public ChannelOutboundBuffer outboundBuffer() {
+                return delegate.outboundBuffer();
+            }
+        }
+
     }
 
 }

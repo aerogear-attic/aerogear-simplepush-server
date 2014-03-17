@@ -31,12 +31,11 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.SessionHandler;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.SessionHandler.Event;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.util.JsonUtil;
 import io.netty.util.AttributeKey;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory;
-
 
 /**
  * WebSocketTransport is responsible for the WebSocket handshake and
@@ -59,7 +58,7 @@ public class WebSocketHAProxyTransport extends SimpleChannelInboundHandler<Objec
         } else if (msg instanceof WebSocketFrame) {
             handleWebSocketFrame(ctx, (WebSocketFrame) msg);
         }
-        ctx.fireUserEventTriggered(SessionHandler.Events.HANDLE_SESSION);
+        ctx.fireUserEventTriggered(Event.HANDLE_SESSION);
     }
 
     private void handleContent(final ChannelHandlerContext ctx, final ByteBuf nounce) {

@@ -16,6 +16,7 @@
 package org.jboss.aerogear.io.netty.handler.codec.sockjs.handler;
 
 import io.netty.channel.ChannelHandlerContext;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.util.ArgumentUtil;
 import io.netty.util.internal.StringUtil;
 import io.netty.util.internal.logging.InternalLogger;
@@ -32,27 +33,47 @@ class SendingSessionState implements SessionState {
 
     private static final InternalLogger logger = InternalLoggerFactory.getInstance(SendingSessionState.class);
     private final ConcurrentMap<String, SockJsSession> sessions;
+    private final SockJsSession session;
 
-    SendingSessionState(final ConcurrentMap<String, SockJsSession> sessions) {
+    SendingSessionState(final ConcurrentMap<String, SockJsSession> sessions, final SockJsSession session) {
         ArgumentUtil.checkNotNull(sessions, "sessions");
         this.sessions = sessions;
+        this.session = session;
     }
 
     @Override
-    public void onConnect(final SockJsSession session, final ChannelHandlerContext ctx) {
+    public State getState() {
+        return session.getState();
     }
 
     @Override
-    public void onOpen(final SockJsSession session, final ChannelHandlerContext ctx) {
+    public void setState(final State state) {
+        session.setState(state);
     }
 
     @Override
-    public ChannelHandlerContext getSendingContext(SockJsSession session) {
+    public void onConnect(final ChannelHandlerContext ctx, final SockJsSessionContext sockJsSessionContext) {
+        session.setConnectionContext(ctx);
+        session.onOpen(sockJsSessionContext);
+    }
+
+    @Override
+    public void onOpen(final ChannelHandlerContext ctx) {
+        session.setInuse();
+    }
+
+    @Override
+    public void onMessage(String message) throws Exception {
+        session.onMessage(message);
+    }
+
+    @Override
+    public ChannelHandlerContext getSendingContext() {
         return session.openContext();
     }
 
     @Override
-    public void onSockJSServerInitiatedClose(final SockJsSession session) {
+    public void onSockJSServerInitiatedClose() {
         if (logger.isDebugEnabled()) {
             logger.debug("Will close session connectionContext {}", session.connectionContext());
         }
@@ -61,8 +82,18 @@ class SendingSessionState implements SessionState {
     }
 
     @Override
-    public boolean isInUse(final SockJsSession session) {
-        return false;
+    public boolean isInUse() {
+        return session.inuse();
+    }
+
+    @Override
+    public void setInuse() {
+        session.setInuse();
+    }
+
+    @Override
+    public void resetInuse() {
+        session.resetInuse();
     }
 
     @Override
@@ -72,6 +103,12 @@ class SendingSessionState implements SessionState {
 
     @Override
     public void onClose() {
+        session.onClose();
+    }
+
+    @Override
+    public void storeMessage(String message) {
+        session.addMessage(message);
     }
 
 }
