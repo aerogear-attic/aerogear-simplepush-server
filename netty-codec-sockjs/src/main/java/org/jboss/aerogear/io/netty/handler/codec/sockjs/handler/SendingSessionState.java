@@ -59,7 +59,7 @@ class SendingSessionState implements SessionState {
 
     @Override
     public void onOpen(final ChannelHandlerContext ctx) {
-        session.setInuse();
+        session.setInuse(true);
     }
 
     @Override
@@ -83,17 +83,17 @@ class SendingSessionState implements SessionState {
 
     @Override
     public boolean isInUse() {
-        return session.inuse();
+        return false;
     }
 
     @Override
     public void setInuse() {
-        session.setInuse();
+        // NoOp
     }
 
     @Override
     public void resetInuse() {
-        session.resetInuse();
+        // NoOp
     }
 
     @Override

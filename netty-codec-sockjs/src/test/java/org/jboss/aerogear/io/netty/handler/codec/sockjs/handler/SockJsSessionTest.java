@@ -15,15 +15,17 @@
  */
 package org.jboss.aerogear.io.netty.handler.codec.sockjs.handler;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsService;
+import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.handler.SessionState.State;
-
 import org.junit.Test;
+
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.*;
 
 public class SockJsSessionTest {
 
@@ -66,7 +68,7 @@ public class SockJsSessionTest {
         final SockJsService service = mock(SockJsService.class);
         final SockJsSession sockJSSession = new SockJsSession("123", service);
         sockJSSession.addMessage("hello");
-        assertThat(sockJSSession.getAllMessages().length, is(1));
+        assertThat(sockJSSession.getAllMessages().size(), is(1));
     }
 
     @Test
@@ -74,16 +76,11 @@ public class SockJsSessionTest {
         final SockJsService service = mock(SockJsService.class);
         final SockJsSession sockJSSession = new SockJsSession("123", service);
         sockJSSession.addMessages(new String[]{"hello", "world"});
-        assertThat(sockJSSession.getAllMessages().length, is(2));
-    }
-
-    @Test
-    public void clearMessage() throws Exception {
-        final SockJsService service = mock(SockJsService.class);
-        final SockJsSession sockJSSession = new SockJsSession("123", service);
-        sockJSSession.addMessage("hello");
-        sockJSSession.clearMessagees();
-        assertThat(sockJSSession.getAllMessages().length, is(0));
+        final List<String> messages = sockJSSession.getAllMessages();
+        assertThat(messages.size(), is(2));
+        assertThat(messages.get(0), equalTo("hello"));
+        assertThat(messages.get(1), equalTo("world"));
+        assertThat(sockJSSession.getAllMessages().size(), is(0));
     }
 
 }
