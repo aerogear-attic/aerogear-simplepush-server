@@ -28,19 +28,10 @@
     <name>AeroGear SimplePush Server Vert.x</name>
 
     <url>http://aerogear.org</url>
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <distribution>repo</distribution>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-        </license>
-    </licenses>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <module.name>aerogear~simplepush~${project.version}</module.name>
         <module.dir>${project.build.directory}/mods/aerogear~simplepush~${project.version}</module.dir>
-        <vertx.version>2.0.1-final</vertx.version>
     </properties>
 
     <dependencies>
@@ -59,7 +50,7 @@
         <dependency>
             <groupId>io.vertx</groupId>
             <artifactId>vertx-platform</artifactId>
-            <version>${vertx.version}</version>
+            <version>${version.io.vertx}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -68,7 +59,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.5</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -92,6 +82,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <!-- Inherits version 3.0 from org.jboss:jboss-parent:10 pom.xml -->
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
@@ -100,6 +91,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
+                <!-- Inherits version 2.4 from org.jboss:jboss-parent:10 pom.xml -->
                 <configuration>
                     <outputDirectory>${module.dir}/lib</outputDirectory>
                 </configuration>
@@ -107,6 +99,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
+                <!-- Inherits version 2.6 from org.jboss:jboss-parent:10 pom.xml -->
                 <executions>
                     <execution>
                         <id>copy-dependencies</id>
@@ -142,6 +135,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
+                <!-- Inherits version 2.6 from org.jboss:jboss-parent:10 pom.xml -->
                 <executions>
                     <execution>
                         <id>copy-mod-json</id>
@@ -172,7 +166,7 @@
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
                     <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
+                    <version>${version.org.eclipse.m2e}</version>
                     <configuration>
                         <lifecycleMappingMetadata>
                             <pluginExecutions>

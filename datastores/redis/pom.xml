@@ -37,7 +37,6 @@
     </licenses>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <include.redis.tests>none</include.redis.tests>
     </properties>
     
@@ -89,7 +88,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.5</version>
         </dependency>
         
         <dependency>
@@ -110,10 +108,10 @@
             <scope>test</scope>
         </dependency>
 
-    		<dependency>
-			      <groupId>redis.clients</groupId>
-			      <artifactId>jedis</artifactId>
-		    </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+        </dependency>
 
     </dependencies>
 

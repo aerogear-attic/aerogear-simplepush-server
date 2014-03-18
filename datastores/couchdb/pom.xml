@@ -28,16 +28,8 @@
     <name>AeroGear SimplePush CouchDB Datastore</name>
 
     <url>http://aerogear.org</url>
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <distribution>repo</distribution>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
-        </license>
-    </licenses>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <include.couchdb.tests>none</include.couchdb.tests>
     </properties>
     
@@ -89,7 +81,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
-            <version>1.7.5</version>
         </dependency>
         
         <dependency>
