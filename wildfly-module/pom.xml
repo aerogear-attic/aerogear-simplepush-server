@@ -62,17 +62,17 @@
          <dependency>
             <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-controller</artifactId>
-            <version>${version.jboss.as}</version>
+            <version>${jboss.as.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-server</artifactId>
-            <version>${version.jboss.as}</version>
+            <version>${jboss.as.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-subsystem-test</artifactId>
-            <version>${version.jboss.as}</version>
+            <version>${jboss.as.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -90,18 +90,18 @@
         <dependency>
             <groupId>org.jboss.as</groupId>
             <artifactId>jboss-as-naming</artifactId>
-            <version>${version.jboss.as}</version>
+            <version>${jboss.as.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.modules</groupId>
             <artifactId>jboss-modules</artifactId>
-            <version>${version.org.jboss.modules}</version>
+            <version>${jboss.modules.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>${version.io.netty}</version>
+            <version>${netty.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
@@ -123,7 +123,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>${version.mysql}</version>
+            <version>${mysql.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -144,13 +144,13 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
-            <version>${version.org.hibernate}</version>
+            <version>${hibernate.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>${version.com.h2database}</version>
+            <version>${h2database.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -59,31 +59,31 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <version.aerogear.crypto>0.1.2</version.aerogear.crypto>
-        <version.bouncycastle>140</version.bouncycastle>
-        <version.com.h2database>1.3.172</version.com.h2database>
-        <version.commons.http.core>4.2.4</version.commons.http.core>
-        <version.commons.http>4.2.5</version.commons.http>
-        <version.commons.io>2.0.1</version.commons.io>
-        <version.commons.logging>1.1.1</version.commons.logging>
-        <version.commons.pool>1.5.5</version.commons.pool>
-        <version.ektorp>1.4.1</version.ektorp>
+
+        <aerogear.crypto.version>0.1.2</aerogear.crypto.version>
+        <bouncycastle.version>140</bouncycastle.version>
+        <h2database.version>1.3.172</h2database.version>
+        <commons.http.core.version>4.2.4</commons.http.core.version>
+        <commons.http.version>4.2.5</commons.http.version>
+        <commons.io.version>2.0.1</commons.io.version>
+        <commons.logging.version>1.1.1</commons.logging.version>
+        <commons.pool.version>1.5.5</commons.pool.version>
+        <ektorp.version>1.4.1</ektorp.version>
         <version.exec-maven-plugin>1.2</version.exec-maven-plugin>
-        <version.io.vertx>2.0.1-final</version.io.vertx>
-        <version.io.netty>5.0.0.Alpha1</version.io.netty>
-        <version.jackson>2.3.0</version.jackson>
-        <version.jboss.as>7.1.1.Final</version.jboss.as>
-        <version.jedis>2.0.0</version.jedis>
-        <version.junit>4.11</version.junit>
-        <version.mysql>5.1.18</version.mysql>
-        <version.org.easytesting>1.4</version.org.easytesting>
+        <vertx.version>2.0.1-final</vertx.version>
+        <netty.version>5.0.0.Alpha1</netty.version>
+        <jackson.version>2.3.0</jackson.version>
+        <jboss.as.version>7.1.1.Final</jboss.as.version>
+        <jedis.version>2.0.0</jedis.version>
+        <junit.version>4.11</junit.version>
+        <mysql.version>5.1.18</mysql.version>
+        <easytesting.version>1.4</easytesting.version>
         <version.org.eclipse.m2e>1.0.0</version.org.eclipse.m2e>
-        <version.org.hibernate>4.2.3.Final</version.org.hibernate>
-        <version.org.jboss.modules>1.1.1.GA</version.org.jboss.modules>
-        <version.org.jmock>2.6.0</version.org.jmock>
-        <version.org.mockito>1.9.0</version.org.mockito>
-        <version.org.slf4j>1.7.5</version.org.slf4j>
-        <version.redis.clients>2.0.0</version.redis.clients>
+        <hibernate.version>4.2.3.Final</hibernate.version>
+        <jboss.modules.version>1.1.1.GA</jboss.modules.version>
+        <jmock.version>2.6.0</jmock.version>
+        <mockito.version>1.9.0</mockito.version>
+        <slf4j.version>1.7.5</slf4j.version>
     </properties>
 
     <modules>
@@ -148,69 +148,69 @@
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
                 <artifactId>aerogear-crypto</artifactId>
-                <version>${version.aerogear.crypto}</version>
+                <version>${aerogear.crypto.version}</version>
             </dependency>
             <dependency>
                 <groupId>bouncycastle</groupId>
                 <artifactId>bcprov-jdk16</artifactId>
-                <version>${version.bouncycastle}</version>
+                <version>${bouncycastle.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-codec-sockjs</artifactId>
-                <version>${version.io.netty}</version>
+                <version>${netty.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ektorp</groupId>
                 <artifactId>org.ektorp</artifactId>
-                <version>${version.ektorp}</version>
+                <version>${ektorp.version}</version>
             </dependency>
             <dependency>
                 <groupId>redis.clients</groupId>
                 <artifactId>jedis</artifactId>
-                <version>${version.redis.clients}</version>
+                <version>${jedis.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>${version.jackson}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>${version.jackson}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${version.jackson}</version>
+                <version>${jackson.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>${version.org.slf4j}</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-simple</artifactId>
-                <version>${version.org.slf4j}</version>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <scope>test</scope>
-                <version>${version.junit}</version>
+                <version>${junit.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.easytesting</groupId>
                 <artifactId>fest-assert</artifactId>
-                <version>${version.org.easytesting}</version>
+                <version>${easytesting.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
-                <version>${version.org.mockito}</version>
+                <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>

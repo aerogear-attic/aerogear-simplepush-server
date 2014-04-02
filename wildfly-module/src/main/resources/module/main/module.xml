@@ -26,12 +26,12 @@
         <resource-root path="aerogear-simplepush-server-netty-${project.version}.jar"/>
         <resource-root path="aerogear-simplepush-protocol-${project.version}.jar"/>
         <resource-root path="aerogear-simplepush-server-wildfly-${project.version}.jar"/>
-        <resource-root path="jackson-core-${version.jackson}.jar"/>
-        <resource-root path="jackson-databind-${version.jackson}.jar"/>
-        <resource-root path="jackson-annotations-${version.jackson}.jar"/>
-        <resource-root path="netty-all-${version.io.netty}.jar"/>
-        <resource-root path="aerogear-crypto-${version.aerogear.crypto}.jar"/>
-        <resource-root path="bcprov-jdk16-${version.bouncycastle}.jar"/>
+        <resource-root path="jackson-core-${jackson.version}.jar"/>
+        <resource-root path="jackson-databind-${jackson.version}.jar"/>
+        <resource-root path="jackson-annotations-${jackson.version}.jar"/>
+        <resource-root path="netty-all-${netty.version}.jar"/>
+        <resource-root path="aerogear-crypto-${aerogear.crypto.version}.jar"/>
+        <resource-root path="bcprov-jdk16-${bouncycastle.version}.jar"/>
         <!-- Enables files to be placed in the module made availble via the classloader. -->
         <resource-root path="."/>
         <!-- The following resource should be replaced by netty-codec-sockjs once it is released -->
@@ -39,16 +39,16 @@
         
         <resource-root path="aerogear-simplepush-datastore-in-memory-${project.version}.jar"/>
         <resource-root path="aerogear-simplepush-datastore-redis-${project.version}.jar"/>
-        <resource-root path="commons-pool-${version.commons.pool}.jar"/>
-        <resource-root path="jedis-${version.jedis}.jar"/>
+        <resource-root path="commons-pool-${commons.pool.version}.jar"/>
+        <resource-root path="jedis-${jedis.version}.jar"/>
         <resource-root path="aerogear-simplepush-datastore-jpa-${project.version}.jar"/>
         <resource-root path="aerogear-simplepush-datastore-couchdb-${project.version}.jar"/>
-        <resource-root path="org.ektorp-${version.ektorp}.jar"/>
-        <resource-root path="httpcore-${version.commons.http.core}.jar"/>
-        <resource-root path="httpclient-${version.commons.http}.jar"/>
-        <resource-root path="httpclient-cache-${version.commons.http}.jar"/>
-        <resource-root path="commons-io-${version.commons.io}.jar"/>
-        <resource-root path="commons-logging-${version.commons.logging}.jar"/>
+        <resource-root path="org.ektorp-${ektorp.version}.jar"/>
+        <resource-root path="httpcore-${commons.http.core.version}.jar"/>
+        <resource-root path="httpclient-${commons.http.version}.jar"/>
+        <resource-root path="httpclient-cache-${commons.http.version}.jar"/>
+        <resource-root path="commons-io-${commons.io.version}.jar"/>
+        <resource-root path="commons-logging-${commons.logging.version}.jar"/>
     </resources>
 
     <dependencies>

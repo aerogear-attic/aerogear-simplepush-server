@@ -90,14 +90,14 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
-            <version>${version.org.hibernate}</version>
+            <version>${hibernate.version}</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>${version.com.h2database}</version>
+            <version>${h2database.version}</version>
             <scope>test</scope>
         </dependency>
 
