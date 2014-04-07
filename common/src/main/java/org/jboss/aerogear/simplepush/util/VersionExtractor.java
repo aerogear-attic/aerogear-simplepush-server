@@ -30,6 +30,9 @@ public final class VersionExtractor {
     }
 
     public static String extractVersion(final String payload) {
+        if (payload == null || "".equals(payload)) {
+            return String.valueOf(System.currentTimeMillis());
+        }
         final Matcher matcher = VERSION_PATTERN.matcher(payload);
         if (matcher.find()) {
             return matcher.group(1);

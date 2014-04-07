@@ -16,10 +16,6 @@
  */
 package org.jboss.aerogear.simplepush.server.netty;
 
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -29,12 +25,6 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.util.CharsetUtil;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-
 import org.jboss.aerogear.io.netty.handler.codec.sockjs.SockJsSessionContext;
 import org.jboss.aerogear.simplepush.protocol.MessageType;
 import org.jboss.aerogear.simplepush.protocol.RegisterResponse;
@@ -50,6 +40,16 @@ import org.jboss.aerogear.simplepush.server.datastore.InMemoryDataStore;
 import org.jboss.aerogear.simplepush.util.UUIDUtil;
 import org.junit.Test;
 
+import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 public class NotificationHandlerTest {
 
     @Test
@@ -61,7 +61,7 @@ public class NotificationHandlerTest {
         registerUserAgent(uaid, channel);
         final RegisterResponse registerResponse = doRegister(channelId, uaid, simplePushServer);
         final String endpointToken = extractEndpointToken(registerResponse.getPushEndpoint());
-        doNotification(endpointToken, channelId, 1L, channel);
+        doNotification(endpointToken, channelId, 1L, simplePushServer, channel);
         channel.close();
     }
 
@@ -74,9 +74,9 @@ public class NotificationHandlerTest {
         registerUserAgent(uaid, channel);
         final RegisterResponse registerResponse = doRegister(channelId, uaid, simplePushServer);
         final String endpointToken = extractEndpointToken(registerResponse.getPushEndpoint());
-        doNotification(endpointToken, channelId, 1L, channel);
+        doNotification(endpointToken, channelId, 1L, simplePushServer, channel);
 
-        final HttpResponse response = sendNotification(endpointToken, 1L, simplePushServer);
+        final HttpResponse response = sendNotification(notificationRequest(endpointToken, 1L), simplePushServer);
         assertThat(response.getStatus(), is(HttpResponseStatus.OK));
         channel.close();
     }
@@ -94,9 +94,9 @@ public class NotificationHandlerTest {
         registerUserAgent(uaid, channel);
         final RegisterResponse registerResponse = doRegister(channelId, uaid, simplePushServer);
         final String endpointToken = extractEndpointToken(registerResponse.getPushEndpoint());
-        doNotification(endpointToken, channelId, 10L, channel);
+        doNotification(endpointToken, channelId, 10L, simplePushServer, channel);
 
-        final HttpResponse response = sendNotification(endpointToken, 9L, simplePushServer);
+        final HttpResponse response = sendNotification(notificationRequest(endpointToken, 9L), simplePushServer);
         assertThat(response.getStatus(), is(HttpResponseStatus.OK));
         channel.close();
     }
@@ -111,6 +111,19 @@ public class NotificationHandlerTest {
         channel.close();
     }
 
+    @Test
+    public void notificationWithoutVersionBody() throws Exception {
+        final String uaid = UUIDUtil.newUAID();
+        final String channelId = UUID.randomUUID().toString();
+        final SimplePushServer simplePushServer = defaultPushServer();
+        final EmbeddedChannel channel = createWebsocketChannel(simplePushServer);
+        registerUserAgent(uaid, channel);
+        final RegisterResponse registerResponse = doRegister(channelId, uaid, simplePushServer);
+        final String endpointToken = extractEndpointToken(registerResponse.getPushEndpoint());
+        doNotificationWithoutVersion(endpointToken, channelId, simplePushServer, channel);
+        channel.close();
+    }
+
     private SimplePushServer defaultPushServer() {
         final DataStore store = new InMemoryDataStore();
         final SimplePushServerConfig config = DefaultSimplePushConfig.create().password("testToken").build();
@@ -118,9 +131,10 @@ public class NotificationHandlerTest {
         return new DefaultSimplePushServer(store, config, privateKey);
     }
 
-    private HttpResponse sendNotification(final String endpointToken, final long version, final SimplePushServer simplePushServer) throws Exception {
+    private HttpResponse sendNotification(final FullHttpRequest request,
+                                          final SimplePushServer simplePushServer) throws Exception {
         final EmbeddedChannel ch = createWebsocketChannel(simplePushServer);
-        ch.writeInbound(notificationRequest(endpointToken, version));
+        ch.writeInbound(request);
         return (HttpResponse) ch.readOutbound();
     }
 
@@ -134,40 +148,47 @@ public class NotificationHandlerTest {
 
     private FullHttpRequest notificationRequest(final String endpointToken, final Long version) {
         final FullHttpRequest req = new DefaultFullHttpRequest(HTTP_1_1, HttpMethod.PUT, "/update/" + endpointToken);
-        req.content().writeBytes(Unpooled.copiedBuffer("version=" + version.toString(), CharsetUtil.UTF_8));
+        if (version != null) {
+            req.content().writeBytes(Unpooled.copiedBuffer("version=" + version.toString(), CharsetUtil.UTF_8));
+        }
         return req;
     }
+    private void doNotificationWithoutVersion(final String endpointToken,
+                                                      final String channelId,
+                                                      final SimplePushServer sps,
+                                                      final EmbeddedChannel channel) throws Exception {
+        doNotification(endpointToken, channelId, null, sps, channel);
+    }
 
-    private HttpResponse doNotification(final String endpointToken, final String channelId,
-            final Long version, final EmbeddedChannel channel) throws Exception {
-        HttpResponse httpResponse = null;
-        channel.writeInbound(notificationRequest(endpointToken, version));
+    private void doNotification(final String endpointToken,
+                                        final String channelId,
+                                        final Long version,
+                                        final SimplePushServer sps,
+                                        final EmbeddedChannel channel) throws Exception {
+        final FullHttpRequest request = notificationRequest(endpointToken, version);
+        final HttpResponse notificationResponse = sendNotification(request, sps);
+        assertThat(notificationResponse.getStatus(), is(HttpResponseStatus.OK));
 
-        final CountDownLatch countDownLatch = new CountDownLatch(2);
-        final List<Object> readObjects = new ArrayList<Object>();
-        while (countDownLatch.getCount() != 2) {
-            final Object o = channel.readOutbound();
-            if (o == null) {
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        while (countDownLatch.getCount() != 0) {
+            final String str = channel.readOutbound();
+            if (str == null) {
                 Thread.sleep(200);
             } else {
-                readObjects.add(o);
-                countDownLatch.countDown();
-            }
-        }
-        for (Object object : readObjects) {
-            if (object instanceof HttpResponse) {
-                httpResponse = (HttpResponse) object;
-                assertThat(httpResponse.getStatus().code(), equalTo(200));
-            } else {
                 // The notification destined for the connected channel
-                final NotificationMessageImpl notification = responseToType(object, NotificationMessageImpl.class);
+                final NotificationMessageImpl notification = responseToType(str, NotificationMessageImpl.class);
                 assertThat(notification.getMessageType(), is(MessageType.Type.NOTIFICATION));
                 assertThat(notification.getAcks().size(), is(1));
                 assertThat(notification.getAcks().iterator().next().getChannelId(), equalTo(channelId));
-                assertThat(notification.getAcks().iterator().next().getVersion(), equalTo(version));
+                if (version != null) {
+                    assertThat(notification.getAcks().iterator().next().getVersion(), equalTo(version));
+                } else {
+                    final Date date = new Date(notification.getAcks().iterator().next().getVersion());
+                    assertThat(date, is(notNullValue()));
+                }
+                countDownLatch.countDown();
             }
         }
-        return httpResponse;
     }
 
     private <T> T responseToType(final Object response, Class<T> type) {
@@ -184,7 +205,7 @@ public class NotificationHandlerTest {
     private SockJsSessionContext channelSession(final EmbeddedChannel ch) {
         return new SockJsSessionContext() {
             @Override
-            public void send(String message) {
+            public void send(final String message) {
                 ch.writeOutbound(message);
             }
 

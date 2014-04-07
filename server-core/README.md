@@ -93,6 +93,10 @@ A notification is triggered by sending a ```PUT``` request to the ```pushEndpoin
     ContentType: application/x-www-form-urlencoded
     
     version=N
+
+The body of the PUT request is optional, and if not present the server will generate the field automatically setting
+it to the current Coordinated Universal Time (UTC) as specified in the
+[SimplePush Protocol](https://wiki.mozilla.org/WebAPI/SimplePush/Protocol#Notification).
     
 #### Response (PUT) format
 

@@ -17,6 +17,8 @@
 package org.jboss.aerogear.simplepush.util;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
@@ -31,6 +33,22 @@ public class VersionExtractorTest {
         assertThat(VersionExtractor.extractVersion(" version=10"), equalTo("10"));
         assertThat(VersionExtractor.extractVersion(" version= 11"), equalTo("11"));
         assertThat(VersionExtractor.extractVersion(" version = 12 "), equalTo("12"));
+    }
+
+    @Test
+    public void noVersion() {
+        assertThat(VersionExtractor.extractVersion(""), is(notNullValue()));
+        assertThat(VersionExtractor.extractVersion(null), is(notNullValue()));
+    }
+
+    @Test (expected = RuntimeException.class)
+    public void invalidVersionPropertyName() {
+        VersionExtractor.extractVersion("vorsion=12");
+    }
+
+    @Test (expected = RuntimeException.class)
+    public void invalidVersion() {
+        VersionExtractor.extractVersion("version=");
     }
 
 }
