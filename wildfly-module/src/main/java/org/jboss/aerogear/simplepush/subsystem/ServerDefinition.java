@@ -42,6 +42,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
         ENDPOINT_TLS("endpoint-tls"),
         ENDPOINT_ACK_INTERVAL("endpoint-ack-interval"),
         ENDPOINT_SOCKET_BINDING("endpoint-socket-binding"),
+        NOTIFIER_MAX_THREADS("notifier-max-threads"),
         SOCKJS_PREFIX("sockjs-prefix"),
         SOCKJS_COOKIES_NEEDED("sockjs-cookies-needed"),
         SOCKJS_URL("sockjs-url"),
@@ -91,6 +92,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
     protected static final SimpleAttributeDefinition ENDPOINT_PREFIX_ATTR = new SimpleAttributeDefinition(Element.ENDPOINT_PREFIX.localName(), new ModelNode("/update"), ModelType.STRING, true);
     protected static final SimpleAttributeDefinition ENDPOINT_ACK_INTERVAL_ATTR = new SimpleAttributeDefinition(Element.ENDPOINT_ACK_INTERVAL.localName(), new ModelNode(60000), ModelType.LONG, true);
     protected static final SimpleAttributeDefinition ENDPOINT_SOCKET_BINDING_ATTR = new SimpleAttributeDefinition(Element.ENDPOINT_SOCKET_BINDING.localName(), ModelType.STRING, true);
+    protected static final SimpleAttributeDefinition NOTIFIER_MAX_THREADS = new SimpleAttributeDefinition(Element.NOTIFIER_MAX_THREADS.localName(), ModelType.INT, true);
     protected static final SimpleAttributeDefinition SOCKJS_PREFIX_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_PREFIX.localName(), new ModelNode("/simplepush"), ModelType.STRING, false);
     protected static final SimpleAttributeDefinition SOCKJS_COOKIES_NEEDED_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_COOKIES_NEEDED.localName(), new ModelNode(true), ModelType.BOOLEAN, true);
     protected static final SimpleAttributeDefinition SOCKJS_URL_ATTR = new SimpleAttributeDefinition(Element.SOCKJS_URL.localName(), ModelType.STRING, true);
@@ -124,6 +126,7 @@ public class ServerDefinition extends SimpleResourceDefinition {
         resourceRegistration.registerReadWriteAttribute(ENDPOINT_TLS_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(ENDPOINT_ACK_INTERVAL_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(ENDPOINT_SOCKET_BINDING_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
+        resourceRegistration.registerReadWriteAttribute(NOTIFIER_MAX_THREADS, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(SOCKJS_PREFIX_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(SOCKJS_COOKIES_NEEDED_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);
         resourceRegistration.registerReadWriteAttribute(SOCKJS_URL_ATTR, null, SimplePushSocketBindingHandler.INSTANCE);

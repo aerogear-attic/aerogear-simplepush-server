@@ -187,6 +187,10 @@ public class ConfigReader {
         if (ackInterval != null) {
             builder.ackInterval(ackInterval.asLong());
         }
+        final JsonNode notifierMaxThreads = json.get("notifier-max-threads");
+        if (notifierMaxThreads != null) {
+            builder.notifierMaxThreads(notifierMaxThreads.asInt());
+        }
         return builder.build();
     }
 

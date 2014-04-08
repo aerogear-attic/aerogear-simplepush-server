@@ -18,7 +18,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.Test;
 
-public class DefaultSimplePushConfigTest {
+public class DefaultSimplePushServerConfigTest {
 
     @Test
     public void endpointUrl() {
@@ -55,5 +55,15 @@ public class DefaultSimplePushConfigTest {
                 .password("dummy").build();
         assertThat(config.endpointPort(), is(7777));
         assertThat(config.endpointUrl(), equalTo("http://127.0.0.1:7777/ep"));
+    }
+
+    @Test
+    public void notifierMaxThreads() {
+        final SimplePushServerConfig config = DefaultSimplePushConfig.create()
+                .notifierMaxThreads(1)
+                .endpointPrefix("ep")
+                .password("dummy")
+                .build();
+        assertThat(config.notifierMaxThreads(), is(1));
     }
 }

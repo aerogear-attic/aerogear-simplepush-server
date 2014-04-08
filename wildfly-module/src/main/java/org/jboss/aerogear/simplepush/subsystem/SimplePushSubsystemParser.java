@@ -98,6 +98,9 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
                 case ENDPOINT_SOCKET_BINDING:
                     ServerDefinition.ENDPOINT_SOCKET_BINDING_ATTR.parseAndSetParameter(value, node, reader);
                     break;
+                case NOTIFIER_MAX_THREADS:
+                    ServerDefinition.NOTIFIER_MAX_THREADS.parseAndSetParameter(value, node, reader);
+                    break;
                 case SOCKJS_PREFIX:
                     ServerDefinition.SOCKJS_PREFIX_ATTR.parseAndSetParameter(value, node, reader);
                     break;
@@ -268,6 +271,7 @@ public class SimplePushSubsystemParser implements XMLStreamConstants, XMLElement
             ServerDefinition.ENDPOINT_PREFIX_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.ENDPOINT_ACK_INTERVAL_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.ENDPOINT_SOCKET_BINDING_ATTR.marshallAsAttribute(entry, true, writer);
+            ServerDefinition.NOTIFIER_MAX_THREADS.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_PREFIX_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_COOKIES_NEEDED_ATTR.marshallAsAttribute(entry, true, writer);
             ServerDefinition.SOCKJS_URL_ATTR.marshallAsAttribute(entry, true, writer);

@@ -23,25 +23,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.jboss.aerogear.simplepush.subsystem.DataStoreDefinition.Element.DATASOURCE;
 import static org.jboss.aerogear.simplepush.subsystem.DataStoreDefinition.Element.PERSISTENCE_UNIT;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.ENDPOINT_ACK_INTERVAL;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.ENDPOINT_PREFIX;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.ENDPOINT_SOCKET_BINDING;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.ENDPOINT_TLS;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.REAPER_TIMEOUT;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKET_BINDING;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_COOKIES_NEEDED;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_ENABLE_WEBSOCKET;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_HEARTBEAT_INTERVAL;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_KEYSTORE;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_KEYSTORE_PASSWORD;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_MAX_STREAMING_BYTES_SIZE;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_PREFIX;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_SESSION_TIMEOUT;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_TLS;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_URL;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_WEBSOCKET_HEARTBEAT_INTERVAL;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.SOCKJS_WEBSOCKET_PROTOCOLS;
-import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.PASSWORD;
+import static org.jboss.aerogear.simplepush.subsystem.ServerDefinition.Element.*;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.NAMESPACE;
 import static org.jboss.aerogear.simplepush.subsystem.SimplePushExtension.SUBSYSTEM_NAME;
 import static org.jboss.as.controller.PathAddress.pathAddress;
@@ -86,6 +68,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
                 "endpoint-tls=\"false\" " +
                 "endpoint-ack-interval=\"120000\" " +
                 "endpoint-socket-binding=\"simplepush-notify\" " +
+                "notifier-max-threads=\"4\" " +
                 "sockjs-prefix=\"/someServiceName\" " +
                 "sockjs-cookies-needed=\"false\" " +
                 "sockjs-url=\"http://somehost.com/sockjs.js\" " +
@@ -194,6 +177,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         serverTwo.get(ENDPOINT_TLS.localName()).set(false);
         serverTwo.get(ENDPOINT_ACK_INTERVAL.localName()).set(10000);
         serverTwo.get(ENDPOINT_SOCKET_BINDING.localName()).set("simplepush-notify");
+        serverTwo.get(NOTIFIER_MAX_THREADS.localName()).set("4");
         serverTwo.get(SOCKJS_PREFIX.localName()).set("/foo");
         serverTwo.get(SOCKJS_COOKIES_NEEDED.localName()).set("false");
         serverTwo.get(SOCKJS_URL.localName()).set("http://foo.com/sockjs.js");
@@ -224,6 +208,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(fooOptions.get(ENDPOINT_PREFIX.localName()).asString(), equalTo("/endpoints"));
         assertThat(fooOptions.get(ENDPOINT_ACK_INTERVAL.localName()).asLong(), is(10000L));
         assertThat(fooOptions.get(ENDPOINT_SOCKET_BINDING.localName()).asString(), equalTo("simplepush-notify"));
+        assertThat(fooOptions.get(NOTIFIER_MAX_THREADS.localName()).asInt(), is(4));
         assertThat(fooOptions.get(SOCKJS_PREFIX.localName()).asString(), equalTo("/foo"));
         assertThat(fooOptions.get(SOCKJS_COOKIES_NEEDED.localName()).asBoolean(), is(false));
         assertThat(fooOptions.get(SOCKJS_URL.localName()).asString(), equalTo("http://foo.com/sockjs.js"));
@@ -247,6 +232,7 @@ public class SubsystemParsingTestCase extends AbstractSubsystemTest {
         assertThat(options.get(ENDPOINT_TLS.localName()).asBoolean(), is(false));
         assertThat(options.get(ENDPOINT_ACK_INTERVAL.localName()).asLong(), equalTo(120000L));
         assertThat(options.get(ENDPOINT_SOCKET_BINDING.localName()).asString(), equalTo("simplepush-notify"));
+        assertThat(options.get(NOTIFIER_MAX_THREADS.localName()).asInt(), is(4));
         assertThat(options.get(SOCKJS_PREFIX.localName()).asString(), equalTo("/someServiceName"));
         assertThat(options.get(SOCKJS_COOKIES_NEEDED.localName()).asBoolean(), is(false));
         assertThat(options.get(SOCKJS_URL.localName()).asString(), equalTo("http://somehost.com/sockjs.js"));

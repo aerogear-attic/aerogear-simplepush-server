@@ -21,7 +21,6 @@ package org.jboss.aerogear.simplepush.server;
  */
 public final class DefaultSimplePushConfig implements SimplePushServerConfig {
 
-
     private final String host;
     private final int port;
     private final boolean endpointTls;
@@ -32,6 +31,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
     private final int endpointPort;
     private final long reaperTimeout;
     private final long ackInterval;
+    private final int notifierMaxThreads;
 
     private DefaultSimplePushConfig(final Builder builder) {
         host = builder.host;
@@ -44,6 +44,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         reaperTimeout = builder.timeout;
         ackInterval = builder.ackInterval;
         password = builder.password;
+        notifierMaxThreads = builder.notifierMaxThreads;
     }
 
     private static String makeEndpointUrl(final String endpointHost, final int endpointPort, final String prefix, final boolean tls) {
@@ -53,48 +54,59 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
             .toString();
     }
 
+    @Override
     public String host() {
         return host;
     }
 
+    @Override
     public int port() {
         return port;
     }
 
+    @Override
     public String password() {
         return password;
     }
 
+    @Override
     public boolean useEndpointTls() {
         return endpointTls;
     }
 
+    @Override
     public String endpointUrl() {
         return endpointUrl;
     }
 
+    @Override
     public String endpointPrefix() {
         return endpointPrefix;
     }
 
+    @Override
     public String endpointHost() {
         return endpointHost;
     }
 
+    @Override
     public int endpointPort() {
         return endpointPort;
     }
 
+    @Override
     public long userAgentReaperTimeout() {
         return reaperTimeout;
     }
 
-    public boolean hasReaperTimeout() {
-        return reaperTimeout != -1;
-    }
-
+    @Override
     public long acknowledmentInterval() {
         return ackInterval;
+    }
+
+    @Override
+    public int notifierMaxThreads() {
+        return notifierMaxThreads;
     }
 
     public String toString() {
@@ -107,6 +119,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
                 .append(", endpointUrl=").append(endpointUrl)
                 .append(", reaperTimeout=").append(reaperTimeout)
                 .append(", ackInterval=").append(ackInterval)
+                .append(", notifierMaxThreads=").append(notifierMaxThreads)
                 .append("]").toString();
     }
 
@@ -128,6 +141,7 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
         private int endpointPort;
         private long timeout = 604800000L;
         private long ackInterval = 60000;
+        private int notifierMaxThreads = Runtime.getRuntime().availableProcessors();
 
         public Builder host(final String host) {
             if (host != null) {
@@ -179,6 +193,11 @@ public final class DefaultSimplePushConfig implements SimplePushServerConfig {
             if (ms != null) {
                 this.ackInterval = ms;
             }
+            return this;
+        }
+
+        public Builder notifierMaxThreads(final int maxThreads) {
+            notifierMaxThreads = maxThreads;
             return this;
         }
 

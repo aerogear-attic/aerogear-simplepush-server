@@ -58,6 +58,7 @@ class ServerAdd extends AbstractAddStepHandler {
         ServerDefinition.ENDPOINT_PREFIX_ATTR.validateAndSet(operation, model);
         ServerDefinition.ENDPOINT_ACK_INTERVAL_ATTR.validateAndSet(operation, model);
         ServerDefinition.ENDPOINT_SOCKET_BINDING_ATTR.validateAndSet(operation, model);
+        ServerDefinition.NOTIFIER_MAX_THREADS.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_PREFIX_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_COOKIES_NEEDED_ATTR.validateAndSet(operation, model);
         ServerDefinition.SOCKJS_URL_ATTR.validateAndSet(operation, model);
@@ -165,6 +166,7 @@ class ServerAdd extends AbstractAddStepHandler {
         final ModelNode notificationPrefix = ServerDefinition.ENDPOINT_PREFIX_ATTR.resolveModelAttribute(context, model);
         final ModelNode notificationtTls = ServerDefinition.ENDPOINT_TLS_ATTR.resolveModelAttribute(context, model);
         final ModelNode notificationAckInterval = ServerDefinition.ENDPOINT_ACK_INTERVAL_ATTR.resolveModelAttribute(context, model);
+        final ModelNode notifierMaxThreads = ServerDefinition.NOTIFIER_MAX_THREADS.resolveModelAttribute(context, model);
 
         final Builder simplePushConfig = DefaultSimplePushConfig.create();
         simplePushConfig.password(ServerDefinition.PASSWORD_ATTR.resolveModelAttribute(context, model).asString());
@@ -179,6 +181,9 @@ class ServerAdd extends AbstractAddStepHandler {
         }
         if (notificationAckInterval.isDefined()) {
             simplePushConfig.ackInterval(notificationAckInterval.asLong());
+        }
+        if (notifierMaxThreads.isDefined()) {
+            simplePushConfig.notifierMaxThreads(notifierMaxThreads.asInt());
         }
         return simplePushConfig;
     }

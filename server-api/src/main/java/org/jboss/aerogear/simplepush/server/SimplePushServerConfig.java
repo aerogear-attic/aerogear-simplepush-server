@@ -104,4 +104,12 @@ public interface SimplePushServerConfig {
      */
     long acknowledmentInterval();
 
+    /**
+     * Returns the maxium number of threads that will be used for handling
+     * notifications.
+     *
+     * @return {@code int} the maximum number of threads allowed to be created.
+     */
+    int notifierMaxThreads();
+
 }

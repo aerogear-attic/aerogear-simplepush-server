@@ -8,6 +8,7 @@
     "endpoint-tls": true,
     "endpoint-prefix": "/endpoint",
     "ack-interval": "80000",
+    "notifier-max-threads": "2",
     "sockjs-prefix": "/mysimplepush",
     "sockjs-cookies-needed": "true",
     "sockjs-url": "http://someurl/sockjs.js",

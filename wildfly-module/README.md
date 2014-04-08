@@ -66,6 +66,7 @@ This section goes through all of the configuration options available.
             endpoint-tls="true"
             endpoint-ack-interval="60000"
             endpoint-socket-binding="simplepush-notify"
+            notifier-max-threads="8"
             sockjs-prefix="simplepush"
             sockjs-cookies-needed="true"
             sockjs-url="http://cdn.sockjs.org/sockjs-0.3.4.min.js"
@@ -123,6 +124,10 @@ The configuration for this socket-binding could look like this:
         <socket-binding name="simplepush" port="7777"/>
         <socket-binding name="simplepush-notification" interface="external" port="7777"/>
     </socket-binding-group>
+
+
+#### notifier-max-threads
+This is the maxium number of threads that will be used for handling notifications.
 
 #### sockjs-prefix
 The prefix/name, of the SockJS service. For example, in the url _http://localhost/simplepush/111/12345/xhr_, _simplepush_ is the prefix. 

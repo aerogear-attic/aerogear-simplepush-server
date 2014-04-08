@@ -63,7 +63,7 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
 
     public NotificationHandler(final SimplePushServer simplePushServer) {
         this.simplePushServer = simplePushServer;
-        executorServer = Executors.newCachedThreadPool();
+        executorServer = Executors.newFixedThreadPool(simplePushServer.config().notifierMaxThreads());
     }
 
     @Override

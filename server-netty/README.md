@@ -43,6 +43,7 @@ Example configuration:
         "endpoint-tls": false,
         "endpoint-prefix": "/update",
         "ack-interval": "60000",
+        "notifier-max-threads": "8",
         "sockjs-prefix": "/simplepush",
         "sockjs-cookies-needed": "true",
         "sockjs-url": "http://cdn.sockjs.org/sockjs-0.3.4.min.js",
@@ -90,6 +91,9 @@ The prefix for the the notification endpoint url. This prefix will be included i
 
 #### ack-interval  
 This is the interval time for resending un-acknowledged notifications. Default is 60000 ms.
+
+#### notifier-max-threads
+This is the maxium number of threads that will be used for handling notifications.
 
 #### sockjs-prefix
 The prefix/name, of the SockJS service. For example, in the url _http://localhost/simplepush/111/12345/xhr_, _simplepush_ is the prefix. 

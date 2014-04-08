@@ -90,6 +90,11 @@ public class ConfigReaderTest {
     }
 
     @Test
+    public void notifierMaxThreads() {
+        assertThat(simplePushServerConfig.notifierMaxThreads(), is(2));
+    }
+
+    @Test
     public void sockjsPrefix() {
         assertThat(sockJsConfig.prefix(), equalTo("/mysimplepush"));
     }
