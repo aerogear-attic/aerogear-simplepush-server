@@ -1,4 +1,4 @@
-# Aerogear SimplePush Server
+# Aerogear SimplePush Server [![Build Status](https://travis-ci.org/aerogear/aerogear-simplepush-server.png)](https://travis-ci.org/aerogear/aerogear-simplepush-server)
 This project is a Java server side implementation of the [SimplePush Protocol](https://wiki.mozilla.org/WebAPI/SimplePush/Protocol) 
 specification from Mozilla that describes a JavaScript API and a protocol which allows backend/application developers to 
 send notification messages to their web applications. Originally SimplePush was introduced for Firefox OS but there are 
