@@ -40,3 +40,42 @@ A WildFly/AS7 module for the SimplePush Server.
 
 Please refer to the above modules documentation for more information.
 
+
+## Docker
+You can use [Docker](https://www.docker.io) to build and run SimplePush server. Follow the instructions to
+ [install docker](https://www.docker.io/gettingstarted/).
+
+The Docker [image]() provided contains CouchDB and Redis which enables the functional tests that use these databases
+to be run.
+
+### Build a SimplePush Container
+#### Build using github path
+```docker build -t simplepush github.com/aerogear/aerogear-simplepush-server```
+
+### Build using cloned project
+```docker build -t simplepush .```
+
+### Run integration tests
+`docker run -it simplepush`
+
+### Run standalone Netty server
+```docker run -p 7777:7777 -w /home/aerogear-simplepush-server/server-netty -it simplepush mvn exec:java```
+
+### Manually running test
+You may want to trigger test using a different branch, perhaps to run the integration tests against
+that code base. This can be done by starting the image using a shell:
+
+```docker run -it simplepush /bin/bash```
+
+You'll need to start the databases (currently CouchDB and Redis):
+
+```/startdbs.sh```
+
+Now, you can clone your fork and checkout a branch. To run all tests including the integration/functional tests:
+
+```mvn install -Pcouchdb,redis```
+
+#### Port forwarding for Mac OS X
+You'll need to configure your VirtualBox to support port forwarding for port ```7777```:
+
+```VBoxManage modifyvm "boot2docker-vm" --natpf1 "guestnginx,tcp,,7777,,7777"```

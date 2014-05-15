@@ -168,7 +168,7 @@ public class ConfigReaderTest {
     @Test
     public void sampleConfig() {
         final StandaloneConfig config = ConfigReader.parse(ConfigReaderTest.class.getResourceAsStream("/simplepush-config.json"));
-        assertThat(config.simplePushServerConfig().host(), equalTo("localhost"));
+        assertThat(config.simplePushServerConfig().host(), equalTo("0.0.0.0"));
         assertThat(config.simplePushServerConfig().port(), is(7777));
         assertThat(config.simplePushServerConfig().password(), is(notNullValue()));
         assertThat(config.dataStore(), is(instanceOf(InMemoryDataStore.class)));

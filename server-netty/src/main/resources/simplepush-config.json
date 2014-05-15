@@ -1,6 +1,7 @@
 {
-    "host": "localhost",
+    "host": "0.0.0.0",
     "port": 7777,
+    "endpoint-host": "localhost",
     "password": "ChangeMe!!!!",
     "datastore": { "in-memory": {} }
 }
