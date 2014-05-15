@@ -3,11 +3,7 @@ MAINTAINER Daniel Bevenius <daniel.bevenius@gmail.com>
 
 WORKDIR /home/aerogear-simplepush-server
 
-# Change to the correct repository before committing.
-RUN git clone https://github.com/danbev/aerogear-simplepush-server  /home/aerogear-simplepush-server
-
-# Remove this once the pull request has been tested.
-RUN git checkout -b docker origin/docker
+RUN git clone https://github.com/aerogear/aerogear-simplepush-server  /home/aerogear-simplepush-server
 
 # Run a Maven install when installing the image to avoid this cost 
 # of downloading the internet (all deps).

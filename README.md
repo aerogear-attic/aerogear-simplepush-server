@@ -69,7 +69,7 @@ that code base. This can be done by starting the image using a shell:
 
 You'll need to start the databases (currently CouchDB and Redis):
 
-```/startdbs.sh```
+    /startdbs.sh
 
 Now, you can clone your fork and checkout a branch. To run all tests including the integration/functional tests:
 
