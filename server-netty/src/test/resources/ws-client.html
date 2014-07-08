@@ -1,0 +1,102 @@
+<!doctype html>
+<html><head>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <style>
+      .box {
+          width: 800px;
+          float: left;
+          margin: 0 20px 0 20px;
+      }
+      .box div, .box input {
+          border: 1px solid;
+          -moz-border-radius: 4px;
+          border-radius: 4px;
+          width: 100%;
+          padding: 0px;
+          margin: 5px;
+      }
+      .box div {
+          border-color: grey;
+          height: 300px;
+          overflow: auto;
+      }
+      .box input {
+          height: 30px;
+      }
+      h1 {
+          margin-left: 30px;
+      }
+      body {
+          background-color: #F0F0F0;
+          font-family: "Arial";
+      }
+    </style>
+</head><body lang="en">
+    <h1>SockJS SimplePush example</h1>
+
+    <div id="first" class="box">
+      <div></div>
+	  <form id="helloForm">
+		  <input id="hello" autocomplete="off" value='{"messageType": "hello"}'/>
+	  </form>
+	  <form id="registerForm">
+		  <input id="register" autocomplete="off" value='{"messageType": "register", "channelID":""}'/>
+	  </form>
+    </div>
+    <button id="closeBtn" type="button">Close Session</button>
+
+    <script>
+        //var url = 'ws://newups2-dbevenius.rhcloud.com:8000/simplepush/websocket';
+        var url = 'wss://newups2-dbevenius.rhcloud.com:8443/simplepush/websocket';
+        //var url = 'ws://localhost:7777/simplepush/websocket';
+        var ws = new WebSocket(url);
+
+        $('#first input').focus();
+
+        var div  = $('#first div');
+        var helloInp  = $('#first #hello');
+        var helloForm = $('#first #helloForm');
+        var registerInp  = $('#first #register');
+        var registerForm = $('#first #registerForm');
+        var closeBtn = $('#closeBtn');
+
+        var print = function(m, p) {
+          p = (p === undefined) ? '' : JSON.stringify(p);
+          div.append($("<code>").text(m + ' ' + p));
+          div.append($("<br>"));
+          div.scrollTop(div.scrollTop()+10000);
+        };
+
+        ws.onopen = function()  {
+          print('[*] open', 'protocol=' + ws.protocol + ', server=' + url);
+        };
+
+        ws.onmessage = function(e) {
+          print('[.] message', e.data);
+        };
+
+        ws.onclose = function()  {
+          print('[*] close');
+        };
+
+        helloForm.submit(function() {
+          print('[ ] sending', helloInp.val());
+          ws.send(helloInp.val());
+          helloInp.val('');
+          return false;
+        });
+
+        registerForm.submit(function() {
+          print('[ ] sending', registerInp.val());
+          ws.send(registerInp.val());
+          registerInp.val('');
+          return false;
+        });
+
+        closeBtn.click(function() {
+          ws.close();
+          return false;
+        });
+
+    </script>
+</body></html>
