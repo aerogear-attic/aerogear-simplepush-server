@@ -126,6 +126,10 @@ public class NotificationHandler extends SimpleChannelInboundHandler<Object> {
                 final Notification notification = simplePushServer.handleNotification(endpoint, payload.toString(UTF_8));
                 final String uaid = notification.uaid();
                 final SockJsSessionContext session = userAgents.get(uaid).context();
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Sending notification for UAID [ " + notification.uaid() + "] " +
+                            toJson(new NotificationMessageImpl(notification.ack())));
+                }
                 session.send(toJson(new NotificationMessageImpl(notification.ack())));
                 userAgents.updateAccessedTime(uaid);
             } catch (final ChannelNotFoundException e) {

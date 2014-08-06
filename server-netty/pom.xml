@@ -135,7 +135,6 @@
                 <version>${version.exec-maven-plugin}</version>
                 <configuration>
                     <mainClass>org.jboss.aerogear.simplepush.server.netty.standalone.NettySockJSServer</mainClass>
-                    <classpathScope>test</classpathScope>
                     <arguments>
                         <argument>/simplepush-config.json</argument>
                     </arguments>
