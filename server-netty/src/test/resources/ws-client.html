@@ -37,7 +37,7 @@
     <div id="first" class="box">
       <div></div>
 	  <form id="helloForm">
-		  <input id="hello" autocomplete="off" value='{"messageType": "hello"}'/>
+		  <input id="hello" autocomplete="off" value='{"messageType": "hello", "uaid": "", "channelIDs": []}'/>
 	  </form>
 	  <form id="registerForm">
 		  <input id="register" autocomplete="off" value='{"messageType": "register", "channelID":""}'/>
@@ -47,8 +47,8 @@
 
     <script>
         //var url = 'ws://newups2-dbevenius.rhcloud.com:8000/simplepush/websocket';
-        var url = 'wss://newups2-dbevenius.rhcloud.com:8443/simplepush/websocket';
-        //var url = 'ws://localhost:7777/simplepush/websocket';
+        //var url = 'wss://push.services.mozilla.com';
+        var url = 'ws://localhost:7777/simplepush/websocket';
         var ws = new WebSocket(url);
 
         $('#first input').focus();
