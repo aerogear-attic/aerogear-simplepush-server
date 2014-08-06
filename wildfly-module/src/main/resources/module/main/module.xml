@@ -49,6 +49,7 @@
         <resource-root path="httpclient-cache-${commons.http.version}.jar"/>
         <resource-root path="commons-io-${commons.io.version}.jar"/>
         <resource-root path="commons-logging-${commons.logging.version}.jar"/>
+        <resource-root path="commons-codec-${commons.codec.version}.jar"/>
     </resources>
 
     <dependencies>

@@ -12,10 +12,10 @@
  */
 package org.jboss.aerogear.simplepush.util;
 
+import org.apache.commons.codec.binary.Base64;
 import org.jboss.aerogear.AeroGearCrypto;
 import org.jboss.aerogear.crypto.BlockCipher;
 import org.jboss.aerogear.crypto.CryptoBox;
-import org.jboss.aerogear.crypto.encoders.Encoder;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -38,14 +38,14 @@ public final class CryptoUtil {
      *
      * @param key the key used for the underlying cypher.
      * @param content the content to encrypted
-     * @return {@code String} the encoded content as base64 encoded string.
+     * @return {@code String} the encoded content as base64 url safe encoded string.
      *
      * @throws Exception
      */
     public static String encrypt(final byte[] key, final String content) throws Exception {
         final byte[] iv = BlockCipher.getIV();
         final byte[] encrypted = new CryptoBox(key).encrypt(iv, content.getBytes(ASCII));
-        final String base64 = Encoder.BASE64.encode(prependIV(encrypted, iv));
+        final String base64 = new Base64(0, null, true).encodeAsString(prependIV(encrypted, iv));
         return URLEncoder.encode(base64, ASCII.displayName());
     }
 
@@ -67,7 +67,7 @@ public final class CryptoUtil {
      * @throws Exception
      */
     public static String decrypt(final byte[] key, final String content) throws Exception {
-        final byte[] decodedContent = Encoder.BASE64.decode(URLDecoder.decode(content, ASCII.displayName()));
+        final byte[] decodedContent = new Base64().decode(URLDecoder.decode(content, ASCII.displayName()));
         final byte[] iv = extractIV(decodedContent);
         final byte[] decrypted = new CryptoBox(key).decrypt(iv, extractContent(decodedContent));
         return new String(decrypted, ASCII);
