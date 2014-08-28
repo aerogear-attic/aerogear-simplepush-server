@@ -27,7 +27,7 @@ public class CryptoUtilTest {
     public void encrypt() throws Exception {
         final byte[] salt = "some salt for the server private".getBytes();
         final byte[] key = CryptoUtil.secretKey("key", salt);
-        final String encrypted = CryptoUtil.encrypt(key, "some string to endrypt");
+        final String encrypted = CryptoUtil.encrypt(key, "some string to encrypt");
         assertThat(encrypted, is(notNullValue()));
     }
 

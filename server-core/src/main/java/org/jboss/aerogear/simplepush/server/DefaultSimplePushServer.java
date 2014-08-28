@@ -20,7 +20,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jboss.aerogear.crypto.Random;
+import org.jboss.aerogear.crypto.RandomUtils;
 import org.jboss.aerogear.simplepush.protocol.Ack;
 import org.jboss.aerogear.simplepush.protocol.AckMessage;
 import org.jboss.aerogear.simplepush.protocol.HelloMessage;
@@ -171,7 +171,7 @@ public class DefaultSimplePushServer implements SimplePushServer {
     public static byte[] generateAndStorePrivateKey(final DataStore store, final SimplePushServerConfig config) {
         byte[] keySalt = store.getPrivateKeySalt();
         if (keySalt.length == 0) {
-            keySalt = new Random().randomBytes();
+            keySalt = RandomUtils.randomBytes();
             store.savePrivateKeySalt(keySalt);
         }
         return CryptoUtil.secretKey(config.password(), keySalt);

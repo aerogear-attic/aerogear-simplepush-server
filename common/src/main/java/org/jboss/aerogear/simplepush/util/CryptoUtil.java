@@ -12,10 +12,10 @@
  */
 package org.jboss.aerogear.simplepush.util;
 
-import org.bouncycastle.util.encoders.UrlBase64;
 import org.jboss.aerogear.AeroGearCrypto;
 import org.jboss.aerogear.crypto.BlockCipher;
 import org.jboss.aerogear.crypto.CryptoBox;
+import org.jboss.aerogear.crypto.encoders.UrlBase64;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -45,7 +45,7 @@ public final class CryptoUtil {
     public static String encrypt(final byte[] key, final String content) throws Exception {
         final byte[] iv = BlockCipher.getIV();
         final byte[] encrypted = new CryptoBox(key).encrypt(iv, content.getBytes(ASCII));
-        final String base64 = new String(UrlBase64.encode(prependIV(encrypted, iv)));
+        final String base64 = new UrlBase64().encode(prependIV(encrypted, iv));
         return URLEncoder.encode(base64, ASCII.displayName());
     }
 
@@ -67,7 +67,7 @@ public final class CryptoUtil {
      * @throws Exception
      */
     public static String decrypt(final byte[] key, final String content) throws Exception {
-        final byte[] decodedContent = UrlBase64.decode(URLDecoder.decode(content, ASCII.displayName()));
+        final byte[] decodedContent = new UrlBase64().decode(URLDecoder.decode(content, ASCII.displayName()));
         final byte[] iv = extractIV(decodedContent);
         final byte[] decrypted = new CryptoBox(key).decrypt(iv, extractContent(decodedContent));
         return new String(decrypted, ASCII);
