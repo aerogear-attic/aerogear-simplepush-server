@@ -60,7 +60,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <aerogear.crypto.version>0.1.2</aerogear.crypto.version>
+        <aerogear.crypto.version>0.1.5</aerogear.crypto.version>
         <bouncycastle.version>140</bouncycastle.version>
         <h2database.version>1.3.172</h2database.version>
         <commons.http.core.version>4.2.4</commons.http.core.version>
