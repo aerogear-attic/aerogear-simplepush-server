@@ -97,6 +97,7 @@
         <module>server-netty</module>
         <module>server-vertx</module>
         <module>wildfly-module</module>
+        <module>distribution</module>
     </modules>
 
     <dependencyManagement>
