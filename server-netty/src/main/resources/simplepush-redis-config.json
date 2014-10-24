@@ -10,7 +10,7 @@
     "ack-interval": "60000",
     "sockjs-prefix": "/simplepush",
     "sockjs-cookies-needed": "true",
-    "sockjs-url": "http://cdn.sockjs.org/sockjs-0.3.4.min.js",
+    "sockjs-url": "http://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js",
     "sockjs-session-timeout": "5000",
     "sockjs-heartbeat-interval": 25000,
     "sockjs-max-streaming-bytes-size": 65356,
