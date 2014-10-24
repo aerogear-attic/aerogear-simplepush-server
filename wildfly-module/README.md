@@ -69,7 +69,7 @@ This section goes through all of the configuration options available.
             notifier-max-threads="8"
             sockjs-prefix="simplepush"
             sockjs-cookies-needed="true"
-            sockjs-url="http://cdn.sockjs.org/sockjs-0.3.4.min.js"
+            sockjs-url="http://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"
             sockjs-session-timeout="5000"
             sockjs-heartbeat-interval="25000"
             sockjs-max-streaming-bytes-size="131072"
@@ -138,7 +138,7 @@ This is used by some load balancers to enable session stickyness. Default is tru
 #### sockjs-url
 The url to the sock-js-<version>.json. This is used by the 'iframe' protocol and the url is replaced in the script 
 returned to the client. This allows for configuring the version of sockjs used.  
-Default is _http://cdn.sockjs.org/sockjs-0.3.4.min.js_.
+Default is _http://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js_.
 
 #### sockjs-session-timeout
 A timeout for inactive sessions. Default is 5000 ms. 

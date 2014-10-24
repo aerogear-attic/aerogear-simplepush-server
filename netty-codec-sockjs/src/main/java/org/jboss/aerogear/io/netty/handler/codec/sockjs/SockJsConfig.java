@@ -135,7 +135,7 @@ public final class SockJsConfig {
     /**
      * The url to the sock-js-<version>.json. This is used by the 'prefix/iframe' protocol and
      * the url is replaced in the script returned to the client. This allows for configuring
-     * the version of sockjs used. By default it is 'http://cdn.sockjs.org/sockjs-0.3.4.min.js'.
+     * the version of sockjs used. By default it is 'http://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js'.
      *
      * @return {@code String} the url to the sockjs version to be used.
      */
@@ -233,7 +233,7 @@ public final class SockJsConfig {
         private long webSocketHeartbeatInterval = -1;
         private final Set<String> webSocketProtocols = new HashSet<String>();
         private boolean cookiesNeeded;
-        private String sockJsUrl = "http://cdn.sockjs.org/sockjs-0.3.4.min.js" ;
+        private String sockJsUrl = "http://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js";
         private long sessionTimeout = 5000;
         private long heartbeatInterval = 25000;
         private int maxStreamingBytesSize = 128 * 1024;
@@ -296,7 +296,7 @@ public final class SockJsConfig {
         /**
          * The url to the sock-js-<version>.json. This is used by the 'prefix/iframe' protocol and
          * the url is replaced in the script returned to the client. This allows for configuring
-         * the version of sockjs used. By default it is 'http://cdn.sockjs.org/sockjs-0.3.4.min.js'.
+         * the version of sockjs used. By default it is 'http://cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js'.
          *
          * @param sockJsUrl the url to the sockjs version to be used.
          */
