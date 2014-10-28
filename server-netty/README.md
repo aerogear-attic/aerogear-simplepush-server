@@ -211,7 +211,29 @@ Now you should be able to point your browser to ```http://localhost:5555/sockjs-
 ### Register a channel
 You have to register yourself by executing two commands in the text areas in ```sockjs-client.html``` page. Try 
 to execute the first one of message type _hello_. When executing the second one, do not forget to add the channel you 
-want to get registered, as the _channelId_, enter e.g. _mail_.
+want to get registered, as the _channelId_, enter e.g. _mail_.  
+
+Another option for trying out the server using WebSocket is to use [wscat](http://einaros.github.io/ws/):
+
+    $ npm install -g ws
+
+Next, use ```wscat``` to connect to the SimplePush Server using the WebSocket protocol:  
+
+    $ wscat -c ws://localhost:7777/simplepush/websocket
+    connected (press CTRL+C to quit)
+
+Send the _hello_ message:
+
+    > {"messageType": "hello"}
+        < {"messageType":"hello","uaid":"a1863f69-05a1-478b-abb8-d826828410bf"}
+
+Register a channel:
+
+    > > {"messageType": "register", "channelID":"testChannel"}
+        < {"messageType":"register","channelID":"testChannel","status":200,"pushEndpoint":"http://localhost:7777/update/I23jYJSX6--3s1BGZ0_kdpE4ria5rY9c-ddssLx5vL-KFbGhgFW6rLM7CN2jaq9U9RKL58tS4LQagYseN0l9Nt6n3c-Cf6jDvb3OWX8EmCY."}
+
+Now, you can copy the ```pushEndpoint``` url and use it to send notifications. See the following section for how to use
+curl to send a push notification.
 
 ### Send a notification
 
@@ -219,8 +241,12 @@ Use one of the above mentioned IDs in the following ```curl``` command:
 
     curl -i --header "Accept: application/x-www-form-urlencoded" -X PUT -d "version=1" "{pushEndpoint}"
 
-The ```pushEndpoint``` will be returned from the server and displayed in the textaera.
+The ```pushEndpoint``` will be returned from the server when registering the channel. The above command specifies an 
+explicit version, but the version can be left out in which case a timestamp will be used instead:
+
+    curl -i --header "Accept: application/x-www-form-urlencoded" -X PUT "{pushEndpoint}"
+
 A push notification stating the version will be displayed in the textarea of the _websocket.html_ page that has registerd for that channel.
 
     
-    
+   
