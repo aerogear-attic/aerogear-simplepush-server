@@ -12,6 +12,15 @@ Instead a version number is sent to the client. Based on that version number the
 Mozilla published a very detailed [article](https://hacks.mozilla.org/2013/07/dont-miss-out-on-the-real-time-fun-use-firefox-os-push-notifications/) 
 that explains the API in depth.
 
+|                 | Project Info  |
+| --------------- | ------------- |
+| License:        | Apache License, Version 2.0  |
+| Build:          | Maven  |
+| Documentation:  | https://aerogear.org/push/  |
+| Issue tracker:  | https://issues.jboss.org/browse/AGPUSH  |
+| Mailing lists:  | [aerogear-users](http://aerogear-users.1116366.n5.nabble.com/) ([subscribe](https://lists.jboss.org/mailman/listinfo/aerogear-users))  |
+|                 | [aerogear-dev](http://aerogear-dev.1069024.n5.nabble.com/) ([subscribe](https://lists.jboss.org/mailman/listinfo/aerogear-dev))  |
+
 AeroGear SimplePush consists of the following modules:
 
 * [common](https://github.com/aerogear/aerogear-simple-push-server/tree/master/common)  
